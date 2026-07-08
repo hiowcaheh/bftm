@@ -46,12 +46,19 @@
 
 ## settings — Ustawienia
 
-- **Stan**: Etap 1 — tylko wersja aplikacji; sekcje Firma/Finanse/Oferty/Moduły/Moje
-  konto od Etapu 2.
-- **Uprawnienia**: sekcje firmowe tylko admin; „Moje konto" dla każdego.
+- **Stan**: Etap 2 — sekcja **Firma** (dane do PDF, branding, upload logo do bucketa
+  `logos`; tylko admin), **Moje konto** (zmiana hasła: stare + nowe ×2), **Aplikacja**
+  (wersja, „Sprawdź aktualizację" SW). Finanse/Oferty/Moduły w kolejnych etapach.
+- **Tabele**: `settings` (klucze: company_branding [public], admin_login [public],
+  company_details, finance, features, offer_numbering, offer_defaults, currency).
+- **Uprawnienia**: zapis tylko admin (RLS); odczyt wg flag is_public/admin_only.
 
 ## auth — Logowanie
 
-- **Stan**: Etap 1 — atrapa (Zustand persist, bez haseł).
-- **Docelowo**: Supabase Auth, mapowanie loginu „admin" na e-mail z ustawień,
-  wymuszenie zmiany hasła, bootstrap pierwszego admina (Edge Function).
+- **Stan**: Etap 2 — prawdziwe Supabase Auth: pole „Login lub e-mail" (literalne
+  „admin" mapuje się na settings.admin_login), branding z ustawień na ekranie
+  logowania, wymuszona zmiana hasła (must_change_password), guard tras,
+  wylogowanie z czyszczeniem cache, dezaktywacja konta odcina sesję.
+- **Tabele**: `profiles` (+ auth.users przez Supabase), `settings` (admin_login).
+- **Edge Functions**: `bootstrap-admin` (w repo; admin utworzony ręcznie w SQL),
+  `create-employee` i `reset-employee-password` — deploy w Etapie 3.

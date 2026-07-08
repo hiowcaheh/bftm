@@ -1,50 +1,78 @@
 import { Suspense, lazy } from 'react';
-import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { AppLayout } from './AppLayout';
 import { modules } from './moduleRegistry';
 import { SkeletonList } from '@/components/ui/Skeleton';
-import { useMockAuth } from '@/features/auth/store';
+import { SessionProvider, useSession } from '@/features/auth/SessionProvider';
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
+const ChangePasswordPage = lazy(() => import('@/features/auth/pages/ChangePasswordPage'));
 const MorePage = lazy(() => import('./MorePage'));
 
-/** Guard tras: niezalogowany → ekran logowania (Etap 2: prawdziwa sesja Supabase). */
+function FullScreenLoader() {
+  return (
+    <div className="mx-auto max-w-3xl px-4 pt-16">
+      <SkeletonList rows={5} />
+    </div>
+  );
+}
+
+/**
+ * Guard tras: niezalogowany → logowanie; must_change_password → wymuszona
+ * zmiana hasła zamiast aplikacji (nie da się jej ominąć nawigacją).
+ */
 function RequireAuth({ children }: { children: ReactNode }) {
-  const loggedIn = useMockAuth((s) => s.loggedIn);
-  const location = useLocation();
-  if (!loggedIn) {
-    return <Navigate to="/logowanie" replace state={{ from: location }} />;
-  }
+  const { session, user, loading } = useSession();
+  if (loading) return <FullScreenLoader />;
+  if (!session) return <Navigate to="/logowanie" replace />;
+  if (user?.mustChangePassword) return <ChangePasswordPage />;
+  return children;
+}
+
+/** Zalogowany użytkownik nie powinien widzieć ekranu logowania. */
+function RedirectIfAuthed({ children }: { children: ReactNode }) {
+  const { session, loading } = useSession();
+  if (loading) return <FullScreenLoader />;
+  if (session) return <Navigate to="/" replace />;
   return children;
 }
 
 export function AppRouter() {
   return (
     <HashRouter>
-      <Suspense fallback={<SkeletonList rows={5} />}>
-        <Routes>
-          <Route path="/logowanie" element={<LoginPage />} />
-          <Route
-            element={
-              <RequireAuth>
-                <AppLayout />
-              </RequireAuth>
-            }
-          >
-            {modules.map((mod) => (
-              <Route
-                key={mod.id}
-                path={mod.path === '/' ? undefined : mod.path}
-                index={mod.path === '/'}
-                element={<mod.element />}
-              />
-            ))}
-            <Route path="/wiecej" element={<MorePage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </Suspense>
+      <SessionProvider>
+        <Suspense fallback={<FullScreenLoader />}>
+          <Routes>
+            <Route
+              path="/logowanie"
+              element={
+                <RedirectIfAuthed>
+                  <LoginPage />
+                </RedirectIfAuthed>
+              }
+            />
+            <Route
+              element={
+                <RequireAuth>
+                  <AppLayout />
+                </RequireAuth>
+              }
+            >
+              {modules.map((mod) => (
+                <Route
+                  key={mod.id}
+                  path={mod.path === '/' ? undefined : mod.path}
+                  index={mod.path === '/'}
+                  element={<mod.element />}
+                />
+              ))}
+              <Route path="/wiecej" element={<MorePage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </SessionProvider>
     </HashRouter>
   );
 }

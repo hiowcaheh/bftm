@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 — Etap 2: Supabase + Auth (2026-07-08)
+
+- Backend BFTM: migracja 0001 (14 tabel, funkcje is_admin/has_perm, RLS na
+  wszystkich tabelach, buckets logos/receipts/project-photos, seed settings ze
+  zweryfikowanymi stawkami 2026) + migracja 0002 (hardening funkcji i storage).
+- Konto administratora z hasłem startowym i wymuszoną zmianą przy pierwszym
+  logowaniu; mapowanie loginu „admin" na e-mail administratora.
+- Prawdziwe logowanie Supabase Auth (SessionProvider, guard tras, wylogowanie
+  z czyszczeniem cache, polskie komunikaty błędów); usunięta atrapa z Etapu 1.
+- Ustawienia: sekcja Firma (dane firmy, upload logo — widoczne na ekranie
+  logowania), Moje konto (zmiana hasła), Sprawdź aktualizację.
+- Ręcznie utrzymywane typy bazy `src/types/database.ts`; Edge Functions
+  bootstrap-admin / create-employee / reset-employee-password w repo.
+
 ## 0.1.0 — Etap 1: Fundament (2026-07-08)
 
 - Scaffold Vite + React + TypeScript (strict) + Tailwind CSS v4 z design tokens

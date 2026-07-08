@@ -5,19 +5,25 @@ import { HardHat } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { toast } from '@/components/ui/Toast';
-import { useMockAuth } from '../store';
+import { supabase } from '@/lib/supabaseClient';
+import { usePublicBranding, useSignIn } from '../hooks';
 
 /**
- * Ekran logowania — w Etapie 1 atrapa (dowolne dane wpuszczają do środka).
- * W Etapie 2: prawdziwe Supabase Auth, mapowanie loginu „admin" na e-mail
- * administratora z ustawień, wymuszenie zmiany hasła, logo firmy z Storage.
+ * Ekran logowania: logo i nazwa firmy z ustawień (publiczny odczyt),
+ * pole „Login lub e-mail" (literalne „admin" mapuje się na e-mail
+ * administratora), bez rejestracji i bez „przypomnij hasło" — reset
+ * wykonuje administrator.
  */
 export default function LoginPage() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const [busy, setBusy] = useState(false);
-  const doLogin = useMockAuth((s) => s.login);
+  const branding = usePublicBranding();
+  const signIn = useSignIn();
   const navigate = useNavigate();
+
+  const logoUrl = branding.data?.logoPath
+    ? supabase.storage.from('logos').getPublicUrl(branding.data.logoPath).data.publicUrl
+    : null;
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -25,13 +31,12 @@ export default function LoginPage() {
       toast.error('Podaj login i hasło');
       return;
     }
-    setBusy(true);
-    // Atrapa: symulacja krótkiej odpowiedzi serwera
-    setTimeout(() => {
-      doLogin();
-      toast.success('Zalogowano (tryb demo)');
-      navigate('/', { replace: true });
-    }, 400);
+    signIn.mutate(
+      { login, password },
+      // Nawigacją steruje router (RequireAuth), ale przekierowanie od razu
+      // po sukcesie daje szybsze odczucie wejścia do aplikacji.
+      { onSuccess: () => navigate('/', { replace: true }) },
+    );
   };
 
   return (
@@ -43,11 +48,18 @@ export default function LoginPage() {
       }}
     >
       <div className="mb-10 flex flex-col items-center gap-4">
-        {/* Placeholder logo — od Etapu 2 logo firmy z ustawień (publiczny odczyt) */}
-        <div className="flex size-20 items-center justify-center rounded-3xl bg-accent shadow-(--shadow-fab)">
-          <HardHat className="size-10 text-white" />
-        </div>
-        <h1 className="text-xl font-semibold">BFTM</h1>
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt="Logo firmy"
+            className="size-20 rounded-3xl object-contain shadow-(--shadow-card)"
+          />
+        ) : (
+          <div className="flex size-20 items-center justify-center rounded-3xl bg-accent shadow-(--shadow-fab)">
+            <HardHat className="size-10 text-white" />
+          </div>
+        )}
+        <h1 className="text-xl font-semibold">{branding.data?.companyName ?? 'BFTM'}</h1>
         <p className="text-sm text-text-secondary">Zarządzanie firmą budowlaną</p>
       </div>
 
@@ -66,14 +78,10 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <Button type="submit" size="lg" fullWidth loading={busy} className="mt-2">
+        <Button type="submit" size="lg" fullWidth loading={signIn.isPending} className="mt-2">
           Zaloguj
         </Button>
       </form>
-
-      <p className="mt-8 text-center text-xs text-text-secondary">
-        Etap 1 — logowanie demonstracyjne. Prawdziwa autoryzacja pojawi się w Etapie 2.
-      </p>
     </div>
   );
 }

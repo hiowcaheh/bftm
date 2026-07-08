@@ -53,6 +53,27 @@ nadpisanie zmiennych selektorem `[data-theme='dark']` bez zmian w komponentach.
 
 ## Decyzje etapów
 
+### Etap 2
+
+- Backend: projekt Supabase **BFTM** (`ixositdqghamqeproryp`, org. FirstChaos).
+  Migracje 0001 (schemat + RLS + buckets + seed) i 0002 (hardening po advisory)
+  wgrane przez MCP; kopie w `supabase/migrations/`.
+- Pierwszy admin utworzony bezpośrednio w SQL (auth.users + identities + profil,
+  bcrypt), bo deploy Edge Functions przez MCP wymaga zatwierdzenia niedostępnego
+  w sesji; funkcja `bootstrap-admin` zostaje w repo dla przyszłych instalacji.
+  `create-employee` i `reset-employee-password` do wdrożenia w Etapie 3.
+- `src/types/database.ts` utrzymywany ręcznie w formacie `supabase gen types`
+  (generator MCP też za bramką zatwierdzeń). UWAGA: wiersze tabel MUSZĄ być
+  aliasami typów, nie interfejsami — interfejsy nie spełniają
+  `Record<string, unknown>` z GenericTable i klient degeneruje do `never`.
+- Sesja: `SessionProvider` (onAuthStateChange + profil przez TanStack Query);
+  wylogowanie czyści cały cache Query. Dezaktywacja konta (`active=false`)
+  wylogowuje natychmiast po odczycie profilu.
+- Logowanie „admin" → e-mail z `settings.admin_login` (wiersz `is_public`,
+  czytelny dla anon — świadomy kompromis na rzecz wygody logowania).
+- `must_change_password=true` → router renderuje ekran zmiany hasła zamiast
+  aplikacji; nie da się go ominąć nawigacją.
+
 ### Etap 1
 
 - React 19 zamiast wskazanego w specyfikacji React 18 — bieżąca wersja stabilna,
