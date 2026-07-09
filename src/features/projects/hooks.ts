@@ -3,8 +3,11 @@ import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
+  createActivity,
   createProject,
+  deleteActivity,
   deleteProject,
+  fetchActivities,
   fetchProject,
   fetchProjects,
   fetchProjectsByClient,
@@ -63,6 +66,39 @@ export function useUpdateProject(id: string) {
       toast.success('Zapisano zmiany');
     },
     onError: () => toast.error('Nie udało się zapisać zmian'),
+  });
+}
+
+export function useActivities(projectId: string, enabled = true) {
+  return useQuery({
+    queryKey: qk.projects.activities(projectId),
+    queryFn: () => fetchActivities(projectId),
+    enabled: enabled && !!projectId,
+  });
+}
+
+export function useCreateActivity(projectId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => createActivity(projectId, name),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: qk.projects.activities(projectId) });
+      toast.success('Aktywność dodana');
+    },
+    onError: () => toast.error('Nie udało się dodać aktywności'),
+  });
+}
+
+export function useDeleteActivity(projectId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteActivity(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: qk.projects.activities(projectId) });
+      void queryClient.invalidateQueries({ queryKey: qk.workHours.all });
+      toast.success('Aktywność usunięta');
+    },
+    onError: () => toast.error('Nie udało się usunąć aktywności'),
   });
 }
 

@@ -75,3 +75,28 @@ export async function deleteProject(id: string): Promise<void> {
   const { error } = await supabase.from('projects').delete().eq('id', id);
   if (error) throw error;
 }
+
+// ── Aktywności (usługi/etapy) projektu ──────────────────────────────────────
+
+export async function fetchActivities(projectId: string) {
+  const { data, error } = await supabase
+    .from('project_activities')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('position')
+    .order('created_at');
+  if (error) throw error;
+  return data;
+}
+
+export async function createActivity(projectId: string, name: string): Promise<void> {
+  const { error } = await supabase
+    .from('project_activities')
+    .insert({ project_id: projectId, name: name.trim() });
+  if (error) throw error;
+}
+
+export async function deleteActivity(id: string): Promise<void> {
+  const { error } = await supabase.from('project_activities').delete().eq('id', id);
+  if (error) throw error;
+}

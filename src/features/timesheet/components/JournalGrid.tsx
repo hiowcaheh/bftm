@@ -195,8 +195,10 @@ export function JournalGrid({ from, to, entries, absences, employees }: JournalG
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{e.project?.name}</p>
-                {e.description && (
-                  <p className="truncate text-xs text-text-secondary">{e.description}</p>
+                {(e.activity || e.description) && (
+                  <p className="truncate text-xs text-text-secondary">
+                    {[e.activity?.name, e.description].filter(Boolean).join(' • ')}
+                  </p>
                 )}
               </div>
               <span className="tabular-nums text-sm font-semibold">{hours(e.hours)}</span>

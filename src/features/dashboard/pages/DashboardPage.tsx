@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HardHat, Clock, Receipt, Banknote, Plus, Sun } from 'lucide-react';
+import { House, Clock, Receipt, Banknote, Plus, Sun } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { FAB } from '@/components/ui/FAB';
@@ -25,7 +25,7 @@ export default function DashboardPage() {
           {
             label: 'Aktywne projekty',
             value: kpi.data ? String(kpi.data.activeProjects) : '—',
-            icon: HardHat,
+            icon: House,
             demo: false,
             onClick: () => navigate('/projekty'),
           },

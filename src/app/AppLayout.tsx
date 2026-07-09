@@ -33,8 +33,8 @@ export function AppLayout() {
     if (!t) return;
     const dx = t.clientX - start.x;
     const dy = t.clientY - start.y;
-    // czuły gest: wystarczy 40 px w poziomie, byle wyraźnie bardziej niż w pionie
-    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    // bardzo czuły gest: lekki ruch 28 px w bok wystarczy, byle poziom > pion
+    if (Math.abs(dx) < 28 || Math.abs(dx) < Math.abs(dy)) return;
 
     const index = bottomNavModules.findIndex((m) =>
       m.path === '/' ? pathname === '/' : pathname.startsWith(m.path),

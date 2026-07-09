@@ -2,7 +2,7 @@ import { lazy } from 'react';
 import type { ComponentType, LazyExoticComponent } from 'react';
 import {
   LayoutDashboard,
-  HardHat,
+  House,
   Clock,
   FileText,
   Users,
@@ -42,7 +42,7 @@ export const modules: AppModule[] = [
   {
     id: 'projects',
     label: 'Projekty',
-    icon: HardHat,
+    icon: House,
     path: '/projekty',
     requiredPermission: 'projects_view',
     navPlacement: 'bottom',

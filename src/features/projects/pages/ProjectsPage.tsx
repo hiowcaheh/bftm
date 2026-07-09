@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { HardHat, Plus } from 'lucide-react';
+import { House, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Chips } from '@/components/ui/Chips';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -62,7 +62,7 @@ export default function ProjectsPage() {
 
       {!projects.isLoading && filtered.length === 0 && (
         <EmptyState
-          icon={HardHat}
+          icon={House}
           message={
             search || status
               ? 'Żaden projekt nie pasuje do filtrów.'

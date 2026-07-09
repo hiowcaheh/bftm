@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Building2,
-  HardHat,
+  House,
   Mail,
   MapPin,
   Pencil,
@@ -127,7 +127,7 @@ export default function ClientDetailPage() {
         </div>
         {(projects.data?.length ?? 0) === 0 ? (
           <Card className="flex items-center gap-3 p-4 text-sm text-text-secondary">
-            <HardHat className="size-5" /> Ten klient nie ma jeszcze projektów.
+            <House className="size-5" /> Ten klient nie ma jeszcze projektów.
           </Card>
         ) : (
           <div className="flex flex-col gap-3">

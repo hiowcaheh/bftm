@@ -9,7 +9,7 @@ import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
-import { useProjects } from '@/features/projects/hooks';
+import { useActivities, useProjects } from '@/features/projects/hooks';
 import { hasAbsenceOnDate } from '@/features/absences/api';
 import { useCreateEntry, useUpdateEntry } from '../hooks';
 import type { WorkHoursEntry } from '../types';
@@ -44,14 +44,18 @@ export function HoursFormSheet({ open, onClose, entry, presetProjectId }: HoursF
 
   const [employeeId, setEmployeeId] = useState('');
   const [projectId, setProjectId] = useState('');
+  const [activityId, setActivityId] = useState('');
   const [date, setDate] = useState(today());
   const [hoursValue, setHoursValue] = useState(8);
   const [description, setDescription] = useState('');
+
+  const activities = useActivities(projectId, open && !!projectId);
 
   useEffect(() => {
     if (open) {
       setEmployeeId(entry?.employee_id ?? user?.id ?? '');
       setProjectId(entry?.project_id ?? presetProjectId ?? '');
+      setActivityId(entry?.activity_id ?? '');
       setDate(entry?.date ?? today());
       setHoursValue(entry?.hours ?? 8);
       setDescription(entry?.description ?? '');
@@ -72,9 +76,15 @@ export function HoursFormSheet({ open, onClose, entry, presetProjectId }: HoursF
     return sorted.map((p) => ({ value: p.id, label: p.name }));
   }, [projects.data, entry?.project_id]);
 
+  const projectActivities = activities.data ?? [];
+
   const save = async (addNext: boolean) => {
     if (!projectId) {
       toast.error('Wybierz projekt');
+      return;
+    }
+    if (projectActivities.length > 0 && !activityId) {
+      toast.error('Wybierz aktywność — co było robione');
       return;
     }
     if (!employeeId) return;
@@ -87,6 +97,7 @@ export function HoursFormSheet({ open, onClose, entry, presetProjectId }: HoursF
     const payload = {
       project_id: projectId,
       employee_id: employeeId,
+      activity_id: activityId || null,
       date,
       hours: hoursValue,
       description: description.trim() || null,
@@ -130,8 +141,22 @@ export function HoursFormSheet({ open, onClose, entry, presetProjectId }: HoursF
           value={projectId}
           placeholder="Wybierz projekt"
           options={[{ value: '', label: '— wybierz —' }, ...projectOptions]}
-          onChange={(e) => setProjectId(e.target.value)}
+          onChange={(e) => {
+            setProjectId(e.target.value);
+            setActivityId(''); // inna lista aktywności dla innego projektu
+          }}
         />
+        {projectActivities.length > 0 && (
+          <Select
+            label="Aktywność (co było robione)"
+            value={activityId}
+            options={[
+              { value: '', label: '— wybierz —' },
+              ...projectActivities.map((a) => ({ value: a.id, label: a.name })),
+            ]}
+            onChange={(e) => setActivityId(e.target.value)}
+          />
+        )}
         <div className="flex items-end gap-2">
           <div className="flex-1">
             <DateField label="Data" value={date} onChange={(e) => setDate(e.target.value)} />

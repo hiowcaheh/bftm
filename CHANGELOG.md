@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.2 — aktywności projektów + poprawki UX (2026-07-09)
+
+- **Aktywności projektów**: na karcie projektu sekcja Aktywności (np. etapy,
+  usługi); pracownik przy dodawaniu godzin wybiera projekt → aktywność
+  (wymagana, gdy projekt jakieś ma); admin widzi podsumowanie „kto co robił
+  i ile godzin" per aktywność; aktywność widoczna na listach i w dzienniku.
+  Unikalność wpisu dnia rozszerzona o aktywność (migracja 0005).
+- Ikona projektów zmieniona z kasku na domek w całej aplikacji.
+- Jeszcze czulszy swipe między zakładkami (28 px, lekki gest).
+- E-mail klienta wyeksponowany w formularzu z podpowiedzią (wysyłka ofert
+  i wizualizacji w przyszłych etapach).
+- Kalendarz zakresu nieobecności, numer tygodnia, naprawa pustych list —
+  patrz 0.5.1 (hotfix wdrożony wcześniej tego dnia).
+
 ## 0.5.0 — Etap 5: Godziny + Dziennik + Nieobecności (2026-07-09)
 
 - Dodawanie godzin: sheet ze stepperem ±0,5 h, skróty Dziś/Wczoraj, ostatnio

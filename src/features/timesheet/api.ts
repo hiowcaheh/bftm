@@ -4,7 +4,7 @@ import type { HoursFilters, WorkHoursEntry, WorkHoursInsert } from './types';
 // profiles!employee_id — work_hours ma DWA odwołania do profiles
 // (employee_id i created_by); bez wskazania PostgREST odrzuca zapytanie.
 const COLUMNS =
-  '*, project:projects(id, name, color), employee:profiles!employee_id(id, full_name)';
+  '*, project:projects(id, name, color), employee:profiles!employee_id(id, full_name), activity:project_activities(id, name)';
 
 export async function fetchEntries(filters: HoursFilters): Promise<WorkHoursEntry[]> {
   let query = supabase

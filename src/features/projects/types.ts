@@ -2,6 +2,7 @@ import type { ProjectStatus, Tables, TablesInsert } from '@/types/database';
 
 export type Project = Tables<'projects'>;
 export type ProjectInsert = TablesInsert<'projects'>;
+export type ProjectActivity = Tables<'project_activities'>;
 
 /** Projekt z dołączoną nazwą klienta (join w api.ts). */
 export interface ProjectWithClient extends Project {

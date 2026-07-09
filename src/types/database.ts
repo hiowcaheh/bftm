@@ -72,12 +72,21 @@ type WorkHoursRow = {
   id: string;
   project_id: string;
   employee_id: string;
+  activity_id: string | null;
   date: string;
   hours: number;
   description: string | null;
   status: WorkHoursStatus;
   invoice_batch_id: string | null;
   created_by: string | null;
+  created_at: string;
+}
+
+type ProjectActivityRow = {
+  id: string;
+  project_id: string;
+  name: string;
+  position: number;
   created_at: string;
 }
 
@@ -239,6 +248,10 @@ export type Database = {
         InvoiceBatchRow,
         Partial<InvoiceBatchRow> &
           Pick<InvoiceBatchRow, 'project_id' | 'number' | 'period_from' | 'period_to'>
+      >;
+      project_activities: TableDef<
+        ProjectActivityRow,
+        Partial<ProjectActivityRow> & Pick<ProjectActivityRow, 'project_id' | 'name'>
       >;
       project_photos: TableDef<
         ProjectPhotoRow,

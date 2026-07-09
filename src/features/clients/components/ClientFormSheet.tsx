@@ -119,22 +119,21 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
           value={form.org_or_person_nr}
           onChange={(e) => set({ org_or_person_nr: e.target.value })}
         />
-        <div className="grid grid-cols-2 gap-3">
-          <Input
-            label="Telefon"
-            type="tel"
-            value={form.phone}
-            onChange={(e) => set({ phone: e.target.value })}
-          />
-          <Input
-            label="E-mail"
-            type="email"
-            autoCapitalize="none"
-            value={form.email}
-            error={errors.email}
-            onChange={(e) => set({ email: e.target.value })}
-          />
-        </div>
+        <Input
+          label="E-mail"
+          type="email"
+          autoCapitalize="none"
+          hint="Użyjemy go do wysyłki ofert i wizualizacji"
+          value={form.email}
+          error={errors.email}
+          onChange={(e) => set({ email: e.target.value })}
+        />
+        <Input
+          label="Telefon"
+          type="tel"
+          value={form.phone}
+          onChange={(e) => set({ phone: e.target.value })}
+        />
         <Input
           label="Adres"
           value={form.address}

@@ -83,8 +83,11 @@ export function EntryList({ entries, showEmployee, onEdit }: EntryListProps) {
                 }
                 subtitle={
                   showEmployee
-                    ? [entry.project?.name, entry.description].filter(Boolean).join(' • ')
-                    : entry.description || undefined
+                    ? [entry.project?.name, entry.activity?.name, entry.description]
+                        .filter(Boolean)
+                        .join(' • ')
+                    : [entry.activity?.name, entry.description].filter(Boolean).join(' • ') ||
+                      undefined
                 }
                 trailing={<span className="font-semibold text-text">{hours(entry.hours)}</span>}
                 onClick={() => setSelected(entry)}
@@ -103,6 +106,12 @@ export function EntryList({ entries, showEmployee, onEdit }: EntryListProps) {
           <div className="flex flex-col gap-3">
             <p className="text-sm text-text-secondary">
               {selected.employee?.full_name} • {dateLong(selected.date)}
+              {selected.activity && (
+                <>
+                  <br />
+                  Aktywność: {selected.activity.name}
+                </>
+              )}
               {selected.description && (
                 <>
                   <br />
@@ -130,6 +139,7 @@ export function EntryList({ entries, showEmployee, onEdit }: EntryListProps) {
                     duplicate.mutate({
                       project_id: selected.project_id,
                       employee_id: selected.employee_id,
+                      activity_id: selected.activity_id,
                       date: selected.date,
                       hours: selected.hours,
                       description: selected.description,

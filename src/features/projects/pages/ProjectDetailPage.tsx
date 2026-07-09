@@ -28,6 +28,7 @@ import {
 } from '../types';
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
 import { ProjectHoursSection } from '../components/ProjectHoursSection';
+import { ProjectActivitiesSection } from '../components/ProjectActivitiesSection';
 
 const STATUS_ORDER: ProjectStatus[] = ['offer', 'active', 'paused', 'completed', 'cancelled'];
 
@@ -119,6 +120,7 @@ export default function ProjectDetailPage() {
         />
       </ListGroup>
 
+      <ProjectActivitiesSection projectId={p.id} />
       <ProjectHoursSection project={p} />
 
       <Card className="p-4 text-xs text-text-secondary">
