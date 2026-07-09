@@ -27,6 +27,7 @@ import {
   PROJECT_STATUS_TONES,
 } from '../types';
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
+import { ProjectHoursSection } from '../components/ProjectHoursSection';
 
 const STATUS_ORDER: ProjectStatus[] = ['offer', 'active', 'paused', 'completed', 'cancelled'];
 
@@ -116,17 +117,12 @@ export default function ProjectDetailPage() {
           }
           subtitle="Rozliczenie"
         />
-        {p.estimated_hours != null && (
-          <ListRow
-            leading={<CalendarDays className="size-5 text-text-secondary" />}
-            title={`${num(p.estimated_hours)} h`}
-            subtitle="Budżet godzin (postęp pojawi się z dziennikiem w Etapie 5)"
-          />
-        )}
       </ListGroup>
 
+      <ProjectHoursSection project={p} />
+
       <Card className="p-4 text-xs text-text-secondary">
-        Zakładki Godziny • Koszty • Prace dodatkowe • Zdjęcia • Finanse dojdą w Etapach 5–8 —
+        Zakładki Koszty • Prace dodatkowe • Zdjęcia • Finanse dojdą w Etapach 6–8 —
         każda podłączy się do tej karty automatycznie.
       </Card>
 
