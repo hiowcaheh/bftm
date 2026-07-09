@@ -8,7 +8,6 @@ import { SessionProvider, useSession } from '@/features/auth/SessionProvider';
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
 const ChangePasswordPage = lazy(() => import('@/features/auth/pages/ChangePasswordPage'));
-const MorePage = lazy(() => import('./MorePage'));
 
 function FullScreenLoader() {
   return (
@@ -67,7 +66,6 @@ export function AppRouter() {
                   element={<mod.element />}
                 />
               ))}
-              <Route path="/wiecej" element={<MorePage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

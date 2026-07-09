@@ -1,5 +1,6 @@
 export interface CompanyBranding {
   name: string;
+  slogan?: string;
   logo_path: string | null;
 }
 

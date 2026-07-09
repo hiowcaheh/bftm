@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.1 — poprawki UX po testach na telefonie (2026-07-08)
+
+- Szare tło aplikacji (#F2F2F5) — białe karty wyraźnie odcinają się od tła.
+- „Więcej" jako nowoczesne slide-in menu z prawej (gest zamykania) zamiast
+  osobnej strony.
+- Swipe w lewo/prawo przełącza sąsiednie zakładki dolnej nawigacji.
+- Niższa dolna belka nawigacji — mniej pustej przestrzeni.
+- Duże logo firmy na całej szerokości ekranu logowania.
+- Slogan firmy pod nazwą na ekranie logowania — edytowalny w Ustawienia → Firma.
+
 ## 0.2.0 — Etap 2: Supabase + Auth (2026-07-08)
 
 - Backend BFTM: migracja 0001 (14 tabel, funkcje is_admin/has_perm, RLS na

@@ -26,12 +26,13 @@ export async function fetchCompanyDetails(): Promise<CompanyDetails> {
   return { ...EMPTY_COMPANY_DETAILS, ...value };
 }
 
-export async function saveCompany(details: CompanyDetails): Promise<void> {
+export async function saveCompany(details: CompanyDetails, slogan: string): Promise<void> {
   await updateSetting('company_details', details as unknown as Json);
-  // Branding (nazwa na ekranie logowania) trzymamy spójnie z danymi firmy
+  // Branding (nazwa i slogan na ekranie logowania) trzymamy spójnie z danymi firmy
   const branding = await fetchSetting<CompanyBranding>('company_branding');
   await updateSetting('company_branding', {
     name: details.name,
+    slogan,
     logo_path: branding?.logo_path ?? null,
   } as unknown as Json);
 }
@@ -49,6 +50,7 @@ export async function uploadLogo(file: File): Promise<string> {
   const branding = await fetchSetting<CompanyBranding>('company_branding');
   await updateSetting('company_branding', {
     name: branding?.name ?? '',
+    slogan: branding?.slogan ?? '',
     logo_path: path,
   } as unknown as Json);
   return path;

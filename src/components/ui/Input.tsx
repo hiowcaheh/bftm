@@ -25,9 +25,10 @@ export function FieldWrapper({ id, label, error, hint, children }: FieldWrapperP
   );
 }
 
+// 16px (text-[1rem]) — iOS Safari nie robi auto-zoomu przy focusie pola <16px
 export const inputClasses = (hasError?: boolean) =>
   cn(
-    'h-12 w-full rounded-(--radius-input) border bg-white px-3.5 text-sm text-text',
+    'h-12 w-full rounded-(--radius-input) border bg-white px-3.5 text-[1rem] text-text',
     'placeholder:text-text-secondary/60',
     'focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15',
     hasError ? 'border-error' : 'border-line',

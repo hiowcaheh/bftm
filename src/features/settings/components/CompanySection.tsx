@@ -19,15 +19,19 @@ export function CompanySection() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<CompanyDetails>(EMPTY_COMPANY_DETAILS);
+  const [slogan, setSlogan] = useState('');
   useEffect(() => {
     if (details.data) setForm(details.data);
   }, [details.data]);
+  useEffect(() => {
+    if (branding.data) setSlogan(branding.data.slogan);
+  }, [branding.data]);
 
   const set = (patch: Partial<CompanyDetails>) => setForm((f) => ({ ...f, ...patch }));
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    save.mutate(form);
+    save.mutate({ details: form, slogan });
   };
 
   if (details.isLoading) {
@@ -82,6 +86,11 @@ export function CompanySection() {
           label="Nazwa firmy"
           value={form.name}
           onChange={(e) => set({ name: e.target.value })}
+        />
+        <Input
+          label="Slogan (na ekranie logowania)"
+          value={slogan}
+          onChange={(e) => setSlogan(e.target.value)}
         />
         <Input
           label="Adres"
