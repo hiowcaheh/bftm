@@ -15,8 +15,11 @@
   z paskiem koloru), szczegóły (klient, adres, terminy, rozliczenie, budżet
   godzin), formularz, zmiana statusu, usuwanie (admin). Zakładki Godziny/
   Koszty/Prace dodatkowe/Zdjęcia/Finanse dojdą w Etapach 5–8.
-- **Tabele**: `projects` (+ join `clients`); kolumny finansowe pobierane
-  tylko przy finance_view (filtrowanie w api.ts).
+- **Aktywności**: `project_activities` — etapy/usługi definiowane na projekcie;
+  pracownik wybiera aktywność przy wpisie godzin (wymagana, gdy projekt je ma);
+  karta projektu pokazuje kto co robił i ile godzin per aktywność.
+- **Tabele**: `projects`, `project_activities` (+ join `clients`); kolumny
+  finansowe pobierane tylko przy finance_view (filtrowanie w api.ts).
 - **Uprawnienia**: `projects_view` / `projects_edit`; usuwanie tylko admin.
 
 ## timesheet — Godziny
