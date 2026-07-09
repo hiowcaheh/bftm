@@ -1,1 +1,0 @@
-import{n as e}from"./createLucideIcon-CAdyUWaY.js";import{I as t}from"./index-BeZ0HmM7.js";var n=e();function r({interactive:e,className:r,...i}){return(0,n.jsx)(`div`,{className:t(`rounded-(--radius-card) bg-white shadow-(--shadow-card)`,e&&`press cursor-pointer`,r),...i})}export{r as t};
