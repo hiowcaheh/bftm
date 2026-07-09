@@ -49,7 +49,13 @@ export async function signIn(loginOrEmail: string, password: string): Promise<vo
     }
   }
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (!error && data.user) {
+    // Dziennik aktywności: kiedy kto się logował (wgląd dla admina)
+    void supabase
+      .from('activity_log')
+      .insert({ actor: data.user.id, action: 'login', entity: 'auth' });
+  }
   if (error) {
     if (error.message.includes('Invalid login credentials')) {
       throw new Error('Nieprawidłowy login lub hasło');

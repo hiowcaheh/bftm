@@ -16,7 +16,10 @@ interface MoreDrawerProps {
 export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
   const navigate = useNavigate();
   const signOut = useSignOut();
-  const { user } = useSession();
+  const { user, can } = useSession();
+  const visible = moreModules.filter(
+    (m) => !m.requiredPermission || can(m.requiredPermission),
+  );
 
   const go = (path: string) => {
     onClose();
@@ -36,7 +39,7 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
           </ListGroup>
         )}
         <ListGroup>
-          {moreModules.map((mod) => (
+          {visible.map((mod) => (
             <ListRow
               key={mod.id}
               leading={

@@ -255,6 +255,26 @@ export type Database = {
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       has_perm: { Args: { flag: string }; Returns: boolean };
       is_active: { Args: Record<PropertyKey, never>; Returns: boolean };
+      admin_create_employee: {
+        Args: {
+          p_full_name: string;
+          p_email: string;
+          p_phone: string;
+          p_temp_password: string;
+          p_hourly_wage?: number | null;
+          p_valid_from?: string;
+          p_permissions?: Json;
+        };
+        Returns: string;
+      };
+      admin_reset_password: {
+        Args: { p_profile_id: string; p_temp_password: string };
+        Returns: undefined;
+      };
+      admin_set_active: {
+        Args: { p_profile_id: string; p_active: boolean };
+        Returns: undefined;
+      };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

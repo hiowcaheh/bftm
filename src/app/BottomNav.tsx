@@ -2,18 +2,20 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { bottomNavModules, moreModules } from './moduleRegistry';
+import { useSession } from '@/features/auth/SessionProvider';
 
 interface BottomNavProps {
   onMoreClick: () => void;
   moreOpen: boolean;
 }
 
-/**
- * Dolny pasek: 4 moduły z rejestru + „Więcej" (otwiera slide-in menu).
- * W Etapie 3 lista zostanie przefiltrowana przez uprawnienia użytkownika.
- */
+/** Dolny pasek: moduły z rejestru przefiltrowane uprawnieniami + „Więcej". */
 export function BottomNav({ onMoreClick, moreOpen }: BottomNavProps) {
   const { pathname } = useLocation();
+  const { can } = useSession();
+  const visible = bottomNavModules.filter(
+    (m) => !m.requiredPermission || can(m.requiredPermission),
+  );
   const moreActive = moreOpen || moreModules.some((m) => pathname.startsWith(m.path));
 
   return (
@@ -22,7 +24,7 @@ export function BottomNav({ onMoreClick, moreOpen }: BottomNavProps) {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="mx-auto flex h-[3.25rem] max-w-3xl items-stretch">
-        {bottomNavModules.map((mod) => (
+        {visible.map((mod) => (
           <NavLink
             key={mod.id}
             to={mod.path}
