@@ -11,7 +11,7 @@ export interface WorkHoursEntry extends WorkHoursRow {
 }
 
 export const HOURS_STATUS_LABELS: Record<WorkHoursStatus, string> = {
-  draft: 'Szkic',
+  draft: 'Niezatwierdzone',
   approved: 'Zatwierdzone',
   invoiced: 'Rozliczone',
 };
@@ -20,7 +20,7 @@ export const HOURS_STATUS_TONES: Record<
   WorkHoursStatus,
   'neutral' | 'success' | 'info' | 'warning'
 > = {
-  draft: 'neutral',
+  draft: 'warning',
   approved: 'success',
   invoiced: 'info',
 };

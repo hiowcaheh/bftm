@@ -74,11 +74,9 @@ export function EntryList({ entries, showEmployee, onEdit }: EntryListProps) {
                 title={
                   <span className="flex items-center gap-2">
                     {showEmployee ? entry.employee?.full_name : entry.project?.name}
-                    {entry.status !== 'draft' && (
-                      <Badge tone={HOURS_STATUS_TONES[entry.status]}>
-                        {HOURS_STATUS_LABELS[entry.status]}
-                      </Badge>
-                    )}
+                    <Badge tone={HOURS_STATUS_TONES[entry.status]}>
+                      {HOURS_STATUS_LABELS[entry.status]}
+                    </Badge>
                   </span>
                 }
                 subtitle={
@@ -104,6 +102,9 @@ export function EntryList({ entries, showEmployee, onEdit }: EntryListProps) {
       >
         {selected && (
           <div className="flex flex-col gap-3">
+            <Badge tone={HOURS_STATUS_TONES[selected.status]} className="self-start">
+              {HOURS_STATUS_LABELS[selected.status]}
+            </Badge>
             <p className="text-sm text-text-secondary">
               {selected.employee?.full_name} • {dateLong(selected.date)}
               {selected.activity && (
@@ -162,7 +163,9 @@ export function EntryList({ entries, showEmployee, onEdit }: EntryListProps) {
               <p className="text-xs text-text-secondary">
                 {selected.status === 'invoiced'
                   ? 'Wpis rozliczony — zmiany może wprowadzać tylko administrator.'
-                  : 'Nie masz uprawnień do edycji tego wpisu.'}
+                  : selected.status === 'approved' && selected.employee_id === user?.id
+                    ? 'Nie możesz edytować dni, które zostały już zatwierdzone do wypłaty.'
+                    : 'Nie masz uprawnień do edycji tego wpisu.'}
               </p>
             )}
           </div>

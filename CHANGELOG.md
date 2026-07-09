@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.4 — poprawki z testów dziennika (2026-07-09)
+
+- Status „Szkic" przemianowany na „Niezatwierdzone" (badge przy każdym wpisie
+  na liście i w szczegółach dnia).
+- Nagłówek kolumny sum w dzienniku: „Suma" zamiast „Σ".
+- Edycja zatwierdzonego/rozliczonego dnia poprzedzona ostrzeżeniem
+  „Dzień już zatwierdzony — edytować mimo to?".
+- Modal zatwierdzania: suma godzin pracownika + każdy dzień z osobna
+  + dni nieobecności wg typu (przewijana lista).
+- Pulpit pracownika: sekcja „Twój dzień" z własnymi wpisami i przyciskiem
+  dodania godzin (zamiast „Nikt jeszcze nie wpisał…").
+- Pracownik przy zatwierdzonym wpisie widzi komunikat „Nie możesz edytować
+  dni, które zostały już zatwierdzone do wypłaty".
+- Rozliczenie projektu (timmar/fast pris + stawki) ukryte przed osobami
+  bez uprawnienia finansowego.
+- Usunięte stare wpisy godzin bez przypisanej aktywności (baza).
+
 ## 0.5.3 — dopracowanie dziennika i aktualizacji (2026-07-09)
 
 - „Sprawdź aktualizację" działa naprawdę: aktywnie pyta serwer o nową wersję;
