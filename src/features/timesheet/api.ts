@@ -1,8 +1,10 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { HoursFilters, WorkHoursEntry, WorkHoursInsert } from './types';
 
+// profiles!employee_id — work_hours ma DWA odwołania do profiles
+// (employee_id i created_by); bez wskazania PostgREST odrzuca zapytanie.
 const COLUMNS =
-  '*, project:projects(id, name, color), employee:profiles(id, full_name)';
+  '*, project:projects(id, name, color), employee:profiles!employee_id(id, full_name)';
 
 export async function fetchEntries(filters: HoursFilters): Promise<WorkHoursEntry[]> {
   let query = supabase
@@ -33,7 +35,14 @@ export async function fetchProjectEntries(projectId: string): Promise<WorkHoursE
 
 export async function createEntry(payload: WorkHoursInsert): Promise<void> {
   const { error } = await supabase.from('work_hours').insert(payload);
-  if (error) throw error;
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error(
+        'Na ten dzień istnieje już wpis dla tego pracownika w tym projekcie — edytuj go zamiast dodawać nowy',
+      );
+    }
+    throw error;
+  }
 }
 
 export async function updateEntry(
@@ -41,7 +50,14 @@ export async function updateEntry(
   patch: Partial<WorkHoursInsert>,
 ): Promise<void> {
   const { error } = await supabase.from('work_hours').update(patch).eq('id', id);
-  if (error) throw error;
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error(
+        'Na ten dzień istnieje już inny wpis dla tego pracownika w tym projekcie',
+      );
+    }
+    throw error;
+  }
 }
 
 export async function deleteEntry(id: string): Promise<void> {
