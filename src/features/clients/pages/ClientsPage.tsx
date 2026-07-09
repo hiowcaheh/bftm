@@ -35,7 +35,6 @@ export default function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Klienci</h1>
       <SearchBar value={search} onChange={setSearch} placeholder="Szukaj klienta…" />
 
       {clients.isLoading && <SkeletonList rows={4} />}

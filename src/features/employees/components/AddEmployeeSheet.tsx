@@ -14,6 +14,7 @@ const schema = z.object({
   full_name: z.string().min(3, 'Podaj imię i nazwisko'),
   email: z.string().email('Podaj prawidłowy adres e-mail'),
   phone: z.string(),
+  personnummer: z.string(),
   temp_password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
   hourly_wage: z.string(),
 });
@@ -29,6 +30,7 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
     full_name: '',
     email: '',
     phone: '',
+    personnummer: '',
     temp_password: generateTempPassword(),
     hourly_wage: '',
   });
@@ -42,6 +44,7 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
       full_name: '',
       email: '',
       phone: '',
+      personnummer: '',
       temp_password: generateTempPassword(),
       hourly_wage: '',
     });
@@ -73,6 +76,7 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
         full_name: form.full_name,
         email: form.email,
         phone: form.phone,
+        personnummer: form.personnummer,
         temp_password: form.temp_password,
         hourly_wage: wage,
         permissions: DEFAULT_EMPLOYEE_PERMISSIONS,
@@ -109,6 +113,14 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
             type="tel"
             value={form.phone}
             onChange={(e) => set({ phone: e.target.value })}
+          />
+          <Input
+            label="Personnummer (opcjonalnie)"
+            inputMode="numeric"
+            placeholder="ÅÅÅÅMMDD-XXXX"
+            hint="Widoczny wyłącznie dla administratora"
+            value={form.personnummer}
+            onChange={(e) => set({ personnummer: e.target.value })}
           />
           <Input
             label="Stawka godzinowa brutto w kr (opcjonalnie)"

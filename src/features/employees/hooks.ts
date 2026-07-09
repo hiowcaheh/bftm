@@ -9,7 +9,9 @@ import {
   fetchCompensation,
   fetchEmployee,
   fetchEmployees,
+  fetchPersonnummer,
   resetPassword,
+  savePersonnummer,
   setActive,
   updateEmployee,
   updatePermissions,
@@ -32,6 +34,26 @@ export function useCompensation(id: string, enabled: boolean) {
     queryKey: qk.employees.compensation(id),
     queryFn: () => fetchCompensation(id),
     enabled,
+  });
+}
+
+export function usePersonnummer(id: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [...qk.employees.detail(id), 'private'],
+    queryFn: () => fetchPersonnummer(id),
+    enabled,
+  });
+}
+
+export function useSavePersonnummer(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (personnummer: string) => savePersonnummer(id, personnummer),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: qk.employees.detail(id) });
+      toast.success('Personnummer zapisany');
+    },
+    onError: () => toast.error('Nie udało się zapisać personnummer'),
   });
 }
 

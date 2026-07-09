@@ -8,7 +8,7 @@ import { useSession } from '@/features/auth/SessionProvider';
 import { CompanySection } from '../components/CompanySection';
 import { AccountSection } from '../components/AccountSection';
 
-const APP_VERSION = '0.6.0'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
+const APP_VERSION = '0.6.1'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
 
 /**
  * Ustawienia: Firma (tylko admin), Moje konto, Aplikacja.
@@ -35,8 +35,6 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Ustawienia</h1>
-
       {user?.role === 'admin' && <CompanySection />}
       <AccountSection />
 

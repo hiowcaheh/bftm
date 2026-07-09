@@ -8,6 +8,7 @@ export interface NewEmployee {
   full_name: string;
   email: string;
   phone: string;
+  personnummer: string;
   temp_password: string;
   hourly_wage: number | null;
   permissions: PermissionMap;

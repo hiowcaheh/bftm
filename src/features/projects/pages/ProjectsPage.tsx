@@ -46,7 +46,6 @@ export default function ProjectsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Projekty</h1>
       <SearchBar value={search} onChange={setSearch} placeholder="Szukaj projektu…" />
       <Chips
         options={STATUS_ORDER.map((s) => ({

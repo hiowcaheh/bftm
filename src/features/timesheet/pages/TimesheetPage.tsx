@@ -160,8 +160,6 @@ export default function TimesheetPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Godziny</h1>
-
       <SegmentedControl
         options={[
           ...(seesAll ? [{ value: 'journal' as View, label: 'Dziennik' }] : []),
