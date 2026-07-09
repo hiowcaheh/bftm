@@ -11,8 +11,13 @@
 
 ## projects — Projekty
 
-- **Stan**: placeholder (Etap 4).
-- **Uprawnienia**: `projects_view` / `projects_edit`.
+- **Stan**: Etap 4 — lista (segmenty statusów z licznikami, wyszukiwarka, karty
+  z paskiem koloru), szczegóły (klient, adres, terminy, rozliczenie, budżet
+  godzin), formularz, zmiana statusu, usuwanie (admin). Zakładki Godziny/
+  Koszty/Prace dodatkowe/Zdjęcia/Finanse dojdą w Etapach 5–8.
+- **Tabele**: `projects` (+ join `clients`); kolumny finansowe pobierane
+  tylko przy finance_view (filtrowanie w api.ts).
+- **Uprawnienia**: `projects_view` / `projects_edit`; usuwanie tylko admin.
 
 ## timesheet — Godziny
 
@@ -26,7 +31,10 @@
 
 ## clients — Klienci
 
-- **Stan**: placeholder (Etap 4).
+- **Stan**: Etap 4 — lista z wyszukiwarką i badge'ami (typ, omvänd byggmoms,
+  ROT), karta klienta (kontakt, notatki, projekty klienta, szybkie „+ projekt"),
+  CRUD w sheetach; usunięcie klienta odpina projekty (set null).
+- **Tabele**: `clients`.
 - **Uprawnienia**: `clients_view` / `clients_edit`.
 
 ## employees — Pracownicy

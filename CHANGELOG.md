@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.0 — Etap 4: Klienci + Projekty (2026-07-09)
+
+- Moduł Klienci: lista z wyszukiwarką i badge'ami (Firma/Prywatny, omvänd
+  byggmoms, ROT), karta klienta z danymi kontaktowymi i projektami,
+  CRUD w sheetach z sensownymi domyślnymi dla Szwecji.
+- Moduł Projekty: lista kart z paskiem koloru i segmentami statusów
+  (Aktywny/Oferta/Wstrzymany/Zakończony/Anulowany + liczniki), wyszukiwarka,
+  formularz (klient, typ rozliczenia, stawka/ryczałt, budżet godzin, daty,
+  kolor, opis), szczegóły z akcjami: edytuj, zmień status, usuń.
+- Kolumny finansowe (stawka, ryczałt) nie trafiają nawet do zapytań
+  użytkowników bez finance_view — filtrowanie w warstwie api.ts.
+- Pulpit: kafel „Aktywne projekty" liczy prawdziwe dane; pozostałe KPI
+  oznaczone „wkrótce".
+- Poprawki: log logowań na zdarzeniu SIGNED_IN (wcześniej RLS po cichu
+  odrzucał wpis), czulszy swipe między zakładkami (40 px).
+
 ## 0.3.0 — Etap 3: Pracownicy i uprawnienia (2026-07-09)
 
 - Moduł Pracownicy: lista z wyszukiwarką, dodawanie kont (hasło tymczasowe
