@@ -137,6 +137,14 @@ export default function TimesheetPage() {
 
   const [confirmApprove, setConfirmApprove] = useState(false);
   const [editWarnEntry, setEditWarnEntry] = useState<WorkHoursEntry | null>(null);
+  const [template, setTemplate] = useState<WorkHoursEntry | null>(null);
+
+  // Duplikuj: nowy wpis wypełniony jak wzór, data ustawia się na dziś
+  const requestDuplicate = (entry: WorkHoursEntry) => {
+    setEditEntry(null);
+    setTemplate(entry);
+    setFormOpen(true);
+  };
 
   // Wspólna ścieżka edycji: zatwierdzony/rozliczony wpis → najpierw ostrzeżenie
   const requestEdit = (entry: WorkHoursEntry) => {
@@ -241,6 +249,7 @@ export default function TimesheetPage() {
           entries={entries.data ?? []}
           showEmployee={seesAll}
           onEdit={requestEdit}
+          onDuplicate={requestDuplicate}
         />
       )}
 
@@ -306,8 +315,10 @@ export default function TimesheetPage() {
         onClose={() => {
           setFormOpen(false);
           setEditEntry(null);
+          setTemplate(null);
         }}
         entry={editEntry}
+        template={template}
       />
       <AbsenceFormSheet open={absenceFormOpen} onClose={() => setAbsenceFormOpen(false)} />
       <ConfirmDialog
@@ -380,7 +391,10 @@ export default function TimesheetPage() {
         confirmLabel="Zatwierdź"
         loading={approve.isPending}
         onConfirm={() =>
-          approve.mutate(draftIds, { onSettled: () => setConfirmApprove(false) })
+          approve.mutate(
+            { ids: draftIds, periodLabel },
+            { onSettled: () => setConfirmApprove(false) },
+          )
         }
         onCancel={() => setConfirmApprove(false)}
       />

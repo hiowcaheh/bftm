@@ -3,6 +3,7 @@ import type { TouchEvent } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BottomNav } from './BottomNav';
 import { MoreDrawer } from './MoreDrawer';
+import { NotificationBell } from '@/features/notifications/NotificationBell';
 import { bottomNavModules } from './moduleRegistry';
 import { SkeletonList } from '@/components/ui/Skeleton';
 
@@ -61,6 +62,7 @@ export function AppLayout() {
           <Outlet />
         </Suspense>
       </main>
+      <NotificationBell />
       <BottomNav onMoreClick={() => setMoreOpen(true)} moreOpen={moreOpen} />
       <MoreDrawer open={moreOpen} onClose={() => setMoreOpen(false)} />
     </div>

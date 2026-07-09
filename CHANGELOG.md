@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0 — system powiadomień + pulpit 2.0 (2026-07-09)
+
+- **Powiadomienia**: dzwoneczek w prawym górnym rogu z czerwonym licznikiem
+  nieodczytanych; panel wysuwany z listą; otwarcie oznacza jako przeczytane.
+  Pierwszy typ: „Twoje godziny za okres … zostały zatwierdzone (X h)" przy
+  zatwierdzaniu godzin (migracja 0006, RLS: odbiorca widzi swoje).
+- Pulpit admina: pomarańczowy blok „Czekają na zatwierdzenie" (liczba wpisów
+  + suma godzin, tap prowadzi do dziennika).
+- Pulpit pracownika: nowoczesna karta powitalna z gradientem i przyciskiem
+  „Dodaj dzisiejsze godziny"; sekcja „Ostatnie 7 dni" — każdy dzień pod sobą
+  z sumą i projektami (puste dni wyszarzone).
+- „Duplikuj na dziś": otwiera formularz nowego wpisu wypełniony jak wzór
+  (projekt, aktywność, godziny, opis) z dzisiejszą datą — do edycji przed
+  zapisem (koniec błędu duplikatu przy starym Duplikuj).
+
 ## 0.5.4 — poprawki z testów dziennika (2026-07-09)
 
 - Status „Szkic" przemianowany na „Niezatwierdzone" (badge przy każdym wpisie

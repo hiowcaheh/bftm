@@ -65,11 +65,41 @@ export async function deleteEntry(id: string): Promise<void> {
   if (error) throw error;
 }
 
-/** Zatwierdzenie wszystkich szkiców z zakresu (krok opcjonalny — feature flag). */
-export async function approveEntries(ids: string[]): Promise<void> {
+/**
+ * Zatwierdzenie wpisów z okresu + powiadomienia dla pracowników
+ * („Twoje godziny za okres … zostały zatwierdzone").
+ */
+export async function approveEntries(
+  ids: string[],
+  period: { label: string },
+): Promise<void> {
+  const { data: affected, error: fetchError } = await supabase
+    .from('work_hours')
+    .select('employee_id, hours')
+    .in('id', ids);
+  if (fetchError) throw fetchError;
+
   const { error } = await supabase
     .from('work_hours')
     .update({ status: 'approved' })
     .in('id', ids);
   if (error) throw error;
+
+  const { data: userData } = await supabase.auth.getUser();
+  const approverId = userData.user?.id;
+  const byEmployee = new Map<string, number>();
+  for (const row of affected ?? []) {
+    byEmployee.set(row.employee_id, (byEmployee.get(row.employee_id) ?? 0) + row.hours);
+  }
+  const { sendNotifications } = await import('@/features/notifications/api');
+  await sendNotifications(
+    [...byEmployee.entries()]
+      .filter(([employeeId]) => employeeId !== approverId)
+      .map(([employeeId, total]) => ({
+        recipient_id: employeeId,
+        type: 'hours_approved',
+        title: 'Godziny zatwierdzone',
+        body: `Twoje godziny za okres ${period.label} zostały zatwierdzone (${total} h).`,
+      })),
+  );
 }

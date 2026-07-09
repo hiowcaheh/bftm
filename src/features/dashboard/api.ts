@@ -87,6 +87,67 @@ export async function fetchToday(): Promise<TodayInfo> {
   };
 }
 
+export interface PendingApprovals {
+  count: number;
+  hours: number;
+}
+
+/** Godziny czekające na zatwierdzenie (dla admina / hours_approve). */
+export async function fetchPendingApprovals(): Promise<PendingApprovals> {
+  const { data, error } = await supabase
+    .from('work_hours')
+    .select('hours')
+    .eq('status', 'draft');
+  if (error) throw error;
+  return {
+    count: data.length,
+    hours: data.reduce((s, r) => s + r.hours, 0),
+  };
+}
+
+export interface WeekDayEntry {
+  date: string;
+  hours: number;
+  projects: string[];
+}
+
+/** Ostatnie 7 dni zalogowanego pracownika (RLS zwraca tylko jego wpisy). */
+export async function fetchMyWeek(): Promise<WeekDayEntry[]> {
+  const from = new Date();
+  from.setDate(from.getDate() - 6);
+  const { data, error } = await supabase
+    .from('work_hours')
+    .select('date, hours, project:projects(name), activity:project_activities(name)')
+    .gte('date', iso(from))
+    .order('date', { ascending: false });
+  if (error) throw error;
+
+  const byDate = new Map<string, { hours: number; projects: Set<string> }>();
+  for (const row of data as unknown as Array<{
+    date: string;
+    hours: number;
+    project: { name: string } | null;
+    activity: { name: string } | null;
+  }>) {
+    const day = byDate.get(row.date) ?? { hours: 0, projects: new Set() };
+    day.hours += row.hours;
+    const label = [row.project?.name, row.activity?.name].filter(Boolean).join(' — ');
+    if (label) day.projects.add(label);
+    byDate.set(row.date, day);
+  }
+
+  // pełne 7 dni, także puste — lista dzień pod dniem
+  const days: WeekDayEntry[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = iso(d);
+    const day = byDate.get(key);
+    days.push({ date: key, hours: day?.hours ?? 0, projects: [...(day?.projects ?? [])] });
+  }
+  return days;
+}
+
 export interface RecentEntry {
   id: string;
   date: string;
