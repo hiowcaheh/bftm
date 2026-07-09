@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.0 — Etap 3: Pracownicy i uprawnienia (2026-07-09)
+
+- Moduł Pracownicy: lista z wyszukiwarką, dodawanie kont (hasło tymczasowe
+  pokazywane JEDEN raz z przyciskiem kopiuj), profil pracownika.
+- Panel uprawnień: 18 flag pogrupowanych, z polskimi opisami i oznaczeniem
+  danych wrażliwych; zapis natychmiastowy.
+- Reset hasła przez admina (nowe hasło tymczasowe + wymuszenie zmiany +
+  unieważnienie sesji), dezaktywacja/reaktywacja konta (ban w Auth).
+- Stawka godzinowa z historią (valid_from) — tylko admin.
+- Dziennik aktywności konta: logowania i operacje administracyjne
+  (utworzenie, resety, dezaktywacje) — widoczny dla admina.
+- Nawigacja (dolny pasek, menu Więcej) i trasy filtrowane uprawnieniami.
+- Migracja 0003: funkcje RPC admin_create_employee / admin_reset_password /
+  admin_set_active (security definer, twardy warunek is_admin).
+- Wymuszona zmiana hasła przy pierwszym logowaniu obowiązuje też pracowników
+  (ten sam mechanizm co u admina — nie do ominięcia).
+
 ## 0.2.1 — poprawki UX po testach na telefonie (2026-07-08)
 
 - Szare tło aplikacji (#F2F2F5) — białe karty wyraźnie odcinają się od tła.

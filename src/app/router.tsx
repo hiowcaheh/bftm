@@ -5,9 +5,13 @@ import { AppLayout } from './AppLayout';
 import { modules } from './moduleRegistry';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { SessionProvider, useSession } from '@/features/auth/SessionProvider';
+import type { Permission } from '@/lib/permissions';
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
 const ChangePasswordPage = lazy(() => import('@/features/auth/pages/ChangePasswordPage'));
+const EmployeeDetailPage = lazy(
+  () => import('@/features/employees/pages/EmployeeDetailPage'),
+);
 
 function FullScreenLoader() {
   return (
@@ -26,6 +30,19 @@ function RequireAuth({ children }: { children: ReactNode }) {
   if (loading) return <FullScreenLoader />;
   if (!session) return <Navigate to="/logowanie" replace />;
   if (user?.mustChangePassword) return <ChangePasswordPage />;
+  return children;
+}
+
+/** Trasa modułu dostępna tylko z wymaganym uprawnieniem (UI ukrywa, RLS chroni). */
+function RequirePerm({
+  permission,
+  children,
+}: {
+  permission: Permission | undefined;
+  children: ReactNode;
+}) {
+  const { can } = useSession();
+  if (permission && !can(permission)) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -63,9 +80,21 @@ export function AppRouter() {
                   key={mod.id}
                   path={mod.path === '/' ? undefined : mod.path}
                   index={mod.path === '/'}
-                  element={<mod.element />}
+                  element={
+                    <RequirePerm permission={mod.requiredPermission}>
+                      <mod.element />
+                    </RequirePerm>
+                  }
                 />
               ))}
+              <Route
+                path="/pracownicy/:id"
+                element={
+                  <RequirePerm permission="employees_view">
+                    <EmployeeDetailPage />
+                  </RequirePerm>
+                }
+              />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>
