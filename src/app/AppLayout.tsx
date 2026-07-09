@@ -33,7 +33,8 @@ export function AppLayout() {
     if (!t) return;
     const dx = t.clientX - start.x;
     const dy = t.clientY - start.y;
-    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.8) return;
+    // czuły gest: wystarczy 40 px w poziomie, byle wyraźnie bardziej niż w pionie
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
 
     const index = bottomNavModules.findIndex((m) =>
       m.path === '/' ? pathname === '/' : pathname.startsWith(m.path),

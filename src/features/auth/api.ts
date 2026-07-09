@@ -49,13 +49,9 @@ export async function signIn(loginOrEmail: string, password: string): Promise<vo
     }
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (!error && data.user) {
-    // Dziennik aktywności: kiedy kto się logował (wgląd dla admina)
-    void supabase
-      .from('activity_log')
-      .insert({ actor: data.user.id, action: 'login', entity: 'auth' });
-  }
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  // Wpis „login" do activity_log robi SessionProvider na zdarzeniu SIGNED_IN —
+  // dopiero wtedy sesja (JWT) jest na pewno ustawiona i RLS przepuści insert.
   if (error) {
     if (error.message.includes('Invalid login credentials')) {
       throw new Error('Nieprawidłowy login lub hasło');

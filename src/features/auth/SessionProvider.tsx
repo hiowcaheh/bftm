@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -33,9 +34,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const queryClient = useQueryClient();
 
+  const hadSessionRef = useRef(false);
+
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+    void supabase.auth.getSession().then(({ data }) => {
+      hadSessionRef.current = !!data.session;
+      setSession(data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
+      // Prawdziwe logowanie (nie odtworzenie sesji z localStorage) → dziennik
+      if (event === 'SIGNED_IN' && next && !hadSessionRef.current) {
+        supabase
+          .from('activity_log')
+          .insert({ actor: next.user.id, action: 'login', entity: 'auth' })
+          .then(({ error }) => {
+            if (error) console.error('Nie zapisano logowania w dzienniku:', error);
+          });
+      }
+      hadSessionRef.current = !!next;
       setSession(next);
       if (!next) {
         // wylogowanie: czyścimy cały cache, żeby dane nie przeciekły między kontami
