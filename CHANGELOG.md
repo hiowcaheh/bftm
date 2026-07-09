@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.1 — stały górny pasek + personnummer + płynne przejścia (2026-07-09)
+
+- Stały górny pasek na każdej zakładce: tytuł strony + dzwoneczek powiadomień
+  (przypięty, nie przewija się z treścią); usunięte zdublowane nagłówki stron.
+- Personnummer pracownika: pole przy tworzeniu konta i edytowalne w profilu;
+  przechowywany w osobnej tabeli z RLS tylko-dla-admina (migracja 0007).
+- Powiadomienia z ikonami wg typu (zatwierdzone godziny — zielony check,
+  nieobecność, ogłoszenie, info).
+- Płynne przejścia między zakładkami: lekki swipe (24 px) działa na całym
+  ekranie, strona wjeżdża z animacją z właściwej strony (także przy tapnięciu
+  w dolny pasek).
+
 ## 0.6.0 — system powiadomień + pulpit 2.0 (2026-07-09)
 
 - **Powiadomienia**: dzwoneczek w prawym górnym rogu z czerwonym licznikiem

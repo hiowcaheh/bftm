@@ -68,10 +68,6 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-xl font-semibold">Pulpit</h1>
-      </header>
-
       <section className="grid grid-cols-2 gap-3" aria-label="Wskaźniki">
         {tiles.map((tile) => (
           <Card

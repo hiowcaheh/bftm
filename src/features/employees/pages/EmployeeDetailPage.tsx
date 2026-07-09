@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Banknote,
   Clock3,
+  IdCard,
   KeyRound,
   Phone,
   ShieldCheck,
@@ -31,7 +32,9 @@ import {
   useCompensation,
   useEmployee,
   useEmployeeActivity,
+  usePersonnummer,
   useResetPassword,
+  useSavePersonnummer,
   useSetActive,
   useUpdateEmployee,
   useUpdatePermissions,
@@ -63,8 +66,11 @@ export default function EmployeeDetailPage() {
   const setActive = useSetActive();
   const addCompensation = useAddCompensation(id);
 
+  const personnummer = usePersonnummer(id, isAdmin);
+  const savePersonnummer = useSavePersonnummer(id);
   const [perms, setPerms] = useState<PermissionMap>({});
   const [phone, setPhone] = useState('');
+  const [pnr, setPnr] = useState('');
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [confirmActive, setConfirmActive] = useState(false);
@@ -77,6 +83,10 @@ export default function EmployeeDetailPage() {
       setPhone(employee.data.phone ?? '');
     }
   }, [employee.data]);
+
+  useEffect(() => {
+    setPnr(personnummer.data ?? '');
+  }, [personnummer.data]);
 
   if (employee.isLoading) return <SkeletonList rows={5} />;
   if (!employee.data) {
@@ -162,6 +172,26 @@ export default function EmployeeDetailPage() {
           }
           subtitle="Telefon"
         />
+        {isAdmin && (
+          <ListRow
+            leading={<IdCard className="size-5 text-text-secondary" />}
+            title={
+              <input
+                value={pnr}
+                placeholder="ÅÅÅÅMMDD-XXXX"
+                inputMode="numeric"
+                className="w-full bg-transparent text-[1rem] outline-none"
+                onChange={(e) => setPnr(e.target.value)}
+                onBlur={() => {
+                  if ((personnummer.data ?? '') !== pnr.trim()) {
+                    savePersonnummer.mutate(pnr);
+                  }
+                }}
+              />
+            }
+            subtitle="Personnummer (widoczny tylko dla administratora)"
+          />
+        )}
       </ListGroup>
 
       {isAdmin && emp.role !== 'admin' && (

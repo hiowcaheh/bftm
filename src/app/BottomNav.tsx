@@ -4,19 +4,26 @@ import { cn } from '@/lib/cn';
 import { bottomNavModules, moreModules } from './moduleRegistry';
 import { useSession } from '@/features/auth/SessionProvider';
 
+import type { NavDirection } from './AppLayout';
+
 interface BottomNavProps {
   onMoreClick: () => void;
   moreOpen: boolean;
+  /** kierunek animacji przejścia (tap w zakładkę dalej/wcześniej) */
+  onNavigateDirection?: (direction: NavDirection) => void;
 }
 
 /** Dolny pasek: moduły z rejestru przefiltrowane uprawnieniami + „Więcej". */
-export function BottomNav({ onMoreClick, moreOpen }: BottomNavProps) {
+export function BottomNav({ onMoreClick, moreOpen, onNavigateDirection }: BottomNavProps) {
   const { pathname } = useLocation();
   const { can } = useSession();
   const visible = bottomNavModules.filter(
     (m) => !m.requiredPermission || can(m.requiredPermission),
   );
   const moreActive = moreOpen || moreModules.some((m) => pathname.startsWith(m.path));
+  const currentIndex = visible.findIndex((m) =>
+    m.path === '/' ? pathname === '/' : pathname.startsWith(m.path),
+  );
 
   return (
     <nav
@@ -24,11 +31,20 @@ export function BottomNav({ onMoreClick, moreOpen }: BottomNavProps) {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="mx-auto flex h-[3.25rem] max-w-3xl items-stretch">
-        {visible.map((mod) => (
+        {visible.map((mod, index) => (
           <NavLink
             key={mod.id}
             to={mod.path}
             end={mod.path === '/'}
+            onClick={() =>
+              onNavigateDirection?.(
+                currentIndex === -1 || index === currentIndex
+                  ? null
+                  : index > currentIndex
+                    ? 'forward'
+                    : 'back',
+              )
+            }
             className={({ isActive }) =>
               cn(
                 'flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium',

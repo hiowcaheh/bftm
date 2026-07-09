@@ -181,6 +181,12 @@ type ProjectPhotoRow = {
   created_at: string;
 }
 
+type EmployeePrivateRow = {
+  profile_id: string;
+  personnummer: string | null;
+  updated_at: string;
+}
+
 type NotificationRow = {
   id: string;
   recipient_id: string;
@@ -267,6 +273,10 @@ export type Database = {
         ProjectPhotoRow,
         Partial<ProjectPhotoRow> & Pick<ProjectPhotoRow, 'project_id' | 'path'>
       >;
+      employee_private: TableDef<
+        EmployeePrivateRow,
+        Partial<EmployeePrivateRow> & Pick<EmployeePrivateRow, 'profile_id'>
+      >;
       notifications: TableDef<
         NotificationRow,
         Partial<NotificationRow> & Pick<NotificationRow, 'recipient_id' | 'title'>
@@ -291,6 +301,7 @@ export type Database = {
           p_hourly_wage?: number | null;
           p_valid_from?: string;
           p_permissions?: Json;
+          p_personnummer?: string | null;
         };
         Returns: string;
       };

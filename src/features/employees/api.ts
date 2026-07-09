@@ -31,6 +31,7 @@ export async function createEmployee(payload: NewEmployee): Promise<string> {
     p_temp_password: payload.temp_password,
     p_hourly_wage: payload.hourly_wage,
     p_permissions: payload.permissions as Json,
+    p_personnummer: payload.personnummer.trim() || null,
   });
   if (error) throw new Error(rpcMessage(error.message));
   return data;
@@ -90,6 +91,29 @@ export async function addCompensation(
     profile_id: profileId,
     hourly_wage: hourlyWage,
     valid_from: validFrom,
+  });
+  if (error) throw error;
+}
+
+/** Personnummer — dane wrażliwe w osobnej tabeli, RLS: tylko admin. */
+export async function fetchPersonnummer(profileId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('employee_private')
+    .select('personnummer')
+    .eq('profile_id', profileId)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.personnummer ?? null;
+}
+
+export async function savePersonnummer(
+  profileId: string,
+  personnummer: string,
+): Promise<void> {
+  const { error } = await supabase.from('employee_private').upsert({
+    profile_id: profileId,
+    personnummer: personnummer.trim() || null,
+    updated_at: new Date().toISOString(),
   });
   if (error) throw error;
 }
