@@ -20,8 +20,8 @@ export default defineConfig({
         lang: 'pl',
         display: 'standalone',
         orientation: 'portrait',
-        theme_color: '#FFFFFF',
-        background_color: '#FFFFFF',
+        theme_color: '#F2F2F5',
+        background_color: '#F2F2F5',
         start_url: '/bftm/',
         scope: '/bftm/',
         icons: [

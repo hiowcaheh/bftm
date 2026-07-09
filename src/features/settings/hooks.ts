@@ -15,7 +15,8 @@ export function useCompanyDetails(enabled: boolean) {
 export function useSaveCompany() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (details: CompanyDetails) => saveCompany(details),
+    mutationFn: ({ details, slogan }: { details: CompanyDetails; slogan: string }) =>
+      saveCompany(details, slogan),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.settings.all });
       toast.success('Dane firmy zapisane');

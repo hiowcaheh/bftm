@@ -23,7 +23,7 @@ export function SearchBar({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="h-11 w-full rounded-(--radius-input) border border-line bg-surface pr-10 pl-11 text-sm placeholder:text-text-secondary/60 focus:border-accent focus:bg-white focus:outline-none"
+        className="h-11 w-full rounded-(--radius-input) border border-line bg-white pr-10 pl-11 text-[1rem] placeholder:text-text-secondary/60 focus:border-accent focus:outline-none"
       />
       {value && (
         <button

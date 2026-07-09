@@ -4,6 +4,7 @@ import type { Profile } from './types';
 /** Branding + e-mail admina — wiersze settings czytelne dla anon (ekran logowania). */
 export interface PublicBranding {
   companyName: string;
+  slogan: string;
   logoPath: string | null;
   adminEmail: string | null;
 }
@@ -16,7 +17,7 @@ export async function fetchPublicBranding(): Promise<PublicBranding> {
   if (error) throw error;
 
   const branding = data.find((r) => r.key === 'company_branding')?.value as
-    | { name?: string; logo_path?: string | null }
+    | { name?: string; slogan?: string; logo_path?: string | null }
     | undefined;
   const adminLogin = data.find((r) => r.key === 'admin_login')?.value as
     | { email?: string | null }
@@ -24,6 +25,7 @@ export async function fetchPublicBranding(): Promise<PublicBranding> {
 
   return {
     companyName: branding?.name?.trim() || 'BFTM',
+    slogan: branding?.slogan?.trim() ?? '',
     logoPath: branding?.logo_path ?? null,
     adminEmail: adminLogin?.email ?? null,
   };

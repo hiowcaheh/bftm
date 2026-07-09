@@ -3,20 +3,25 @@ import { MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { bottomNavModules, moreModules } from './moduleRegistry';
 
+interface BottomNavProps {
+  onMoreClick: () => void;
+  moreOpen: boolean;
+}
+
 /**
- * Dolny pasek: 4 moduły z rejestru + „Więcej".
+ * Dolny pasek: 4 moduły z rejestru + „Więcej" (otwiera slide-in menu).
  * W Etapie 3 lista zostanie przefiltrowana przez uprawnienia użytkownika.
  */
-export function BottomNav() {
+export function BottomNav({ onMoreClick, moreOpen }: BottomNavProps) {
   const { pathname } = useLocation();
-  const moreActive = moreModules.some((m) => pathname.startsWith(m.path));
+  const moreActive = moreOpen || moreModules.some((m) => pathname.startsWith(m.path));
 
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 backdrop-blur"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="mx-auto flex h-16 max-w-3xl items-stretch">
+      <div className="mx-auto flex h-[3.25rem] max-w-3xl items-stretch">
         {bottomNavModules.map((mod) => (
           <NavLink
             key={mod.id}
@@ -24,7 +29,7 @@ export function BottomNav() {
             end={mod.path === '/'}
             className={({ isActive }) =>
               cn(
-                'flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium',
+                'flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium',
                 isActive ? 'text-accent' : 'text-text-secondary',
               )
             }
@@ -33,16 +38,17 @@ export function BottomNav() {
             {mod.label}
           </NavLink>
         ))}
-        <NavLink
-          to="/wiecej"
+        <button
+          type="button"
+          onClick={onMoreClick}
           className={cn(
-            'flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium',
-            moreActive || pathname === '/wiecej' ? 'text-accent' : 'text-text-secondary',
+            'flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium',
+            moreActive ? 'text-accent' : 'text-text-secondary',
           )}
         >
           <MoreHorizontal className="size-6" strokeWidth={1.8} />
           Więcej
-        </NavLink>
+        </button>
       </div>
     </nav>
   );

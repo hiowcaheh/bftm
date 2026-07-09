@@ -47,20 +47,24 @@ export default function LoginPage() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      <div className="mb-10 flex flex-col items-center gap-4">
+      <div className="mb-8 flex flex-col items-center gap-3">
         {logoUrl ? (
           <img
             src={logoUrl}
             alt="Logo firmy"
-            className="size-20 rounded-3xl object-contain shadow-(--shadow-card)"
+            className="max-h-56 w-full object-contain"
           />
         ) : (
-          <div className="flex size-20 items-center justify-center rounded-3xl bg-accent shadow-(--shadow-fab)">
-            <HardHat className="size-10 text-white" />
+          <div className="flex size-28 items-center justify-center rounded-[2rem] bg-accent shadow-(--shadow-fab)">
+            <HardHat className="size-14 text-white" />
           </div>
         )}
         <h1 className="text-xl font-semibold">{branding.data?.companyName ?? 'BFTM'}</h1>
-        <p className="text-sm text-text-secondary">Zarządzanie firmą budowlaną</p>
+        {branding.data?.slogan && (
+          <p className="text-center text-sm text-text-secondary italic">
+            {branding.data.slogan}
+          </p>
+        )}
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
