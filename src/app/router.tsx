@@ -12,6 +12,8 @@ const ChangePasswordPage = lazy(() => import('@/features/auth/pages/ChangePasswo
 const EmployeeDetailPage = lazy(
   () => import('@/features/employees/pages/EmployeeDetailPage'),
 );
+const ClientDetailPage = lazy(() => import('@/features/clients/pages/ClientDetailPage'));
+const ProjectDetailPage = lazy(() => import('@/features/projects/pages/ProjectDetailPage'));
 
 function FullScreenLoader() {
   return (
@@ -92,6 +94,22 @@ export function AppRouter() {
                 element={
                   <RequirePerm permission="employees_view">
                     <EmployeeDetailPage />
+                  </RequirePerm>
+                }
+              />
+              <Route
+                path="/klienci/:id"
+                element={
+                  <RequirePerm permission="clients_view">
+                    <ClientDetailPage />
+                  </RequirePerm>
+                }
+              />
+              <Route
+                path="/projekty/:id"
+                element={
+                  <RequirePerm permission="projects_view">
+                    <ProjectDetailPage />
                   </RequirePerm>
                 }
               />
