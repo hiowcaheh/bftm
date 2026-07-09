@@ -7,7 +7,7 @@ import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { Sheet } from '@/components/ui/Sheet';
 import { dateLong, hours } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
-import { useCreateEntry, useDeleteEntry } from '../hooks';
+import { useDeleteEntry } from '../hooks';
 import {
   HOURS_STATUS_LABELS,
   HOURS_STATUS_TONES,
@@ -18,13 +18,14 @@ interface EntryListProps {
   entries: WorkHoursEntry[];
   showEmployee: boolean;
   onEdit: (entry: WorkHoursEntry) => void;
+  /** Duplikuj = otwórz formularz nowego wpisu wypełniony jak wzór (data: dziś) */
+  onDuplicate: (entry: WorkHoursEntry) => void;
 }
 
 /** Lista wpisów pogrupowana po dniach; tap → akcje (edytuj/duplikuj/usuń). */
-export function EntryList({ entries, showEmployee, onEdit }: EntryListProps) {
+export function EntryList({ entries, showEmployee, onEdit, onDuplicate }: EntryListProps) {
   const { user, can } = useSession();
   const deleteEntry = useDeleteEntry();
-  const duplicate = useCreateEntry();
   const [selected, setSelected] = useState<WorkHoursEntry | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -137,19 +138,12 @@ export function EntryList({ entries, showEmployee, onEdit }: EntryListProps) {
                   type="button"
                   className="press flex h-12 items-center gap-3 rounded-(--radius-input) bg-surface px-4 text-sm font-medium"
                   onClick={() => {
-                    duplicate.mutate({
-                      project_id: selected.project_id,
-                      employee_id: selected.employee_id,
-                      activity_id: selected.activity_id,
-                      date: selected.date,
-                      hours: selected.hours,
-                      description: selected.description,
-                      created_by: user?.id ?? null,
-                    });
+                    const entry = selected;
                     setSelected(null);
+                    onDuplicate(entry);
                   }}
                 >
-                  <Copy className="size-5 text-text-secondary" /> Duplikuj
+                  <Copy className="size-5 text-text-secondary" /> Duplikuj na dziś
                 </button>
                 <button
                   type="button"

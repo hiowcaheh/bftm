@@ -31,10 +31,18 @@ interface HoursFormSheetProps {
   onClose: () => void;
   /** null = nowy wpis */
   entry: WorkHoursEntry | null;
+  /** szablon (Duplikuj): prefill pól jak we wzorze, ale data = dziś i tryb NOWEGO wpisu */
+  template?: WorkHoursEntry | null;
   presetProjectId?: string;
 }
 
-export function HoursFormSheet({ open, onClose, entry, presetProjectId }: HoursFormSheetProps) {
+export function HoursFormSheet({
+  open,
+  onClose,
+  entry,
+  template,
+  presetProjectId,
+}: HoursFormSheetProps) {
   const { user, can } = useSession();
   const canPickEmployee = can('hours_edit_all');
   const employees = useEmployees();
@@ -53,14 +61,16 @@ export function HoursFormSheet({ open, onClose, entry, presetProjectId }: HoursF
 
   useEffect(() => {
     if (open) {
-      setEmployeeId(entry?.employee_id ?? user?.id ?? '');
-      setProjectId(entry?.project_id ?? presetProjectId ?? '');
-      setActivityId(entry?.activity_id ?? '');
+      const source = entry ?? template ?? null;
+      setEmployeeId(source?.employee_id ?? user?.id ?? '');
+      setProjectId(source?.project_id ?? presetProjectId ?? '');
+      setActivityId(source?.activity_id ?? '');
+      // szablon (Duplikuj) zawsze startuje od dzisiejszej daty
       setDate(entry?.date ?? today());
-      setHoursValue(entry?.hours ?? 8);
-      setDescription(entry?.description ?? '');
+      setHoursValue(source?.hours ?? 8);
+      setDescription(source?.description ?? '');
     }
-  }, [open, entry, presetProjectId, user?.id]);
+  }, [open, entry, template, presetProjectId, user?.id]);
 
   // Ostatnio używane projekty na górze listy
   const projectOptions = useMemo(() => {

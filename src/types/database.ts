@@ -181,6 +181,16 @@ type ProjectPhotoRow = {
   created_at: string;
 }
 
+type NotificationRow = {
+  id: string;
+  recipient_id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
 type SettingsRow = {
   key: string;
   value: Json;
@@ -256,6 +266,10 @@ export type Database = {
       project_photos: TableDef<
         ProjectPhotoRow,
         Partial<ProjectPhotoRow> & Pick<ProjectPhotoRow, 'project_id' | 'path'>
+      >;
+      notifications: TableDef<
+        NotificationRow,
+        Partial<NotificationRow> & Pick<NotificationRow, 'recipient_id' | 'title'>
       >;
       settings: TableDef<SettingsRow, Partial<SettingsRow> & Pick<SettingsRow, 'key'>>;
       activity_log: TableDef<

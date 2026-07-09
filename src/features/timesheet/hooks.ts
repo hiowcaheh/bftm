@@ -79,8 +79,9 @@ export function useDeleteEntry() {
 export function useApproveEntries() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (ids: string[]) => approveEntries(ids),
-    onSuccess: (_d, ids) => {
+    mutationFn: ({ ids, periodLabel }: { ids: string[]; periodLabel: string }) =>
+      approveEntries(ids, { label: periodLabel }),
+    onSuccess: (_d, { ids }) => {
       invalidateHours(queryClient);
       toast.success(`Zatwierdzono wpisy: ${ids.length}`);
     },

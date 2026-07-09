@@ -17,6 +17,10 @@ export const qk = {
     all: ['profile'] as const,
     me: () => ['profile', 'me'] as const,
   },
+  notifications: {
+    all: ['notifications'] as const,
+    list: () => ['notifications', 'list'] as const,
+  },
   dashboard: {
     all: ['dashboard'] as const,
     kpi: () => ['dashboard', 'kpi'] as const,

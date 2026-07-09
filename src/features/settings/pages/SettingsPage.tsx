@@ -8,7 +8,7 @@ import { useSession } from '@/features/auth/SessionProvider';
 import { CompanySection } from '../components/CompanySection';
 import { AccountSection } from '../components/AccountSection';
 
-const APP_VERSION = '0.5.4'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
+const APP_VERSION = '0.6.0'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
 
 /**
  * Ustawienia: Firma (tylko admin), Moje konto, Aplikacja.
