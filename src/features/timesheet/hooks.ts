@@ -41,7 +41,8 @@ export function useCreateEntry() {
       invalidateHours(queryClient);
       toast.success('Godziny zapisane');
     },
-    onError: () => toast.error('Nie udało się zapisać godzin'),
+    onError: (e: Error) =>
+      toast.error(e.message.includes('wpis') ? e.message : 'Nie udało się zapisać godzin'),
   });
 }
 
@@ -54,8 +55,12 @@ export function useUpdateEntry() {
       invalidateHours(queryClient);
       toast.success('Wpis zaktualizowany');
     },
-    onError: () =>
-      toast.error('Nie udało się zapisać — rozliczone wpisy zmienia tylko administrator'),
+    onError: (e: Error) =>
+      toast.error(
+        e.message.includes('wpis')
+          ? e.message
+          : 'Nie udało się zapisać — rozliczone wpisy zmienia tylko administrator',
+      ),
   });
 }
 

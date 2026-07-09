@@ -5,6 +5,7 @@ import {
   endOfMonth,
   endOfWeek,
   format,
+  getISOWeek,
   startOfMonth,
   startOfWeek,
   subDays,
@@ -90,7 +91,9 @@ export default function TimesheetPage() {
   };
 
   const periodLabel =
-    range === 'week' ? `${fmtDate(from)} – ${fmtDate(to)}` : monthYear(anchor);
+    range === 'week'
+      ? `Tydzień ${getISOWeek(anchor)} • ${fmtDate(from)} – ${fmtDate(to)}`
+      : monthYear(anchor);
 
   const activeEmployees = (employees.data ?? []).filter((e) => e.active);
   const draftIds = (entries.data ?? []).filter((e) => e.status === 'draft').map((e) => e.id);

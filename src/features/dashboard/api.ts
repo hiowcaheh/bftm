@@ -56,11 +56,11 @@ export async function fetchToday(): Promise<TodayInfo> {
   const [entriesRes, absencesRes] = await Promise.all([
     supabase
       .from('work_hours')
-      .select('hours, employee:profiles(full_name), project:projects(name)')
+      .select('hours, employee:profiles!employee_id(full_name), project:projects(name)')
       .eq('date', today),
     supabase
       .from('absences')
-      .select('type, employee:profiles(full_name)')
+      .select('type, employee:profiles!employee_id(full_name)')
       .lte('date_from', today)
       .gte('date_to', today),
   ]);
@@ -99,7 +99,9 @@ export interface RecentEntry {
 export async function fetchRecentEntries(): Promise<RecentEntry[]> {
   const { data, error } = await supabase
     .from('work_hours')
-    .select('id, date, hours, employee:profiles(full_name), project:projects(name, color)')
+    .select(
+      'id, date, hours, employee:profiles!employee_id(full_name), project:projects(name, color)',
+    )
     .order('created_at', { ascending: false })
     .limit(5);
   if (error) throw error;

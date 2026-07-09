@@ -1,7 +1,9 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { AbsenceInsert, AbsenceWithEmployee } from './types';
 
-const COLUMNS = '*, employee:profiles(id, full_name)';
+// profiles!employee_id — absences ma dwa odwołania do profiles (employee_id,
+// created_by); bez wskazania PostgREST odrzuca zapytanie jako niejednoznaczne.
+const COLUMNS = '*, employee:profiles!employee_id(id, full_name)';
 
 /** Nieobecności nachodzące na zakres dat (date_from <= to && date_to >= from). */
 export async function fetchAbsences(
