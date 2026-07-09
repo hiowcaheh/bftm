@@ -145,8 +145,8 @@ export function ProjectFormSheet({
           <p className="mb-1.5 text-xs font-medium text-text-secondary">Typ rozliczenia</p>
           <SegmentedControl
             options={[
-              { value: 'hourly', label: 'Godzinowe' },
-              { value: 'fixed', label: 'Ryczałt' },
+              { value: 'hourly', label: 'Timmar' },
+              { value: 'fixed', label: 'Fast pris' },
               { value: 'mixed', label: 'Mieszane' },
             ]}
             value={form.billing_type}
@@ -198,7 +198,7 @@ export function ProjectFormSheet({
 
         <div>
           <p className="mb-1.5 text-xs font-medium text-text-secondary">Kolor projektu</p>
-          <div className="flex gap-2">
+          <div className="no-scrollbar grid grid-flow-col grid-rows-2 justify-start gap-2 overflow-x-auto pb-1">
             {PROJECT_COLORS.map((color) => (
               <button
                 key={color}

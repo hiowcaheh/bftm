@@ -21,8 +21,21 @@
 
 ## timesheet — Godziny
 
-- **Stan**: placeholder (Etap 5).
-- **Uprawnienia**: `hours_add_own`, `hours_view_all`, `hours_edit_all`, `hours_approve`.
+- **Stan**: Etap 5 — dodawanie ze stepperem ±0,5 h (skróty Dziś/Wczoraj,
+  ostatnie projekty, „Zapisz i dodaj kolejny"), dziennik pracownicy × dni
+  (tydzień/miesiąc, sumy, nieobecności w komórkach), lista wpisów z akcjami,
+  zatwierdzanie szkiców okresu, filtr projektu.
+- **Tabele**: `work_hours` (+ join projects, profiles).
+- **Uprawnienia**: `hours_add_own`, `hours_view_all`, `hours_edit_all`,
+  `hours_approve`; wpisy `invoiced` zmienia tylko admin (RLS).
+
+## absences — Nieobecności
+
+- **Stan**: Etap 5 — zgłaszanie zakresu z typem (Chorobowe/Urlop/Bezpłatny/
+  VAB/Inne) i notatką, lista okresu, usuwanie wg uprawnień, ostrzeżenia
+  o kolizjach z godzinami; widoczne w dzienniku i na Pulpicie.
+- **Tabele**: `absences`.
+- **Uprawnienia**: własne każdy; całość `absences_view_all` / `absences_manage`.
 
 ## offers — Oferty
 

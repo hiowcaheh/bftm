@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.5.0 — Etap 5: Godziny + Dziennik + Nieobecności (2026-07-09)
+
+- Dodawanie godzin: sheet ze stepperem ±0,5 h, skróty Dziś/Wczoraj, ostatnio
+  używane projekty na górze listy, „Zapisz i dodaj kolejny"; admin wpisuje
+  za dowolnego pracownika.
+- Dziennik: siatka pracownicy × dni (tydzień/miesiąc, nawigacja okresów),
+  sumy dzienne i na pracownika, kolorowe oznaczenia nieobecności, tap w
+  komórkę → szczegóły dnia; filtr projektu.
+- Lista wpisów pogrupowana po dniach z akcjami edytuj/duplikuj/usuń wg
+  uprawnień; wpisy rozliczone chronione.
+- Zatwierdzanie szkiców z okresu jednym przyciskiem (hours_approve).
+- Nieobecności: zgłaszanie zakresu (chorobowe/urlop/bezpłatny/VAB/inne),
+  lista okresu, ostrzeżenia o kolizji godzin z nieobecnością (w obie strony).
+- Pulpit: prawdziwe KPI godzin miesiąca, sekcja „Dziś w pracy" (kto wpisał
+  godziny, kto nieobecny), ostatnie 5 wpisów, FAB dodaje godziny.
+- Karta projektu: sekcja Godziny — suma, pasek postępu vs budżet (czerwony
+  po przekroczeniu), podział na pracowników, szybkie dodawanie.
+- Projekty: etykiety rozliczeń Timmar / Fast pris / Mieszane, 16 kolorów.
+
 ## 0.4.0 — Etap 4: Klienci + Projekty (2026-07-09)
 
 - Moduł Klienci: lista z wyszukiwarką i badge'ami (Firma/Prywatny, omvänd

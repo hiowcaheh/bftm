@@ -1,33 +1,41 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HardHat, Clock, Receipt, Banknote, Plus } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
+import { HardHat, Clock, Receipt, Banknote, Plus, Sun } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 import { FAB } from '@/components/ui/FAB';
-import { toast } from '@/components/ui/Toast';
-import { hours, moneyWhole } from '@/lib/format';
-import { useDashboardKpi } from '../hooks';
+import { date as fmtDate, hours, moneyWhole, num } from '@/lib/format';
+import { useSession } from '@/features/auth/SessionProvider';
+import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
+import { ABSENCE_TYPE_LABELS, ABSENCE_TYPE_TONES } from '@/features/absences/types';
+import type { AbsenceType } from '@/types/database';
+import { useDashboardKpi, useRecentEntries, useToday } from '../hooks';
 
-/**
- * Pulpit — kafel „Aktywne projekty" liczy prawdziwe dane; pozostałe KPI
- * podłączą się w Etapach 5–9 wraz z godzinami, kosztami i finansami.
- */
 export default function DashboardPage() {
   const kpi = useDashboardKpi();
+  const today = useToday();
+  const recent = useRecentEntries();
   const navigate = useNavigate();
+  const { can } = useSession();
+  const [hoursFormOpen, setHoursFormOpen] = useState(false);
 
   const tiles = [
-    {
-      label: 'Aktywne projekty',
-      value: kpi.data ? String(kpi.data.activeProjects) : '—',
-      icon: HardHat,
-      demo: false,
-      onClick: () => navigate('/projekty'),
-    },
+    ...(can('projects_view')
+      ? [
+          {
+            label: 'Aktywne projekty',
+            value: kpi.data ? String(kpi.data.activeProjects) : '—',
+            icon: HardHat,
+            demo: false,
+            onClick: () => navigate('/projekty'),
+          },
+        ]
+      : []),
     {
       label: 'Godziny w tym miesiącu',
-      value: hours(0),
+      value: kpi.data ? hours(kpi.data.hoursThisMonth) : '—',
       icon: Clock,
-      demo: true,
+      demo: false,
       onClick: () => navigate('/godziny'),
     },
     {
@@ -72,16 +80,68 @@ export default function DashboardPage() {
 
       <section className="flex flex-col gap-3">
         <h2 className="text-base font-semibold">Dziś w pracy</h2>
-        <Card className="p-4 text-sm text-text-secondary">
-          Sekcja pojawi się w Etapie 5 razem z dziennikiem godzin — pokaże, kto dziś wpisał
-          godziny i kto jest nieobecny.
+        <Card className="flex flex-col gap-2 p-4">
+          {today.data && today.data.entries.length === 0 && today.data.absences.length === 0 && (
+            <p className="flex items-center gap-2 text-sm text-text-secondary">
+              <Sun className="size-5" /> Nikt jeszcze nie wpisał dziś godzin.
+            </p>
+          )}
+          {today.data?.entries.map((e, i) => (
+            <div key={i} className="flex items-baseline justify-between gap-2">
+              <span className="min-w-0 truncate text-sm">
+                <span className="font-medium">{e.employeeName}</span>{' '}
+                <span className="text-text-secondary">— {e.projectName}</span>
+              </span>
+              <span className="tabular-nums shrink-0 text-sm font-semibold">
+                {num(e.hours)} h
+              </span>
+            </div>
+          ))}
+          {today.data?.absences.map((a, i) => (
+            <div key={`a${i}`} className="flex items-center justify-between gap-2">
+              <span className="text-sm font-medium">{a.employeeName}</span>
+              <Badge tone={ABSENCE_TYPE_TONES[a.type as AbsenceType] ?? 'neutral'}>
+                {ABSENCE_TYPE_LABELS[a.type as AbsenceType] ?? a.type}
+              </Badge>
+            </div>
+          ))}
         </Card>
       </section>
 
+      {(recent.data?.length ?? 0) > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-base font-semibold">Ostatnie wpisy</h2>
+          <Card className="flex flex-col divide-y divide-line">
+            {recent.data?.map((e) => (
+              <div key={e.id} className="flex items-center gap-3 p-3">
+                <div
+                  className="h-8 w-1.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: e.projectColor ?? '#CC0000' }}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{e.employeeName}</p>
+                  <p className="truncate text-xs text-text-secondary">
+                    {e.projectName} • {fmtDate(e.date)}
+                  </p>
+                </div>
+                <span className="tabular-nums shrink-0 text-sm font-semibold">
+                  {num(e.hours)} h
+                </span>
+              </div>
+            ))}
+          </Card>
+        </section>
+      )}
+
       <FAB
         label="Dodaj godziny"
-        onClick={() => toast.info('Dodawanie godzin — Etap 5')}
+        onClick={() => setHoursFormOpen(true)}
         icon={<Plus className="size-7" />}
+      />
+      <HoursFormSheet
+        open={hoursFormOpen}
+        onClose={() => setHoursFormOpen(false)}
+        entry={null}
       />
     </div>
   );
