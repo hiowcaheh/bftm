@@ -11,6 +11,7 @@ import {
   subDays,
   subMonths,
 } from 'date-fns';
+import { pl } from 'date-fns/locale';
 import { CalendarOff, ChevronLeft, ChevronRight, CheckCheck, Plus, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -42,6 +43,9 @@ type View = 'journal' | 'list' | 'absences';
 type Range = 'week' | 'month';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
+/** „czw., 09.07" — kompaktowa etykieta dnia w modalu zatwierdzania */
+const dayLabel = (isoDate: string) =>
+  format(new Date(isoDate), 'EEEEEE, dd.MM', { locale: pl });
 
 export default function TimesheetPage() {
   const { user, can } = useSession();
@@ -100,14 +104,18 @@ export default function TimesheetPage() {
   const draftIds = draftEntries.map((e) => e.id);
   const totalHours = (entries.data ?? []).reduce((s, e) => s + e.hours, 0);
 
-  // Podsumowanie do modalu zatwierdzania: pracownik → szkicowe godziny
-  // + dni nieobecności w okresie (z podziałem na typy)
+  // Podsumowanie do modalu zatwierdzania: pracownik → suma godzin, każdy dzień
+  // z osobna + dni nieobecności w okresie (z podziałem na typy)
   const approveSummary = useMemo(() => {
-    const byEmployee = new Map<string, { hours: number; absences: Map<string, number> }>();
+    const byEmployee = new Map<
+      string,
+      { hours: number; days: Map<string, number>; absences: Map<string, number> }
+    >();
     for (const e of draftEntries) {
       const name = e.employee?.full_name ?? '?';
-      const row = byEmployee.get(name) ?? { hours: 0, absences: new Map() };
+      const row = byEmployee.get(name) ?? { hours: 0, days: new Map(), absences: new Map() };
       row.hours += e.hours;
+      row.days.set(e.date, (row.days.get(e.date) ?? 0) + e.hours);
       byEmployee.set(name, row);
     }
     const periodFrom = iso(from);
@@ -119,7 +127,7 @@ export default function TimesheetPage() {
       const daysCount =
         Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86400000) + 1;
       if (daysCount <= 0) continue;
-      const row = byEmployee.get(name) ?? { hours: 0, absences: new Map() };
+      const row = byEmployee.get(name) ?? { hours: 0, days: new Map(), absences: new Map() };
       const label = ABSENCE_TYPE_LABELS[a.type];
       row.absences.set(label, (row.absences.get(label) ?? 0) + daysCount);
       byEmployee.set(name, row);
@@ -128,6 +136,17 @@ export default function TimesheetPage() {
   }, [draftEntries, absences.data, from, to]);
 
   const [confirmApprove, setConfirmApprove] = useState(false);
+  const [editWarnEntry, setEditWarnEntry] = useState<WorkHoursEntry | null>(null);
+
+  // Wspólna ścieżka edycji: zatwierdzony/rozliczony wpis → najpierw ostrzeżenie
+  const requestEdit = (entry: WorkHoursEntry) => {
+    if (entry.status !== 'draft') {
+      setEditWarnEntry(entry);
+    } else {
+      setEditEntry(entry);
+      setFormOpen(true);
+    }
+  };
   const canDeleteAbsence = (a: AbsenceWithEmployee) =>
     can('absences_manage') || (a.employee_id === user?.id && a.date_from >= iso(new Date()));
 
@@ -203,10 +222,7 @@ export default function TimesheetPage() {
             entries={entries.data ?? []}
             absences={absences.data ?? []}
             employees={activeEmployees}
-            onEditEntry={(entry) => {
-              setEditEntry(entry);
-              setFormOpen(true);
-            }}
+            onEditEntry={requestEdit}
           />
           {canApprove && draftIds.length > 0 && (
             <Button
@@ -224,10 +240,7 @@ export default function TimesheetPage() {
         <EntryList
           entries={entries.data ?? []}
           showEmployee={seesAll}
-          onEdit={(entry) => {
-            setEditEntry(entry);
-            setFormOpen(true);
-          }}
+          onEdit={requestEdit}
         />
       )}
 
@@ -298,6 +311,24 @@ export default function TimesheetPage() {
       />
       <AbsenceFormSheet open={absenceFormOpen} onClose={() => setAbsenceFormOpen(false)} />
       <ConfirmDialog
+        open={editWarnEntry !== null}
+        title="Dzień już zatwierdzony"
+        description={
+          editWarnEntry
+            ? `Wpis ${editWarnEntry.employee?.full_name ?? ''} z ${fmtDate(editWarnEntry.date)} (${fmtHours(editWarnEntry.hours)}) został już ${editWarnEntry.status === 'invoiced' ? 'rozliczony' : 'zatwierdzony do wypłaty'}. Edytować mimo to?`
+            : ''
+        }
+        confirmLabel="Edytuj mimo to"
+        onConfirm={() => {
+          if (editWarnEntry) {
+            setEditEntry(editWarnEntry);
+            setFormOpen(true);
+          }
+          setEditWarnEntry(null);
+        }}
+        onCancel={() => setEditWarnEntry(null)}
+      />
+      <ConfirmDialog
         open={confirmApprove}
         title="Zatwierdzić godziny do wypłaty?"
         description={
@@ -305,18 +336,39 @@ export default function TimesheetPage() {
             <p>
               Okres: <span className="tabular-nums font-medium">{periodLabel}</span>
             </p>
-            <div className="flex flex-col gap-1.5 rounded-xl bg-surface p-3">
+            <div className="flex max-h-72 flex-col gap-3 overflow-y-auto rounded-xl bg-surface p-3">
               {approveSummary.map(([name, row]) => (
-                <div key={name} className="flex items-baseline justify-between gap-2 text-sm">
-                  <span className="min-w-0 truncate font-medium text-text">{name}</span>
-                  <span className="tabular-nums shrink-0 text-right">
-                    {row.hours > 0 && <span className="font-semibold">{fmtHours(row.hours)}</span>}
-                    {[...row.absences.entries()].map(([label, days]) => (
-                      <span key={label} className="block text-xs text-text-secondary">
-                        {label}: {days} {days === 1 ? 'dzień' : 'dni'}
+                <div key={name} className="flex flex-col gap-1">
+                  <div className="flex items-baseline justify-between gap-2 text-sm">
+                    <span className="min-w-0 truncate font-semibold text-text">{name}</span>
+                    {row.hours > 0 && (
+                      <span className="tabular-nums shrink-0 font-semibold text-text">
+                        {fmtHours(row.hours)}
                       </span>
+                    )}
+                  </div>
+                  {[...row.days.entries()]
+                    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+                    .map(([day, dayHours]) => (
+                      <div
+                        key={day}
+                        className="flex items-baseline justify-between gap-2 pl-2 text-xs text-text-secondary"
+                      >
+                        <span className="capitalize">{dayLabel(day)}</span>
+                        <span className="tabular-nums">{fmtHours(dayHours)}</span>
+                      </div>
                     ))}
-                  </span>
+                  {[...row.absences.entries()].map(([label, days]) => (
+                    <div
+                      key={label}
+                      className="flex items-baseline justify-between gap-2 pl-2 text-xs text-text-secondary"
+                    >
+                      <span>{label}</span>
+                      <span>
+                        {days} {days === 1 ? 'dzień' : 'dni'}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>

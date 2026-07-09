@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { House, Clock, Receipt, Banknote, Plus, Sun } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { FAB } from '@/components/ui/FAB';
 import { date as fmtDate, hours, moneyWhole, num } from '@/lib/format';
@@ -17,6 +18,7 @@ export default function DashboardPage() {
   const recent = useRecentEntries();
   const navigate = useNavigate();
   const { can } = useSession();
+  const seesAll = can('hours_view_all');
   const [hoursFormOpen, setHoursFormOpen] = useState(false);
 
   const tiles = [
@@ -79,18 +81,28 @@ export default function DashboardPage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base font-semibold">Dziś w pracy</h2>
+        <h2 className="text-base font-semibold">{seesAll ? 'Dziś w pracy' : 'Twój dzień'}</h2>
         <Card className="flex flex-col gap-2 p-4">
           {today.data && today.data.entries.length === 0 && today.data.absences.length === 0 && (
-            <p className="flex items-center gap-2 text-sm text-text-secondary">
-              <Sun className="size-5" /> Nikt jeszcze nie wpisał dziś godzin.
-            </p>
+            <div className="flex flex-col items-start gap-3">
+              <p className="flex items-center gap-2 text-sm text-text-secondary">
+                <Sun className="size-5" />
+                {seesAll
+                  ? 'Nikt jeszcze nie wpisał dziś godzin.'
+                  : 'Nie masz jeszcze wpisu na dziś.'}
+              </p>
+              {!seesAll && (
+                <Button size="sm" onClick={() => setHoursFormOpen(true)}>
+                  Dodaj dzisiejsze godziny
+                </Button>
+              )}
+            </div>
           )}
           {today.data?.entries.map((e, i) => (
             <div key={i} className="flex items-baseline justify-between gap-2">
               <span className="min-w-0 truncate text-sm">
-                <span className="font-medium">{e.employeeName}</span>{' '}
-                <span className="text-text-secondary">— {e.projectName}</span>
+                <span className="font-medium">{seesAll ? e.employeeName : e.projectName}</span>{' '}
+                {seesAll && <span className="text-text-secondary">— {e.projectName}</span>}
               </span>
               <span className="tabular-nums shrink-0 text-sm font-semibold">
                 {num(e.hours)} h

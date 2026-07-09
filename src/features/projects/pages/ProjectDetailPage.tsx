@@ -99,25 +99,23 @@ export default function ProjectDetailPage() {
             subtitle="Termin realizacji"
           />
         )}
-        <ListRow
-          leading={<Banknote className="size-5 text-text-secondary" />}
-          title={
-            canFinance
-              ? [
-                  BILLING_TYPE_LABELS[p.billing_type],
-                  p.hourly_rate != null && p.billing_type !== 'fixed'
-                    ? `${num(p.hourly_rate)} kr/h`
-                    : null,
-                  p.fixed_value != null && p.billing_type !== 'hourly'
-                    ? moneyWhole(p.fixed_value)
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .join(' • ')
-              : BILLING_TYPE_LABELS[p.billing_type]
-          }
-          subtitle="Rozliczenie"
-        />
+        {canFinance && (
+          <ListRow
+            leading={<Banknote className="size-5 text-text-secondary" />}
+            title={[
+              BILLING_TYPE_LABELS[p.billing_type],
+              p.hourly_rate != null && p.billing_type !== 'fixed'
+                ? `${num(p.hourly_rate)} kr/h`
+                : null,
+              p.fixed_value != null && p.billing_type !== 'hourly'
+                ? moneyWhole(p.fixed_value)
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' • ')}
+            subtitle="Rozliczenie"
+          />
+        )}
       </ListGroup>
 
       <ProjectActivitiesSection projectId={p.id} />

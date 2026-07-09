@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { eachDayOfInterval, format, isToday, isWeekend } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Pencil } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
 import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/cn';
 import { date as fmtDate, dateLong, hours, num } from '@/lib/format';
@@ -11,7 +12,11 @@ import {
   ABSENCE_TYPE_COLORS,
   ABSENCE_TYPE_LABELS,
 } from '@/features/absences/types';
-import type { WorkHoursEntry } from '../types';
+import {
+  HOURS_STATUS_LABELS,
+  HOURS_STATUS_TONES,
+  type WorkHoursEntry,
+} from '../types';
 
 interface JournalGridProps {
   from: Date;
@@ -128,7 +133,9 @@ export function JournalGrid({
                   <div className="tabular-nums">{format(d, 'd')}</div>
                 </th>
               ))}
-              <th className="min-w-12 p-2 text-right font-semibold text-text-secondary">Σ</th>
+              <th className="min-w-12 p-2 text-right font-semibold text-text-secondary">
+                Suma
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -177,7 +184,7 @@ export function JournalGrid({
           </tbody>
           <tfoot>
             <tr className="border-t border-line bg-surface/50">
-              <td className="sticky left-0 z-10 bg-surface p-2 font-semibold">Σ</td>
+              <td className="sticky left-0 z-10 bg-surface p-2 font-semibold">Suma</td>
               {days.map((d) => {
                 const total = dayTotals.get(format(d, 'yyyy-MM-dd'));
                 return (
@@ -199,7 +206,7 @@ export function JournalGrid({
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line px-3 py-2 text-[11px] text-text-secondary">
         <span className="flex items-center gap-1.5">
-          <span className="size-3 rounded bg-accent-soft ring-1 ring-accent/30" /> szkic
+          <span className="size-3 rounded bg-accent-soft ring-1 ring-accent/30" /> niezatwierdzone
         </span>
         <span className="flex items-center gap-1.5">
           <span className="size-3 rounded bg-success-soft ring-1 ring-success/30" /> zatwierdzone
@@ -254,6 +261,9 @@ export function JournalGrid({
                     {[e.activity?.name, e.description].filter(Boolean).join(' • ')}
                   </p>
                 )}
+                <Badge tone={HOURS_STATUS_TONES[e.status]} className="mt-1">
+                  {HOURS_STATUS_LABELS[e.status]}
+                </Badge>
               </div>
               <span className="tabular-nums shrink-0 text-sm font-semibold">
                 {hours(e.hours)}
