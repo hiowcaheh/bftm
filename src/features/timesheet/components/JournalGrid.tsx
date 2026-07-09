@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { eachDayOfInterval, format, isToday, isWeekend } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Badge } from '@/components/ui/Badge';
+import { Pencil } from 'lucide-react';
 import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/cn';
-import { dateLong, hours, num } from '@/lib/format';
+import { date as fmtDate, dateLong, hours, num } from '@/lib/format';
+import { useSession } from '@/features/auth/SessionProvider';
 import type { AbsenceWithEmployee } from '@/features/absences/types';
 import {
   ABSENCE_TYPE_COLORS,
@@ -18,22 +19,46 @@ interface JournalGridProps {
   entries: WorkHoursEntry[];
   absences: AbsenceWithEmployee[];
   employees: Array<{ id: string; full_name: string }>;
+  onEditEntry?: (entry: WorkHoursEntry) => void;
+}
+
+interface CellInfo {
+  sum: number;
+  allApproved: boolean;
 }
 
 /**
- * Siatka dziennika: pracownicy × dni. Komórka pokazuje sumę godzin albo
- * kolorową kropkę nieobecności; tap otwiera szczegóły dnia. Wiersz sum
- * dziennych na dole, suma na pracownika po prawej.
+ * Siatka dziennika: pracownicy × dni. Czerwona komórka = szkice,
+ * zielona = wszystkie godziny zatwierdzone (do wypłaty). Kropka w kolorze
+ * typu = nieobecność. Tap → szczegóły dnia z możliwością edycji wpisów.
  */
-export function JournalGrid({ from, to, entries, absences, employees }: JournalGridProps) {
+export function JournalGrid({
+  from,
+  to,
+  entries,
+  absences,
+  employees,
+  onEditEntry,
+}: JournalGridProps) {
   const days = useMemo(() => eachDayOfInterval({ start: from, end: to }), [from, to]);
   const [selected, setSelected] = useState<{ employeeId: string; date: string } | null>(null);
+  const { user, can } = useSession();
+
+  const canModify = (entry: WorkHoursEntry): boolean => {
+    if (user?.role === 'admin') return true;
+    if (entry.status === 'invoiced') return false;
+    if (can('hours_edit_all')) return true;
+    return entry.employee_id === user?.id && entry.status === 'draft';
+  };
 
   const hoursByCell = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, CellInfo>();
     for (const e of entries) {
       const key = `${e.employee_id}|${e.date}`;
-      map.set(key, (map.get(key) ?? 0) + e.hours);
+      const cell = map.get(key) ?? { sum: 0, allApproved: true };
+      cell.sum += e.hours;
+      if (e.status === 'draft') cell.allApproved = false;
+      map.set(key, cell);
     }
     return map;
   }, [entries]);
@@ -79,7 +104,8 @@ export function JournalGrid({ from, to, entries, absences, employees }: JournalG
 
   return (
     <div className="overflow-hidden rounded-(--radius-card) bg-white shadow-(--shadow-card)">
-      <div className="overflow-x-auto">
+      {/* data-noswipe: przewijanie siatki nie przełącza zakładek aplikacji */}
+      <div className="overflow-x-auto" data-noswipe>
         <table className="w-full border-collapse text-xs">
           <thead>
             <tr className="border-b border-line">
@@ -113,29 +139,32 @@ export function JournalGrid({ from, to, entries, absences, employees }: JournalG
                 </td>
                 {days.map((d) => {
                   const key = `${emp.id}|${format(d, 'yyyy-MM-dd')}`;
-                  const cellHours = hoursByCell.get(key);
+                  const cell = hoursByCell.get(key);
                   const absence = absenceByCell.get(key);
                   return (
                     <td key={key} className="p-0.5 text-center">
                       <button
                         type="button"
                         className={cn(
-                          'tabular-nums flex h-9 w-full min-w-8 items-center justify-center rounded-lg',
-                          cellHours && 'bg-accent-soft font-semibold text-accent',
-                          !cellHours && absence && 'text-white',
-                          !cellHours && !absence && isWeekend(d) && 'bg-surface/50',
+                          'tabular-nums flex h-9 w-full min-w-8 items-center justify-center rounded-lg font-semibold',
+                          cell &&
+                            (cell.allApproved
+                              ? 'bg-success-soft text-success'
+                              : 'bg-accent-soft text-accent'),
+                          !cell && absence && 'text-white',
+                          !cell && !absence && isWeekend(d) && 'bg-surface/50',
                         )}
                         style={
-                          !cellHours && absence
+                          !cell && absence
                             ? { backgroundColor: ABSENCE_TYPE_COLORS[absence.type] }
                             : undefined
                         }
                         onClick={() =>
-                          (cellHours || absence) &&
+                          (cell || absence) &&
                           setSelected({ employeeId: emp.id, date: format(d, 'yyyy-MM-dd') })
                         }
                       >
-                        {cellHours ? num(cellHours) : absence ? '•' : ''}
+                        {cell ? num(cell.sum) : absence ? '•' : ''}
                       </button>
                     </td>
                   );
@@ -168,6 +197,19 @@ export function JournalGrid({ from, to, entries, absences, employees }: JournalG
         </table>
       </div>
 
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line px-3 py-2 text-[11px] text-text-secondary">
+        <span className="flex items-center gap-1.5">
+          <span className="size-3 rounded bg-accent-soft ring-1 ring-accent/30" /> szkic
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-3 rounded bg-success-soft ring-1 ring-success/30" /> zatwierdzone
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-3 rounded" style={{ backgroundColor: ABSENCE_TYPE_COLORS.sick }} />{' '}
+          nieobecność
+        </span>
+      </div>
+
       <Sheet
         open={selected !== null}
         onClose={() => setSelected(null)}
@@ -175,22 +217,34 @@ export function JournalGrid({ from, to, entries, absences, employees }: JournalG
       >
         <div className="flex flex-col gap-3">
           {selectedAbsence && (
-            <Badge
-              tone="neutral"
-              className="self-start text-white"
+            <div
+              className="flex items-center gap-3 rounded-xl p-3"
+              style={{ backgroundColor: `${ABSENCE_TYPE_COLORS[selectedAbsence.type]}1A` }}
             >
               <span
-                className="rounded-full px-2 py-0.5"
+                className="size-3 shrink-0 rounded-full"
                 style={{ backgroundColor: ABSENCE_TYPE_COLORS[selectedAbsence.type] }}
-              >
-                Nieobecność: {ABSENCE_TYPE_LABELS[selectedAbsence.type]}
-              </span>
-            </Badge>
+              />
+              <div className="min-w-0 flex-1">
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: ABSENCE_TYPE_COLORS[selectedAbsence.type] }}
+                >
+                  {ABSENCE_TYPE_LABELS[selectedAbsence.type]}
+                </p>
+                <p className="text-xs text-text-secondary">
+                  {selectedAbsence.date_from === selectedAbsence.date_to
+                    ? fmtDate(selectedAbsence.date_from)
+                    : `${fmtDate(selectedAbsence.date_from)} – ${fmtDate(selectedAbsence.date_to)}`}
+                  {selectedAbsence.note ? ` • ${selectedAbsence.note}` : ''}
+                </p>
+              </div>
+            </div>
           )}
           {selectedEntries.map((e) => (
             <div key={e.id} className="flex items-center gap-3 rounded-xl bg-surface p-3">
               <div
-                className="h-8 w-1.5 rounded-full"
+                className="h-8 w-1.5 shrink-0 rounded-full"
                 style={{ backgroundColor: e.project?.color ?? '#CC0000' }}
               />
               <div className="min-w-0 flex-1">
@@ -201,7 +255,22 @@ export function JournalGrid({ from, to, entries, absences, employees }: JournalG
                   </p>
                 )}
               </div>
-              <span className="tabular-nums text-sm font-semibold">{hours(e.hours)}</span>
+              <span className="tabular-nums shrink-0 text-sm font-semibold">
+                {hours(e.hours)}
+              </span>
+              {onEditEntry && canModify(e) && (
+                <button
+                  type="button"
+                  aria-label="Edytuj wpis"
+                  className="press flex size-9 shrink-0 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
+                  onClick={() => {
+                    setSelected(null);
+                    onEditEntry(e);
+                  }}
+                >
+                  <Pencil className="size-4 text-text-secondary" />
+                </button>
+              )}
             </div>
           ))}
           {selectedEntries.length === 0 && !selectedAbsence && (

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.3 — dopracowanie dziennika i aktualizacji (2026-07-09)
+
+- „Sprawdź aktualizację" działa naprawdę: aktywnie pyta serwer o nową wersję;
+  jeśli jest — modal z przyciskiem „Zainstaluj i odśwież"; jeśli nie — komunikat
+  o aktualnej wersji.
+- Przewijanie siatki dziennika nie przełącza już zakładek aplikacji.
+- Zatwierdzanie godzin z modalem podsumowania: pracownik → godziny + dni
+  nieobecności wg typu w okresie, dopiero potem zatwierdzenie.
+- Komórki dziennika: czerwone = szkice, zielone = zatwierdzone do wypłaty
+  (+ legenda pod siatką).
+- Szczegóły dnia w dzienniku: edycja wpisu ołówkiem wprost z komórki;
+  nieobecność jako czytelna karta w kolorze typu (zamiast szarego badge'a).
+
 ## 0.5.2 — aktywności projektów + poprawki UX (2026-07-09)
 
 - **Aktywności projektów**: na karcie projektu sekcja Aktywności (np. etapy,

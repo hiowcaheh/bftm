@@ -96,8 +96,38 @@ export default function TimesheetPage() {
       : monthYear(anchor);
 
   const activeEmployees = (employees.data ?? []).filter((e) => e.active);
-  const draftIds = (entries.data ?? []).filter((e) => e.status === 'draft').map((e) => e.id);
+  const draftEntries = (entries.data ?? []).filter((e) => e.status === 'draft');
+  const draftIds = draftEntries.map((e) => e.id);
   const totalHours = (entries.data ?? []).reduce((s, e) => s + e.hours, 0);
+
+  // Podsumowanie do modalu zatwierdzania: pracownik → szkicowe godziny
+  // + dni nieobecności w okresie (z podziałem na typy)
+  const approveSummary = useMemo(() => {
+    const byEmployee = new Map<string, { hours: number; absences: Map<string, number> }>();
+    for (const e of draftEntries) {
+      const name = e.employee?.full_name ?? '?';
+      const row = byEmployee.get(name) ?? { hours: 0, absences: new Map() };
+      row.hours += e.hours;
+      byEmployee.set(name, row);
+    }
+    const periodFrom = iso(from);
+    const periodTo = iso(to);
+    for (const a of absences.data ?? []) {
+      const name = a.employee?.full_name ?? '?';
+      const start = a.date_from < periodFrom ? periodFrom : a.date_from;
+      const end = a.date_to > periodTo ? periodTo : a.date_to;
+      const daysCount =
+        Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86400000) + 1;
+      if (daysCount <= 0) continue;
+      const row = byEmployee.get(name) ?? { hours: 0, absences: new Map() };
+      const label = ABSENCE_TYPE_LABELS[a.type];
+      row.absences.set(label, (row.absences.get(label) ?? 0) + daysCount);
+      byEmployee.set(name, row);
+    }
+    return [...byEmployee.entries()].sort((a, b) => a[0].localeCompare(b[0], 'pl'));
+  }, [draftEntries, absences.data, from, to]);
+
+  const [confirmApprove, setConfirmApprove] = useState(false);
   const canDeleteAbsence = (a: AbsenceWithEmployee) =>
     can('absences_manage') || (a.employee_id === user?.id && a.date_from >= iso(new Date()));
 
@@ -173,15 +203,18 @@ export default function TimesheetPage() {
             entries={entries.data ?? []}
             absences={absences.data ?? []}
             employees={activeEmployees}
+            onEditEntry={(entry) => {
+              setEditEntry(entry);
+              setFormOpen(true);
+            }}
           />
           {canApprove && draftIds.length > 0 && (
             <Button
               variant="secondary"
               icon={<CheckCheck className="size-5" />}
-              loading={approve.isPending}
-              onClick={() => approve.mutate(draftIds)}
+              onClick={() => setConfirmApprove(true)}
             >
-              Zatwierdź szkice z okresu ({draftIds.length})
+              Zatwierdź godziny z okresu ({draftIds.length})
             </Button>
           )}
         </>
@@ -264,6 +297,41 @@ export default function TimesheetPage() {
         entry={editEntry}
       />
       <AbsenceFormSheet open={absenceFormOpen} onClose={() => setAbsenceFormOpen(false)} />
+      <ConfirmDialog
+        open={confirmApprove}
+        title="Zatwierdzić godziny do wypłaty?"
+        description={
+          <div className="flex flex-col gap-2">
+            <p>
+              Okres: <span className="tabular-nums font-medium">{periodLabel}</span>
+            </p>
+            <div className="flex flex-col gap-1.5 rounded-xl bg-surface p-3">
+              {approveSummary.map(([name, row]) => (
+                <div key={name} className="flex items-baseline justify-between gap-2 text-sm">
+                  <span className="min-w-0 truncate font-medium text-text">{name}</span>
+                  <span className="tabular-nums shrink-0 text-right">
+                    {row.hours > 0 && <span className="font-semibold">{fmtHours(row.hours)}</span>}
+                    {[...row.absences.entries()].map(([label, days]) => (
+                      <span key={label} className="block text-xs text-text-secondary">
+                        {label}: {days} {days === 1 ? 'dzień' : 'dni'}
+                      </span>
+                    ))}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs">
+              Zatwierdzone godziny oznaczą się na zielono i będą gotowe do rozliczenia.
+            </p>
+          </div>
+        }
+        confirmLabel="Zatwierdź"
+        loading={approve.isPending}
+        onConfirm={() =>
+          approve.mutate(draftIds, { onSettled: () => setConfirmApprove(false) })
+        }
+        onCancel={() => setConfirmApprove(false)}
+      />
       <ConfirmDialog
         open={absenceToDelete !== null}
         title="Usunąć nieobecność?"

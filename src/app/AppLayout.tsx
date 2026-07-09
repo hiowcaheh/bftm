@@ -25,9 +25,10 @@ export function AppLayout() {
     const start = touchStart.current;
     touchStart.current = null;
     if (!start || moreOpen) return;
-    // Nie przechwytujemy gestów zaczynających się na poziomych listach/inputach
+    // Nie przechwytujemy gestów zaczynających się na poziomych listach,
+    // inputach ani elementach oznaczonych data-noswipe (np. siatka dziennika)
     const target = e.target as HTMLElement;
-    if (target.closest('.no-scrollbar, input, textarea, select')) return;
+    if (target.closest('.no-scrollbar, input, textarea, select, [data-noswipe]')) return;
 
     const t = e.changedTouches[0];
     if (!t) return;

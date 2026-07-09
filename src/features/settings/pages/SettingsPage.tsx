@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { Info, RefreshCw } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/Dialog';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { toast } from '@/components/ui/Toast';
+import { checkForSwUpdate, installSwUpdate } from '@/lib/swUpdate';
 import { useSession } from '@/features/auth/SessionProvider';
 import { CompanySection } from '../components/CompanySection';
 import { AccountSection } from '../components/AccountSection';
 
-const APP_VERSION = '0.5.2'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
+const APP_VERSION = '0.5.3'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
 
 /**
  * Ustawienia: Firma (tylko admin), Moje konto, Aplikacja.
@@ -13,14 +16,20 @@ const APP_VERSION = '0.5.2'; // aktualizowane przy każdym etapie, patrz CHANGEL
  */
 export default function SettingsPage() {
   const { user } = useSession();
+  const [checking, setChecking] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [installing, setInstalling] = useState(false);
 
   const checkForUpdate = async () => {
-    const registration = await navigator.serviceWorker?.getRegistration();
-    if (registration) {
-      await registration.update();
-      toast.info('Sprawdzono — jeśli jest nowa wersja, pojawi się propozycja odświeżenia');
-    } else {
+    setChecking(true);
+    const result = await checkForSwUpdate();
+    setChecking(false);
+    if (result === null) {
       toast.info('Service worker nie jest aktywny (tryb deweloperski)');
+    } else if (result) {
+      setUpdateAvailable(true);
+    } else {
+      toast.success(`Masz najnowszą wersję (${APP_VERSION})`);
     }
   };
 
@@ -44,14 +53,31 @@ export default function SettingsPage() {
         <ListRow
           leading={
             <div className="flex size-10 items-center justify-center rounded-xl bg-surface">
-              <RefreshCw className="size-5 text-text-secondary" strokeWidth={1.8} />
+              <RefreshCw
+                className={`size-5 text-text-secondary ${checking ? 'animate-spin' : ''}`}
+                strokeWidth={1.8}
+              />
             </div>
           }
-          title="Sprawdź aktualizację"
+          title={checking ? 'Sprawdzanie…' : 'Sprawdź aktualizację'}
           chevron
-          onClick={() => void checkForUpdate()}
+          onClick={() => !checking && void checkForUpdate()}
         />
       </ListGroup>
+
+      <ConfirmDialog
+        open={updateAvailable}
+        title="Dostępna nowa wersja"
+        description="Jest nowsza wersja aplikacji. Zainstalować teraz? Aplikacja odświeży się automatycznie — niezapisane zmiany w otwartych formularzach przepadną."
+        confirmLabel="Zainstaluj i odśwież"
+        cancelLabel="Później"
+        loading={installing}
+        onConfirm={() => {
+          setInstalling(true);
+          void installSwUpdate();
+        }}
+        onCancel={() => setUpdateAvailable(false)}
+      />
     </div>
   );
 }
