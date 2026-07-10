@@ -15,6 +15,10 @@ export interface CompanyDetails {
   iban: string;
   phone: string;
   email: string;
+  /** Opis firmy na publicznej stronie oferty (po szwedzku) */
+  about: string;
+  /** Usługi pokazywane na stronie oferty (ikonki) */
+  services: string[];
 }
 
 export const EMPTY_COMPANY_DETAILS: CompanyDetails = {
@@ -28,6 +32,8 @@ export const EMPTY_COMPANY_DETAILS: CompanyDetails = {
   iban: '',
   phone: '',
   email: '',
+  about: '',
+  services: [],
 };
 
 /** settings.finance — narzuty pracodawcy i stawki VAT (Szwecja, edytowalne). */

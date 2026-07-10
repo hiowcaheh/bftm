@@ -83,6 +83,10 @@ export default function OfferEditorPage() {
   const [rotPersons, setRotPersons] = useState('1');
   const [reverseVat, setReverseVat] = useState(false);
   const [notes, setNotes] = useState('');
+  const [guarantee, setGuarantee] = useState('');
+  const [ataInfo, setAtaInfo] = useState('');
+  const [travelInfo, setTravelInfo] = useState('');
+  const [paymentDays, setPaymentDays] = useState('30');
   const [items, setItems] = useState<DraftItem[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -102,6 +106,10 @@ export default function OfferEditorPage() {
       setRotPersons(String(offer.rot_persons));
       setReverseVat(offer.reverse_vat);
       setNotes(offer.notes ?? '');
+      setGuarantee(offer.guarantee ?? '');
+      setAtaInfo(offer.ata_info ?? '');
+      setTravelInfo(offer.travel_info ?? '');
+      setPaymentDays(offer.payment_days != null ? String(offer.payment_days) : '30');
       setItems(
         rows.map((r: OfferItem) => ({
           description: r.description,
@@ -161,6 +169,10 @@ export default function OfferEditorPage() {
     rot_persons: Number(rotPersons) || 1,
     reverse_vat: reverseVat,
     notes: notes.trim() || null,
+    guarantee: guarantee.trim() || null,
+    ata_info: ataInfo.trim() || null,
+    travel_info: travelInfo.trim() || null,
+    payment_days: Number(paymentDays) || null,
   });
 
   const validate = (): boolean => {
@@ -357,9 +369,42 @@ export default function OfferEditorPage() {
             hint={`Limit ${money((finance.data?.rot.cap_per_person ?? 50000) * (Number(rotPersons) || 1))} (${num(finance.data?.rot.pct ?? 30)}% robocizny brutto)`}
           />
         )}
+      </Card>
+
+      <Card className="flex flex-col gap-4 p-4">
+        <h2 className="text-base font-semibold">Informacje dla klienta</h2>
+        <Input
+          label="Gwarancja (garanti)"
+          placeholder="np. 5 års garanti på utfört arbete"
+          value={guarantee}
+          disabled={!canEdit}
+          onChange={(e) => setGuarantee(e.target.value)}
+        />
+        <Input
+          label="Prace dodatkowe (ÄTA-arbeten)"
+          placeholder="np. ÄTA-arbeten debiteras 550 kr/tim efter godkännande"
+          value={ataInfo}
+          disabled={!canEdit}
+          onChange={(e) => setAtaInfo(e.target.value)}
+        />
+        <Input
+          label="Dojazd (reseräkning)"
+          placeholder="np. Reseräkning 350 kr per dag"
+          value={travelInfo}
+          disabled={!canEdit}
+          onChange={(e) => setTravelInfo(e.target.value)}
+        />
+        <Input
+          label="Termin płatności (dni)"
+          inputMode="numeric"
+          value={paymentDays}
+          disabled={!canEdit}
+          onChange={(e) => setPaymentDays(e.target.value)}
+          hint={'Klient zobaczy „Betalningsvillkor: X dagar"'}
+        />
         <Textarea
-          label="Uwagi dla klienta (opcjonalnie)"
-          placeholder="np. zakres prac, terminy, warunki płatności"
+          label="Komentarze dla klienta (opcjonalnie)"
+          placeholder="np. zakres prac, terminy rozpoczęcia, ustalenia z rozmowy"
           value={notes}
           disabled={!canEdit}
           onChange={(e) => setNotes(e.target.value)}
@@ -425,7 +470,7 @@ export default function OfferEditorPage() {
               variant="secondary"
               fullWidth
               icon={<Eye className="size-5" />}
-              onClick={() => window.open(offerPublicUrl(offer.public_token!), '_blank')}
+              onClick={() => window.open(offerPublicUrl(offer.public_token!, true), '_blank')}
             >
               Podgląd oferty klienta
             </Button>
