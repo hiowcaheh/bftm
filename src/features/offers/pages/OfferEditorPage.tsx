@@ -247,7 +247,9 @@ export default function OfferEditorPage() {
 
       {offer?.viewed_at && (
         <p className="rounded-xl bg-info-soft px-3 py-2 text-xs text-info">
-          Klient otworzył ofertę {fmtDate(offer.viewed_at)}
+          Otwarta przez klienta {offer.view_count}{' '}
+          {offer.view_count === 1 ? 'raz' : 'razy'} (pierwszy raz{' '}
+          {fmtDate(offer.viewed_at)})
           {offer.response_comment ? ` • komentarz: „${offer.response_comment}"` : ''}
         </p>
       )}
@@ -335,13 +337,15 @@ export default function OfferEditorPage() {
             setReverseVat(v);
             if (v) setRotEnabled(false);
           }}
-          label="Omvänd byggmoms (firma budowlana)"
+          label="Omvänd byggmoms"
+          description="Klient jest firmą budowlaną — moms rozlicza nabywca, oferta bez VAT i bez ROT"
         />
         <Switch
           checked={rotEnabled}
           disabled={!canEdit || reverseVat}
           onChange={setRotEnabled}
-          label="Odliczenie ROT (klient prywatny)"
+          label="Odliczenie ROT"
+          description="Klient prywatny — od sumy odejmujemy 30% kosztów robocizny"
         />
         {rotEnabled && (
           <Input
@@ -491,7 +495,8 @@ export default function OfferEditorPage() {
           <Switch
             checked={draftItem.is_labor}
             onChange={(v) => setDraftItem({ ...draftItem, is_labor: v })}
-            label="Robocizna (podstawa ROT)"
+            label="To jest robocizna"
+            description="Włącz przy pozycjach za pracę — tylko od nich liczy się odliczenie ROT (materiały zostawiasz wyłączone)"
           />
           <Button
             size="lg"

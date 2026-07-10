@@ -157,6 +157,7 @@ type OfferRow = {
   public_token: string | null;
   sent_at: string | null;
   viewed_at: string | null;
+  view_count: number;
   responded_at: string | null;
   response_comment: string | null;
   created_at: string;

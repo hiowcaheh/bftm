@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.9.1 — naprawa „Wyślij klientowi" + czytelne przełączniki + licznik wyświetleń (2026-07-10)
+
+- **Naprawione „Wyślij klientowi"**: generator tokenów (pgcrypto) żyje
+  w schemacie extensions, a funkcja publikacji go nie widziała — migracja
+  0013 naprawia ścieżkę; publikacja przetestowana na bazie.
+- **Przełączniki mają wreszcie etykiety**: komponent Switch renderował
+  opis tylko dla czytników ekranu. Sekcja „Podatki i odliczenia" i pozycja
+  oferty tłumaczą teraz ludzkim językiem, co robi każdy suwak.
+- **Licznik wyświetleń oferty**: każde otwarcie linku zliczane; edytor
+  pokazuje „Otwarta przez klienta X razy (pierwszy raz …)", lista „otwarta
+  X razy".
+- Pola rozmiarów w karcie pracownika: schludny focus (ring w kolorze
+  akcentu zamiast łamanego obrysu systemowego).
+
 ## 0.9.0 — Etap 7: Oferty z publicznym linkiem dla klienta (2026-07-10)
 
 - **Kreator ofert**: tytuł, klient (ROT/omvänd byggmoms podpowiadane z karty

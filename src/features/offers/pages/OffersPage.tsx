@@ -65,7 +65,9 @@ export default function OffersPage() {
                   o.client?.name ??
                     ((o.client_snapshot as { name?: string } | null)?.name || null),
                   o.valid_until ? `ważna do ${fmtDate(o.valid_until)}` : null,
-                  o.viewed_at ? 'otwarta przez klienta' : null,
+                  o.viewed_at
+                    ? `otwarta ${o.view_count} ${o.view_count === 1 ? 'raz' : 'razy'}`
+                    : null,
                 ]
                   .filter(Boolean)
                   .join(' • ')}
