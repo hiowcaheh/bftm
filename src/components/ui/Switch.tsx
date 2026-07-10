@@ -4,20 +4,28 @@ interface SwitchProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
+  /** Widoczna etykieta po lewej stronie suwaka */
   label?: string;
+  /** Drobny opis pod etykietą — do wyjaśnienia, co przełącznik robi */
+  description?: string;
+  /** Etykieta tylko dla czytników ekranu (gdy tekst renderuje rodzic) */
+  hideLabel?: boolean;
 }
 
-export function Switch({ checked, onChange, disabled, label }: SwitchProps) {
-  return (
-    <button
-      type="button"
+export function Switch({
+  checked,
+  onChange,
+  disabled,
+  label,
+  description,
+  hideLabel,
+}: SwitchProps) {
+  const toggle = (
+    <span
       role="switch"
       aria-checked={checked}
-      aria-label={label}
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
       className={cn(
-        'relative h-8 w-13 shrink-0 rounded-full transition-colors duration-200',
+        'relative inline-block h-8 w-13 shrink-0 rounded-full transition-colors duration-200',
         checked ? 'bg-accent' : 'bg-line',
         disabled && 'opacity-40',
       )}
@@ -28,6 +36,39 @@ export function Switch({ checked, onChange, disabled, label }: SwitchProps) {
           checked && 'translate-x-5',
         )}
       />
+    </span>
+  );
+
+  if (!label || hideLabel) {
+    return (
+      <button
+        type="button"
+        aria-label={label ?? 'Przełącznik'}
+        disabled={disabled}
+        onClick={() => onChange(!checked)}
+        className="shrink-0"
+      >
+        {toggle}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className="flex w-full items-center justify-between gap-3 text-left"
+    >
+      <span className="min-w-0 flex-1">
+        <span className={cn('block text-sm font-medium', disabled && 'opacity-40')}>
+          {label}
+        </span>
+        {description && (
+          <span className="mt-0.5 block text-xs text-text-secondary">{description}</span>
+        )}
+      </span>
+      {toggle}
     </button>
   );
 }

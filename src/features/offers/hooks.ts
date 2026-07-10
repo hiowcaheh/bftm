@@ -68,7 +68,8 @@ export function usePublishOffer() {
     mutationFn: ({ id, snapshot }: { id: string; snapshot: Json | null }) =>
       publishOffer(id, snapshot),
     onSuccess: invalidate,
-    onError: () => toast.error('Nie udało się opublikować oferty'),
+    onError: (e) =>
+      toast.error(`Nie udało się opublikować oferty (${(e as Error).message})`),
   });
 }
 

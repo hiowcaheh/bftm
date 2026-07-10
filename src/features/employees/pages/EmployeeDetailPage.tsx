@@ -217,7 +217,8 @@ export default function EmployeeDetailPage() {
                     key={key}
                     value={sizes[key]}
                     placeholder={placeholder}
-                    className="w-full rounded-lg bg-surface px-2 py-1 text-center text-[1rem] outline-none"
+                    style={{ outline: 'none' }}
+                    className="w-full rounded-lg bg-surface px-2 py-1 text-center text-[1rem] transition-shadow focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-accent/40"
                     onChange={(e) => setSizes((s) => ({ ...s, [key]: e.target.value }))}
                     onBlur={() => {
                       const saved = privateData.data?.[column] ?? '';
@@ -263,6 +264,7 @@ export default function EmployeeDetailPage() {
                       checked={perms[item.flag] === true}
                       onChange={(v) => togglePerm(item.flag, v)}
                       label={item.label}
+                      hideLabel
                     />
                   </div>
                 ))}

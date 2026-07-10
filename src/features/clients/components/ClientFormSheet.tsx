@@ -152,6 +152,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
               checked={form.reverse_vat}
               onChange={(v) => set({ reverse_vat: v })}
               label="Omvänd byggmoms"
+              hideLabel
             />
           </div>
         )}
@@ -167,6 +168,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
               checked={form.rot_eligible}
               onChange={(v) => set({ rot_eligible: v })}
               label="ROT"
+              hideLabel
             />
           </div>
         )}
