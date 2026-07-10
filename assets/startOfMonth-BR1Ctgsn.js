@@ -1,0 +1,1 @@
+import{E as e}from"./index-Z6TXhZh1.js";function t(t,n){let r=e(t,n?.in);return r.setDate(1),r.setHours(0,0,0,0),r}export{t};
