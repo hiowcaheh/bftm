@@ -64,11 +64,18 @@ type ProjectRow = {
   estimated_hours: number | null;
   description: string | null;
   color: string | null;
-  invoice_sent_at: string | null;
-  invoice_due_at: string | null;
-  invoice_paid_at: string | null;
-  invoice_amount: number | null;
   created_by: string | null;
+  created_at: string;
+}
+
+type ProjectInvoiceRow = {
+  id: string;
+  project_id: string;
+  amount: number;
+  sent_at: string;
+  due_at: string | null;
+  paid_at: string | null;
+  note: string | null;
   created_at: string;
 }
 
@@ -244,6 +251,10 @@ export type Database = {
       >;
       clients: TableDef<ClientRow, Partial<ClientRow> & Pick<ClientRow, 'name'>>;
       projects: TableDef<ProjectRow, Partial<ProjectRow> & Pick<ProjectRow, 'name'>>;
+      project_invoices: TableDef<
+        ProjectInvoiceRow,
+        Partial<ProjectInvoiceRow> & Pick<ProjectInvoiceRow, 'project_id' | 'sent_at'>
+      >;
       work_hours: TableDef<
         WorkHoursRow,
         Partial<WorkHoursRow> &
@@ -330,10 +341,6 @@ export type Database = {
           billing_type: BillingType;
           hourly_rate: number | null;
           fixed_value: number | null;
-          invoice_sent_at: string | null;
-          invoice_due_at: string | null;
-          invoice_paid_at: string | null;
-          invoice_amount: number | null;
           hours_range: number;
           labor_cost_range: number;
           hours_total: number;
@@ -341,6 +348,12 @@ export type Database = {
           expenses_range: number;
           expenses_total: number;
           additional_approved: number;
+          invoiced_total: number;
+          paid_total: number;
+          awaiting_total: number;
+          paid_range_total: number;
+          invoice_count: number;
+          next_due_at: string | null;
         }>;
       };
       finance_daily: {

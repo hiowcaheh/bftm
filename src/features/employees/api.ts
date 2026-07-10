@@ -95,24 +95,39 @@ export async function addCompensation(
   if (error) throw error;
 }
 
-/** Personnummer — dane wrażliwe w osobnej tabeli, RLS: tylko admin. */
-export async function fetchPersonnummer(profileId: string): Promise<string | null> {
+/** Dane osobiste (personnummer + rozmiary) — RLS: admin lub własny wiersz. */
+export interface EmployeePrivate {
+  personnummer: string;
+  shirt_size: string;
+  pants_size: string;
+  shoe_size: string;
+}
+
+export async function fetchEmployeePrivate(profileId: string): Promise<EmployeePrivate> {
   const { data, error } = await supabase
     .from('employee_private')
-    .select('personnummer')
+    .select('personnummer, shirt_size, pants_size, shoe_size')
     .eq('profile_id', profileId)
     .maybeSingle();
   if (error) throw error;
-  return data?.personnummer ?? null;
+  return {
+    personnummer: data?.personnummer ?? '',
+    shirt_size: data?.shirt_size ?? '',
+    pants_size: data?.pants_size ?? '',
+    shoe_size: data?.shoe_size ?? '',
+  };
 }
 
-export async function savePersonnummer(
+export async function saveEmployeePrivate(
   profileId: string,
-  personnummer: string,
+  patch: Partial<EmployeePrivate>,
 ): Promise<void> {
+  const cleaned = Object.fromEntries(
+    Object.entries(patch).map(([k, v]) => [k, v?.trim() || null]),
+  );
   const { error } = await supabase.from('employee_private').upsert({
     profile_id: profileId,
-    personnummer: personnummer.trim() || null,
+    ...cleaned,
     updated_at: new Date().toISOString(),
   });
   if (error) throw error;

@@ -23,7 +23,7 @@ import { cn } from '@/lib/cn';
 import { moneyWhole, monthYear } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
 import ExpensesPage from '@/features/expenses/pages/ExpensesPage';
-import { projectCost, projectValue, type FinanceProjectSummary } from '../api';
+import { projectCost, projectValue } from '../api';
 import { useFinanceDaily, useFinanceSummary } from '../hooks';
 import { CostDonut, type DonutSlice } from '../components/CostDonut';
 import { FinanceBars, type BarGroup } from '../components/FinanceBars';
@@ -31,12 +31,6 @@ import { FinanceBars, type BarGroup } from '../components/FinanceBars';
 type Mode = 'week' | 'month';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
-
-export function invoiceState(p: FinanceProjectSummary): 'none' | 'sent' | 'paid' {
-  if (p.invoice_paid_at) return 'paid';
-  if (p.invoice_sent_at) return 'sent';
-  return 'none';
-}
 
 /** Zakładka Finanse: live sytuacja okresu, wykresy, rentowność projektów. */
 export default function FinancePage() {
@@ -68,14 +62,8 @@ function FinanceReport() {
     const labor = days.reduce((s, d) => s + d.labor_cost, 0);
     const expenses = days.reduce((s, d) => s + d.expenses, 0);
     const projects = summary.data ?? [];
-    const awaiting = projects
-      .filter((p) => invoiceState(p) === 'sent')
-      .reduce((s, p) => s + (p.invoice_amount ?? projectValue(p)), 0);
-    const paidInRange = projects
-      .filter(
-        (p) => p.invoice_paid_at && p.invoice_paid_at >= from && p.invoice_paid_at <= to,
-      )
-      .reduce((s, p) => s + (p.invoice_amount ?? projectValue(p)), 0);
+    const awaiting = projects.reduce((s, p) => s + p.awaiting_total, 0);
+    const paidInRange = projects.reduce((s, p) => s + p.paid_range_total, 0);
     return {
       revenue,
       labor,
@@ -85,7 +73,7 @@ function FinanceReport() {
       awaiting,
       paidInRange,
     };
-  }, [daily.data, summary.data, from, to]);
+  }, [daily.data, summary.data]);
 
   const barGroups = useMemo<BarGroup[]>(() => {
     const days = daily.data ?? [];
@@ -138,7 +126,7 @@ function FinanceReport() {
       .map((p) => ({ p, value: projectValue(p), cost: projectCost(p) }))
       .filter(
         ({ p, value, cost }) =>
-          value > 0 || cost > 0 || p.status === 'active' || invoiceState(p) !== 'none',
+          value > 0 || cost > 0 || p.status === 'active' || p.invoice_count > 0,
       )
       .sort((a, b) => b.value - b.cost - (a.value - a.cost));
   }, [summary.data]);
@@ -271,7 +259,6 @@ function FinanceReport() {
               <Card className="flex flex-col divide-y divide-line">
                 {projectRows.map(({ p, value, cost }) => {
                   const profit = value - cost;
-                  const state = invoiceState(p);
                   return (
                     <button
                       key={p.project_id}
@@ -288,11 +275,19 @@ function FinanceReport() {
                         <p className="tabular-nums mt-0.5 text-xs text-text-secondary">
                           wartość {moneyWhole(value)} • koszty {moneyWhole(cost)}
                         </p>
-                        {state !== 'none' && (
+                        {p.invoice_count > 0 && (
                           <div className="mt-1">
-                            <Badge tone={state === 'paid' ? 'success' : 'warning'}>
-                              {state === 'paid' ? 'Faktura opłacona' : 'Faktura wysłana'}
-                            </Badge>
+                            {p.awaiting_total > 0 ? (
+                              <Badge tone="warning">
+                                Czeka na płatność: {moneyWhole(p.awaiting_total)}
+                              </Badge>
+                            ) : (
+                              <Badge tone="success">
+                                {p.invoice_count === 1
+                                  ? 'Faktura opłacona'
+                                  : 'Faktury opłacone'}
+                              </Badge>
+                            )}
                           </div>
                         )}
                       </div>

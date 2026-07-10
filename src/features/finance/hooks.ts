@@ -1,12 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import type { TablesInsert } from '@/types/database';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
+  createProjectInvoice,
+  deleteProjectInvoice,
   fetchFinanceDaily,
   fetchFinanceSummary,
+  fetchProjectInvoices,
   updateProjectInvoice,
-  type InvoiceUpdate,
 } from './api';
 
 export function useFinanceSummary(from: string, to: string) {
@@ -29,15 +32,52 @@ export function useFinanceDaily(from: string, to: string) {
   });
 }
 
-export function useUpdateProjectInvoice(projectId: string) {
+export function useProjectInvoices(projectId: string) {
+  const { can } = useSession();
+  return useQuery({
+    queryKey: qk.finance.invoices(projectId),
+    queryFn: () => fetchProjectInvoices(projectId),
+    enabled: can('finance_view'),
+  });
+}
+
+function useInvalidateFinance() {
   const queryClient = useQueryClient();
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: qk.finance.all });
+  };
+}
+
+export function useSaveProjectInvoice() {
+  const invalidate = useInvalidateFinance();
   return useMutation({
-    mutationFn: (patch: Partial<InvoiceUpdate>) =>
-      updateProjectInvoice(projectId, patch),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: qk.finance.all });
-      void queryClient.invalidateQueries({ queryKey: qk.projects.all });
-    },
-    onError: () => toast.error('Nie udało się zapisać fakturowania'),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string | null;
+      payload: TablesInsert<'project_invoices'>;
+    }) => (id ? updateProjectInvoice(id, payload) : createProjectInvoice(payload)),
+    onSuccess: invalidate,
+    onError: () => toast.error('Nie udało się zapisać faktury'),
+  });
+}
+
+export function useMarkInvoicePaid() {
+  const invalidate = useInvalidateFinance();
+  return useMutation({
+    mutationFn: ({ id, paidAt }: { id: string; paidAt: string | null }) =>
+      updateProjectInvoice(id, { paid_at: paidAt }),
+    onSuccess: invalidate,
+    onError: () => toast.error('Nie udało się zapisać płatności'),
+  });
+}
+
+export function useDeleteProjectInvoice() {
+  const invalidate = useInvalidateFinance();
+  return useMutation({
+    mutationFn: (id: string) => deleteProjectInvoice(id),
+    onSuccess: invalidate,
+    onError: () => toast.error('Nie udało się usunąć faktury'),
   });
 }
