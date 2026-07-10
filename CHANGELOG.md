@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.9.0 — Etap 7: Oferty z publicznym linkiem dla klienta (2026-07-10)
+
+- **Kreator ofert**: tytuł, klient (ROT/omvänd byggmoms podpowiadane z karty
+  klienta), pozycje (ilość × cena, jednostka, moms, flaga robocizny), sumy
+  na żywo z ROT-avdrag (30%, limit 50 000 kr/os. — z ustawień), numeracja
+  OF-2026-NNN z licznika, statusy Szkic/Wysłana/Zaakceptowana/Odrzucona.
+- **Publiczna strona oferty** pod niezgadywalnym tokenem — po szwedzku,
+  w szacie firmowej jak dotychczasowy system bftm.se (granatowy nagłówek
+  z logo i sloganem, czerwony pasek „Offert för:", specyfikacja, sumy
+  z moms/ROT, „Kontakta oss", stopka z org.nr/F-skatt). Klient może
+  **zaakceptować lub odrzucić** ofertę (z komentarzem) — właściciele
+  dostają powiadomienie w aplikacji; widać też, kiedy klient otworzył link.
+- **Udostępnianie**: kopiuj link / natywne „Udostępnij" / e-mail po szwedzku
+  z gotową treścią (jak z obecnego systemu) i linkiem.
+- Bezpieczeństwo: klient niczego nie czyta z tabel — wyłącznie RPC
+  security definer po tokenie (migracja 0012); szkice niedostępne publicznie.
+
 ## 0.8.4 — podgląd zdjęć: swipe między zdjęciami + dialog na wierzchu (2026-07-10)
 
 - Pełnoekranowy podgląd zdjęcia: swipe lewo/prawo przegląda zdjęcia projektu

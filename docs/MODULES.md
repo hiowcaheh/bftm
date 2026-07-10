@@ -42,8 +42,19 @@
 
 ## offers — Oferty
 
-- **Stan**: placeholder (Etap 7).
-- **Uprawnienia**: `offers_view` / `offers_edit`.
+- **Stan**: Etap 7 — lista ze statusami, kreator (klient, pozycje z moms
+  i flagą robocizny, ROT-avdrag, omvänd byggmoms, numeracja OF-RRRR-NNN
+  przez RPC `offer_next_number`), publikacja nadaje token
+  (`offer_publish`); udostępnianie: link / share / mail po szwedzku.
+- **Strona publiczna** `/oferta/:token` (bez logowania, po szwedzku,
+  szata firmowa): specyfikacja, sumy, Acceptera/Avböj z komentarzem —
+  `offer_public` / `offer_respond` (security definer, anon; szkice
+  niedostępne); odpowiedź tworzy powiadomienia właścicieli; `viewed_at`
+  przy pierwszym otwarciu.
+- **Tabele**: `offers` (+ title, public_token, sent/viewed/responded_at,
+  response_comment — migracja 0012), `offer_items`; snapshot klienta
+  zamrażany przy publikacji.
+- **Uprawnienia**: `offers_view` / `offers_edit`; klient tylko przez RPC.
 
 ## clients — Klienci
 

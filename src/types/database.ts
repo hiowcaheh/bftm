@@ -142,6 +142,7 @@ type AdditionalWorkRow = {
 type OfferRow = {
   id: string;
   number: string;
+  title: string | null;
   client_id: string | null;
   client_snapshot: Json | null;
   project_id: string | null;
@@ -153,6 +154,11 @@ type OfferRow = {
   rot_persons: number;
   notes: string | null;
   terms: string | null;
+  public_token: string | null;
+  sent_at: string | null;
+  viewed_at: string | null;
+  responded_at: string | null;
+  response_comment: string | null;
   created_at: string;
 }
 
@@ -355,6 +361,13 @@ export type Database = {
           invoice_count: number;
           next_due_at: string | null;
         }>;
+      };
+      offer_next_number: { Args: Record<PropertyKey, never>; Returns: string };
+      offer_publish: { Args: { p_offer_id: string }; Returns: string };
+      offer_public: { Args: { p_token: string }; Returns: Json };
+      offer_respond: {
+        Args: { p_token: string; p_accept: boolean; p_comment?: string | null };
+        Returns: undefined;
       };
       finance_daily: {
         Args: { p_from: string; p_to: string };

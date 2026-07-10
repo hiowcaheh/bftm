@@ -5,6 +5,7 @@ import {
   CalendarOff,
   CheckCheck,
   CircleCheck,
+  FileText,
   Info,
   Megaphone,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ const TYPE_STYLES: Record<
   { icon: ComponentType<LucideProps>; className: string }
 > = {
   hours_approved: { icon: CircleCheck, className: 'bg-success-soft text-success' },
+  offer_response: { icon: FileText, className: 'bg-info-soft text-info' },
   absence: { icon: CalendarOff, className: 'bg-warning-soft text-warning' },
   announcement: { icon: Megaphone, className: 'bg-accent-soft text-accent' },
   info: { icon: Info, className: 'bg-info-soft text-info' },

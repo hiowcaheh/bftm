@@ -16,6 +16,8 @@ const ClientDetailPage = lazy(() => import('@/features/clients/pages/ClientDetai
 const ProjectDetailPage = lazy(() => import('@/features/projects/pages/ProjectDetailPage'));
 const MyProfilePage = lazy(() => import('@/features/profile/pages/MyProfilePage'));
 const ExpensesPage = lazy(() => import('@/features/expenses/pages/ExpensesPage'));
+const OfferEditorPage = lazy(() => import('@/features/offers/pages/OfferEditorPage'));
+const PublicOfferPage = lazy(() => import('@/features/offers/pages/PublicOfferPage'));
 
 function FullScreenLoader() {
   return (
@@ -74,6 +76,8 @@ export function AppRouter() {
                 </RedirectIfAuthed>
               }
             />
+            {/* Publiczna oferta dla klienta — bez logowania, po szwedzku */}
+            <Route path="/oferta/:token" element={<PublicOfferPage />} />
             <Route
               element={
                 <RequireAuth>
@@ -118,6 +122,14 @@ export function AppRouter() {
                 }
               />
               <Route path="/profil" element={<MyProfilePage />} />
+              <Route
+                path="/oferty/:id"
+                element={
+                  <RequirePerm permission="offers_view">
+                    <OfferEditorPage />
+                  </RequirePerm>
+                }
+              />
               <Route
                 path="/finanse/paragony"
                 element={
