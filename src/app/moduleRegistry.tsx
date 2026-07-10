@@ -7,7 +7,7 @@ import {
   FileText,
   Users,
   Contact,
-  Receipt,
+  Wallet,
   BarChart3,
   Settings,
 } from 'lucide-react';
@@ -20,10 +20,25 @@ export interface AppModule {
   label: string;
   icon: ComponentType<LucideProps>;
   path: string;
-  /** Wymagane uprawnienie; undefined = widoczny dla każdego zalogowanego */
-  requiredPermission?: Permission;
+  /**
+   * Wymagane uprawnienie; tablica = wystarczy dowolne z listy;
+   * undefined = widoczny dla każdego zalogowanego.
+   */
+  requiredPermission?: Permission | Permission[];
   navPlacement: 'bottom' | 'more';
   element: LazyExoticComponent<ComponentType>;
+}
+
+/** Czy użytkownik (funkcja can z sesji) ma dostęp do modułu. */
+export function canAccessModule(
+  can: (p: Permission) => boolean,
+  mod: Pick<AppModule, 'requiredPermission'>,
+): boolean {
+  if (!mod.requiredPermission) return true;
+  const perms = Array.isArray(mod.requiredPermission)
+    ? mod.requiredPermission
+    : [mod.requiredPermission];
+  return perms.some(can);
 }
 
 /**
@@ -85,13 +100,14 @@ export const modules: AppModule[] = [
     element: lazy(() => import('@/features/employees/pages/EmployeesPage')),
   },
   {
-    id: 'expenses',
-    label: 'Koszty',
-    icon: Receipt,
-    path: '/koszty',
-    requiredPermission: 'expenses_add',
+    id: 'finance',
+    label: 'Finanse',
+    icon: Wallet,
+    path: '/finanse',
+    // finance_view → pełny raport; same uprawnienia kosztowe → tylko paragony
+    requiredPermission: ['finance_view', 'expenses_add', 'expenses_view_all'],
     navPlacement: 'more',
-    element: lazy(() => import('@/features/expenses/pages/ExpensesPage')),
+    element: lazy(() => import('@/features/finance/pages/FinancePage')),
   },
   {
     id: 'reports',

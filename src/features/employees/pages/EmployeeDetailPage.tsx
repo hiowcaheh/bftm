@@ -135,7 +135,7 @@ export default function EmployeeDetailPage() {
           <h1 className="truncate text-lg font-semibold">{emp.full_name}</h1>
           <div className="mt-1 flex flex-wrap gap-1.5">
             <Badge tone={emp.role === 'admin' ? 'accent' : 'neutral'}>
-              {emp.role === 'admin' ? 'Administrator' : 'Pracownik'}
+              {emp.role === 'admin' ? 'Właściciel' : 'Pracownik'}
             </Badge>
             <Badge tone={emp.active ? 'success' : 'error'}>
               {emp.active ? 'Aktywny' : 'Nieaktywny'}
@@ -189,7 +189,7 @@ export default function EmployeeDetailPage() {
                 }}
               />
             }
-            subtitle="Personnummer (widoczny tylko dla administratora)"
+            subtitle="Personnummer"
           />
         )}
       </ListGroup>

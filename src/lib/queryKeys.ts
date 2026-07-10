@@ -16,6 +16,12 @@ export const qk = {
   profile: {
     all: ['profile'] as const,
     me: () => ['profile', 'me'] as const,
+    private: () => ['profile', 'private'] as const,
+  },
+  finance: {
+    all: ['finance'] as const,
+    summary: (from: string, to: string) => ['finance', 'summary', from, to] as const,
+    daily: (from: string, to: string) => ['finance', 'daily', from, to] as const,
   },
   notifications: {
     all: ['notifications'] as const,

@@ -50,14 +50,14 @@ export default function DashboardPage() {
       demo: false,
       onClick: () => navigate('/godziny'),
     },
-    ...(can('expenses_add') || can('expenses_view_all')
+    ...(can('expenses_add') || can('expenses_view_all') || can('finance_view')
       ? [
           {
             label: 'Koszty w tym miesiącu',
             value: kpi.data ? moneyWhole(kpi.data.expensesThisMonth) : '—',
             icon: Receipt,
             demo: false,
-            onClick: () => navigate('/koszty'),
+            onClick: () => navigate('/finanse'),
           },
         ]
       : []),

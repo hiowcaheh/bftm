@@ -99,7 +99,11 @@ export function NotificationBell() {
                         <span className="mt-1 size-2 shrink-0 rounded-full bg-accent" />
                       )}
                     </div>
-                    {n.body && <p className="mt-0.5 text-xs text-text-secondary">{n.body}</p>}
+                    {n.body && (
+                      <p className="mt-0.5 whitespace-pre-line text-xs leading-relaxed text-text-secondary first-line:font-semibold first-line:text-text">
+                        {n.body}
+                      </p>
+                    )}
                     <p className="mt-1 text-[11px] text-text-secondary/70">
                       {formatDistanceToNow(new Date(n.created_at), {
                         addSuffix: true,
