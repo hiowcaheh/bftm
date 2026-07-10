@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 export interface DashboardKpi {
   activeProjects: number;
   hoursThisMonth: number;
+  expensesThisMonth: number;
 }
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
@@ -14,7 +15,9 @@ const iso = (d: Date) => format(d, 'yyyy-MM-dd');
  */
 export async function fetchKpi(canProjects: boolean): Promise<DashboardKpi> {
   const now = new Date();
-  const [projectsRes, hoursRes] = await Promise.all([
+  const monthFrom = iso(startOfMonth(now));
+  const monthTo = iso(endOfMonth(now));
+  const [projectsRes, hoursRes, expensesRes] = await Promise.all([
     canProjects
       ? supabase
           .from('projects')
@@ -24,13 +27,20 @@ export async function fetchKpi(canProjects: boolean): Promise<DashboardKpi> {
     supabase
       .from('work_hours')
       .select('hours')
-      .gte('date', iso(startOfMonth(now)))
-      .lte('date', iso(endOfMonth(now))),
+      .gte('date', monthFrom)
+      .lte('date', monthTo),
+    supabase
+      .from('expenses')
+      .select('amount_gross')
+      .gte('date', monthFrom)
+      .lte('date', monthTo),
   ]);
   if (hoursRes.error) throw hoursRes.error;
+  if (expensesRes.error) throw expensesRes.error;
   return {
     activeProjects: projectsRes.count ?? 0,
     hoursThisMonth: (hoursRes.data ?? []).reduce((s, r) => s + r.hours, 0),
+    expensesThisMonth: (expensesRes.data ?? []).reduce((s, r) => s + r.amount_gross, 0),
   };
 }
 

@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { ProjectInsert, ProjectWithClient } from './types';
+import { compressImage } from '@/lib/imageCompress';
+import type { TablesInsert } from '@/types/database';
+import type { ProjectInsert, ProjectPhoto, ProjectWithClient } from './types';
 
 /**
  * Kolumny bez danych finansowych — dla użytkowników bez finance_view
@@ -98,5 +100,89 @@ export async function createActivity(projectId: string, name: string): Promise<v
 
 export async function deleteActivity(id: string): Promise<void> {
   const { error } = await supabase.from('project_activities').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ── Prace dodatkowe ─────────────────────────────────────────────────────────
+
+export async function fetchAdditionalWorks(projectId: string) {
+  const { data, error } = await supabase
+    .from('additional_works')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function createAdditionalWork(
+  payload: TablesInsert<'additional_works'>,
+): Promise<void> {
+  const { error } = await supabase.from('additional_works').insert(payload);
+  if (error) throw error;
+}
+
+export async function updateAdditionalWork(
+  id: string,
+  patch: Partial<TablesInsert<'additional_works'>>,
+): Promise<void> {
+  const { error } = await supabase.from('additional_works').update(patch).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteAdditionalWork(id: string): Promise<void> {
+  const { error } = await supabase.from('additional_works').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ── Zdjęcia projektu ────────────────────────────────────────────────────────
+
+export interface PhotoWithUrl extends ProjectPhoto {
+  url: string | null;
+}
+
+export async function fetchPhotos(projectId: string): Promise<PhotoWithUrl[]> {
+  const { data, error } = await supabase
+    .from('project_photos')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  if (data.length === 0) return [];
+
+  const { data: signed } = await supabase.storage
+    .from('project-photos')
+    .createSignedUrls(
+      data.map((p) => p.path),
+      3600,
+    );
+  const urlByPath = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
+  return data.map((p) => ({ ...p, url: urlByPath.get(p.path) ?? null }));
+}
+
+export async function uploadPhotos(
+  projectId: string,
+  files: File[],
+  userId: string | null,
+): Promise<void> {
+  for (const file of files) {
+    const compressed = await compressImage(file);
+    const path = `${projectId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+    const { error: uploadError } = await supabase.storage
+      .from('project-photos')
+      .upload(path, compressed, { contentType: 'image/jpeg' });
+    if (uploadError) throw new Error('Nie udało się przesłać zdjęcia');
+    const { error } = await supabase.from('project_photos').insert({
+      project_id: projectId,
+      path,
+      created_by: userId,
+    });
+    if (error) throw error;
+  }
+}
+
+export async function deletePhoto(id: string, path: string): Promise<void> {
+  await supabase.storage.from('project-photos').remove([path]);
+  const { error } = await supabase.from('project_photos').delete().eq('id', id);
   if (error) throw error;
 }

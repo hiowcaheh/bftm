@@ -34,6 +34,26 @@ export const BILLING_TYPE_LABELS: Record<Project['billing_type'], string> = {
   mixed: 'Mieszane',
 };
 
+export type AdditionalWork = Tables<'additional_works'>;
+export type ProjectPhoto = Tables<'project_photos'>;
+
+export const ADDITIONAL_WORK_STATUS_LABELS: Record<AdditionalWork['status'], string> = {
+  proposed: 'Zaproponowana',
+  approved: 'Zaakceptowana',
+  rejected: 'Odrzucona',
+  invoiced: 'Rozliczona',
+};
+
+export const ADDITIONAL_WORK_STATUS_TONES: Record<
+  AdditionalWork['status'],
+  'neutral' | 'success' | 'error' | 'info' | 'warning'
+> = {
+  proposed: 'warning',
+  approved: 'success',
+  rejected: 'error',
+  invoiced: 'info',
+};
+
 /** Kolory paska projektu do wyboru w formularzu. */
 export const PROJECT_COLORS = [
   '#CC0000',

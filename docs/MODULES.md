@@ -67,8 +67,19 @@
 
 ## expenses — Koszty
 
-- **Stan**: placeholder (Etap 6).
-- **Uprawnienia**: `expenses_add`, `expenses_view_all`.
+- **Stan**: Etap 6 — miesiące z sumami, chipsy kategorii, filtr projektu,
+  netto↔VAT↔brutto z autouzupełnianiem, paragon z aparatu (kompresja,
+  prywatny bucket receipts, signed URL), szczegóły/edycja/usuwanie; sekcja
+  na karcie projektu z rozbiciem wg kategorii; KPI na Pulpicie.
+- **Tabele**: `expenses` (+ join projects); Storage `receipts`.
+- **Uprawnienia**: `expenses_add` (własne CRUD), `expenses_view_all`; RLS.
+
+## additional_works / project_photos (w module projects)
+
+- **Prace dodatkowe**: statusy, suma zaakceptowanych (finance_view), CRUD
+  przy projects_edit; rozliczone zmienia tylko admin (RLS).
+- **Zdjęcia**: multi-upload z kompresją do bucketa project-photos, siatka,
+  pełny ekran, usuwanie autor/admin (photos_upload).
 
 ## reports — Raporty
 
