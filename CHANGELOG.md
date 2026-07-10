@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.2 — Ustawienia → Finanse: narzuty pracodawcy (2026-07-10)
+
+- Nowa sekcja **Finanse — koszt pracodawcy** w Ustawieniach (tylko
+  właściciel): arbetsgivaravgifter %, semesterersättning %, dodatkowy
+  narzut firmy % — z podglądem na żywo mnożnika i przykładem
+  („stawka 200 kr/h → X kr/h"). Zapis od razu przelicza raporty Finanse.
+
 ## 0.8.1 — fakturowanie etapami + rozmiary w karcie pracownika (2026-07-10)
 
 - **Wiele faktur na projekt** (fakturowanie etapami): każda faktura z kwotą,
