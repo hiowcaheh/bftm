@@ -117,7 +117,8 @@
 
 - **Stan**: Etap 2 — sekcja **Firma** (dane do PDF, branding, upload logo do bucketa
   `logos`; tylko admin), **Moje konto** (zmiana hasła: stare + nowe ×2), **Aplikacja**
-  (wersja, „Sprawdź aktualizację" SW). Finanse/Oferty/Moduły w kolejnych etapach.
+  (wersja, „Sprawdź aktualizację" SW), **Finanse — koszt pracodawcy** (narzuty
+  % do liczenia kosztu godziny; tylko admin). Oferty/Moduły w kolejnych etapach.
 - **Tabele**: `settings` (klucze: company_branding [public], admin_login [public],
   company_details, finance, features, offer_numbering, offer_defaults, currency).
 - **Uprawnienia**: zapis tylko admin (RLS); odczyt wg flag is_public/admin_only.

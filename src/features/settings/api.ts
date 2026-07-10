@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { Json } from '@/types/database';
-import type { CompanyBranding, CompanyDetails } from './types';
-import { EMPTY_COMPANY_DETAILS } from './types';
+import type { CompanyBranding, CompanyDetails, FinanceSettings } from './types';
+import { DEFAULT_FINANCE_SETTINGS, EMPTY_COMPANY_DETAILS } from './types';
 
 export async function fetchSetting<T>(key: string): Promise<T | null> {
   const { data, error } = await supabase
@@ -58,4 +58,17 @@ export async function uploadLogo(file: File): Promise<string> {
 
 export function logoPublicUrl(path: string): string {
   return supabase.storage.from('logos').getPublicUrl(path).data.publicUrl;
+}
+
+export async function fetchFinanceSettings(): Promise<FinanceSettings> {
+  const value = await fetchSetting<Partial<FinanceSettings>>('finance');
+  return { ...DEFAULT_FINANCE_SETTINGS, ...value };
+}
+
+/** Zapis scalony z bieżącą wartością — nie gubi pól spoza formularza. */
+export async function saveFinanceSettings(
+  patch: Partial<FinanceSettings>,
+): Promise<void> {
+  const current = await fetchFinanceSettings();
+  await updateSetting('finance', { ...current, ...patch } as unknown as Json);
 }
