@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.2 — strona oferty w wersji premium (2026-07-10)
+
+- Publiczna strona oferty przeprojektowana w stylu prezentacji produktów:
+  duże logo na granatowym hero z poświatą i animowanym wejściem, pastylka
+  z numerem, wielki tytuł, „Förberedd för {klient}".
+- Płynne animacje: sekcje wjeżdżają przy przewijaniu (IntersectionObserver),
+  kwota „Att betala" nabija się licznikiem na granatowym pasie.
+- Numerowana specyfikacja, karty z miękkimi cieniami, czerwona wstęga marki.
+- Przyklejony dolny pasek „Acceptera offerten" z rozmyciem tła (safe-area).
+- Sekcja „Om firmie": opis firmy, adres, telefon, e-mail, www + plakietki
+  „Godkänd för F-skatt" i „Försäkrade arbeten"; stopka z org.nr/momsreg.
+
 ## 0.9.1 — naprawa „Wyślij klientowi" + czytelne przełączniki + licznik wyświetleń (2026-07-10)
 
 - **Naprawione „Wyślij klientowi"**: generator tokenów (pgcrypto) żyje
