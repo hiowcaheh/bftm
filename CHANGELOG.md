@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.4 — podgląd zdjęć: swipe między zdjęciami + dialog na wierzchu (2026-07-10)
+
+- Pełnoekranowy podgląd zdjęcia: swipe lewo/prawo przegląda zdjęcia projektu
+  (z licznikiem „3 / 12") i nie przełącza już zakładek aplikacji.
+- Dialog „Usunąć zdjęcie?" wyświetla się nad pełnoekranowym podglądem,
+  a nie pod nim (podniesiony z-index wszystkich dialogów potwierdzenia).
+
 ## 0.8.3 — koszt pracy zgodny z lönespecifikation (2026-07-10)
 
 - Koszt godziny liczony **jak na wypłacie**: brutto + arbetsgivaravgifter

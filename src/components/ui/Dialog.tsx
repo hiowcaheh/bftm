@@ -29,7 +29,7 @@ export function ConfirmDialog({
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-6">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-6">
       <button
         aria-label="Anuluj"
         className="animate-fade-in absolute inset-0 bg-black/40"
