@@ -74,10 +74,11 @@
   projekt (kwota, opis etapu, wysłana → termin → opłacona) w sekcji
   „Finanse projektu" na karcie projektu (tabela `project_invoices`,
   migracja 0010).
-- **Koszt pracy**: pełny koszt pracodawcy — stawka × narzuty z settings.finance
-  (employer_fee_pct, vacation_pay_pct, overhead_pct). Liczone w RPC
-  `finance_project_summary` / `finance_daily` (security definer, wymagają
-  finance_view) — stawki pracowników nie opuszczają bazy.
+- **Koszt pracy**: jak na lönespecifikation — stawka × (1 + arbetsgivaravgifter)
+  (+ opcjonalny narzut firmy); rezerwa urlopowa doliczana tylko przy włączonej
+  fladze include_vacation_in_labor_cost (Ustawienia → Finanse, migracja 0011).
+  Liczone w RPC `finance_project_summary` / `finance_daily` (security definer,
+  wymagają finance_view) — stawki pracowników nie opuszczają bazy.
 - **Tabele**: `work_hours`, `employee_compensation`, `expenses`,
   `additional_works`, `projects` (kolumny invoice_* z migracji 0008).
 - **Uprawnienia**: `finance_view` — pełny raport; bez niego zakładka pokazuje

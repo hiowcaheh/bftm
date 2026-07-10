@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.3 — koszt pracy zgodny z lönespecifikation (2026-07-10)
+
+- Koszt godziny liczony **jak na wypłacie**: brutto + arbetsgivaravgifter
+  (×1,3142). Zweryfikowane na realnej specyfikacji: 170 h × 210 kr →
+  46 917 kr kosztu (payslip: 47 250 — różnica to AGA od förmån, których
+  aplikacja nie śledzi). Migracja 0011.
+- Semesterersättning przestało być doliczane do każdej godziny — pracownicy
+  mają semesterdagar, urlop kosztuje przy odbiorze. Nowy przełącznik
+  w Ustawieniach → Finanse: „Doliczaj rezerwę urlopową do kosztu godziny"
+  (pełny koszt ekonomiczny, np. do kalkulacji ofert) — domyślnie wyłączony.
+
 ## 0.8.2 — Ustawienia → Finanse: narzuty pracodawcy (2026-07-10)
 
 - Nowa sekcja **Finanse — koszt pracodawcy** w Ustawieniach (tylko
