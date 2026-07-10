@@ -1,0 +1,1 @@
+import{n as e}from"./createLucideIcon-X_kUInbS.js";import{$ as t}from"./index-BoHy-mpS.js";import{t as n}from"./EmptyState-LL4BfC79.js";var r=e();function i(){return(0,r.jsx)(`div`,{className:`flex flex-col gap-6`,children:(0,r.jsx)(n,{icon:t,message:`Raporty i rozliczenia powstaną w Etapie 8 — raporty godzin pod faktury, rentowność i PDF.`})})}export{i as default};
