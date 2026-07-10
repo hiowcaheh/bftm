@@ -120,10 +120,7 @@ export function AdditionalWorksSection({ projectId }: { projectId: string }) {
       )}
 
       {list.length === 0 && (
-        <p className="text-sm text-text-secondary">
-          Brak prac dodatkowych — dopisuj tu roboty poza zakresem umowy, żeby nic nie umknęło
-          przy rozliczeniu.
-        </p>
+        <p className="text-sm text-text-secondary">Brak prac dodatkowych</p>
       )}
 
       {list.map((w) => (

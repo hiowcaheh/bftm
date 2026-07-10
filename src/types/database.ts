@@ -64,6 +64,10 @@ type ProjectRow = {
   estimated_hours: number | null;
   description: string | null;
   color: string | null;
+  invoice_sent_at: string | null;
+  invoice_due_at: string | null;
+  invoice_paid_at: string | null;
+  invoice_amount: number | null;
   created_by: string | null;
   created_at: string;
 }
@@ -184,6 +188,9 @@ type ProjectPhotoRow = {
 type EmployeePrivateRow = {
   profile_id: string;
   personnummer: string | null;
+  shirt_size: string | null;
+  pants_size: string | null;
+  shoe_size: string | null;
   updated_at: string;
 }
 
@@ -312,6 +319,39 @@ export type Database = {
       admin_set_active: {
         Args: { p_profile_id: string; p_active: boolean };
         Returns: undefined;
+      };
+      finance_project_summary: {
+        Args: { p_from: string; p_to: string };
+        Returns: Array<{
+          project_id: string;
+          name: string;
+          color: string | null;
+          status: ProjectStatus;
+          billing_type: BillingType;
+          hourly_rate: number | null;
+          fixed_value: number | null;
+          invoice_sent_at: string | null;
+          invoice_due_at: string | null;
+          invoice_paid_at: string | null;
+          invoice_amount: number | null;
+          hours_range: number;
+          labor_cost_range: number;
+          hours_total: number;
+          labor_cost_total: number;
+          expenses_range: number;
+          expenses_total: number;
+          additional_approved: number;
+        }>;
+      };
+      finance_daily: {
+        Args: { p_from: string; p_to: string };
+        Returns: Array<{
+          day: string;
+          hours: number;
+          labor_cost: number;
+          revenue: number;
+          expenses: number;
+        }>;
       };
     };
     Enums: { [_ in never]: never };

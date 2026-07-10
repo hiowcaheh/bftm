@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.8.0 — Finanse na żywo + Mój profil + poprawki UI (2026-07-10)
+
+- **Zakładka Finanse** (dawne Koszty): zysk okresu na żywo (wypracowane −
+  koszty), kafle Wypracowane / Koszty / Czeka na płatność / Opłacone,
+  wykres słupkowy przychód vs koszty (tydzień: dni, miesiąc: tygodnie ISO),
+  donut struktury kosztów wg projektów, lista rentowności projektów.
+  Paragony przeniesione na podstronę Finanse → Paragony (nic nie zginęło).
+- **Koszt pracy = pełny koszt pracodawcy**: stawka × narzuty z Ustawień
+  (arbetsgivaravgift 31,42% + semesterersättning 12% — edytowalne). Kwoty
+  liczone w bazie (RPC security definer) — stawki pracowników nie opuszczają
+  serwera; dostęp wymaga uprawnienia finance_view (migracja 0008).
+- **Fakturowanie projektu**: „Faktura wysłana" (kwota, data, termin +30 dni)
+  → „Opłacona" (data wpływu); statusy widoczne w Finansach i na karcie
+  projektu razem z żywym rozliczeniem wartość/koszty/zostaje.
+- **Mój profil**: tap w swoje nazwisko w menu Więcej → telefon, personnummer
+  i rozmiary robocze (koszulka/spodnie/buty) do samodzielnego uzupełnienia
+  (migracja 0009 — każdy widzi wyłącznie własne dane).
+- Rola „admin" prezentowana jako **Właściciel**; pracownik widzi w menu swój
+  e-mail zamiast etykiety „Pracownik".
+- Powiadomienie o zatwierdzonych godzinach w czytelnych liniach (tydzień /
+  daty / suma godzin).
+- Plus (FAB) już nie „skacze" przy przełączaniu zakładek — przypięty na
+  sztywno w prawym dolnym rogu.
+- Usunięte instruktażowe opisy przy pustych sekcjach karty projektu.
+
 ## 0.7.0 — Etap 6: Koszty + Prace dodatkowe + Zdjęcia (2026-07-09)
 
 - Moduł Koszty: nawigacja miesiącami z sumą, chipsy kategorii (Materiały/

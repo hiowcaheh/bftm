@@ -99,7 +99,10 @@ export async function approveEntries(
         recipient_id: employeeId,
         type: 'hours_approved',
         title: 'Godziny zatwierdzone',
-        body: `Twoje godziny za okres ${period.label} zostały zatwierdzone (${total} h).`,
+        // Każdy człon okresu w osobnej linii (render: whitespace-pre-line)
+        body: [...period.label.split(' • '), `${total} h — zatwierdzone do wypłaty`].join(
+          '\n',
+        ),
       })),
   );
 }

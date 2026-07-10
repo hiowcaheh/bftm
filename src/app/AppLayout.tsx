@@ -13,6 +13,8 @@ export type NavDirection = 'forward' | 'back' | null;
 /** Tytuł w górnym pasku wyprowadzony z rejestru modułów. */
 function pageTitle(pathname: string): string {
   if (pathname === '/') return 'Pulpit';
+  if (pathname === '/profil') return 'Mój profil';
+  if (pathname === '/finanse/paragony') return 'Paragony';
   const module = modules.find((m) => m.path !== '/' && pathname.startsWith(m.path));
   return module?.label ?? 'BFTM';
 }

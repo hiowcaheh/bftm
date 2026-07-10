@@ -118,7 +118,7 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
             label="Personnummer (opcjonalnie)"
             inputMode="numeric"
             placeholder="ÅÅÅÅMMDD-XXXX"
-            hint="Widoczny wyłącznie dla administratora"
+            hint="Pracownik może go też sam uzupełnić w swoim profilu"
             value={form.personnummer}
             onChange={(e) => set({ personnummer: e.target.value })}
           />

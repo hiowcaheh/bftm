@@ -65,14 +65,39 @@
 - **Uprawnienia**: lista `employees_view`; profil i zarządzanie tylko admin;
   stawki i aktywność chroni RLS (admin).
 
-## expenses — Koszty
+## finance — Finanse
+
+- **Stan**: Etap 6b — zysk okresu live (wypracowane − koszty), kafle
+  (Wypracowane/Koszty/Czeka na płatność/Opłacone), wykres słupkowy przychód
+  vs koszty (tydzień: dni, miesiąc: tygodnie ISO), donut struktury kosztów,
+  lista rentowności projektów; fakturowanie projektu (wysłana → termin →
+  opłacona) w sekcji „Finanse projektu" na karcie projektu.
+- **Koszt pracy**: pełny koszt pracodawcy — stawka × narzuty z settings.finance
+  (employer_fee_pct, vacation_pay_pct, overhead_pct). Liczone w RPC
+  `finance_project_summary` / `finance_daily` (security definer, wymagają
+  finance_view) — stawki pracowników nie opuszczają bazy.
+- **Tabele**: `work_hours`, `employee_compensation`, `expenses`,
+  `additional_works`, `projects` (kolumny invoice_* z migracji 0008).
+- **Uprawnienia**: `finance_view` — pełny raport; bez niego zakładka pokazuje
+  tylko paragony.
+
+## expenses — Paragony (podstrona Finansów, `/finanse/paragony`)
 
 - **Stan**: Etap 6 — miesiące z sumami, chipsy kategorii, filtr projektu,
   netto↔VAT↔brutto z autouzupełnianiem, paragon z aparatu (kompresja,
   prywatny bucket receipts, signed URL), szczegóły/edycja/usuwanie; sekcja
   na karcie projektu z rozbiciem wg kategorii; KPI na Pulpicie.
+  Stara ścieżka `/koszty` przekierowuje.
 - **Tabele**: `expenses` (+ join projects); Storage `receipts`.
 - **Uprawnienia**: `expenses_add` (własne CRUD), `expenses_view_all`; RLS.
+
+## profile — Mój profil
+
+- **Stan**: Etap 6b — tap w swoje nazwisko w menu Więcej: telefon,
+  personnummer, rozmiary robocze (koszulka/spodnie/buty); e-mail tylko do
+  odczytu. Dane osobiste w `employee_private` — RLS: własny wiersz + admin
+  (migracja 0009).
+- **Tabele**: `profiles` (phone), `employee_private`.
 
 ## additional_works / project_photos (w module projects)
 

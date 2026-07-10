@@ -26,6 +26,7 @@ import {
   PROJECT_STATUS_LABELS,
   PROJECT_STATUS_TONES,
 } from '../types';
+import { ProjectInvoiceSection } from '@/features/finance/components/ProjectInvoiceSection';
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
 import { ProjectHoursSection } from '../components/ProjectHoursSection';
 import { ProjectActivitiesSection } from '../components/ProjectActivitiesSection';
@@ -120,6 +121,8 @@ export default function ProjectDetailPage() {
           />
         )}
       </ListGroup>
+
+      {canFinance && <ProjectInvoiceSection projectId={p.id} />}
 
       <ProjectActivitiesSection projectId={p.id} />
       <ProjectHoursSection project={p} />

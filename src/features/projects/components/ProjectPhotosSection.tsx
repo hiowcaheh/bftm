@@ -49,9 +49,7 @@ export function ProjectPhotosSection({ projectId }: { projectId: string }) {
       </div>
 
       {list.length === 0 ? (
-        <p className="text-sm text-text-secondary">
-          Brak zdjęć — dokumentuj postęp prac aparatem, zdjęcia kompresują się automatycznie.
-        </p>
+        <p className="text-sm text-text-secondary">Brak zdjęć</p>
       ) : (
         <div className="grid grid-cols-3 gap-1.5">
           {list.map((photo) => (

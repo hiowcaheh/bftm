@@ -3,7 +3,7 @@ import { LogOut } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { Avatar } from '@/components/ui/Avatar';
-import { moreModules } from './moduleRegistry';
+import { canAccessModule, moreModules } from './moduleRegistry';
 import { useSignOut } from '@/features/auth/hooks';
 import { useSession } from '@/features/auth/SessionProvider';
 
@@ -17,9 +17,7 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
   const navigate = useNavigate();
   const signOut = useSignOut();
   const { user, can } = useSession();
-  const visible = moreModules.filter(
-    (m) => !m.requiredPermission || can(m.requiredPermission),
-  );
+  const visible = moreModules.filter((m) => canAccessModule(can, m));
 
   const go = (path: string) => {
     onClose();
@@ -34,7 +32,9 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
             <ListRow
               leading={<Avatar name={user.fullName} />}
               title={user.fullName}
-              subtitle={user.role === 'admin' ? 'Administrator' : 'Pracownik'}
+              subtitle={user.role === 'admin' ? 'Właściciel' : user.email}
+              chevron
+              onClick={() => go('/profil')}
             />
           </ListGroup>
         )}

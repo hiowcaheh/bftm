@@ -2,7 +2,7 @@ import { Suspense, lazy } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { AppLayout } from './AppLayout';
-import { modules } from './moduleRegistry';
+import { canAccessModule, modules } from './moduleRegistry';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { SessionProvider, useSession } from '@/features/auth/SessionProvider';
 import type { Permission } from '@/lib/permissions';
@@ -14,6 +14,8 @@ const EmployeeDetailPage = lazy(
 );
 const ClientDetailPage = lazy(() => import('@/features/clients/pages/ClientDetailPage'));
 const ProjectDetailPage = lazy(() => import('@/features/projects/pages/ProjectDetailPage'));
+const MyProfilePage = lazy(() => import('@/features/profile/pages/MyProfilePage'));
+const ExpensesPage = lazy(() => import('@/features/expenses/pages/ExpensesPage'));
 
 function FullScreenLoader() {
   return (
@@ -40,11 +42,13 @@ function RequirePerm({
   permission,
   children,
 }: {
-  permission: Permission | undefined;
+  permission: Permission | Permission[] | undefined;
   children: ReactNode;
 }) {
   const { can } = useSession();
-  if (permission && !can(permission)) return <Navigate to="/" replace />;
+  if (!canAccessModule(can, { requiredPermission: permission })) {
+    return <Navigate to="/" replace />;
+  }
   return children;
 }
 
@@ -113,6 +117,19 @@ export function AppRouter() {
                   </RequirePerm>
                 }
               />
+              <Route path="/profil" element={<MyProfilePage />} />
+              <Route
+                path="/finanse/paragony"
+                element={
+                  <RequirePerm
+                    permission={['expenses_add', 'expenses_view_all', 'finance_view']}
+                  >
+                    <ExpensesPage />
+                  </RequirePerm>
+                }
+              />
+              {/* stara ścieżka Kosztów — zakładki przemianowane na Finanse */}
+              <Route path="/koszty" element={<Navigate to="/finanse" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>
