@@ -37,6 +37,12 @@ export interface FinanceSettings {
   employer_fee_pct: number;
   vacation_pay_pct: number;
   overhead_pct: number;
+  /**
+   * Czy doliczać rezerwę urlopową (semesterersättning) do kosztu godziny.
+   * false = koszt jak na lönespecifikation: brutto + arbetsgivaravgifter
+   * (pracownicy z semesterdagar — urlop kosztuje przy odbiorze).
+   */
+  include_vacation_in_labor_cost: boolean;
   rot: { enabled: boolean; pct: number; cap_per_person: number };
 }
 
@@ -46,5 +52,6 @@ export const DEFAULT_FINANCE_SETTINGS: FinanceSettings = {
   employer_fee_pct: 31.42,
   vacation_pay_pct: 12,
   overhead_pct: 0,
+  include_vacation_in_labor_cost: false,
   rot: { enabled: true, pct: 30, cap_per_person: 50000 },
 };
