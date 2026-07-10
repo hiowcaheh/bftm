@@ -101,6 +101,10 @@ export interface PublicOffer {
   rot_persons: number;
   notes: string | null;
   terms: string | null;
+  guarantee: string | null;
+  ata_info: string | null;
+  travel_info: string | null;
+  payment_days: number | null;
   responded_at: string | null;
   client: { name?: string; email?: string; address?: string };
   items: Array<{
@@ -119,6 +123,8 @@ export interface PublicOffer {
     f_skatt?: boolean;
     phone?: string;
     email?: string;
+    about?: string;
+    services?: string[];
   };
   branding: { name?: string; slogan?: string; logo_path?: string | null };
   rot: { enabled?: boolean; pct?: number; cap_per_person?: number };

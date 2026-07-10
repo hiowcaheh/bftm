@@ -1,16 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import {
   BadgeCheck,
   Building2,
+  Car,
+  CalendarClock,
   CheckCircle2,
   FileQuestion,
   Globe,
+  Hammer,
+  Layers,
   Mail,
   MapPin,
+  MessageSquareText,
+  PaintRoller,
   Phone,
   ShieldCheck,
+  Wrench,
+  X,
   XCircle,
 } from 'lucide-react';
 import { money, num } from '@/lib/format';
@@ -21,6 +29,7 @@ import { usePublicOffer, useRespondToOffer } from '../hooks';
 import { computeOfferTotals } from '../types';
 
 const NAVY = '#1E2A44';
+const SERVICE_ICONS = [Layers, Hammer, Wrench, PaintRoller];
 const fmt = (d: string) => format(new Date(d), 'dd/MM/yyyy');
 
 /** Sekcja pojawiająca się płynnie przy wejściu w kadr (IntersectionObserver). */
@@ -94,10 +103,14 @@ function CountUp({ value }: { value: number }) {
  */
 export default function PublicOfferPage() {
   const { token = '' } = useParams();
-  const offer = usePublicOffer(token);
+  const [searchParams] = useSearchParams();
+  // podgląd z aplikacji: nie nabija licznika wyświetleń, ma przycisk zamknięcia
+  const isPreview = searchParams.get('podglad') === '1';
+  const offer = usePublicOffer(token, !isPreview);
   const respond = useRespondToOffer(token);
 
   const [declineOpen, setDeclineOpen] = useState(false);
+  const [confirmAccept, setConfirmAccept] = useState(false);
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
   const [heroIn, setHeroIn] = useState(false);
@@ -154,7 +167,10 @@ export default function PublicOfferPage() {
     respond.mutate(
       { accept, comment },
       {
-        onSuccess: () => setDeclineOpen(false),
+        onSuccess: () => {
+          setDeclineOpen(false);
+          setConfirmAccept(false);
+        },
         onError: () => setError('Något gick fel — försök igen eller kontakta oss.'),
       },
     );
@@ -162,6 +178,23 @@ export default function PublicOfferPage() {
 
   return (
     <div className="min-h-dvh bg-[#F5F5F7]">
+      {isPreview && (
+        <button
+          type="button"
+          aria-label="Zamknij podgląd"
+          className="press fixed right-4 z-50 flex size-11 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur"
+          style={{ top: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+          onClick={() => {
+            window.close();
+            // karta otwarta ręcznie nie zamknie się sama — wróć do aplikacji
+            setTimeout(() => {
+              window.location.href = `${window.location.origin}${window.location.pathname}#/oferty`;
+            }, 150);
+          }}
+        >
+          <X className="size-5" />
+        </button>
+      )}
       {/* HERO — pełnoekranowy granat, duże logo, tytuł */}
       <header
         className="relative overflow-hidden px-6 pt-14 pb-20 text-center"
@@ -186,7 +219,7 @@ export default function PublicOfferPage() {
             <img
               src={logoPublicUrl(data.branding.logo_path)}
               alt={companyName}
-              className="max-h-44 w-auto max-w-[19rem] object-contain drop-shadow-2xl"
+              className="max-h-56 w-auto max-w-[21rem] object-contain drop-shadow-2xl"
             />
           ) : (
             <p className="text-3xl font-bold text-white">{companyName}</p>
@@ -275,24 +308,34 @@ export default function PublicOfferPage() {
             <h2 className="mb-4 text-lg font-bold">Specifikation</h2>
             <div className="flex flex-col divide-y divide-line">
               {data.items.map((item, i) => (
-                <div key={i} className="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
-                  <span
-                    className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                    style={{ backgroundColor: NAVY }}
-                  >
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm leading-relaxed font-medium">{item.description}</p>
-                    <p className="tabular-nums mt-1 text-xs text-text-secondary">
-                      {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)}
-                      {!data.reverse_vat ? ` • moms ${num(item.vat_rate)}%` : ''}
-                      {item.is_labor ? ' • arbete' : ''}
+                <div key={i} className="flex flex-col gap-2.5 py-5 first:pt-0 last:pb-0">
+                  <div className="flex items-start gap-3">
+                    <span
+                      className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                      style={{ backgroundColor: NAVY }}
+                    >
+                      {i + 1}
+                    </span>
+                    <p className="min-w-0 flex-1 text-[15px] leading-relaxed font-semibold">
+                      {item.description}
                     </p>
                   </div>
-                  <span className="tabular-nums shrink-0 text-sm font-semibold">
-                    {money(item.quantity * item.unit_price)}
-                  </span>
+                  <div className="flex items-end justify-between gap-3 pl-10">
+                    <div className="tabular-nums flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
+                      <span>
+                        {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)}
+                      </span>
+                      {!data.reverse_vat && <span>moms {num(item.vat_rate)}%</span>}
+                      {item.is_labor && (
+                        <span className="rounded-full bg-surface px-2 py-0.5 font-medium">
+                          arbete
+                        </span>
+                      )}
+                    </div>
+                    <span className="tabular-nums shrink-0 text-base font-bold">
+                      {money(item.quantity * item.unit_price)}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -345,13 +388,79 @@ export default function PublicOfferPage() {
           </div>
         </Reveal>
 
+        {/* Bra att veta — gwarancja, ÄTA, dojazd, termin płatności */}
+        {(data.guarantee || data.ata_info || data.travel_info || data.payment_days) && (
+          <Reveal delay={130}>
+            <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
+              <h2 className="mb-4 text-lg font-bold">Bra att veta</h2>
+              <div className="flex flex-col gap-4">
+                {data.guarantee && (
+                  <div className="flex items-start gap-3.5">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-success-soft">
+                      <ShieldCheck className="size-5 text-success" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">Garanti</p>
+                      <p className="mt-0.5 text-sm leading-relaxed text-text-secondary">
+                        {data.guarantee}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {data.ata_info && (
+                  <div className="flex items-start gap-3.5">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface">
+                      <Hammer className="size-5" style={{ color: NAVY }} />
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">ÄTA-arbeten</p>
+                      <p className="mt-0.5 text-sm leading-relaxed text-text-secondary">
+                        {data.ata_info}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {data.travel_info && (
+                  <div className="flex items-start gap-3.5">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface">
+                      <Car className="size-5" style={{ color: NAVY }} />
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">Reseräkning</p>
+                      <p className="mt-0.5 text-sm leading-relaxed text-text-secondary">
+                        {data.travel_info}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {data.payment_days != null && (
+                  <div className="flex items-start gap-3.5">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface">
+                      <CalendarClock className="size-5" style={{ color: NAVY }} />
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">Betalningsvillkor</p>
+                      <p className="mt-0.5 text-sm leading-relaxed text-text-secondary">
+                        {data.payment_days} dagar
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Reveal>
+        )}
+
         {/* Uwagi / warunki */}
         {(data.notes || data.terms) && (
           <Reveal delay={140}>
             <div className="flex flex-col gap-5 rounded-2xl bg-white p-6 shadow-(--shadow-card)">
               {data.notes && (
                 <div>
-                  <h2 className="mb-1.5 text-lg font-bold">Övrig information</h2>
+                  <h2 className="mb-1.5 flex items-center gap-2 text-lg font-bold">
+                    <MessageSquareText className="size-5" style={{ color: NAVY }} />
+                    Kommentarer
+                  </h2>
                   <p className="text-sm leading-relaxed whitespace-pre-line text-text-secondary">
                     {data.notes}
                   </p>
@@ -408,11 +517,27 @@ export default function PublicOfferPage() {
               <Building2 className="size-5" style={{ color: NAVY }} />
               <h2 className="text-lg font-bold">Om {companyName}</h2>
             </div>
-            <p className="mb-5 text-sm leading-relaxed text-text-secondary">
-              Vi är ett bygg- och fasadföretag som hjälper privatpersoner,
-              bostadsrättsföreningar och företag i Stockholmsområdet. Kvalitet,
-              trygghet och tydlig kommunikation — från offert till slutbesiktning.
-            </p>
+            {data.company.about && (
+              <p className="mb-5 text-sm leading-relaxed text-text-secondary">
+                {data.company.about}
+              </p>
+            )}
+            {(data.company.services?.length ?? 0) > 0 && (
+              <div className="mb-5 grid grid-cols-2 gap-2.5">
+                {data.company.services!.map((service, i) => {
+                  const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length]!;
+                  return (
+                    <div
+                      key={service}
+                      className="flex items-center gap-2.5 rounded-xl bg-[#F5F5F7] px-3 py-2.5"
+                    >
+                      <Icon className="size-4.5 shrink-0" style={{ color: '#CC0000' }} />
+                      <span className="text-xs leading-tight font-semibold">{service}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <div className="grid gap-2.5 text-sm sm:grid-cols-2">
               {data.company.address && (
                 <p className="flex items-center gap-2.5">
@@ -468,6 +593,49 @@ export default function PublicOfferPage() {
         </Reveal>
       </main>
 
+      {/* Potwierdzenie akceptacji */}
+      {confirmAccept && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6">
+          <button
+            aria-label="Avbryt"
+            className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+            onClick={() => !respond.isPending && setConfirmAccept(false)}
+            tabIndex={-1}
+          />
+          <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-success-soft">
+              <CheckCircle2 className="size-7 text-success" />
+            </div>
+            <h2 className="text-center text-lg font-bold">Acceptera offerten?</h2>
+            <p className="mt-2 text-center text-sm leading-relaxed text-text-secondary">
+              Du bekräftar att du vill anlita {companyName} enligt offert {data.number}.
+            </p>
+            <p className="tabular-nums mt-3 rounded-xl bg-[#F5F5F7] py-2.5 text-center text-base font-bold">
+              Att betala: {money(totals.toPay)}
+            </p>
+            {error && <p className="mt-2 text-center text-xs text-error">{error}</p>}
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={respond.isPending}
+                className="press h-12 rounded-xl bg-[#F5F5F7] text-sm font-medium"
+                onClick={() => setConfirmAccept(false)}
+              >
+                Avbryt
+              </button>
+              <button
+                type="button"
+                disabled={respond.isPending}
+                className="press h-12 rounded-xl bg-success text-sm font-semibold text-white disabled:opacity-60"
+                onClick={() => doRespond(true)}
+              >
+                {respond.isPending ? 'Skickar…' : 'Ja, acceptera'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Przyklejony pasek akceptacji */}
       {canRespond && !declineOpen && (
         <div
@@ -493,9 +661,9 @@ export default function PublicOfferPage() {
                 type="button"
                 disabled={respond.isPending}
                 className="press h-12 flex-1 rounded-2xl bg-success text-base font-semibold text-white shadow-lg shadow-success/25 transition-transform disabled:opacity-60"
-                onClick={() => doRespond(true)}
+                onClick={() => setConfirmAccept(true)}
               >
-                {respond.isPending ? 'Skickar…' : 'Acceptera offerten'}
+                Acceptera offerten
               </button>
             </div>
           </div>

@@ -154,6 +154,10 @@ type OfferRow = {
   rot_persons: number;
   notes: string | null;
   terms: string | null;
+  guarantee: string | null;
+  ata_info: string | null;
+  travel_info: string | null;
+  payment_days: number | null;
   public_token: string | null;
   sent_at: string | null;
   viewed_at: string | null;
@@ -365,7 +369,7 @@ export type Database = {
       };
       offer_next_number: { Args: Record<PropertyKey, never>; Returns: string };
       offer_publish: { Args: { p_offer_id: string }; Returns: string };
-      offer_public: { Args: { p_token: string }; Returns: Json };
+      offer_public: { Args: { p_token: string; p_track?: boolean }; Returns: Json };
       offer_respond: {
         Args: { p_token: string; p_accept: boolean; p_comment?: string | null };
         Returns: undefined;

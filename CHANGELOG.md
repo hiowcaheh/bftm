@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.9.3 — pola informacyjne oferty + strona premium v2 (2026-07-10)
+
+- **Nowe pola oferty** (jak w starym systemie): gwarancja (garanti), prace
+  dodatkowe (ÄTA-arbeten), dojazd (reseräkning), termin płatności (dni),
+  komentarze dla klienta — karta „Informacje dla klienta" w edytorze,
+  na stronie klienta sekcja **„Bra att veta"** z ikonami (migracja 0014).
+- **Podgląd z aplikacji**: przycisk X do zamknięcia i **nie nabija licznika
+  wyświetleń** — licznik rośnie tylko z linku klienta.
+- **Akceptacja z potwierdzeniem**: tap w „Acceptera offerten" otwiera modal
+  „Är du säker?" z kwotą — koniec przypadkowych akceptacji.
+- **Om oss po ludzku**: opis firmy i lista usług (z ikonkami) edytowalne
+  w Ustawienia → Firma — nic nie jest zaszyte w kodzie.
+- Logo w hero jeszcze większe; specyfikacja przestronniejsza (opis osobno,
+  ilość×cena i kwota w osobnej linii, plakietka „arbete").
+
 ## 0.9.2 — strona oferty w wersji premium (2026-07-10)
 
 - Publiczna strona oferty przeprojektowana w stylu prezentacji produktów:

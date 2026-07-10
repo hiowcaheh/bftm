@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import { Building2, ImageUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import { Input, Textarea } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { usePublicBranding } from '@/features/auth/hooks';
 import { logoPublicUrl } from '../api';
@@ -136,6 +136,26 @@ export function CompanySection() {
             onChange={(e) => set({ email: e.target.value })}
           />
         </div>
+        <Textarea
+          label="O firmie (na stronie oferty, po szwedzku)"
+          rows={4}
+          value={form.about}
+          onChange={(e) => set({ about: e.target.value })}
+          hint={'Ten tekst klient czyta w sekcji „Om oss" na stronie oferty'}
+        />
+        <Input
+          label="Usługi (rozdzielone przecinkami)"
+          value={form.services.join(', ')}
+          onChange={(e) =>
+            set({
+              services: e.target.value
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean),
+            })
+          }
+          hint="Pokazywane z ikonkami na stronie oferty, np. Fasad & puts, Takarbeten"
+        />
         <label className="flex min-h-12 items-center gap-3 text-sm">
           <input
             type="checkbox"

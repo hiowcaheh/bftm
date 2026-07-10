@@ -92,8 +92,14 @@ export async function publishOffer(
 
 // ── Strona publiczna (klient, bez logowania) ────────────────────────────────
 
-export async function fetchPublicOffer(token: string): Promise<PublicOffer | null> {
-  const { data, error } = await supabase.rpc('offer_public', { p_token: token });
+export async function fetchPublicOffer(
+  token: string,
+  track: boolean,
+): Promise<PublicOffer | null> {
+  const { data, error } = await supabase.rpc('offer_public', {
+    p_token: token,
+    p_track: track,
+  });
   if (error) throw error;
   return (data as unknown as PublicOffer | null) ?? null;
 }
@@ -112,6 +118,6 @@ export async function respondToOffer(
 }
 
 /** Publiczny adres oferty w tej aplikacji (HashRouter). */
-export function offerPublicUrl(token: string): string {
-  return `${window.location.origin}${window.location.pathname}#/oferta/${token}`;
+export function offerPublicUrl(token: string, preview = false): string {
+  return `${window.location.origin}${window.location.pathname}#/oferta/${token}${preview ? '?podglad=1' : ''}`;
 }

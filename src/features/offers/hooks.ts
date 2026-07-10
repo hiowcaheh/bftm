@@ -97,10 +97,10 @@ export function useUpdateOfferStatus() {
 
 // ── Strona publiczna ─────────────────────────────────────────────────────────
 
-export function usePublicOffer(token: string) {
+export function usePublicOffer(token: string, track: boolean) {
   return useQuery({
     queryKey: ['publicOffer', token],
-    queryFn: () => fetchPublicOffer(token),
+    queryFn: () => fetchPublicOffer(token, track),
     staleTime: 60_000,
     retry: 1,
   });
