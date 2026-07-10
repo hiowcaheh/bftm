@@ -1,1 +1,0 @@
-import{n as e}from"./createLucideIcon-X_kUInbS.js";import{U as t}from"./index-CmVl76Yl.js";import{t as n}from"./EmptyState-LL4BfC79.js";var r=e();function i(){return(0,r.jsx)(`div`,{className:`flex flex-col gap-6`,children:(0,r.jsx)(n,{icon:t,message:`Moduł kosztów powstanie w Etapie 6 — kategorie, projekty i zdjęcia paragonów.`})})}export{i as default};
