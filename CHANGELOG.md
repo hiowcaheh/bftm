@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.1 — fakturowanie etapami + rozmiary w karcie pracownika (2026-07-10)
+
+- **Wiele faktur na projekt** (fakturowanie etapami): każda faktura z kwotą,
+  opisem etapu, datą wysłania, terminem i datą opłacenia; lista w sekcji
+  „Finanse projektu" z dodawaniem/edycją/oznaczaniem opłaconych/usuwaniem;
+  linia „Zafakturowane X z Y". Raport Finanse sumuje wszystkie faktury
+  (czeka na płatność / opłacone w okresie); tabela project_invoices
+  z RLS finance_view (migracja 0010, dane z 0008 przeniesione).
+- Karta pracownika (właściciel): personnummer i **rozmiary robocze**
+  (koszulka/spodnie/buty) widoczne i edytowalne — to samo, co pracownik
+  uzupełnia w swoim profilu.
+
 ## 0.8.0 — Finanse na żywo + Mój profil + poprawki UI (2026-07-10)
 
 - **Zakładka Finanse** (dawne Koszty): zysk okresu na żywo (wypracowane −

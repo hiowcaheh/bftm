@@ -70,8 +70,10 @@
 - **Stan**: Etap 6b — zysk okresu live (wypracowane − koszty), kafle
   (Wypracowane/Koszty/Czeka na płatność/Opłacone), wykres słupkowy przychód
   vs koszty (tydzień: dni, miesiąc: tygodnie ISO), donut struktury kosztów,
-  lista rentowności projektów; fakturowanie projektu (wysłana → termin →
-  opłacona) w sekcji „Finanse projektu" na karcie projektu.
+  lista rentowności projektów; fakturowanie etapami — wiele faktur na
+  projekt (kwota, opis etapu, wysłana → termin → opłacona) w sekcji
+  „Finanse projektu" na karcie projektu (tabela `project_invoices`,
+  migracja 0010).
 - **Koszt pracy**: pełny koszt pracodawcy — stawka × narzuty z settings.finance
   (employer_fee_pct, vacation_pay_pct, overhead_pct). Liczone w RPC
   `finance_project_summary` / `finance_daily` (security definer, wymagają

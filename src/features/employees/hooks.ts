@@ -8,13 +8,14 @@ import {
   fetchActivity,
   fetchCompensation,
   fetchEmployee,
+  fetchEmployeePrivate,
   fetchEmployees,
-  fetchPersonnummer,
   resetPassword,
-  savePersonnummer,
+  saveEmployeePrivate,
   setActive,
   updateEmployee,
   updatePermissions,
+  type EmployeePrivate,
 } from './api';
 import type { NewEmployee } from './types';
 
@@ -37,23 +38,23 @@ export function useCompensation(id: string, enabled: boolean) {
   });
 }
 
-export function usePersonnummer(id: string, enabled: boolean) {
+export function useEmployeePrivate(id: string, enabled: boolean) {
   return useQuery({
     queryKey: [...qk.employees.detail(id), 'private'],
-    queryFn: () => fetchPersonnummer(id),
+    queryFn: () => fetchEmployeePrivate(id),
     enabled,
   });
 }
 
-export function useSavePersonnummer(id: string) {
+export function useSaveEmployeePrivate(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (personnummer: string) => savePersonnummer(id, personnummer),
+    mutationFn: (patch: Partial<EmployeePrivate>) => saveEmployeePrivate(id, patch),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.detail(id) });
-      toast.success('Personnummer zapisany');
+      toast.success('Zapisano');
     },
-    onError: () => toast.error('Nie udało się zapisać personnummer'),
+    onError: () => toast.error('Nie udało się zapisać danych'),
   });
 }
 

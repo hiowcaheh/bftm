@@ -7,6 +7,7 @@ import {
   IdCard,
   KeyRound,
   Phone,
+  Shirt,
   ShieldCheck,
   UserX,
   UserCheck,
@@ -32,9 +33,9 @@ import {
   useCompensation,
   useEmployee,
   useEmployeeActivity,
-  usePersonnummer,
+  useEmployeePrivate,
   useResetPassword,
-  useSavePersonnummer,
+  useSaveEmployeePrivate,
   useSetActive,
   useUpdateEmployee,
   useUpdatePermissions,
@@ -66,11 +67,12 @@ export default function EmployeeDetailPage() {
   const setActive = useSetActive();
   const addCompensation = useAddCompensation(id);
 
-  const personnummer = usePersonnummer(id, isAdmin);
-  const savePersonnummer = useSavePersonnummer(id);
+  const privateData = useEmployeePrivate(id, isAdmin);
+  const savePrivate = useSaveEmployeePrivate(id);
   const [perms, setPerms] = useState<PermissionMap>({});
   const [phone, setPhone] = useState('');
   const [pnr, setPnr] = useState('');
+  const [sizes, setSizes] = useState({ shirt: '', pants: '', shoes: '' });
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [confirmActive, setConfirmActive] = useState(false);
@@ -85,8 +87,15 @@ export default function EmployeeDetailPage() {
   }, [employee.data]);
 
   useEffect(() => {
-    setPnr(personnummer.data ?? '');
-  }, [personnummer.data]);
+    if (privateData.data) {
+      setPnr(privateData.data.personnummer);
+      setSizes({
+        shirt: privateData.data.shirt_size,
+        pants: privateData.data.pants_size,
+        shoes: privateData.data.shoe_size,
+      });
+    }
+  }, [privateData.data]);
 
   if (employee.isLoading) return <SkeletonList rows={5} />;
   if (!employee.data) {
@@ -183,13 +192,44 @@ export default function EmployeeDetailPage() {
                 className="w-full bg-transparent text-[1rem] outline-none"
                 onChange={(e) => setPnr(e.target.value)}
                 onBlur={() => {
-                  if ((personnummer.data ?? '') !== pnr.trim()) {
-                    savePersonnummer.mutate(pnr);
+                  if ((privateData.data?.personnummer ?? '') !== pnr.trim()) {
+                    savePrivate.mutate({ personnummer: pnr });
                   }
                 }}
               />
             }
             subtitle="Personnummer"
+          />
+        )}
+        {isAdmin && (
+          <ListRow
+            leading={<Shirt className="size-5 text-text-secondary" />}
+            title={
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    ['shirt', 'koszulka', 'shirt_size'],
+                    ['pants', 'spodnie', 'pants_size'],
+                    ['shoes', 'buty', 'shoe_size'],
+                  ] as const
+                ).map(([key, placeholder, column]) => (
+                  <input
+                    key={key}
+                    value={sizes[key]}
+                    placeholder={placeholder}
+                    className="w-full rounded-lg bg-surface px-2 py-1 text-center text-[1rem] outline-none"
+                    onChange={(e) => setSizes((s) => ({ ...s, [key]: e.target.value }))}
+                    onBlur={() => {
+                      const saved = privateData.data?.[column] ?? '';
+                      if (saved !== sizes[key].trim()) {
+                        savePrivate.mutate({ [column]: sizes[key] });
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            }
+            subtitle="Rozmiary robocze (pracownik może uzupełnić sam w swoim profilu)"
           />
         )}
       </ListGroup>

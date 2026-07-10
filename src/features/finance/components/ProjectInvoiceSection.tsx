@@ -1,51 +1,102 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { addDays, endOfMonth, format, startOfMonth } from 'date-fns';
-import { Banknote, CheckCircle2, Send, Undo2 } from 'lucide-react';
+import { Banknote, CheckCircle2, Plus, Trash2, Undo2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { ConfirmDialog } from '@/components/ui/Dialog';
 import { DateField } from '@/components/ui/DateField';
 import { Input } from '@/components/ui/Input';
 import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/cn';
 import { date as fmtDate, hours as fmtHours, money, moneyWhole } from '@/lib/format';
-import { projectCost, projectValue } from '../api';
-import { useFinanceSummary, useUpdateProjectInvoice } from '../hooks';
+import { projectCost, projectValue, type ProjectInvoice } from '../api';
+import {
+  useDeleteProjectInvoice,
+  useFinanceSummary,
+  useMarkInvoicePaid,
+  useProjectInvoices,
+  useSaveProjectInvoice,
+} from '../hooks';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 
 /**
- * Finanse projektu na żywo: wartość, koszty (praca + paragony), zysk
- * oraz fakturowanie — „wysłana dnia / termin / opłacona".
+ * Finanse projektu na żywo + fakturowanie etapami: projekt może mieć
+ * wiele faktur (np. za kolejne etapy), każda z własnym terminem i statusem.
  */
 export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
   const now = new Date();
   const summary = useFinanceSummary(iso(startOfMonth(now)), iso(endOfMonth(now)));
-  const invoice = useUpdateProjectInvoice(projectId);
+  const invoices = useProjectInvoices(projectId);
+  const save = useSaveProjectInvoice();
+  const markPaid = useMarkInvoicePaid();
+  const remove = useDeleteProjectInvoice();
 
-  const [sentOpen, setSentOpen] = useState(false);
-  const [paidOpen, setPaidOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<ProjectInvoice | null>(null);
+  const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
   const [sentDate, setSentDate] = useState(iso(now));
   const [dueDate, setDueDate] = useState(iso(addDays(now, 30)));
-  const [amount, setAmount] = useState('');
+  const [paidSheet, setPaidSheet] = useState<ProjectInvoice | null>(null);
   const [paidDate, setPaidDate] = useState(iso(now));
+  const [toDelete, setToDelete] = useState<ProjectInvoice | null>(null);
 
   const p = useMemo(
     () => (summary.data ?? []).find((row) => row.project_id === projectId) ?? null,
     [summary.data, projectId],
   );
+
+  const list = invoices.data ?? [];
+  const value = p ? projectValue(p) : 0;
+  const invoicedTotal = list.reduce((s, i) => s + i.amount, 0);
+
+  useEffect(() => {
+    if (formOpen) {
+      setAmount(
+        editing
+          ? String(editing.amount)
+          : String(Math.max(Math.round(value - invoicedTotal), 0) || ''),
+      );
+      setNote(editing?.note ?? '');
+      setSentDate(editing?.sent_at ?? iso(new Date()));
+      setDueDate(editing?.due_at ?? iso(addDays(new Date(), 30)));
+    }
+    // wartości „prefill" celowo tylko przy otwarciu formularza
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formOpen, editing]);
+
   if (!p) return null;
 
-  const value = projectValue(p);
   const cost = projectCost(p);
   const profit = value - cost;
-  const state = p.invoice_paid_at ? 'paid' : p.invoice_sent_at ? 'sent' : 'none';
+  const paidTotal = list
+    .filter((i) => i.paid_at)
+    .reduce((s, i) => s + i.amount, 0);
+  const awaiting = invoicedTotal - paidTotal;
 
-  const openSent = () => {
-    setSentDate(iso(now));
-    setDueDate(iso(addDays(now, 30)));
-    setAmount(String(Math.round(p.invoice_amount ?? value)));
-    setSentOpen(true);
+  const submit = () => {
+    const parsed = Number(amount.trim().replace(',', '.'));
+    if (Number.isNaN(parsed) || parsed <= 0 || !sentDate) return;
+    save.mutate(
+      {
+        id: editing?.id ?? null,
+        payload: {
+          project_id: projectId,
+          amount: parsed,
+          sent_at: sentDate,
+          due_at: dueDate || null,
+          note: note.trim() || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          setFormOpen(false);
+          setEditing(null);
+        },
+      },
+    );
   };
 
   return (
@@ -55,8 +106,17 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
           <Banknote className="size-5 text-accent" strokeWidth={1.8} />
           <h2 className="text-base font-semibold">Finanse projektu</h2>
         </div>
-        {state === 'paid' && <Badge tone="success">Opłacony</Badge>}
-        {state === 'sent' && <Badge tone="warning">Czeka na płatność</Badge>}
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={<Plus className="size-4" />}
+          onClick={() => {
+            setEditing(null);
+            setFormOpen(true);
+          }}
+        >
+          Faktura
+        </Button>
       </div>
 
       <div className="tabular-nums rounded-xl bg-surface p-3 text-sm">
@@ -83,66 +143,58 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
         </div>
       </div>
 
-      {state !== 'none' && (
-        <p className="text-xs text-text-secondary">
-          Faktura {p.invoice_amount != null ? `na ${money(p.invoice_amount)} ` : ''}
-          wysłana {p.invoice_sent_at ? fmtDate(p.invoice_sent_at) : ''}
-          {p.invoice_due_at ? `, termin ${fmtDate(p.invoice_due_at)}` : ''}
-          {p.invoice_paid_at ? ` — opłacona ${fmtDate(p.invoice_paid_at)}` : ''}
-        </p>
+      {list.length > 0 && (
+        <>
+          <p className="tabular-nums text-xs text-text-secondary">
+            Zafakturowane {moneyWhole(invoicedTotal)} z {moneyWhole(value)}
+            {awaiting > 0 ? ` • czeka na płatność ${moneyWhole(awaiting)}` : ''}
+          </p>
+          <div className="flex flex-col gap-2">
+            {list.map((inv) => (
+              <button
+                key={inv.id}
+                type="button"
+                className="press flex items-center gap-3 rounded-xl bg-surface p-3 text-left"
+                onClick={() => {
+                  setEditing(inv);
+                  setFormOpen(true);
+                }}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="tabular-nums text-sm font-semibold">{money(inv.amount)}</p>
+                  <p className="mt-0.5 text-xs text-text-secondary">
+                    {[
+                      inv.note,
+                      `wysłana ${fmtDate(inv.sent_at)}`,
+                      inv.paid_at
+                        ? `opłacona ${fmtDate(inv.paid_at)}`
+                        : inv.due_at
+                          ? `termin ${fmtDate(inv.due_at)}`
+                          : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' • ')}
+                  </p>
+                </div>
+                {inv.paid_at ? (
+                  <Badge tone="success">Opłacona</Badge>
+                ) : (
+                  <Badge tone="warning">Czeka</Badge>
+                )}
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
-      {state === 'none' && (
-        <Button
-          variant="secondary"
-          fullWidth
-          icon={<Send className="size-5" />}
-          onClick={openSent}
-        >
-          Faktura wysłana
-        </Button>
-      )}
-      {state === 'sent' && (
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="secondary"
-            icon={<Undo2 className="size-5" />}
-            loading={invoice.isPending}
-            onClick={() =>
-              invoice.mutate({
-                invoice_sent_at: null,
-                invoice_due_at: null,
-                invoice_paid_at: null,
-                invoice_amount: null,
-              })
-            }
-          >
-            Cofnij
-          </Button>
-          <Button
-            icon={<CheckCircle2 className="size-5" />}
-            onClick={() => {
-              setPaidDate(iso(now));
-              setPaidOpen(true);
-            }}
-          >
-            Opłacona
-          </Button>
-        </div>
-      )}
-      {state === 'paid' && (
-        <Button
-          variant="secondary"
-          fullWidth
-          icon={<Undo2 className="size-5" />}
-          loading={invoice.isPending}
-          onClick={() => invoice.mutate({ invoice_paid_at: null })}
-        >
-          Cofnij „opłacona"
-        </Button>
-      )}
-
-      <Sheet open={sentOpen} onClose={() => setSentOpen(false)} title="Faktura wysłana">
+      <Sheet
+        open={formOpen}
+        onClose={() => {
+          setFormOpen(false);
+          setEditing(null);
+        }}
+        title={editing ? 'Edytuj fakturę' : 'Nowa faktura'}
+      >
         <div className="flex flex-col gap-4">
           <Input
             label="Kwota faktury (kr)"
@@ -150,13 +202,19 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
+          <Input
+            label="Czego dotyczy (opcjonalnie)"
+            placeholder="np. Etap 1 — elewacja północna"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
           <div className="grid grid-cols-2 gap-3">
             <DateField
               label="Data wysłania"
               value={sentDate}
               onChange={(e) => {
                 setSentDate(e.target.value);
-                if (e.target.value) {
+                if (e.target.value && !editing) {
                   setDueDate(iso(addDays(new Date(e.target.value), 30)));
                 }
               }}
@@ -167,28 +225,61 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
               onChange={(e) => setDueDate(e.target.value)}
             />
           </div>
-          <Button
-            size="lg"
-            fullWidth
-            loading={invoice.isPending}
-            onClick={() => {
-              const parsed = Number(amount.trim().replace(',', '.'));
-              invoice.mutate(
-                {
-                  invoice_sent_at: sentDate,
-                  invoice_due_at: dueDate || null,
-                  invoice_amount: Number.isNaN(parsed) ? null : parsed,
-                },
-                { onSuccess: () => setSentOpen(false) },
-              );
-            }}
-          >
-            Zapisz
+          <Button size="lg" fullWidth loading={save.isPending} onClick={submit}>
+            {editing ? 'Zapisz zmiany' : 'Dodaj fakturę'}
           </Button>
+          {editing && !editing.paid_at && (
+            <Button
+              icon={<CheckCircle2 className="size-5" />}
+              fullWidth
+              onClick={() => {
+                setPaidDate(iso(new Date()));
+                setPaidSheet(editing);
+                setFormOpen(false);
+              }}
+            >
+              Oznacz jako opłaconą
+            </Button>
+          )}
+          {editing?.paid_at && (
+            <Button
+              variant="secondary"
+              fullWidth
+              icon={<Undo2 className="size-5" />}
+              loading={markPaid.isPending}
+              onClick={() =>
+                markPaid.mutate(
+                  { id: editing.id, paidAt: null },
+                  {
+                    onSuccess: () => {
+                      setFormOpen(false);
+                      setEditing(null);
+                    },
+                  },
+                )
+              }
+            >
+              Cofnij „opłacona"
+            </Button>
+          )}
+          {editing && (
+            <Button
+              variant="destructive"
+              fullWidth
+              icon={<Trash2 className="size-5" />}
+              onClick={() => setToDelete(editing)}
+            >
+              Usuń fakturę
+            </Button>
+          )}
         </div>
       </Sheet>
 
-      <Sheet open={paidOpen} onClose={() => setPaidOpen(false)} title="Faktura opłacona">
+      <Sheet
+        open={paidSheet !== null}
+        onClose={() => setPaidSheet(null)}
+        title="Faktura opłacona"
+      >
         <div className="flex flex-col gap-4">
           <DateField
             label="Data wpływu pieniędzy"
@@ -198,18 +289,46 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
           <Button
             size="lg"
             fullWidth
-            loading={invoice.isPending}
-            onClick={() =>
-              invoice.mutate(
-                { invoice_paid_at: paidDate },
-                { onSuccess: () => setPaidOpen(false) },
-              )
-            }
+            loading={markPaid.isPending}
+            onClick={() => {
+              if (paidSheet) {
+                markPaid.mutate(
+                  { id: paidSheet.id, paidAt: paidDate },
+                  {
+                    onSuccess: () => {
+                      setPaidSheet(null);
+                      setEditing(null);
+                    },
+                  },
+                );
+              }
+            }}
           >
             Zapisz
           </Button>
         </div>
       </Sheet>
+
+      <ConfirmDialog
+        open={toDelete !== null}
+        title="Usunąć fakturę?"
+        description={toDelete ? `Faktura na ${money(toDelete.amount)} zostanie usunięta.` : ''}
+        confirmLabel="Usuń"
+        destructive
+        loading={remove.isPending}
+        onConfirm={() => {
+          if (toDelete) {
+            remove.mutate(toDelete.id, {
+              onSuccess: () => {
+                setToDelete(null);
+                setFormOpen(false);
+                setEditing(null);
+              },
+            });
+          }
+        }}
+        onCancel={() => setToDelete(null)}
+      />
     </Card>
   );
 }

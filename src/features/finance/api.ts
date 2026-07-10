@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import type { Tables, TablesInsert } from '@/types/database';
 
 export interface FinanceProjectSummary {
   project_id: string;
@@ -8,10 +9,6 @@ export interface FinanceProjectSummary {
   billing_type: 'hourly' | 'fixed' | 'mixed';
   hourly_rate: number | null;
   fixed_value: number | null;
-  invoice_sent_at: string | null;
-  invoice_due_at: string | null;
-  invoice_paid_at: string | null;
-  invoice_amount: number | null;
   hours_range: number;
   labor_cost_range: number;
   hours_total: number;
@@ -19,6 +16,12 @@ export interface FinanceProjectSummary {
   expenses_range: number;
   expenses_total: number;
   additional_approved: number;
+  invoiced_total: number;
+  paid_total: number;
+  awaiting_total: number;
+  paid_range_total: number;
+  invoice_count: number;
+  next_due_at: string | null;
 }
 
 export interface FinanceDay {
@@ -28,6 +31,8 @@ export interface FinanceDay {
   revenue: number;
   expenses: number;
 }
+
+export type ProjectInvoice = Tables<'project_invoices'>;
 
 /**
  * Agregaty finansowe przez RPC security definer — stawki pracowników
@@ -63,17 +68,34 @@ export function projectCost(p: FinanceProjectSummary): number {
   return p.labor_cost_total + p.expenses_total;
 }
 
-export interface InvoiceUpdate {
-  invoice_sent_at: string | null;
-  invoice_due_at: string | null;
-  invoice_paid_at: string | null;
-  invoice_amount: number | null;
+// ── Faktury projektu (fakturowanie etapami — wiele faktur na projekt) ───────
+
+export async function fetchProjectInvoices(projectId: string): Promise<ProjectInvoice[]> {
+  const { data, error } = await supabase
+    .from('project_invoices')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('sent_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function createProjectInvoice(
+  payload: TablesInsert<'project_invoices'>,
+): Promise<void> {
+  const { error } = await supabase.from('project_invoices').insert(payload);
+  if (error) throw error;
 }
 
 export async function updateProjectInvoice(
-  projectId: string,
-  patch: Partial<InvoiceUpdate>,
+  id: string,
+  patch: Partial<TablesInsert<'project_invoices'>>,
 ): Promise<void> {
-  const { error } = await supabase.from('projects').update(patch).eq('id', projectId);
+  const { error } = await supabase.from('project_invoices').update(patch).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteProjectInvoice(id: string): Promise<void> {
+  const { error } = await supabase.from('project_invoices').delete().eq('id', id);
   if (error) throw error;
 }
