@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.0 — Etap 6: Koszty + Prace dodatkowe + Zdjęcia (2026-07-09)
+
+- Moduł Koszty: nawigacja miesiącami z sumą, chipsy kategorii (Materiały/
+  Sprzęt/Paliwo/Podwykonawca/Inne), filtr projektu, autouzupełnianie
+  netto ↔ VAT ↔ brutto, zdjęcie paragonu z aparatu (kompresja do ~1600 px,
+  prywatny bucket, podgląd przez podpisany URL), edycja/usuwanie wg uprawnień.
+- Prace dodatkowe na karcie projektu: statusy Zaproponowana/Zaakceptowana/
+  Odrzucona/Rozliczona, suma zaakceptowanych (finance_view), CRUD w sheet.
+- Zdjęcia projektu: siatka 3 kolumny, multi-upload z kompresją, podgląd
+  pełnoekranowy z usuwaniem (autor lub admin).
+- Karta projektu: sekcja Koszty (suma brutto + rozbicie wg kategorii,
+  szybkie dodawanie z przypiętym projektem).
+- Pulpit: kafel „Koszty w tym miesiącu" liczy prawdziwe dane.
+
 ## 0.6.1 — stały górny pasek + personnummer + płynne przejścia (2026-07-09)
 
 - Stały górny pasek na każdej zakładce: tytuł strony + dzwoneczek powiadomień

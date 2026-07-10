@@ -50,13 +50,17 @@ export default function DashboardPage() {
       demo: false,
       onClick: () => navigate('/godziny'),
     },
-    {
-      label: 'Koszty w tym miesiącu',
-      value: moneyWhole(0),
-      icon: Receipt,
-      demo: true,
-      onClick: () => navigate('/koszty'),
-    },
+    ...(can('expenses_add') || can('expenses_view_all')
+      ? [
+          {
+            label: 'Koszty w tym miesiącu',
+            value: kpi.data ? moneyWhole(kpi.data.expensesThisMonth) : '—',
+            icon: Receipt,
+            demo: false,
+            onClick: () => navigate('/koszty'),
+          },
+        ]
+      : []),
     {
       label: 'Wartość w toku',
       value: moneyWhole(0),

@@ -29,6 +29,9 @@ import {
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
 import { ProjectHoursSection } from '../components/ProjectHoursSection';
 import { ProjectActivitiesSection } from '../components/ProjectActivitiesSection';
+import { AdditionalWorksSection } from '../components/AdditionalWorksSection';
+import { ProjectExpensesSection } from '../components/ProjectExpensesSection';
+import { ProjectPhotosSection } from '../components/ProjectPhotosSection';
 
 const STATUS_ORDER: ProjectStatus[] = ['offer', 'active', 'paused', 'completed', 'cancelled'];
 
@@ -120,11 +123,11 @@ export default function ProjectDetailPage() {
 
       <ProjectActivitiesSection projectId={p.id} />
       <ProjectHoursSection project={p} />
-
-      <Card className="p-4 text-xs text-text-secondary">
-        Zakładki Koszty • Prace dodatkowe • Zdjęcia • Finanse dojdą w Etapach 6–8 —
-        każda podłączy się do tej karty automatycznie.
-      </Card>
+      {can('expenses_add') || can('expenses_view_all') ? (
+        <ProjectExpensesSection projectId={p.id} />
+      ) : null}
+      <AdditionalWorksSection projectId={p.id} />
+      <ProjectPhotosSection projectId={p.id} />
 
       {canEdit && (
         <div className="flex flex-col gap-3">
