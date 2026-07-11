@@ -82,6 +82,10 @@ export default function ReportsPage() {
     () => (data?.by_project ?? []).reduce((s, p) => s + (p.labor_cost ?? 0), 0),
     [data],
   );
+  const profit = useMemo(
+    () => (finance ? billableTotal - laborTotal - (data?.expenses ?? 0) : null),
+    [finance, billableTotal, laborTotal, data?.expenses],
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -146,6 +150,27 @@ export default function ReportsPage() {
               </Card>
             )}
           </section>
+
+          {finance && profit != null && (
+            <Card className="flex items-center justify-between gap-3 p-4">
+              <div>
+                <p className="text-xs text-text-secondary">Zysk w tym miesiącu</p>
+                <p className="tabular-nums text-[11px] text-text-secondary">
+                  do fakturowania {moneyWhole(billableTotal)} − praca{' '}
+                  {moneyWhole(laborTotal)} − paragony {moneyWhole(data.expenses ?? 0)}
+                </p>
+              </div>
+              <span
+                className={cn(
+                  'tabular-nums shrink-0 text-xl font-bold',
+                  profit >= 0 ? 'text-success' : 'text-error',
+                )}
+              >
+                {profit >= 0 ? '+' : ''}
+                {moneyWhole(profit)}
+              </span>
+            </Card>
+          )}
 
           <SegmentedControl
             options={[
@@ -254,7 +279,11 @@ export default function ReportsPage() {
                 Udostępnij
               </Button>
             </div>
-            <Button variant="ghost" fullWidth onClick={() => window.open(shareUrl, '_blank')}>
+            <Button
+              variant="secondary"
+              fullWidth
+              onClick={() => window.open(`${shareUrl}?podglad=1`, '_blank')}
+            >
               Otwórz podgląd
             </Button>
           </div>
@@ -291,7 +320,9 @@ function EmployeeRow({
             {(e.approved ?? 0) > 0 && (
               <Badge tone="success">{num(e.approved!)} h zatw.</Badge>
             )}
-            {(e.draft ?? 0) > 0 && <Badge tone="warning">{num(e.draft!)} h szkic</Badge>}
+            {(e.draft ?? 0) > 0 && (
+              <Badge tone="warning">{num(e.draft!)} h niezatwierdzone</Badge>
+            )}
             {finance && e.labor_cost != null && (
               <span className="tabular-nums text-[11px] text-text-secondary">
                 koszt {moneyWhole(e.labor_cost)}

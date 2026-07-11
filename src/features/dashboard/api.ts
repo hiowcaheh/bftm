@@ -5,6 +5,7 @@ export interface DashboardKpi {
   activeProjects: number;
   hoursThisMonth: number;
   expensesThisMonth: number;
+  unpaidInvoices: number | null;
 }
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
@@ -12,12 +13,16 @@ const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 /**
  * KPI pulpitu. Suma godzin liczona z wpisów widocznych przez RLS —
  * pracownik bez hours_view_all zobaczy automatycznie tylko własne godziny.
+ * Nieopłacone faktury tylko przy finance_view (RLS na project_invoices).
  */
-export async function fetchKpi(canProjects: boolean): Promise<DashboardKpi> {
+export async function fetchKpi(
+  canProjects: boolean,
+  canFinance: boolean,
+): Promise<DashboardKpi> {
   const now = new Date();
   const monthFrom = iso(startOfMonth(now));
   const monthTo = iso(endOfMonth(now));
-  const [projectsRes, hoursRes, expensesRes] = await Promise.all([
+  const [projectsRes, hoursRes, expensesRes, invoicesRes] = await Promise.all([
     canProjects
       ? supabase
           .from('projects')
@@ -34,6 +39,9 @@ export async function fetchKpi(canProjects: boolean): Promise<DashboardKpi> {
       .select('amount_gross')
       .gte('date', monthFrom)
       .lte('date', monthTo),
+    canFinance
+      ? supabase.from('project_invoices').select('amount').is('paid_at', null)
+      : Promise.resolve({ data: null, error: null }),
   ]);
   if (hoursRes.error) throw hoursRes.error;
   if (expensesRes.error) throw expensesRes.error;
@@ -41,6 +49,9 @@ export async function fetchKpi(canProjects: boolean): Promise<DashboardKpi> {
     activeProjects: projectsRes.count ?? 0,
     hoursThisMonth: (hoursRes.data ?? []).reduce((s, r) => s + r.hours, 0),
     expensesThisMonth: (expensesRes.data ?? []).reduce((s, r) => s + r.amount_gross, 0),
+    unpaidInvoices: canFinance
+      ? (invoicesRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0)
+      : null,
   };
 }
 

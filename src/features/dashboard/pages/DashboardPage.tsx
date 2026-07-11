@@ -61,13 +61,17 @@ export default function DashboardPage() {
           },
         ]
       : []),
-    {
-      label: 'Wartość w toku',
-      value: moneyWhole(0),
-      icon: Banknote,
-      demo: true,
-      onClick: () => navigate('/projekty'),
-    },
+    ...(can('finance_view')
+      ? [
+          {
+            label: 'Nieopłacone faktury',
+            value: kpi.data ? moneyWhole(kpi.data.unpaidInvoices ?? 0) : '—',
+            icon: Banknote,
+            demo: false,
+            onClick: () => navigate('/finanse'),
+          },
+        ]
+      : []),
   ];
 
   return (

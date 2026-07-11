@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.11.0 — Etap 9: Pulpit finalny + offline; poprawki raportu (2026-07-11)
+
+- **Raport**: box **„Zysk w tym miesiącu"** (do fakturowania − koszt pracy −
+  paragony) pod górnymi kaflami; „niezatwierdzone" zamiast „szkic";
+  „Otwórz podgląd" jako czytelny przycisk (nie zlewa się z tłem);
+  X do zamknięcia podglądu raportu w aplikacji (?podglad=1). RPC
+  report_hours zwraca teraz sumę paragonów okresu (migracja 0018).
+- **Pulpit**: kafel „Nieopłacone faktury" z prawdziwych danych (suma
+  niezapłaconych faktur, tylko finance_view) — zastępuje demo „Wartość
+  w toku".
+- **Tryb offline**: pasek „Brak połączenia — pokazujemy ostatnie dane"
+  gdy telefon traci sieć; aplikacja działa dalej na zapisanym cache
+  (TanStack Query persist). PWA: manifest, theme-color, ikony maskable,
+  meta Apple — komplet.
+
 ## 0.10.1 — raport: porównanie miesięcy + udostępnianie linkiem (2026-07-11)
 
 - Pod „Godziny w miesiącu" **porównanie z poprzednim miesiącem**

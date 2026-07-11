@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Building2, Clock, FileQuestion, Users } from 'lucide-react';
+import { Building2, Clock, FileQuestion, Users, X } from 'lucide-react';
 import { moneyWhole, num } from '@/lib/format';
 import { logoPublicUrl } from '@/features/settings/api';
 import { usePublicReport } from '../hooks';
@@ -15,6 +15,8 @@ const NAVY = '#1E2A44';
  */
 export default function PublicReportPage() {
   const { token = '' } = useParams();
+  const [searchParams] = useSearchParams();
+  const isPreview = searchParams.get('podglad') === '1';
   const query = usePublicReport(token);
   const data = query.data;
 
@@ -51,6 +53,22 @@ export default function PublicReportPage() {
 
   return (
     <div className="min-h-dvh bg-[#F5F5F7]">
+      {isPreview && (
+        <button
+          type="button"
+          aria-label="Zamknij podgląd"
+          className="press fixed right-4 z-50 flex size-11 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur"
+          style={{ top: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+          onClick={() => {
+            window.close();
+            setTimeout(() => {
+              window.location.href = `${window.location.origin}${window.location.pathname}#/raporty`;
+            }, 150);
+          }}
+        >
+          <X className="size-5" />
+        </button>
+      )}
       <header
         className="flex flex-col items-center gap-4 px-6 pb-10 text-center"
         style={{

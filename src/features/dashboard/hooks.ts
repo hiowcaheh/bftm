@@ -12,9 +12,10 @@ import {
 export function useDashboardKpi() {
   const { can } = useSession();
   const canProjects = can('projects_view');
+  const canFinance = can('finance_view');
   return useQuery({
-    queryKey: qk.dashboard.kpi(),
-    queryFn: () => fetchKpi(canProjects),
+    queryKey: [...qk.dashboard.kpi(), canFinance],
+    queryFn: () => fetchKpi(canProjects, canFinance),
   });
 }
 
