@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Bell,
   BellOff,
@@ -35,9 +36,17 @@ const TYPE_STYLES: Record<
  * Dzwoneczek w prawym górnym rogu: czerwona kropka z liczbą nieodczytanych,
  * tap otwiera panel powiadomień; otwarcie oznacza wszystkie jako przeczytane.
  */
+/** Dokąd prowadzi tapnięcie w powiadomienie danego typu. */
+const TYPE_ROUTES: Record<string, string> = {
+  payslip: '/wyplaty',
+  hours_approved: '/godziny',
+  offer_response: '/oferty',
+};
+
 export function NotificationBell() {
   const notifications = useNotifications();
   const markAllRead = useMarkAllRead();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const list = notifications.data ?? [];
@@ -80,13 +89,23 @@ export function NotificationBell() {
             {list.map((n) => {
               const style = TYPE_STYLES[n.type] ?? TYPE_STYLES.info!;
               const Icon = style.icon;
+              const route = TYPE_ROUTES[n.type];
               return (
-                <div
+                <button
                   key={n.id}
+                  type="button"
+                  disabled={!route}
                   className={cn(
-                    'flex gap-3 rounded-xl bg-white p-3 shadow-(--shadow-card)',
+                    'press flex gap-3 rounded-xl bg-white p-3 text-left shadow-(--shadow-card)',
                     !n.read_at && 'ring-1 ring-accent/30',
+                    !route && 'cursor-default',
                   )}
+                  onClick={() => {
+                    if (route) {
+                      setOpen(false);
+                      navigate(route);
+                    }
+                  }}
                 >
                   <div
                     className={cn(
@@ -115,7 +134,7 @@ export function NotificationBell() {
                       })}
                     </p>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

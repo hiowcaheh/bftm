@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Download, FileText, Plus, Trash2, X } from 'lucide-react';
+import { Download, FileText, Plus, Share2, Trash2, X } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FAB } from '@/components/ui/FAB';
 import { Select } from '@/components/ui/Select';
 import { SkeletonList } from '@/components/ui/Skeleton';
+import { toast } from '@/components/ui/Toast';
 import { date as fmtDate } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
@@ -19,12 +20,28 @@ import { PayslipUploadSheet } from '../components/PayslipUploadSheet';
 const monthLabel = (year: number, month: number) =>
   format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: pl });
 
+/** Zapisanie/udostępnienie pliku (iOS: menu „Zapisz w Plikach / Zdjęcia"). */
+async function sharePayslip(url: string, filename: string, type: string) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const file = new File([blob], filename, { type });
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: filename });
+      return;
+    }
+  } catch {
+    /* ignoruj — spadamy do otwarcia w nowej karcie */
+  }
+  window.open(url, '_blank');
+}
+
 export default function PayslipsPage() {
-  const { user } = useSession();
-  const isAdmin = user?.role === 'admin';
+  const { user, can } = useSession();
+  const canManage = user?.role === 'admin' || can('payslips_manage');
   const employees = useEmployees();
   const [employeeFilter, setEmployeeFilter] = useState('');
-  const payslips = usePayslips(isAdmin ? employeeFilter || undefined : undefined);
+  const payslips = usePayslips(canManage ? employeeFilter || undefined : undefined);
   const deletePayslip = useDeletePayslip();
 
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -36,7 +53,7 @@ export default function PayslipsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      {isAdmin && (
+      {canManage && (
         <Select
           aria-label="Filtr pracownika"
           value={employeeFilter}
@@ -56,7 +73,7 @@ export default function PayslipsPage() {
         <EmptyState
           icon={FileText}
           message={
-            isAdmin
+            canManage
               ? 'Brak specyfikacji — wyślij pierwszą przyciskiem +.'
               : 'Nie masz jeszcze żadnych specyfikacji wypłaty.'
           }
@@ -81,7 +98,7 @@ export default function PayslipsPage() {
                 </p>
                 <p className="truncate text-xs text-text-secondary">
                   {[
-                    isAdmin ? p.employee?.full_name : null,
+                    canManage ? p.employee?.full_name : null,
                     p.file_type === 'application/pdf' ? 'PDF' : 'Zdjęcie',
                     `wysłano ${fmtDate(p.created_at)}`,
                   ]
@@ -94,7 +111,7 @@ export default function PayslipsPage() {
         </Card>
       )}
 
-      {isAdmin && (
+      {canManage && (
         <FAB
           label="Wyślij specyfikację"
           icon={<Plus className="size-7" />}
@@ -102,7 +119,7 @@ export default function PayslipsPage() {
         />
       )}
 
-      {isAdmin && (
+      {canManage && (
         <PayslipUploadSheet
           open={uploadOpen}
           onClose={() => setUploadOpen(false)}
@@ -129,9 +146,9 @@ export default function PayslipsPage() {
               </button>
               <span className="truncate text-sm font-medium text-white capitalize">
                 {monthLabel(preview.year, preview.month)}
-                {isAdmin && preview.employee ? ` • ${preview.employee.full_name}` : ''}
+                {canManage && preview.employee ? ` • ${preview.employee.full_name}` : ''}
               </span>
-              {isAdmin ? (
+              {canManage ? (
                 <button
                   type="button"
                   aria-label="Usuń specyfikację"
@@ -152,14 +169,6 @@ export default function PayslipsPage() {
                 <div className="flex flex-col items-center gap-4 text-center">
                   <FileText className="size-16 text-white/60" strokeWidth={1.4} />
                   <p className="text-sm text-white/80">Specyfikacja w formacie PDF</p>
-                  <a
-                    href={previewUrl.data}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="press flex h-12 items-center gap-2 rounded-(--radius-input) bg-white px-5 text-sm font-semibold text-text"
-                  >
-                    <Download className="size-5" /> Otwórz / pobierz PDF
-                  </a>
                 </div>
               ) : (
                 <img
@@ -168,6 +177,36 @@ export default function PayslipsPage() {
                   className="max-h-full max-w-full object-contain"
                 />
               )}
+            </div>
+
+            {/* Zapisz / udostępnij — iOS: menu „Zapisz w Plikach / Zdjęcia" */}
+            <div
+              className="px-4 pt-2"
+              style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)' }}
+            >
+              <button
+                type="button"
+                disabled={!previewUrl.data}
+                className="press flex h-12 w-full items-center justify-center gap-2 rounded-(--radius-input) bg-white text-sm font-semibold text-text disabled:opacity-50"
+                onClick={() => {
+                  if (!previewUrl.data) return;
+                  const ext = preview.file_type === 'application/pdf' ? 'pdf' : 'jpg';
+                  const filename = `specyfikacja-${preview.year}-${String(preview.month).padStart(2, '0')}.${ext}`;
+                  void sharePayslip(previewUrl.data, filename, preview.file_type).catch(
+                    () => toast.error('Nie udało się udostępnić pliku'),
+                  );
+                }}
+              >
+                {preview.file_type === 'application/pdf' ? (
+                  <>
+                    <Download className="size-5" /> Zapisz / otwórz PDF
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="size-5" /> Zapisz / udostępnij
+                  </>
+                )}
+              </button>
             </div>
           </div>,
           document.body,

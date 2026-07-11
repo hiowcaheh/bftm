@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { FAB } from '@/components/ui/FAB';
 import { cn } from '@/lib/cn';
-import { date as fmtDate, hours, moneyWhole, num } from '@/lib/format';
+import { hours, moneyWhole, num } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
 import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
 import { ABSENCE_TYPE_LABELS, ABSENCE_TYPE_TONES } from '@/features/absences/types';
@@ -25,8 +25,9 @@ import type { AbsenceType } from '@/types/database';
 import {
   useDashboardKpi,
   useMyWeek,
+  usePayslipReminder,
   usePendingApprovals,
-  useRecentEntries,
+  useThisWeek,
   useToday,
 } from '../hooks';
 
@@ -34,11 +35,13 @@ export default function DashboardPage() {
   const kpi = useDashboardKpi();
   const today = useToday();
   const navigate = useNavigate();
-  const { can } = useSession();
+  const { user, can } = useSession();
   const seesAll = can('hours_view_all');
-  const recent = useRecentEntries(seesAll);
+  const canManagePayslips = user?.role === 'admin' || can('payslips_manage');
+  const thisWeek = useThisWeek(seesAll);
   const pending = usePendingApprovals();
   const myWeek = useMyWeek(!seesAll);
+  const payslipReminder = usePayslipReminder(canManagePayslips);
   const [hoursFormOpen, setHoursFormOpen] = useState(false);
 
   const tiles = [
@@ -104,24 +107,47 @@ export default function DashboardPage() {
         ))}
       </section>
 
-      <Card
-        interactive
-        className="flex items-center gap-3 p-4"
-        onClick={() => navigate('/wyplaty')}
-      >
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft">
-          <ReceiptText className="size-6 text-accent" strokeWidth={1.8} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold">Specyfikacje wypłaty</p>
-          <p className="text-xs text-text-secondary">
-            {seesAll
-              ? 'Wyślij i przeglądaj lönespec pracowników'
-              : 'Twoje specyfikacje wypłaty (lönespec)'}
-          </p>
-        </div>
-        <ChevronRight className="size-5 shrink-0 text-text-secondary" />
-      </Card>
+      {/* Pracownik: skrót do własnych specyfikacji */}
+      {!canManagePayslips && (
+        <Card
+          interactive
+          className="flex items-center gap-3 p-4"
+          onClick={() => navigate('/wyplaty')}
+        >
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft">
+            <ReceiptText className="size-6 text-accent" strokeWidth={1.8} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">Specyfikacje wypłaty</p>
+            <p className="text-xs text-text-secondary">
+              Twoje specyfikacje wypłaty i historia
+            </p>
+          </div>
+          <ChevronRight className="size-5 shrink-0 text-text-secondary" />
+        </Card>
+      )}
+
+      {/* Manager wypłat: przypomnienie od 20. dnia, gdy brakuje specyfikacji */}
+      {payslipReminder.data?.show && (
+        <Card
+          interactive
+          className="flex items-center gap-3 border-l-4 border-accent p-4"
+          onClick={() => navigate('/wyplaty')}
+        >
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft">
+            <ReceiptText className="size-6 text-accent" strokeWidth={1.8} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">Zostało 5 dni do wypłat</p>
+            <p className="text-xs text-text-secondary">
+              Uzupełnij specyfikacje za <span className="capitalize">{payslipReminder.data.monthLabel}</span> —
+              brakuje {payslipReminder.data.missing}{' '}
+              {payslipReminder.data.missing === 1 ? 'pracownika' : 'pracowników'}
+            </p>
+          </div>
+          <ChevronRight className="size-5 shrink-0 text-text-secondary" />
+        </Card>
+      )}
 
       {can('hours_approve') && (pending.data?.count ?? 0) > 0 && (
         <Card
@@ -200,27 +226,40 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {seesAll && (recent.data?.length ?? 0) > 0 && (
+      {seesAll && thisWeek.data && (
         <section className="flex flex-col gap-3">
-          <h2 className="text-base font-semibold">Ostatnie wpisy</h2>
+          <h2 className="text-base font-semibold">Ten tydzień</h2>
           <Card className="flex flex-col divide-y divide-line">
-            {recent.data?.map((e) => (
-              <div key={e.id} className="flex items-center gap-3 p-3">
+            {thisWeek.data.map((day) => {
+              const isToday = day.date === format(new Date(), 'yyyy-MM-dd');
+              return (
                 <div
-                  className="h-8 w-1.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: e.projectColor ?? '#CC0000' }}
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{e.employeeName}</p>
-                  <p className="truncate text-xs text-text-secondary">
-                    {e.projectName} • {fmtDate(e.date)}
-                  </p>
+                  key={day.date}
+                  className={cn(
+                    'flex items-center gap-3 p-3',
+                    day.hours === 0 && 'opacity-45',
+                    isToday && 'bg-accent-soft/40',
+                  )}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium capitalize">
+                      {format(new Date(day.date), 'EEEE, dd.MM', { locale: pl })}
+                      {isToday && (
+                        <span className="ml-1.5 text-xs font-normal text-accent">dziś</span>
+                      )}
+                    </p>
+                    {day.projects.length > 0 && (
+                      <p className="truncate text-xs text-text-secondary">
+                        {day.projects.join(' • ')}
+                      </p>
+                    )}
+                  </div>
+                  <span className="tabular-nums shrink-0 text-sm font-semibold">
+                    {day.hours > 0 ? `${num(day.hours)} h` : '—'}
+                  </span>
                 </div>
-                <span className="tabular-nums shrink-0 text-sm font-semibold">
-                  {num(e.hours)} h
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </Card>
         </section>
       )}

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.13.0 — specyfikacje: podgląd, udostępnianie, uprawnienie, przypomnienie (2026-07-11)
+
+- **Podgląd przed wysłaniem**: wgrywając specyfikację widać miniaturę
+  (zdjęcie) lub nazwę pliku (PDF), żeby nie wysłać do złej osoby.
+- **Zapisz / udostępnij**: przy podglądzie specyfikacji przycisk otwiera
+  systemowe menu iOS (Zapisz w Plikach / Zdjęcia / wyślij dalej).
+- **Uprawnienie „Specyfikacje wypłaty"** (`payslips_manage`): możesz
+  wyznaczyć pracownika do wgrywania lönespec — widzi też swoje własne
+  (migracja 0020).
+- **Powiadomienie** po polsku („specyfikacja wypłaty"); tapnięcie
+  przenosi do widoku specyfikacji.
+- **Pulpit**: kafel specyfikacji zniknął u zarządzających — zamiast niego
+  od **20. dnia miesiąca** pojawia się przypomnienie „Zostało 5 dni do
+  wypłat — uzupełnij specyfikacje za {poprzedni miesiąc}" (znika, gdy
+  wszyscy pracownicy mają już wgrane); pracownik ma skrót do własnych.
+- **„Ten tydzień"** zamiast „Ostatnie wpisy" na pulpicie widoku ogólnego —
+  pon–ndz bieżącego tygodnia z sumą godzin, dzisiejszy dzień wyróżniony.
+
 ## 0.12.0 — Specyfikacje wypłaty (lönespec) + dzwoniący budzik (2026-07-11)
 
 - **Specyfikacje wypłaty**: nowy moduł (Więcej + belka na Pulpicie).

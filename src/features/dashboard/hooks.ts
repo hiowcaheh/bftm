@@ -4,8 +4,10 @@ import { useSession } from '@/features/auth/SessionProvider';
 import {
   fetchKpi,
   fetchMyWeek,
+  fetchPayslipReminder,
   fetchPendingApprovals,
   fetchRecentEntries,
+  fetchThisWeek,
   fetchToday,
 } from './api';
 
@@ -44,6 +46,22 @@ export function useMyWeek(enabled: boolean) {
   return useQuery({
     queryKey: [...qk.dashboard.all, 'myWeek'],
     queryFn: fetchMyWeek,
+    enabled,
+  });
+}
+
+export function useThisWeek(enabled: boolean) {
+  return useQuery({
+    queryKey: [...qk.dashboard.all, 'thisWeek'],
+    queryFn: fetchThisWeek,
+    enabled,
+  });
+}
+
+export function usePayslipReminder(enabled: boolean) {
+  return useQuery({
+    queryKey: [...qk.dashboard.all, 'payslipReminder'],
+    queryFn: fetchPayslipReminder,
     enabled,
   });
 }

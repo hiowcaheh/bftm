@@ -1,4 +1,5 @@
 import { endOfMonth, format, startOfMonth } from 'date-fns';
+import { pl } from 'date-fns/locale';
 import { supabase } from '@/lib/supabaseClient';
 
 export interface DashboardKpi {
@@ -167,6 +168,76 @@ export async function fetchMyWeek(): Promise<WeekDayEntry[]> {
     days.push({ date: key, hours: day?.hours ?? 0, projects: [...(day?.projects ?? [])] });
   }
   return days;
+}
+
+/** Bieżący tydzień ISO (pon–ndz) — sumy dzienne wg RLS (admin: cała firma). */
+export async function fetchThisWeek(): Promise<WeekDayEntry[]> {
+  const now = new Date();
+  // poniedziałek bieżącego tygodnia ISO
+  const monday = new Date(now);
+  const dow = (now.getDay() + 6) % 7; // 0 = poniedziałek
+  monday.setDate(now.getDate() - dow);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  const { data, error } = await supabase
+    .from('work_hours')
+    .select('date, hours, project:projects(name)')
+    .gte('date', iso(monday))
+    .lte('date', iso(sunday));
+  if (error) throw error;
+
+  const byDate = new Map<string, { hours: number; projects: Set<string> }>();
+  for (const row of data as unknown as Array<{
+    date: string;
+    hours: number;
+    project: { name: string } | null;
+  }>) {
+    const day = byDate.get(row.date) ?? { hours: 0, projects: new Set() };
+    day.hours += row.hours;
+    if (row.project?.name) day.projects.add(row.project.name);
+    byDate.set(row.date, day);
+  }
+
+  const days: WeekDayEntry[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = iso(d);
+    const day = byDate.get(key);
+    days.push({ date: key, hours: day?.hours ?? 0, projects: [...(day?.projects ?? [])] });
+  }
+  return days;
+}
+
+export interface PayslipReminder {
+  show: boolean;
+  monthLabel: string;
+  missing: number;
+}
+
+/** Przypomnienie o uzupełnieniu specyfikacji: od 20. dnia, gdy brakuje. */
+export async function fetchPayslipReminder(): Promise<PayslipReminder> {
+  const now = new Date();
+  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const pY = prev.getFullYear();
+  const pM = prev.getMonth() + 1;
+  const [empRes, payRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('active', true)
+      .eq('role', 'employee'),
+    supabase.from('payslips').select('employee_id').eq('year', pY).eq('month', pM),
+  ]);
+  const employees = empRes.count ?? 0;
+  const covered = new Set((payRes.data ?? []).map((r) => r.employee_id)).size;
+  const missing = Math.max(employees - covered, 0);
+  return {
+    show: now.getDate() >= 20 && employees > 0 && missing > 0,
+    monthLabel: format(prev, 'LLLL yyyy', { locale: pl }),
+    missing,
+  };
 }
 
 export interface RecentEntry {

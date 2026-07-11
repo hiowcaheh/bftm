@@ -22,6 +22,7 @@ export const PERMISSIONS = [
   'finance_view',
   'employees_view',
   'photos_upload',
+  'payslips_manage',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
