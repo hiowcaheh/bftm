@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Building2, ImageUp } from 'lucide-react';
+import { Building2, ImageUp, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input, Textarea } from '@/components/ui/Input';
+import { Sheet } from '@/components/ui/Sheet';
+import { ICON_KEYS, iconByKey } from '@/lib/iconRegistry';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { usePublicBranding } from '@/features/auth/hooks';
 import { logoPublicUrl } from '../api';
@@ -20,6 +22,7 @@ export function CompanySection() {
 
   const [form, setForm] = useState<CompanyDetails>(EMPTY_COMPANY_DETAILS);
   const [slogan, setSlogan] = useState('');
+  const [iconPickerIndex, setIconPickerIndex] = useState<number | null>(null);
   useEffect(() => {
     if (details.data) setForm(details.data);
   }, [details.data]);
@@ -32,7 +35,8 @@ export function CompanySection() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const contacts = form.contacts.filter((c) => c.name.trim() || c.phone.trim());
-    save.mutate({ details: { ...form, contacts }, slogan });
+    const services = form.services.filter((sv) => sv.name.trim());
+    save.mutate({ details: { ...form, contacts, services }, slogan });
   };
 
   if (details.isLoading) {
@@ -168,19 +172,55 @@ export function CompanySection() {
           onChange={(e) => set({ about: e.target.value })}
           hint={'Ten tekst klient czyta w sekcji „Om oss" na stronie oferty'}
         />
-        <Input
-          label="Usługi (rozdzielone przecinkami)"
-          value={form.services.join(', ')}
-          onChange={(e) =>
-            set({
-              services: e.target.value
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean),
-            })
-          }
-          hint="Pokazywane z ikonkami na stronie oferty, np. Fasad & puts, Takarbeten"
-        />
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-medium text-text-secondary">
+            Usługi na stronie oferty (nazwa + ikonka)
+          </p>
+          {form.services.map((service, i) => {
+            const Icon = iconByKey(service.icon);
+            return (
+              <div key={i} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Wybierz ikonkę"
+                  className="press flex size-11 shrink-0 items-center justify-center rounded-xl bg-surface"
+                  onClick={() => setIconPickerIndex(i)}
+                >
+                  <Icon className="size-5 text-accent" />
+                </button>
+                <input
+                  value={service.name}
+                  placeholder="np. Fasad & puts"
+                  className="h-11 min-w-0 flex-1 rounded-(--radius-input) border border-line bg-white px-3 text-[1rem] outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                  onChange={(e) => {
+                    const services = [...form.services];
+                    services[i] = { ...services[i]!, name: e.target.value };
+                    set({ services });
+                  }}
+                />
+                <button
+                  type="button"
+                  aria-label="Usuń usługę"
+                  className="press flex size-11 shrink-0 items-center justify-center rounded-xl bg-error-soft text-error"
+                  onClick={() => set({ services: form.services.filter((_, x) => x !== i) })}
+                >
+                  <Trash2 className="size-4.5" />
+                </button>
+              </div>
+            );
+          })}
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            icon={<Plus className="size-4" />}
+            onClick={() =>
+              set({ services: [...form.services, { name: '', icon: 'Hammer' }] })
+            }
+          >
+            Dodaj usługę
+          </Button>
+        </div>
         <label className="flex min-h-12 items-center gap-3 text-sm">
           <input
             type="checkbox"
@@ -194,6 +234,44 @@ export function CompanySection() {
           Zapisz dane firmy
         </Button>
       </form>
+
+      <Sheet
+        open={iconPickerIndex !== null}
+        onClose={() => setIconPickerIndex(null)}
+        title="Wybierz ikonkę"
+      >
+        <div className="grid grid-cols-6 gap-2">
+          {ICON_KEYS.map((key) => {
+            const Icon = iconByKey(key);
+            const active =
+              iconPickerIndex !== null && form.services[iconPickerIndex]?.icon === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-label={key}
+                className={
+                  'press flex aspect-square items-center justify-center rounded-xl ' +
+                  (active ? 'bg-accent text-white' : 'bg-surface text-text')
+                }
+                onClick={() => {
+                  if (iconPickerIndex !== null) {
+                    const services = [...form.services];
+                    const current = services[iconPickerIndex];
+                    if (current) {
+                      services[iconPickerIndex] = { ...current, icon: key };
+                      set({ services });
+                    }
+                  }
+                  setIconPickerIndex(null);
+                }}
+              >
+                <Icon className="size-5" />
+              </button>
+            );
+          })}
+        </div>
+      </Sheet>
     </Card>
   );
 }

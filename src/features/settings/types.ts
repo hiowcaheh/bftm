@@ -17,8 +17,8 @@ export interface CompanyDetails {
   email: string;
   /** Opis firmy na publicznej stronie oferty (po szwedzku) */
   about: string;
-  /** Usługi pokazywane na stronie oferty (ikonki) */
-  services: string[];
+  /** Usługi pokazywane na stronie oferty (nazwa + klucz ikony z rejestru) */
+  services: Array<{ name: string; icon: string }>;
   /** Kontakty imienne (np. Tomasz/Mateusz) na stronie oferty */
   contacts: Array<{ name: string; phone: string }>;
 }

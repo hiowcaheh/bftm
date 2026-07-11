@@ -10,14 +10,11 @@ import {
   FileQuestion,
   Globe,
   Hammer,
-  Layers,
   Mail,
   MapPin,
   MessageSquareText,
-  PaintRoller,
   Phone,
   ShieldCheck,
-  Wrench,
   X,
   XCircle,
 } from 'lucide-react';
@@ -25,12 +22,11 @@ import { money, num } from '@/lib/format';
 import { cn } from '@/lib/cn';
 import { format } from 'date-fns';
 import { logoPublicUrl } from '@/features/settings/api';
+import { iconByKey } from '@/lib/iconRegistry';
 import { usePublicOffer, useRespondToOffer } from '../hooks';
 import { computeOfferTotals } from '../types';
 
 const NAVY = '#1E2A44';
-const SERVICE_ICONS = [Layers, Hammer, Wrench, PaintRoller];
-
 /** Właściciel wpisał samą liczbę? Dopisz naturalne szwedzkie zdanie. */
 const isBareNumber = (v: string) => /^\d+([.,]\d+)?$/.test(v.trim());
 const fmtGuarantee = (v: string) =>
@@ -180,7 +176,7 @@ export default function PublicOfferPage() {
           setDeclineOpen(false);
           setConfirmAccept(false);
         },
-        onError: () => setError('Något gick fel — försök igen eller kontakta oss.'),
+        onError: () => setError('Något gick fel. Försök igen eller kontakta oss.'),
       },
     );
   };
@@ -206,7 +202,7 @@ export default function PublicOfferPage() {
       )}
       {data.status === 'draft' && (
         <div className="bg-warning px-4 py-2 text-center text-xs font-semibold text-white">
-          Förhandsvisning — offerten är inte skickad än
+          Förhandsvisning. Offerten är inte skickad än
         </div>
       )}
       {/* HERO — pełnoekranowy granat, duże logo, tytuł */}
@@ -297,7 +293,7 @@ export default function PublicOfferPage() {
                 </>
               ) : null}
               Tack för visat intresse för våra tjänster. Nedan hittar du en detaljerad
-              offert för ditt projekt — kontakta oss gärna om du har några frågor.
+              offert för ditt projekt. Kontakta oss gärna om du har några frågor.
             </p>
             <div className="mt-5 grid grid-cols-3 gap-2 border-t border-line pt-5 text-center max-sm:grid-cols-1 max-sm:text-left">
               {[
@@ -387,7 +383,7 @@ export default function PublicOfferPage() {
               <p className="px-6 py-3 text-[11px] leading-relaxed text-text-secondary">
                 {totals.rotDeduction > 0 &&
                   `ROT-avdraget förutsätter tillräckligt avdragsutrymme hos Skatteverket (${data.rot_persons} ${data.rot_persons === 1 ? 'person' : 'personer'}). `}
-                {data.reverse_vat && 'Omvänd byggmoms tillämpas — köparen redovisar momsen.'}
+                {data.reverse_vat && 'Omvänd byggmoms tillämpas. Köparen redovisar momsen.'}
               </p>
             )}
           </div>
@@ -483,38 +479,6 @@ export default function PublicOfferPage() {
           </Reveal>
         )}
 
-        {/* Formularz odmowy */}
-        {canRespond && declineOpen && (
-          <div className="flex flex-col gap-3 rounded-2xl bg-white p-6 shadow-(--shadow-card)">
-            <p className="text-sm font-semibold">Avböj offerten</p>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={3}
-              className="rounded-xl border border-line bg-[#F5F5F7] p-3 text-[1rem] outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-              placeholder="Meddelande till oss (frivilligt) — t.ex. priset, omfattningen…"
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                className="press h-12 rounded-xl bg-[#F5F5F7] text-sm font-medium"
-                onClick={() => setDeclineOpen(false)}
-              >
-                Tillbaka
-              </button>
-              <button
-                type="button"
-                disabled={respond.isPending}
-                className="press h-12 rounded-xl bg-error text-sm font-semibold text-white disabled:opacity-60"
-                onClick={() => doRespond(false)}
-              >
-                {respond.isPending ? 'Skickar…' : 'Avböj offerten'}
-              </button>
-            </div>
-            {error && <p className="text-xs text-error">{error}</p>}
-          </div>
-        )}
-
         {/* O firmie */}
         <Reveal delay={160}>
           <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
@@ -529,15 +493,17 @@ export default function PublicOfferPage() {
             )}
             {(data.company.services?.length ?? 0) > 0 && (
               <div className="mb-5 grid grid-cols-2 gap-2.5">
-                {data.company.services!.map((service, i) => {
-                  const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length]!;
+                {data.company.services!.map((service) => {
+                  const item =
+                    typeof service === 'string' ? { name: service, icon: 'Hammer' } : service;
+                  const Icon = iconByKey(item.icon);
                   return (
                     <div
-                      key={service}
+                      key={item.name}
                       className="flex items-center gap-2.5 rounded-xl bg-[#F5F5F7] px-3 py-2.5"
                     >
                       <Icon className="size-4.5 shrink-0" style={{ color: '#CC0000' }} />
-                      <span className="text-xs leading-tight font-semibold">{service}</span>
+                      <span className="text-xs leading-tight font-semibold">{item.name}</span>
                     </div>
                   );
                 })}
@@ -579,14 +545,14 @@ export default function PublicOfferPage() {
                 <span className="text-info">www.bftm.se</span>
               </a>
             </div>
-            <div className="mt-5 flex flex-col items-start gap-2 border-t border-line pt-4">
+            <div className="mt-5 flex items-center gap-2 border-t border-line pt-4">
               {data.company.f_skatt && (
-                <span className="flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-xs font-medium text-success">
-                  <BadgeCheck className="size-3.5" /> Godkänd för F-skatt
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-medium whitespace-nowrap text-success">
+                  <BadgeCheck className="size-3.5 shrink-0" /> Godkänd för F-skatt
                 </span>
               )}
-              <span className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-medium text-text-secondary">
-                <ShieldCheck className="size-3.5" /> Försäkrade arbeten
+              <span className="flex shrink-0 items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-[11px] font-medium whitespace-nowrap text-text-secondary">
+                <ShieldCheck className="size-3.5 shrink-0" /> Försäkrade arbeten
               </span>
             </div>
           </div>
@@ -609,6 +575,50 @@ export default function PublicOfferPage() {
           </div>
         </Reveal>
       </main>
+
+      {/* Odmowa — modal z polem na wiadomość */}
+      {declineOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6">
+          <button
+            aria-label="Tillbaka"
+            className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+            onClick={() => !respond.isPending && setDeclineOpen(false)}
+            tabIndex={-1}
+          />
+          <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+            <h2 className="text-center text-lg font-bold">Avböj offerten?</h2>
+            <p className="mt-2 text-center text-sm leading-relaxed text-text-secondary">
+              Berätta gärna varför, så kan vi återkomma med ett bättre förslag.
+            </p>
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={3}
+              className="mt-4 w-full rounded-xl border border-line bg-[#F5F5F7] p-3 text-[1rem] outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+              placeholder="Meddelande till oss (frivilligt)"
+            />
+            {error && <p className="mt-2 text-center text-xs text-error">{error}</p>}
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={respond.isPending}
+                className="press h-12 rounded-xl bg-[#F5F5F7] text-sm font-medium"
+                onClick={() => setDeclineOpen(false)}
+              >
+                Tillbaka
+              </button>
+              <button
+                type="button"
+                disabled={respond.isPending}
+                className="press h-12 rounded-xl bg-error text-sm font-semibold text-white disabled:opacity-60"
+                onClick={() => doRespond(false)}
+              >
+                {respond.isPending ? 'Skickar…' : 'Avböj offerten'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Potwierdzenie akceptacji */}
       {confirmAccept && (
@@ -654,7 +664,7 @@ export default function PublicOfferPage() {
       )}
 
       {/* Przyklejony pasek akceptacji */}
-      {canRespond && !declineOpen && (
+      {canRespond && (
         <div
           className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/85 backdrop-blur-xl"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
@@ -662,7 +672,7 @@ export default function PublicOfferPage() {
           <div className="mx-auto flex max-w-2xl flex-col gap-2 px-4 py-3 sm:px-6">
             {expired && (
               <p className="text-center text-[11px] text-warning">
-                Offertens giltighetstid har gått ut — kontakta oss för en uppdaterad offert.
+                Offertens giltighetstid har gått ut. Kontakta oss för en uppdaterad offert.
               </p>
             )}
             {error && <p className="text-center text-[11px] text-error">{error}</p>}

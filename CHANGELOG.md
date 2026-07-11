@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.5 — usługi z wyborem ikon + modal Avböj + opis firmy od właściciela (2026-07-11)
+
+- **Usługi w Ustawieniach jako lista**: każda w osobnym wierszu, z wyborem
+  ikonki z pełnego rejestru ~36 ikon aplikacji (tap w ikonkę → siatka),
+  dodawanie i usuwanie pozycji; koniec wpisywania po przecinku.
+- **„Avböj offerten" w modalu**: pole na wiadomość wyskakuje w oknie na
+  środku ekranu (jak potwierdzenie akceptacji), nie w treści strony.
+- Opis „Om BFTM" podmieniony na tekst właściciela (edytowalny dalej
+  w Ustawieniach); plakietki F-skatt/Försäkrade znów obok siebie.
+- Usunięte myślniki „—" z tekstów widocznych dla klienta.
+
 ## 0.9.4 — podgląd szkicu + kontakty imienne + specyfikacja v3 (2026-07-10)
 
 - **Podgląd przed wysłaniem**: „Podgląd oferty klienta" dostępny od razu po
