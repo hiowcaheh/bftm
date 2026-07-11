@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.1 — raport: porównanie miesięcy + udostępnianie linkiem (2026-07-11)
+
+- Pod „Godziny w miesiącu" **porównanie z poprzednim miesiącem**
+  (np. „+12 h vs 29 h w zeszłym", zielono/czerwono).
+- **Udostępnij raport linkiem** (jak oferty): generujesz link, otwiera się
+  bez logowania w szacie firmy (granatowy nagłówek z logo, godziny,
+  do fakturowania, pracownicy z rozbiciem, projekty). Dane zamrożone
+  w momencie utworzenia; przełącznik „Dołącz kwoty" (można udostępnić
+  same godziny bez stawek). Migracja 0017 (tabela report_shares, RPC
+  security definer; strona publiczna czyta tylko po tokenie).
+
 ## 0.10.0 — Etap 8: Raporty (2026-07-11)
 
 - **Moduł Raporty**: zestawienie godzin miesiąca (nawigacja strzałkami).
