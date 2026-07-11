@@ -30,6 +30,15 @@ import { computeOfferTotals } from '../types';
 
 const NAVY = '#1E2A44';
 const SERVICE_ICONS = [Layers, Hammer, Wrench, PaintRoller];
+
+/** Właściciel wpisał samą liczbę? Dopisz naturalne szwedzkie zdanie. */
+const isBareNumber = (v: string) => /^\d+([.,]\d+)?$/.test(v.trim());
+const fmtGuarantee = (v: string) =>
+  isBareNumber(v) ? `${v.trim()} års garanti på utfört arbete` : v;
+const fmtAta = (v: string) =>
+  isBareNumber(v) ? `ÄTA-arbeten debiteras ${v.trim()} kr/tim efter godkännande` : v;
+const fmtTravel = (v: string) =>
+  isBareNumber(v) ? `Reseräkning ${v.trim()} kr per arbetsdag` : v;
 const fmt = (d: string) => format(new Date(d), 'dd/MM/yyyy');
 
 /** Sekcja pojawiająca się płynnie przy wejściu w kadr (IntersectionObserver). */
@@ -195,6 +204,11 @@ export default function PublicOfferPage() {
           <X className="size-5" />
         </button>
       )}
+      {data.status === 'draft' && (
+        <div className="bg-warning px-4 py-2 text-center text-xs font-semibold text-white">
+          Förhandsvisning — offerten är inte skickad än
+        </div>
+      )}
       {/* HERO — pełnoekranowy granat, duże logo, tytuł */}
       <header
         className="relative overflow-hidden px-6 pt-14 pb-20 text-center"
@@ -308,30 +322,21 @@ export default function PublicOfferPage() {
             <h2 className="mb-4 text-lg font-bold">Specifikation</h2>
             <div className="flex flex-col divide-y divide-line">
               {data.items.map((item, i) => (
-                <div key={i} className="flex flex-col gap-2.5 py-5 first:pt-0 last:pb-0">
-                  <div className="flex items-start gap-3">
-                    <span
-                      className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                      style={{ backgroundColor: NAVY }}
-                    >
-                      {i + 1}
-                    </span>
-                    <p className="min-w-0 flex-1 text-[15px] leading-relaxed font-semibold">
-                      {item.description}
+                <div key={i} className="flex flex-col gap-1.5 py-5 first:pt-0 last:pb-0">
+                  <p
+                    className="text-[10px] font-bold tracking-[0.18em] uppercase"
+                    style={{ color: item.is_labor ? '#CC0000' : '#8E8E93' }}
+                  >
+                    {item.is_labor ? 'Arbete' : 'Material'}
+                  </p>
+                  <p className="text-[15px] leading-relaxed font-semibold">
+                    {item.description}
+                  </p>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="tabular-nums text-xs text-text-secondary">
+                      {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)}
+                      {!data.reverse_vat ? `  ·  moms ${num(item.vat_rate)}%` : ''}
                     </p>
-                  </div>
-                  <div className="flex items-end justify-between gap-3 pl-10">
-                    <div className="tabular-nums flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
-                      <span>
-                        {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)}
-                      </span>
-                      {!data.reverse_vat && <span>moms {num(item.vat_rate)}%</span>}
-                      {item.is_labor && (
-                        <span className="rounded-full bg-surface px-2 py-0.5 font-medium">
-                          arbete
-                        </span>
-                      )}
-                    </div>
                     <span className="tabular-nums shrink-0 text-base font-bold">
                       {money(item.quantity * item.unit_price)}
                     </span>
@@ -402,7 +407,7 @@ export default function PublicOfferPage() {
                     <div>
                       <p className="text-sm font-semibold">Garanti</p>
                       <p className="mt-0.5 text-sm leading-relaxed text-text-secondary">
-                        {data.guarantee}
+                        {fmtGuarantee(data.guarantee)}
                       </p>
                     </div>
                   </div>
@@ -415,7 +420,7 @@ export default function PublicOfferPage() {
                     <div>
                       <p className="text-sm font-semibold">ÄTA-arbeten</p>
                       <p className="mt-0.5 text-sm leading-relaxed text-text-secondary">
-                        {data.ata_info}
+                        {fmtAta(data.ata_info)}
                       </p>
                     </div>
                   </div>
@@ -428,7 +433,7 @@ export default function PublicOfferPage() {
                     <div>
                       <p className="text-sm font-semibold">Reseräkning</p>
                       <p className="mt-0.5 text-sm leading-relaxed text-text-secondary">
-                        {data.travel_info}
+                        {fmtTravel(data.travel_info)}
                       </p>
                     </div>
                   </div>
@@ -545,12 +550,24 @@ export default function PublicOfferPage() {
                   {data.company.address}
                 </p>
               )}
-              {data.company.phone && (
-                <a href={`tel:${data.company.phone}`} className="flex items-center gap-2.5">
+              {(data.company.contacts?.length
+                ? data.company.contacts
+                : data.company.phone
+                  ? [{ name: '', phone: data.company.phone }]
+                  : []
+              ).map((contact) => (
+                <a
+                  key={contact.phone}
+                  href={`tel:${contact.phone.replace(/[^+\d]/g, '')}`}
+                  className="flex items-center gap-2.5"
+                >
                   <Phone className="size-4 shrink-0 text-text-secondary" />
-                  <span className="text-info">{data.company.phone}</span>
+                  <span>
+                    {contact.name ? <b>{contact.name}: </b> : null}
+                    <span className="text-info">{contact.phone}</span>
+                  </span>
                 </a>
-              )}
+              ))}
               {data.company.email && (
                 <a href={`mailto:${data.company.email}`} className="flex items-center gap-2.5">
                   <Mail className="size-4 shrink-0 text-text-secondary" />
@@ -562,7 +579,7 @@ export default function PublicOfferPage() {
                 <span className="text-info">www.bftm.se</span>
               </a>
             </div>
-            <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
+            <div className="mt-5 flex flex-col items-start gap-2 border-t border-line pt-4">
               {data.company.f_skatt && (
                 <span className="flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-xs font-medium text-success">
                   <BadgeCheck className="size-3.5" /> Godkänd för F-skatt

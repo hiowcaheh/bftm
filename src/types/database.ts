@@ -369,6 +369,7 @@ export type Database = {
       };
       offer_next_number: { Args: Record<PropertyKey, never>; Returns: string };
       offer_publish: { Args: { p_offer_id: string }; Returns: string };
+      offer_ensure_token: { Args: { p_offer_id: string }; Returns: string };
       offer_public: { Args: { p_token: string; p_track?: boolean }; Returns: Json };
       offer_respond: {
         Args: { p_token: string; p_accept: boolean; p_comment?: string | null };

@@ -31,7 +31,8 @@ export function CompanySection() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    save.mutate({ details: form, slogan });
+    const contacts = form.contacts.filter((c) => c.name.trim() || c.phone.trim());
+    save.mutate({ details: { ...form, contacts }, slogan });
   };
 
   if (details.isLoading) {
@@ -122,6 +123,30 @@ export function CompanySection() {
           />
         </div>
         <Input label="IBAN" value={form.iban} onChange={(e) => set({ iban: e.target.value })} />
+        {[0, 1].map((i) => (
+          <div key={i} className="grid grid-cols-2 gap-3">
+            <Input
+              label={`Kontakt ${i + 1} — imię`}
+              placeholder={i === 0 ? 'np. Tomasz' : 'np. Mateusz'}
+              value={form.contacts[i]?.name ?? ''}
+              onChange={(e) => {
+                const contacts = [...form.contacts];
+                contacts[i] = { name: e.target.value, phone: contacts[i]?.phone ?? '' };
+                set({ contacts });
+              }}
+            />
+            <Input
+              label="Telefon"
+              type="tel"
+              value={form.contacts[i]?.phone ?? ''}
+              onChange={(e) => {
+                const contacts = [...form.contacts];
+                contacts[i] = { name: contacts[i]?.name ?? '', phone: e.target.value };
+                set({ contacts });
+              }}
+            />
+          </div>
+        ))}
         <div className="grid grid-cols-2 gap-3">
           <Input
             label="Telefon"
