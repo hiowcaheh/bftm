@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.16.0 — wysyłka ofert e-mailem przez Resend (2026-07-11)
+
+- **Wyślij ofertę e-mailem**: przycisk w „Wyślij ofertę" wysyła klientowi
+  ładnego HTML-a (branding BFTM, przycisk „Öppna offerten" do publicznej
+  strony oferty) — zamiast otwierać aplikację pocztową. Nadawca
+  `kontakt@bftm.se`, odpowiedzi trafiają na `mateus@bftm.se`.
+- Wysyłkę obsługuje Edge Function `send-offer-email` (Resend). Klucz API
+  leży w serwerowej tabeli `app_secrets` (RLS + odebrane granty — czyta go
+  wyłącznie funkcja przez service_role), więc nie trafia do aplikacji ani
+  do repozytorium (migracja 0021).
+
 ## 0.15.0 — Zespół zamiast Pracowników, obecność online, „zapamiętaj mnie" (2026-07-11)
 
 - **Pulpit pracownika**: sekcja „Ten tydzień" (poniedziałek–niedziela) tak

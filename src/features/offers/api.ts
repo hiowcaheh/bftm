@@ -128,3 +128,39 @@ export async function respondToOffer(
 export function offerPublicUrl(token: string, preview = false): string {
   return `${window.location.origin}${window.location.pathname}#/oferta/${token}${preview ? '?podglad=1' : ''}`;
 }
+
+export interface SendOfferEmailInput {
+  to: string;
+  clientName?: string | null;
+  offerNumber?: string | null;
+  title: string;
+  url: string;
+  validUntil?: string | null;
+}
+
+/**
+ * Wyślij ofertę e-mailem przez Edge Function `send-offer-email` (Resend).
+ * Klucz API nie opuszcza serwera — funkcja czyta go z tabeli app_secrets.
+ */
+export async function sendOfferEmail(input: SendOfferEmailInput): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('send-offer-email', {
+    body: input,
+  });
+  if (error) {
+    // Błąd zwrócony w ciele (np. 400/502) — wyciągnij czytelny komunikat
+    let message = error.message;
+    try {
+      const ctx = (error as { context?: Response }).context;
+      if (ctx && typeof ctx.json === 'function') {
+        const payload = (await ctx.json()) as { error?: string };
+        if (payload?.error) message = payload.error;
+      }
+    } catch {
+      /* zostaw domyślny komunikat */
+    }
+    throw new Error(message);
+  }
+  if (data && (data as { error?: string }).error) {
+    throw new Error((data as { error: string }).error);
+  }
+}
