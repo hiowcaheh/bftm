@@ -9,6 +9,7 @@ import {
   Contact,
   Wallet,
   BarChart3,
+  ReceiptText,
   Settings,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
@@ -117,6 +118,15 @@ export const modules: AppModule[] = [
     requiredPermission: 'reports_view',
     navPlacement: 'more',
     element: lazy(() => import('@/features/reports/pages/ReportsPage')),
+  },
+  {
+    id: 'payslips',
+    label: 'Specyfikacje wypłaty',
+    icon: ReceiptText,
+    path: '/wyplaty',
+    // widoczny dla każdego zalogowanego (pracownik widzi swoje, admin wszystkie)
+    navPlacement: 'more',
+    element: lazy(() => import('@/features/payslips/pages/PayslipsPage')),
   },
   {
     id: 'settings',

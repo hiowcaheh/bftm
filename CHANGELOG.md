@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.12.0 — Specyfikacje wypłaty (lönespec) + dzwoniący budzik (2026-07-11)
+
+- **Specyfikacje wypłaty**: nowy moduł (Więcej + belka na Pulpicie).
+  Właściciel wgrywa lönespec (PDF lub zdjęcie) per pracownik i miesiąc,
+  pracownik widzi wyłącznie swoje. Podgląd pełnoekranowy (zdjęcie inline,
+  PDF do otwarcia/pobrania), podmiana i usuwanie. Po wysłaniu pracownik
+  dostaje powiadomienie „Twoja lönespec za … jest dostępna". Prywatny
+  bucket `payslips`, RLS: pracownik-własne / admin-wszystkie (migracja 0019).
+- **Pulpit**: pozioma belka „Specyfikacje wypłaty" pod kaflami (admin
+  i pracownik); ikona budzika w „Czekają na zatwierdzenie" teraz dzwoni
+  (animacja), żeby przycisk rzucał się w oczy.
+
 ## 0.11.0 — Etap 9: Pulpit finalny + offline; poprawki raportu (2026-07-11)
 
 - **Raport**: box **„Zysk w tym miesiącu"** (do fakturowania − koszt pracy −
