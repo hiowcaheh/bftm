@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.16.1 — poprawka zawieszania „Sprawdź aktualizację" (2026-07-11)
+
+- **„Sprawdź aktualizację" nie kręci się już w nieskończoność**: gdy nowa
+  wersja utknęła na etapie instalacji, pętla sprawdzająca ignorowała limit
+  czasu. Teraz limit zawsze wygrywa (10 s), a gdy instalacja dokończy się
+  później, i tak pojawi się toast „nowa wersja".
+
 ## 0.16.0 — wysyłka ofert e-mailem przez Resend (2026-07-11)
 
 - **Wyślij ofertę e-mailem**: przycisk w „Wyślij ofertę" wysyła klientowi

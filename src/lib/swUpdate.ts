@@ -22,7 +22,7 @@ export const useSwUpdateStore = create<SwUpdateState>((set) => ({
  * Aktywne sprawdzenie aktualizacji: pyta serwer o nowy service worker
  * i czeka do `timeoutMs` na jego wykrycie. Zwraca true, gdy jest nowa wersja.
  */
-export async function checkForSwUpdate(timeoutMs = 6000): Promise<boolean | null> {
+export async function checkForSwUpdate(timeoutMs = 10000): Promise<boolean | null> {
   const registration = await navigator.serviceWorker?.getRegistration();
   if (!registration) return null; // brak SW (np. tryb deweloperski)
   if (registration.waiting || useSwUpdateStore.getState().needRefresh) return true;
@@ -34,9 +34,10 @@ export async function checkForSwUpdate(timeoutMs = 6000): Promise<boolean | null
     const poll = () => {
       if (registration.waiting || useSwUpdateStore.getState().needRefresh) {
         resolve(true);
-      } else if (registration.installing) {
-        setTimeout(poll, 250); // instalacja w toku — doczekaj
       } else if (Date.now() - started > timeoutMs) {
+        // limit czasu ZAWSZE wygrywa — nawet gdy instalacja utknęła,
+        // nie kręcimy w nieskończoność (gdy dokończy się później,
+        // UpdatePrompt i tak pokaże toast „nowa wersja")
         resolve(false);
       } else {
         setTimeout(poll, 250);
