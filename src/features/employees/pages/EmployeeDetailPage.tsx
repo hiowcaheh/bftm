@@ -24,7 +24,7 @@ import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { Switch } from '@/components/ui/Switch';
 import { money } from '@/lib/format';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import type { PermissionMap } from '@/lib/permissions';
 import { useSession } from '@/features/auth/SessionProvider';
@@ -51,6 +51,25 @@ const ACTIVITY_LABELS: Record<string, string> = {
   deactivate: 'Dezaktywacja konta',
   reactivate: 'Reaktywacja konta',
 };
+
+/** „Online" gdy widziany w ostatnich 3 min, inaczej „widziany X temu". */
+function OnlineBadge({ lastSeen }: { lastSeen: string | null }) {
+  if (!lastSeen) return null;
+  const diffMin = (Date.now() - new Date(lastSeen).getTime()) / 60_000;
+  if (diffMin < 3) {
+    return (
+      <Badge tone="success">
+        <span className="inline-block size-1.5 rounded-full bg-success" />
+        Online
+      </Badge>
+    );
+  }
+  return (
+    <Badge tone="neutral">
+      {`Ostatnio ${formatDistanceToNow(new Date(lastSeen), { addSuffix: true, locale: pl })}`}
+    </Badge>
+  );
+}
 
 export default function EmployeeDetailPage() {
   const { id = '' } = useParams();
@@ -135,7 +154,7 @@ export default function EmployeeDetailPage() {
         onClick={() => navigate('/pracownicy')}
         className="press flex items-center gap-1 self-start text-sm font-medium text-text-secondary"
       >
-        <ArrowLeft className="size-4" /> Pracownicy
+        <ArrowLeft className="size-4" /> Zespół
       </button>
 
       <Card className="flex items-center gap-4 p-4">
@@ -143,12 +162,9 @@ export default function EmployeeDetailPage() {
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-semibold">{emp.full_name}</h1>
           <div className="mt-1 flex flex-wrap gap-1.5">
-            <Badge tone={emp.role === 'admin' ? 'accent' : 'neutral'}>
-              {emp.role === 'admin' ? 'Właściciel' : 'Pracownik'}
-            </Badge>
-            <Badge tone={emp.active ? 'success' : 'error'}>
-              {emp.active ? 'Aktywny' : 'Nieaktywny'}
-            </Badge>
+            {emp.role === 'admin' && <Badge tone="accent">Właściciel</Badge>}
+            <OnlineBadge lastSeen={emp.last_seen_at} />
+            {!emp.active && <Badge tone="error">Nieaktywny</Badge>}
             {emp.must_change_password && <Badge tone="warning">Czeka na zmianę hasła</Badge>}
           </div>
         </div>

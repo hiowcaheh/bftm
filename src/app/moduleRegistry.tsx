@@ -93,7 +93,7 @@ export const modules: AppModule[] = [
   },
   {
     id: 'employees',
-    label: 'Pracownicy',
+    label: 'Zespół',
     icon: Users,
     path: '/pracownicy',
     requiredPermission: 'employees_view',

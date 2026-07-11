@@ -73,12 +73,13 @@
 - **Tabele**: `clients`.
 - **Uprawnienia**: `clients_view` / `clients_edit`.
 
-## employees — Pracownicy
+## employees — Zespół
 
 - **Stan**: Etap 3 — lista z wyszukiwarką, dodawanie kont (hasło tymczasowe
   pokazane raz), profil: kontakt, panel 18 flag uprawnień z polskimi opisami,
   stawka z historią, dziennik aktywności (logowania + operacje admina),
-  reset hasła, dezaktywacja/reaktywacja.
+  reset hasła, dezaktywacja/reaktywacja. Karta pracownika pokazuje obecność
+  („Online" / „Ostatnio … temu") na podstawie `profiles.last_seen_at`.
 - **Tabele**: `profiles`, `employee_compensation`, `activity_log`; operacje na
   kontach przez RPC `admin_create_employee` / `admin_reset_password` /
   `admin_set_active` (security definer, tylko admin).

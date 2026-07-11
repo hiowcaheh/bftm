@@ -21,9 +21,64 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_ANON_KEY;
 
 export const supabaseConfigured = true;
 
+/**
+ * „Zapamiętaj mnie": gdy włączone (domyślnie) sesja trafia do localStorage
+ * i przeżywa zamknięcie aplikacji. Gdy wyłączone — do sessionStorage,
+ * więc po zamknięciu karty/apki użytkownik musi zalogować się ponownie.
+ */
+const REMEMBER_KEY = 'bftm.remember-me';
+
+function rememberEnabled(): boolean {
+  try {
+    return localStorage.getItem(REMEMBER_KEY) !== 'false';
+  } catch {
+    return true;
+  }
+}
+
+/** Ustaw preferencję „zapamiętaj mnie" — wołane z ekranu logowania. */
+export function setRememberMe(remember: boolean): void {
+  try {
+    localStorage.setItem(REMEMBER_KEY, remember ? 'true' : 'false');
+  } catch {
+    /* prywatny tryb przeglądarki — ignorujemy */
+  }
+}
+
+const authStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return (rememberEnabled() ? localStorage : sessionStorage).getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      (rememberEnabled() ? localStorage : sessionStorage).setItem(key, value);
+    } catch {
+      /* brak dostępu do storage — ignorujemy */
+    }
+  },
+  removeItem: (key: string): void => {
+    // usuwamy z obu magazynów, żeby nie zostawić osieroconej sesji
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* ignorujemy */
+    }
+    try {
+      sessionStorage.removeItem(key);
+    } catch {
+      /* ignorujemy */
+    }
+  },
+};
+
 export const supabase = createClient<Database>(url, anonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    storage: authStorage,
   },
 });
