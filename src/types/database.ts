@@ -386,6 +386,17 @@ export type Database = {
           next_due_at: string | null;
         }>;
       };
+      send_offer_email: {
+        Args: {
+          p_to: string;
+          p_client_name: string | null;
+          p_offer_number: string | null;
+          p_title: string;
+          p_url: string;
+          p_valid_until?: string | null;
+        };
+        Returns: undefined;
+      };
       offer_next_number: { Args: Record<PropertyKey, never>; Returns: string };
       offer_publish: { Args: { p_offer_id: string }; Returns: string };
       offer_ensure_token: { Args: { p_offer_id: string }; Returns: string };

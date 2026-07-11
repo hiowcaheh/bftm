@@ -12,7 +12,9 @@ import {
   publishOffer,
   replaceOfferItems,
   respondToOffer,
+  sendOfferEmail,
   updateOffer,
+  type SendOfferEmailInput,
 } from './api';
 import type { Offer } from './types';
 
@@ -82,6 +84,14 @@ export function useDeleteOffer() {
       toast.success('Oferta usunięta');
     },
     onError: () => toast.error('Nie udało się usunąć oferty'),
+  });
+}
+
+export function useSendOfferEmail() {
+  return useMutation({
+    mutationFn: (input: SendOfferEmailInput) => sendOfferEmail(input),
+    onSuccess: () => toast.success('Oferta wysłana e-mailem'),
+    onError: (e) => toast.error((e as Error).message || 'Nie udało się wysłać oferty'),
   });
 }
 

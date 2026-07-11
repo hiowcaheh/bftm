@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.16.0 — wysyłka ofert e-mailem przez Resend (2026-07-11)
+
+- **Wyślij ofertę e-mailem**: przycisk w „Wyślij ofertę" wysyła klientowi
+  ładnego HTML-a (branding BFTM, przycisk „Öppna offerten" do publicznej
+  strony oferty) — zamiast otwierać aplikację pocztową. Nadawca
+  `kontakt@bftm.se`, odpowiedzi trafiają na `mateus@bftm.se`.
+- Wysyłkę obsługuje RPC `send_offer_email` (Resend przez rozszerzenie
+  `http` w Postgresie). Klucz API leży w serwerowej tabeli `app_secrets`
+  (RLS + odebrane granty — czyta go wyłącznie funkcja security-definer),
+  więc nie trafia do aplikacji ani do repozytorium (migracje 0021, 0022).
+
 ## 0.15.0 — Zespół zamiast Pracowników, obecność online, „zapamiętaj mnie" (2026-07-11)
 
 - **Pulpit pracownika**: sekcja „Ten tydzień" (poniedziałek–niedziela) tak

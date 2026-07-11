@@ -128,3 +128,29 @@ export async function respondToOffer(
 export function offerPublicUrl(token: string, preview = false): string {
   return `${window.location.origin}${window.location.pathname}#/oferta/${token}${preview ? '?podglad=1' : ''}`;
 }
+
+export interface SendOfferEmailInput {
+  to: string;
+  clientName?: string | null;
+  offerNumber?: string | null;
+  title: string;
+  url: string;
+  validUntil?: string | null;
+}
+
+/**
+ * Wyślij ofertę e-mailem przez RPC `send_offer_email` (Resend przez
+ * rozszerzenie http w Postgresie). Klucz API nie opuszcza serwera —
+ * funkcja security-definer czyta go z tabeli app_secrets.
+ */
+export async function sendOfferEmail(input: SendOfferEmailInput): Promise<void> {
+  const { error } = await supabase.rpc('send_offer_email', {
+    p_to: input.to,
+    p_client_name: input.clientName ?? null,
+    p_offer_number: input.offerNumber ?? null,
+    p_title: input.title,
+    p_url: input.url,
+    p_valid_until: input.validUntil ?? null,
+  });
+  if (error) throw new Error(error.message);
+}

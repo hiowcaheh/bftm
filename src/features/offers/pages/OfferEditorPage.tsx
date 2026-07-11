@@ -30,7 +30,13 @@ import { useSession } from '@/features/auth/SessionProvider';
 import { useClients } from '@/features/clients/hooks';
 import { useFinanceSettings } from '@/features/settings/hooks';
 import { ensureOfferToken, offerPublicUrl } from '../api';
-import { useDeleteOffer, useOffer, usePublishOffer, useSaveOffer } from '../hooks';
+import {
+  useDeleteOffer,
+  useOffer,
+  usePublishOffer,
+  useSaveOffer,
+  useSendOfferEmail,
+} from '../hooks';
 import {
   computeOfferTotals,
   OFFER_STATUS_LABELS,
@@ -75,6 +81,7 @@ export default function OfferEditorPage() {
   const save = useSaveOffer();
   const publish = usePublishOffer();
   const remove = useDeleteOffer();
+  const sendEmail = useSendOfferEmail();
 
   const [title, setTitle] = useState('');
   const [clientId, setClientId] = useState('');
@@ -218,17 +225,6 @@ export default function OfferEditorPage() {
           );
         },
       },
-    );
-  };
-
-  const mailBody = () => {
-    const clientName = client?.name ?? 'kund';
-    return (
-      `Hej ${clientName}!\n\n` +
-      `Tack för visat intresse för våra tjänster. Vi har förberett en detaljerad offert för ditt projekt: ${title.trim()}.\n\n` +
-      `Du kan ta del av hela offerten via länken nedan:\n${shareUrl}\n\n` +
-      (validUntil ? `Observera att denna offert är giltig fram till: ${fmtDate(validUntil)}\n\n` : '') +
-      `Med vänliga hälsningar,\nBFTM Fasad & Bygg AB`
     );
   };
 
@@ -629,15 +625,28 @@ export default function OfferEditorPage() {
           </div>
           <Button
             fullWidth
+            loading={sendEmail.isPending}
             icon={<Mail className="size-5" />}
             onClick={() => {
-              const to = client?.email ?? '';
-              window.location.href =
-                `mailto:${to}?subject=${encodeURIComponent(`Offert ${offer?.number ?? ''} — ${title.trim()}`)}` +
-                `&body=${encodeURIComponent(mailBody())}`;
+              const to = client?.email?.trim();
+              if (!to) {
+                toast.error('Ten klient nie ma adresu e-mail — uzupełnij go w kliencie');
+                return;
+              }
+              sendEmail.mutate(
+                {
+                  to,
+                  clientName: client?.name ?? null,
+                  offerNumber: offer?.number ?? null,
+                  title: title.trim(),
+                  url: shareUrl,
+                  validUntil: validUntil || null,
+                },
+                { onSuccess: () => setShareOpen(false) },
+              );
             }}
           >
-            Wyślij e-mailem
+            {client?.email ? `Wyślij na ${client.email}` : 'Wyślij e-mailem'}
           </Button>
         </div>
       </Sheet>
