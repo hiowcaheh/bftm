@@ -87,10 +87,6 @@ export const qk = {
   },
   reports: {
     all: ['reports'] as const,
-    invoiceBatches: (projectId?: string) =>
-      ['reports', 'invoiceBatches', projectId ?? 'all'] as const,
-    monthly: (month: string) => ['reports', 'monthly', month] as const,
-    profitability: (projectId: string) =>
-      ['reports', 'profitability', projectId] as const,
+    hours: (from: string, to: string) => ['reports', 'hours', from, to] as const,
   },
 } as const;
