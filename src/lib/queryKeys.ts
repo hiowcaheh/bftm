@@ -89,4 +89,9 @@ export const qk = {
     all: ['reports'] as const,
     hours: (from: string, to: string) => ['reports', 'hours', from, to] as const,
   },
+  payslips: {
+    all: ['payslips'] as const,
+    list: (employeeId?: string) => ['payslips', 'list', employeeId ?? 'me'] as const,
+    file: (path: string) => ['payslips', 'file', path] as const,
+  },
 } as const;

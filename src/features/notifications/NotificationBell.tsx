@@ -8,6 +8,7 @@ import {
   FileText,
   Info,
   Megaphone,
+  ReceiptText,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 import type { ComponentType } from 'react';
@@ -24,6 +25,7 @@ const TYPE_STYLES: Record<
 > = {
   hours_approved: { icon: CircleCheck, className: 'bg-success-soft text-success' },
   offer_response: { icon: FileText, className: 'bg-info-soft text-info' },
+  payslip: { icon: ReceiptText, className: 'bg-accent-soft text-accent' },
   absence: { icon: CalendarOff, className: 'bg-warning-soft text-warning' },
   announcement: { icon: Megaphone, className: 'bg-accent-soft text-accent' },
   info: { icon: Info, className: 'bg-info-soft text-info' },

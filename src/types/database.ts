@@ -203,6 +203,18 @@ type ProjectPhotoRow = {
   created_at: string;
 }
 
+type PayslipRow = {
+  id: string;
+  employee_id: string;
+  year: number;
+  month: number;
+  file_path: string;
+  file_type: string;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
 type EmployeePrivateRow = {
   profile_id: string;
   personnummer: string | null;
@@ -305,6 +317,11 @@ export type Database = {
       employee_private: TableDef<
         EmployeePrivateRow,
         Partial<EmployeePrivateRow> & Pick<EmployeePrivateRow, 'profile_id'>
+      >;
+      payslips: TableDef<
+        PayslipRow,
+        Partial<PayslipRow> &
+          Pick<PayslipRow, 'employee_id' | 'year' | 'month' | 'file_path'>
       >;
       notifications: TableDef<
         NotificationRow,

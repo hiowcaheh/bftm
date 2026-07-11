@@ -129,6 +129,16 @@
 - **Zdjęcia**: multi-upload z kompresją do bucketa project-photos, siatka,
   pełny ekran, usuwanie autor/admin (photos_upload).
 
+## payslips — Specyfikacje wypłaty (lönespec)
+
+- **Stan**: właściciel (admin) wgrywa lönespec (PDF/zdjęcie) per pracownik
+  i miesiąc; pracownik widzi tylko swoje. Podgląd pełnoekranowy, podmiana,
+  usuwanie; powiadomienie do pracownika po wysłaniu. Belka na Pulpicie
+  + pozycja w Więcej (widoczna dla każdego zalogowanego).
+- **Tabele**: `payslips` (unikat employee+rok+miesiąc); Storage `payslips`
+  (prywatny, signed URL). RLS: select własne/admin, zapis tylko admin;
+  polityki storage po prefiksie ścieżki = uuid pracownika (migracja 0019).
+
 ## reports — Raporty
 
 - **Stan**: Etap 8 — zestawienie godzin miesiąca; zakładka Pracownicy

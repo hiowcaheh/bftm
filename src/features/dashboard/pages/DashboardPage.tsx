@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { House, Clock, Receipt, Banknote, ClockAlert, Plus, Sunrise } from 'lucide-react';
+import {
+  House,
+  Clock,
+  Receipt,
+  Banknote,
+  ClockAlert,
+  ChevronRight,
+  Plus,
+  ReceiptText,
+  Sunrise,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
@@ -94,6 +104,25 @@ export default function DashboardPage() {
         ))}
       </section>
 
+      <Card
+        interactive
+        className="flex items-center gap-3 p-4"
+        onClick={() => navigate('/wyplaty')}
+      >
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft">
+          <ReceiptText className="size-6 text-accent" strokeWidth={1.8} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">Specyfikacje wypłaty</p>
+          <p className="text-xs text-text-secondary">
+            {seesAll
+              ? 'Wyślij i przeglądaj lönespec pracowników'
+              : 'Twoje specyfikacje wypłaty (lönespec)'}
+          </p>
+        </div>
+        <ChevronRight className="size-5 shrink-0 text-text-secondary" />
+      </Card>
+
       {can('hours_approve') && (pending.data?.count ?? 0) > 0 && (
         <Card
           interactive
@@ -101,7 +130,7 @@ export default function DashboardPage() {
           onClick={() => navigate('/godziny')}
         >
           <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-warning-soft">
-            <ClockAlert className="size-6 text-warning" strokeWidth={1.8} />
+            <ClockAlert className="animate-ring size-6 text-warning" strokeWidth={2} />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">Czekają na zatwierdzenie</p>
