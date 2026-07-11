@@ -121,6 +121,11 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
         label: 'Zdjęcia projektów',
         description: 'Dodaje zdjęcia do projektów',
       },
+      {
+        flag: 'payslips_manage',
+        label: 'Specyfikacje wypłaty',
+        description: 'Wgrywa i zarządza specyfikacjami wypłaty pracowników',
+      },
     ],
   },
 ];

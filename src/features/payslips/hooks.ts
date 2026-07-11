@@ -44,7 +44,7 @@ export function useUploadPayslip() {
           recipient_id: input.employeeId,
           type: 'payslip',
           title: 'Specyfikacja wypłaty',
-          body: `Twoja lönespec za ${monthLabel(input.year, input.month)} jest już dostępna w aplikacji.`,
+          body: `Twoja specyfikacja wypłaty za ${monthLabel(input.year, input.month)} jest już dostępna w aplikacji.`,
         },
       ]);
     },

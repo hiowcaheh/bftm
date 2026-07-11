@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { FileUp } from 'lucide-react';
+import { FileText, FileUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -37,6 +37,7 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
   const [month, setMonth] = useState(String(prev.getMonth() + 1));
   const [note, setNote] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -45,6 +46,16 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
       setFile(null);
     }
   }, [open, defaultEmployeeId]);
+
+  // Podgląd wybranego pliku (obraz) — żeby sprawdzić, czy to właściwa osoba
+  useEffect(() => {
+    if (file && file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    setPreviewUrl(null);
+  }, [file]);
 
   const years = useMemo(() => {
     const y = now.getFullYear();
@@ -129,6 +140,29 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
           className="hidden"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
         />
+
+        {/* Podgląd — sprawdź, czy to właściwy pracownik */}
+        {file && (
+          <div className="overflow-hidden rounded-xl border border-line bg-surface">
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="Podgląd specyfikacji"
+                className="max-h-80 w-full object-contain"
+              />
+            ) : (
+              <div className="flex items-center gap-3 p-4">
+                <FileText className="size-8 shrink-0 text-accent" strokeWidth={1.6} />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{file.name}</p>
+                  <p className="text-xs text-text-secondary">
+                    PDF — podgląd dostępny po wysłaniu
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <Input
           label="Notatka (opcjonalnie)"
