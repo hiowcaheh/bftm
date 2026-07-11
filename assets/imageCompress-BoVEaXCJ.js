@@ -1,1 +1,0 @@
-async function e(e,t=1600,n=.8){let r=await createImageBitmap(e),i=Math.min(1,t/Math.max(r.width,r.height)),a=Math.round(r.width*i),o=Math.round(r.height*i),s=document.createElement(`canvas`);s.width=a,s.height=o;let c=s.getContext(`2d`);return c?(c.drawImage(r,0,0,a,o),r.close(),await new Promise(e=>s.toBlob(e,`image/jpeg`,n))??e):e}export{e as t};
