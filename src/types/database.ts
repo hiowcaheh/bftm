@@ -25,6 +25,7 @@ type ProfileRow = {
   active: boolean;
   must_change_password: boolean;
   avatar_path: string | null;
+  last_seen_at: string | null;
   created_at: string;
 }
 

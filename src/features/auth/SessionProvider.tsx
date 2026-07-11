@@ -82,6 +82,27 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, [profile]);
 
+  // Obecność: odświeżaj „ostatnio online" co minutę i po powrocie do apki
+  useEffect(() => {
+    if (!userId) return;
+    const ping = () => {
+      void supabase
+        .from('profiles')
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq('id', userId);
+    };
+    ping();
+    const interval = setInterval(ping, 60_000);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') ping();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [userId]);
+
   const loading =
     session === undefined || (!!session && profileQuery.isLoading);
 

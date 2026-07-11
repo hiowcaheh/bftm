@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HardHat } from 'lucide-react';
+import { Check, HardHat } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { toast } from '@/components/ui/Toast';
-import { supabase } from '@/lib/supabaseClient';
+import { cn } from '@/lib/cn';
+import { supabase, setRememberMe } from '@/lib/supabaseClient';
 import { usePublicBranding, useSignIn } from '../hooks';
 
 /**
@@ -17,6 +18,7 @@ import { usePublicBranding, useSignIn } from '../hooks';
 export default function LoginPage() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(true);
   const branding = usePublicBranding();
   const signIn = useSignIn();
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ export default function LoginPage() {
       toast.error('Podaj login i hasło');
       return;
     }
+    setRememberMe(remember);
     signIn.mutate(
       { login, password },
       // Nawigacją steruje router (RequireAuth), ale przekierowanie od razu
@@ -82,6 +85,21 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        <button
+          type="button"
+          onClick={() => setRemember((v) => !v)}
+          className="-my-1 flex items-center gap-2.5 self-start text-left"
+        >
+          <span
+            className={cn(
+              'flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors',
+              remember ? 'border-accent bg-accent text-white' : 'border-line bg-surface',
+            )}
+          >
+            {remember && <Check className="size-3.5" strokeWidth={3} />}
+          </span>
+          <span className="text-sm">Zapamiętaj mnie</span>
+        </button>
         <Button type="submit" size="lg" fullWidth loading={signIn.isPending} className="mt-2">
           Zaloguj
         </Button>

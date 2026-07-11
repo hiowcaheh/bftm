@@ -106,6 +106,12 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
         description: 'Widzi stawki, marże, koszty pracowników i wartości kontraktów',
         sensitive: true,
       },
+      {
+        flag: 'payslips_manage',
+        label: 'Specyfikacje wypłaty',
+        description: 'Wgrywa i zarządza specyfikacjami wypłaty pracowników',
+        sensitive: true,
+      },
     ],
   },
   {
@@ -120,11 +126,6 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
         flag: 'photos_upload',
         label: 'Zdjęcia projektów',
         description: 'Dodaje zdjęcia do projektów',
-      },
-      {
-        flag: 'payslips_manage',
-        label: 'Specyfikacje wypłaty',
-        description: 'Wgrywa i zarządza specyfikacjami wypłaty pracowników',
       },
     ],
   },

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { create } from 'zustand';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -9,7 +10,7 @@ interface ToastItem {
   kind: ToastKind;
   message: string;
   /** Akcja np. „Odśwież" przy nowej wersji SW */
-  action?: { label: string; onClick: () => void };
+  action?: { label: string; onClick: () => void; icon?: ReactNode };
 }
 
 interface ToastState {
@@ -72,12 +73,13 @@ export function ToastViewport() {
             {t.action && (
               <button
                 type="button"
-                className="press shrink-0 text-sm font-semibold text-accent"
+                className="press inline-flex shrink-0 items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-sm font-semibold text-white shadow-(--shadow-fab)"
                 onClick={() => {
                   t.action?.onClick();
                   dismiss(t.id);
                 }}
               >
+                {t.action.icon}
                 {t.action.label}
               </button>
             )}

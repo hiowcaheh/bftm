@@ -24,7 +24,6 @@ import { ABSENCE_TYPE_LABELS, ABSENCE_TYPE_TONES } from '@/features/absences/typ
 import type { AbsenceType } from '@/types/database';
 import {
   useDashboardKpi,
-  useMyWeek,
   usePayslipReminder,
   usePendingApprovals,
   useThisWeek,
@@ -38,9 +37,8 @@ export default function DashboardPage() {
   const { user, can } = useSession();
   const seesAll = can('hours_view_all');
   const canManagePayslips = user?.role === 'admin' || can('payslips_manage');
-  const thisWeek = useThisWeek(seesAll);
+  const thisWeek = useThisWeek(true);
   const pending = usePendingApprovals();
-  const myWeek = useMyWeek(!seesAll);
   const payslipReminder = usePayslipReminder(canManagePayslips);
   const [hoursFormOpen, setHoursFormOpen] = useState(false);
 
@@ -226,7 +224,7 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {seesAll && thisWeek.data && (
+      {thisWeek.data && (
         <section className="flex flex-col gap-3">
           <h2 className="text-base font-semibold">Ten tydzień</h2>
           <Card className="flex flex-col divide-y divide-line">
@@ -260,37 +258,6 @@ export default function DashboardPage() {
                 </div>
               );
             })}
-          </Card>
-        </section>
-      )}
-
-      {!seesAll && myWeek.data && (
-        <section className="flex flex-col gap-3">
-          <h2 className="text-base font-semibold">Ostatnie 7 dni</h2>
-          <Card className="flex flex-col divide-y divide-line">
-            {myWeek.data.map((day) => (
-              <div
-                key={day.date}
-                className={cn(
-                  'flex items-center gap-3 p-3',
-                  day.hours === 0 && 'opacity-45',
-                )}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium capitalize">
-                    {format(new Date(day.date), 'EEEE, dd.MM', { locale: pl })}
-                  </p>
-                  {day.projects.length > 0 && (
-                    <p className="truncate text-xs text-text-secondary">
-                      {day.projects.join(' • ')}
-                    </p>
-                  )}
-                </div>
-                <span className="tabular-nums shrink-0 text-sm font-semibold">
-                  {day.hours > 0 ? `${num(day.hours)} h` : '—'}
-                </span>
-              </div>
-            ))}
           </Card>
         </section>
       )}

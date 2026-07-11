@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.15.0 — Zespół zamiast Pracowników, obecność online, „zapamiętaj mnie" (2026-07-11)
+
+- **Pulpit pracownika**: sekcja „Ten tydzień" (poniedziałek–niedziela) tak
+  samo jak u admina — zamiast „Ostatnie 7 dni". RLS pokazuje pracownikowi
+  tylko jego godziny.
+- **„Zespół"** zamiast „Pracownicy” — nowa nazwa zakładki w nawigacji i na
+  ekranach.
+- **Obecność online**: na karcie pracownika badge „Online" (widziany w
+  ostatnich 3 min) albo „Ostatnio … temu"; klient pinguje `last_seen_at`
+  co minutę i po powrocie do aplikacji (migracja 0020).
+- Karta pracownika: usunięty słaby badge „Pracownik"; właściciel oznaczony
+  jako „Właściciel".
+- **Zarządzanie pracownikiem**: uprawnienie „Specyfikacje wypłaty"
+  przeniesione do grupy „Raporty i finanse" z badge **wrażliwe**.
+- **Szybsze łapanie aktualizacji**: aplikacja sama odpytuje serwer o nową
+  wersję co minutę oraz po każdym powrocie do apki; toast „nowa wersja" ma
+  nowocześniejszy przycisk „Odśwież" (wypełniony, z ikoną).
+- **Logowanie**: checkbox „Zapamiętaj mnie" — wyłączony wylogowuje po
+  zamknięciu aplikacji (sesja w `sessionStorage` zamiast `localStorage`).
+- Konto właściciela: wyświetlany e-mail zmieniony na **mateus@bftm.se**
+  (login „admin" nadal działa).
+
 ## 0.14.0 — zdjęcia profilowe, filtry specyfikacji, licznik wyświetleń ofert (2026-07-11)
 
 - **Zdjęcie profilowe**: w „Mój profil" wgrywasz avatar (aparat/galeria);
