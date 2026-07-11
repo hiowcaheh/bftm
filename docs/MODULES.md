@@ -4,10 +4,19 @@
 
 ## dashboard — Pulpit
 
-- **Stan**: Etap 1 — układ demonstracyjny (KPI 2×2, sekcja „Dziś w pracy", FAB).
-- **Docelowo**: KPI z prawdziwych danych, „Dziś w pracy", ostatnie wpisy, szybkie akcje.
-- **Tabele**: czyta agregaty z `work_hours`, `projects`, `expenses`, `absences`.
+- **Stan**: Etap 9 — KPI z prawdziwych danych (aktywne projekty, godziny
+  i koszty miesiąca, **nieopłacone faktury** przy finance_view), blok
+  „Czekają na zatwierdzenie" (hours_approve), „Dziś w pracy" / „Twój dzień",
+  ostatnie wpisy lub „Ostatnie 7 dni", gradientowy CTA pracownika, FAB.
+- **Tabele**: agregaty z `work_hours`, `projects`, `expenses`, `absences`,
+  `project_invoices`.
 - **Uprawnienia**: widoczny dla każdego; kwoty tylko z `finance_view`.
+
+## offline / PWA (globalne)
+
+- Pasek offline (`OfflineBanner`) gdy brak sieci; dane z cache TanStack
+  Query (persist w localStorage). Manifest + ikony (192/512/maskable),
+  theme-color, meta Apple w `index.html` / `vite.config.ts`.
 
 ## projects — Projekty
 

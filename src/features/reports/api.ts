@@ -27,6 +27,7 @@ export interface HoursReport {
   by_employee: ReportEmployee[];
   by_project: ReportProject[];
   total_hours: number;
+  expenses: number | null;
   finance: boolean;
 }
 

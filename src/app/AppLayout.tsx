@@ -5,6 +5,7 @@ import { BottomNav } from './BottomNav';
 import { MoreDrawer } from './MoreDrawer';
 import { bottomNavModules, modules } from './moduleRegistry';
 import { NotificationBell } from '@/features/notifications/NotificationBell';
+import { OfflineBanner } from '@/components/OfflineBanner';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
 
@@ -85,6 +86,8 @@ export function AppLayout() {
           <NotificationBell />
         </div>
       </header>
+
+      <OfflineBanner />
 
       <main
         className="flex-1 px-4"
