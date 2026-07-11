@@ -130,6 +130,11 @@
 - **Dane**: RPC `report_hours` (security definer, wymaga reports_view lub
   finance_view) — agreguje `work_hours` × `employee_compensation` /
   `projects.hourly_rate`; kwoty tylko przy finance_view (migracja 0016).
+- **Porównanie**: suma godzin vs poprzedni miesiąc (RPC `report_hours_total`).
+- **Udostępnianie linkiem** `/raport/:token` (bez logowania, szata firmy):
+  zamrożony snapshot w `report_shares`, opcja „bez kwot"; RPC
+  `report_share_create` / `report_share_public` (anon, security definer;
+  migracja 0017).
 - **Uprawnienia**: `reports_view` (godziny) / `finance_view` (kwoty).
 
 ## settings — Ustawienia

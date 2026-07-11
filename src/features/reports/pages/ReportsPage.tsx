@@ -10,29 +10,69 @@ import {
   Users,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { Sheet } from '@/components/ui/Sheet';
 import { SkeletonList } from '@/components/ui/Skeleton';
+import { Switch } from '@/components/ui/Switch';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
+import { Copy, Link2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { hours as fmtHours, moneyWhole, monthYear, num } from '@/lib/format';
-import { useHoursReport } from '../hooks';
+import { useSession } from '@/features/auth/SessionProvider';
+import { reportShareUrl } from '../api';
+import { useCreateReportShare, useHoursReport, useHoursTotal } from '../hooks';
 import type { ReportEmployee, ReportProject } from '../api';
 
 type Tab = 'employees' | 'projects';
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 
 export default function ReportsPage() {
+  const { can } = useSession();
   const [anchor, setAnchor] = useState(new Date());
   const [tab, setTab] = useState<Tab>('employees');
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const from = iso(startOfMonth(anchor));
   const to = iso(endOfMonth(anchor));
+  const prevFrom = iso(startOfMonth(subMonths(anchor, 1)));
+  const prevTo = iso(endOfMonth(subMonths(anchor, 1)));
   const report = useHoursReport(from, to);
+  const prevTotal = useHoursTotal(prevFrom, prevTo);
   const data = report.data;
   const finance = data?.finance ?? false;
+
+  const canFinance = can('finance_view');
+  const share = useCreateReportShare();
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareTitle, setShareTitle] = useState('');
+  const [includeAmounts, setIncludeAmounts] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+
+  const monthDelta = useMemo(() => {
+    if (!data || prevTotal.data == null) return null;
+    return data.total_hours - prevTotal.data;
+  }, [data, prevTotal.data]);
+
+  const openShare = () => {
+    setShareTitle(`Raport ${monthYear(anchor)}`);
+    setIncludeAmounts(false);
+    setShareUrl('');
+    setShareOpen(true);
+  };
+
+  const generateShare = () => {
+    share.mutate(
+      { from, to, title: shareTitle, includeAmounts: includeAmounts && canFinance },
+      {
+        onSuccess: (token) => setShareUrl(reportShareUrl(token)),
+        onError: () => toast.error('Nie udało się utworzyć linku'),
+      },
+    );
+  };
 
   const billableTotal = useMemo(
     () => (data?.by_project ?? []).reduce((s, p) => s + (p.billable ?? 0), 0),
@@ -42,32 +82,6 @@ export default function ReportsPage() {
     () => (data?.by_project ?? []).reduce((s, p) => s + (p.labor_cost ?? 0), 0),
     [data],
   );
-
-  const exportReport = () => {
-    if (!data) return;
-    const lines: string[] = [`Raport godzin — ${monthYear(anchor)}`, '', 'PRACOWNICY'];
-    for (const e of data.by_employee) {
-      const parts = (e.projects ?? []).map((p) => `${p.name} ${num(p.hours)}h`).join(', ');
-      lines.push(
-        `${e.name}: ${num(e.total)}h${finance && e.labor_cost != null ? ` (koszt ${moneyWhole(e.labor_cost)})` : ''}${parts ? ` — ${parts}` : ''}`,
-      );
-    }
-    lines.push('', 'PROJEKTY');
-    for (const p of data.by_project) {
-      lines.push(
-        `${p.name}: ${num(p.total)}h${finance && p.billable != null ? ` — do fakturowania ${moneyWhole(p.billable)}` : ''}`,
-      );
-    }
-    lines.push('', `Razem: ${num(data.total_hours)}h`);
-    if (finance) lines.push(`Do fakturowania: ${moneyWhole(billableTotal)}`);
-    const text = lines.join('\n');
-    if (navigator.share) {
-      void navigator.share({ title: `Raport ${monthYear(anchor)}`, text });
-    } else {
-      void navigator.clipboard.writeText(text);
-      toast.success('Raport skopiowany do schowka');
-    }
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -103,6 +117,22 @@ export default function ReportsPage() {
               <span className="tabular-nums text-xl font-semibold">
                 {num(data.total_hours)} h
               </span>
+              {monthDelta != null && (
+                <span
+                  className={cn(
+                    'tabular-nums text-[11px]',
+                    monthDelta > 0
+                      ? 'text-success'
+                      : monthDelta < 0
+                        ? 'text-error'
+                        : 'text-text-secondary',
+                  )}
+                >
+                  {monthDelta === 0
+                    ? 'tyle samo co w zeszłym miesiącu'
+                    : `${monthDelta > 0 ? '+' : ''}${num(monthDelta)} h vs ${num(prevTotal.data ?? 0)} h w zeszłym`}
+                </span>
+              )}
             </Card>
             {finance && (
               <Card className="flex flex-col gap-1 p-4">
@@ -155,12 +185,81 @@ export default function ReportsPage() {
           <button
             type="button"
             className="press flex h-12 items-center justify-center gap-2 rounded-(--radius-input) bg-surface text-sm font-medium"
-            onClick={exportReport}
+            onClick={openShare}
           >
-            <Share2 className="size-5 text-text-secondary" /> Udostępnij / kopiuj raport
+            <Share2 className="size-5 text-text-secondary" /> Udostępnij raport linkiem
           </button>
         </>
       )}
+
+      <Sheet open={shareOpen} onClose={() => setShareOpen(false)} title="Udostępnij raport">
+        {!shareUrl ? (
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-text-secondary">
+              Wygeneruj link do tego raportu — otwiera się bez logowania, w szacie
+              firmy. Dane zostają zamrożone na moment utworzenia.
+            </p>
+            <Input
+              label="Tytuł raportu"
+              value={shareTitle}
+              onChange={(e) => setShareTitle(e.target.value)}
+            />
+            {canFinance && (
+              <Switch
+                checked={includeAmounts}
+                onChange={setIncludeAmounts}
+                label="Dołącz kwoty"
+                description="Koszt pracy i wartość do fakturowania. Wyłącz, jeśli udostępniasz komuś, kto ma widzieć tylko godziny."
+              />
+            )}
+            <Button
+              size="lg"
+              fullWidth
+              icon={<Link2 className="size-5" />}
+              loading={share.isPending}
+              onClick={generateShare}
+            >
+              Utwórz link
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 rounded-xl bg-surface p-3">
+              <Link2 className="size-4 shrink-0 text-text-secondary" />
+              <span className="min-w-0 flex-1 truncate text-xs">{shareUrl}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="secondary"
+                icon={<Copy className="size-5" />}
+                onClick={() => {
+                  void navigator.clipboard.writeText(shareUrl);
+                  toast.success('Link skopiowany');
+                }}
+              >
+                Kopiuj link
+              </Button>
+              <Button
+                variant="secondary"
+                icon={<Share2 className="size-5" />}
+                onClick={() => {
+                  if (navigator.share) {
+                    void navigator.share({ title: shareTitle, url: shareUrl });
+                  } else {
+                    void navigator.clipboard.writeText(shareUrl);
+                    toast.success('Link skopiowany');
+                  }
+                }}
+              >
+                Udostępnij
+              </Button>
+            </div>
+            <Button variant="ghost" fullWidth onClick={() => window.open(shareUrl, '_blank')}>
+              Otwórz podgląd
+            </Button>
+          </div>
+        )}
+      </Sheet>
     </div>
   );
 }

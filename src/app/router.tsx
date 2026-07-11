@@ -18,6 +18,7 @@ const MyProfilePage = lazy(() => import('@/features/profile/pages/MyProfilePage'
 const ExpensesPage = lazy(() => import('@/features/expenses/pages/ExpensesPage'));
 const OfferEditorPage = lazy(() => import('@/features/offers/pages/OfferEditorPage'));
 const PublicOfferPage = lazy(() => import('@/features/offers/pages/PublicOfferPage'));
+const PublicReportPage = lazy(() => import('@/features/reports/pages/PublicReportPage'));
 
 function FullScreenLoader() {
   return (
@@ -78,6 +79,8 @@ export function AppRouter() {
             />
             {/* Publiczna oferta dla klienta — bez logowania, po szwedzku */}
             <Route path="/oferta/:token" element={<PublicOfferPage />} />
+            {/* Publiczny raport godzin pod linkiem — bez logowania */}
+            <Route path="/raport/:token" element={<PublicReportPage />} />
             <Route
               element={
                 <RequireAuth>

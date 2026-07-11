@@ -376,6 +376,17 @@ export type Database = {
         Returns: undefined;
       };
       report_hours: { Args: { p_from: string; p_to: string }; Returns: Json };
+      report_hours_total: { Args: { p_from: string; p_to: string }; Returns: number };
+      report_share_create: {
+        Args: {
+          p_from: string;
+          p_to: string;
+          p_title?: string | null;
+          p_include_amounts?: boolean;
+        };
+        Returns: string;
+      };
+      report_share_public: { Args: { p_token: string }; Returns: Json };
       finance_daily: {
         Args: { p_from: string; p_to: string };
         Returns: Array<{
