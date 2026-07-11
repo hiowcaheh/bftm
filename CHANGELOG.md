@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.6 — więcej ikon + czystszy hero oferty (2026-07-11)
+
+- Rejestr ikon usług rozszerzony do ~75 pozycji, w tym **murowanie**
+  (BrickWall), kilof, łopata, wiertarka, spoiny, farby, natrysk itd.
+- Strona oferty: usunięta pastylka z numerem oferty w hero (numer jest
+  niżej w „Offertnummer") i slogan pod logo — czystszy nagłówek.
+
 ## 0.9.5 — usługi z wyborem ikon + modal Avböj + opis firmy od właściciela (2026-07-11)
 
 - **Usługi w Ustawieniach jako lista**: każda w osobnym wierszu, z wyborem
