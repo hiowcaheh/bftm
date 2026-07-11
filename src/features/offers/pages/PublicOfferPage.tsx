@@ -234,15 +234,7 @@ export default function PublicOfferPage() {
           ) : (
             <p className="text-3xl font-bold text-white">{companyName}</p>
           )}
-          {data.branding.slogan && (
-            <p className="text-[11px] font-semibold tracking-[0.35em] text-[#F0716B] uppercase">
-              {data.branding.slogan}
-            </p>
-          )}
           <div className="mt-4 flex flex-col items-center gap-2">
-            <span className="rounded-full bg-white/10 px-4 py-1 text-xs font-medium tracking-wide text-white/80 backdrop-blur">
-              Offert {data.number}
-            </span>
             <h1 className="max-w-xl text-3xl leading-tight font-bold text-white sm:text-4xl">
               {data.title ?? data.number}
             </h1>
