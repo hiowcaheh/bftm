@@ -125,6 +125,7 @@ export interface PublicOffer {
     email?: string;
     about?: string;
     services?: string[];
+    contacts?: Array<{ name: string; phone: string }>;
   };
   branding: { name?: string; slogan?: string; logo_path?: string | null };
   rot: { enabled?: boolean; pct?: number; cap_per_person?: number };

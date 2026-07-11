@@ -77,6 +77,13 @@ export async function replaceOfferItems(
   if (error) throw error;
 }
 
+/** Token dla szkicu — do podglądu przed wysłaniem (status zostaje draft). */
+export async function ensureOfferToken(id: string): Promise<string> {
+  const { data, error } = await supabase.rpc('offer_ensure_token', { p_offer_id: id });
+  if (error) throw error;
+  return data;
+}
+
 /** Publikacja: zamraża snapshot klienta, nadaje token i status „wysłana". */
 export async function publishOffer(
   id: string,

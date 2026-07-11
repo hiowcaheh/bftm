@@ -19,6 +19,8 @@ export interface CompanyDetails {
   about: string;
   /** Usługi pokazywane na stronie oferty (ikonki) */
   services: string[];
+  /** Kontakty imienne (np. Tomasz/Mateusz) na stronie oferty */
+  contacts: Array<{ name: string; phone: string }>;
 }
 
 export const EMPTY_COMPANY_DETAILS: CompanyDetails = {
@@ -34,6 +36,7 @@ export const EMPTY_COMPANY_DETAILS: CompanyDetails = {
   email: '',
   about: '',
   services: [],
+  contacts: [],
 };
 
 /** settings.finance — narzuty pracodawcy i stawki VAT (Szwecja, edytowalne). */

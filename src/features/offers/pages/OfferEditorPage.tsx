@@ -29,7 +29,7 @@ import type { Json } from '@/types/database';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useClients } from '@/features/clients/hooks';
 import { useFinanceSettings } from '@/features/settings/hooks';
-import { offerPublicUrl } from '../api';
+import { ensureOfferToken, offerPublicUrl } from '../api';
 import { useDeleteOffer, useOffer, usePublishOffer, useSaveOffer } from '../hooks';
 import {
   computeOfferTotals,
@@ -465,12 +465,21 @@ export default function OfferEditorPage() {
               {status === 'draft' ? 'Wyślij klientowi' : 'Udostępnij'}
             </Button>
           </div>
-          {offer?.public_token && (
+          {offerId && (
             <Button
               variant="secondary"
               fullWidth
               icon={<Eye className="size-5" />}
-              onClick={() => window.open(offerPublicUrl(offer.public_token!, true), '_blank')}
+              onClick={() => {
+                if (offer?.public_token) {
+                  window.open(offerPublicUrl(offer.public_token, true), '_blank');
+                } else {
+                  // szkic bez tokenu — nadaj token bez zmiany statusu
+                  void ensureOfferToken(offerId).then((token) =>
+                    window.open(offerPublicUrl(token, true), '_blank'),
+                  );
+                }
+              }}
             >
               Podgląd oferty klienta
             </Button>

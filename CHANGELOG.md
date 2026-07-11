@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.9.4 — podgląd szkicu + kontakty imienne + specyfikacja v3 (2026-07-10)
+
+- **Podgląd przed wysłaniem**: „Podgląd oferty klienta" dostępny od razu po
+  zapisaniu szkicu (token bez zmiany statusu, migracja 0015); na podglądzie
+  szkicu żółty pasek „Förhandsvisning — offerten är inte skickad än".
+- **„Bra att veta" dopisuje zdania**: gdy w polu jest sama liczba, klient
+  widzi pełny tekst („5" → „5 års garanti på utfört arbete", „550" →
+  „ÄTA-arbeten debiteras 550 kr/tim…", dojazd → „…kr per arbetsdag").
+- **Specyfikacja v3**: bez kółek z numerami — mała etykieta ARBETE (czerwona)
+  / MATERIAL (szara) nad opisem, pod spodem ilość × cena i kwota.
+- **Dwa telefony z imionami**: Tomasz 079-031 08 27 i Mateusz 072-852 55 21
+  na stronie oferty; edycja w Ustawienia → Firma (Kontakt 1/2).
+- Usługi: Tätskikt zamiast Målning; nowy, ludzki opis firmy po szwedzku
+  (edytowalny); plakietki F-skatt/Försäkrade jedna pod drugą.
+
 ## 0.9.3 — pola informacyjne oferty + strona premium v2 (2026-07-10)
 
 - **Nowe pola oferty** (jak w starym systemie): gwarancja (garanti), prace
