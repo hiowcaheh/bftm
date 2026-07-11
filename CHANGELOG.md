@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.14.0 — zdjęcia profilowe, filtry specyfikacji, licznik wyświetleń ofert (2026-07-11)
+
+- **Zdjęcie profilowe**: w „Mój profil" wgrywasz avatar (aparat/galeria);
+  pokazuje się wszędzie — menu Więcej, lista i karta pracownika. Można też
+  edytować własne imię i nazwisko. Publiczny bucket `avatars`, RLS: własny
+  avatar / admin (migracja 0021).
+- Konto właściciela: „Administrator" zmienione na **Mateusz Owczarek**.
+- **Specyfikacje wypłaty**: dla zarządzającego filtry miesiąca i roku
+  (obok filtra pracownika).
+- **Oferty**: ikona oka z licznikiem wyświetleń — na karcie oferty (pod
+  statusem) i w pasku „Otwarta przez klienta".
+
 ## 0.13.0 — specyfikacje: podgląd, udostępnianie, uprawnienie, przypomnienie (2026-07-11)
 
 - **Podgląd przed wysłaniem**: wgrywając specyfikację widać miniaturę

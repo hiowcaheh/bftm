@@ -12,6 +12,7 @@ export interface CurrentUser {
   permissions: PermissionMap;
   mustChangePassword: boolean;
   active: boolean;
+  avatarPath: string | null;
 }
 
 export function toCurrentUser(profile: Profile): CurrentUser {
@@ -24,5 +25,6 @@ export function toCurrentUser(profile: Profile): CurrentUser {
     permissions: (profile.permissions ?? {}) as PermissionMap,
     mustChangePassword: profile.must_change_password,
     active: profile.active,
+    avatarPath: profile.avatar_path,
   };
 }

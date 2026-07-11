@@ -46,11 +46,32 @@ export async function saveMyPrivate(
   if (error) throw error;
 }
 
-/** Telefon w profilu — e-mail i rolę zmienia wyłącznie właściciel firmy. */
-export async function saveMyPhone(userId: string, phone: string): Promise<void> {
+/** Telefon i nazwa w profilu — e-mail i rolę zmienia wyłącznie właściciel firmy. */
+export async function saveMyProfileFields(
+  userId: string,
+  fields: { phone: string; fullName: string },
+): Promise<void> {
+  const patch: { phone: string | null; full_name?: string } = {
+    phone: fields.phone.trim() || null,
+  };
+  if (fields.fullName.trim()) patch.full_name = fields.fullName.trim();
+  const { error } = await supabase.from('profiles').update(patch).eq('id', userId);
+  if (error) throw error;
+}
+
+/** Wgranie zdjęcia profilowego (kompresja, publiczny bucket avatars). */
+export async function uploadAvatar(userId: string, file: File): Promise<string> {
+  const { compressImage } = await import('@/lib/imageCompress');
+  const blob = await compressImage(file, 512, 0.85);
+  const path = `${userId}/avatar-${Date.now()}.jpg`;
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(path, blob, { contentType: 'image/jpeg' });
+  if (uploadError) throw new Error('Nie udało się przesłać zdjęcia');
   const { error } = await supabase
     .from('profiles')
-    .update({ phone: phone.trim() || null })
+    .update({ avatar_path: path })
     .eq('id', userId);
   if (error) throw error;
+  return path;
 }

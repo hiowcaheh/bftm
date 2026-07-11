@@ -1,8 +1,11 @@
 import { cn } from '@/lib/cn';
 import { initials } from '@/lib/format';
+import { supabase } from '@/lib/supabaseClient';
 
 interface AvatarProps {
   name: string;
+  /** Ścieżka zdjęcia w buckecie avatars — jeśli jest, pokazujemy zdjęcie. */
+  path?: string | null;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
@@ -13,7 +16,21 @@ const sizeClasses = {
   lg: 'size-14 text-lg',
 };
 
-export function Avatar({ name, size = 'md', className }: AvatarProps) {
+/** Publiczny URL zdjęcia profilowego (bucket avatars jest publiczny). */
+export function avatarUrl(path: string): string {
+  return supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+}
+
+export function Avatar({ name, path, size = 'md', className }: AvatarProps) {
+  if (path) {
+    return (
+      <img
+        src={avatarUrl(path)}
+        alt={name}
+        className={cn('shrink-0 rounded-full object-cover', sizeClasses[size], className)}
+      />
+    );
+  }
   return (
     <div
       aria-hidden
