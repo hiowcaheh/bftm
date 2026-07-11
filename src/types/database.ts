@@ -24,6 +24,7 @@ type ProfileRow = {
   permissions: Json;
   active: boolean;
   must_change_password: boolean;
+  avatar_path: string | null;
   created_at: string;
 }
 

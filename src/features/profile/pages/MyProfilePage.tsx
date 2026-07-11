@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail } from 'lucide-react';
+import { ArrowLeft, Camera, Mail } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { useSession } from '@/features/auth/SessionProvider';
-import { useMyPrivate, useSaveMyProfile } from '../hooks';
+import { useMyPrivate, useSaveMyProfile, useUploadAvatar } from '../hooks';
 
 /**
  * Mój profil: dane kontaktowe i osobiste zalogowanego — telefon,
@@ -19,7 +19,10 @@ export default function MyProfilePage() {
   const { user } = useSession();
   const priv = useMyPrivate();
   const save = useSaveMyProfile();
+  const uploadAvatar = useUploadAvatar();
+  const avatarRef = useRef<HTMLInputElement>(null);
 
+  const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [personnummer, setPersonnummer] = useState('');
   const [shirt, setShirt] = useState('');
@@ -36,8 +39,11 @@ export default function MyProfilePage() {
   }, [priv.data]);
 
   useEffect(() => {
-    // telefon żyje w profiles — bierzemy go z sesji przy wejściu
-    if (user) setPhone(user.phone ?? '');
+    // telefon i nazwa żyją w profiles — bierzemy je z sesji przy wejściu
+    if (user) {
+      setPhone(user.phone ?? '');
+      setFullName(user.fullName);
+    }
   }, [user]);
 
   if (!user) return null;
@@ -53,13 +59,34 @@ export default function MyProfilePage() {
       </button>
 
       <Card className="flex items-center gap-4 p-4">
-        <Avatar name={user.fullName} size="lg" />
+        <button
+          type="button"
+          className="press relative"
+          onClick={() => avatarRef.current?.click()}
+          aria-label="Zmień zdjęcie profilowe"
+        >
+          <Avatar name={user.fullName} path={user.avatarPath} size="lg" />
+          <span className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full bg-accent text-white shadow">
+            <Camera className="size-3.5" />
+          </span>
+        </button>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-semibold">{user.fullName}</h1>
           <p className="truncate text-sm text-text-secondary">
             {user.role === 'admin' ? 'Właściciel' : user.email}
           </p>
         </div>
+        <input
+          ref={avatarRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) uploadAvatar.mutate(file);
+            e.target.value = '';
+          }}
+        />
       </Card>
 
       <ListGroup>
@@ -74,6 +101,11 @@ export default function MyProfilePage() {
         <SkeletonList rows={4} />
       ) : (
         <Card className="flex flex-col gap-4 p-4">
+          <Input
+            label="Imię i nazwisko"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
           <Input
             label="Telefon"
             type="tel"
@@ -114,6 +146,7 @@ export default function MyProfilePage() {
             loading={save.isPending}
             onClick={() =>
               save.mutate({
+                fullName,
                 phone,
                 personnummer,
                 shirt_size: shirt,

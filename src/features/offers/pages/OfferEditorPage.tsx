@@ -258,7 +258,8 @@ export default function OfferEditorPage() {
       </div>
 
       {offer?.viewed_at && (
-        <p className="rounded-xl bg-info-soft px-3 py-2 text-xs text-info">
+        <p className="flex items-center gap-1.5 rounded-xl bg-info-soft px-3 py-2 text-xs text-info">
+          <Eye className="size-4 shrink-0" />
           Otwarta przez klienta {offer.view_count}{' '}
           {offer.view_count === 1 ? 'raz' : 'razy'} (pierwszy raz{' '}
           {fmtDate(offer.viewed_at)})

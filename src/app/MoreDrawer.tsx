@@ -30,7 +30,7 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
         {user && (
           <ListGroup>
             <ListRow
-              leading={<Avatar name={user.fullName} />}
+              leading={<Avatar name={user.fullName} path={user.avatarPath} />}
               title={user.fullName}
               subtitle={user.role === 'admin' ? 'Właściciel' : user.email}
               chevron

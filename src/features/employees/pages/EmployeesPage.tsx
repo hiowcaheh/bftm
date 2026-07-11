@@ -62,7 +62,7 @@ export default function EmployeesPage() {
           {filtered.map((emp) => (
             <ListRow
               key={emp.id}
-              leading={<Avatar name={emp.full_name} />}
+              leading={<Avatar name={emp.full_name} path={emp.avatar_path} />}
               title={
                 <span className="flex items-center gap-2">
                   {emp.full_name}

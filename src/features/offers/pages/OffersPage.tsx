@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Plus } from 'lucide-react';
+import { Eye, FileText, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { Chips } from '@/components/ui/Chips';
@@ -65,17 +65,21 @@ export default function OffersPage() {
                   o.client?.name ??
                     ((o.client_snapshot as { name?: string } | null)?.name || null),
                   o.valid_until ? `ważna do ${fmtDate(o.valid_until)}` : null,
-                  o.viewed_at
-                    ? `otwarta ${o.view_count} ${o.view_count === 1 ? 'raz' : 'razy'}`
-                    : null,
                 ]
                   .filter(Boolean)
                   .join(' • ')}
               </p>
             </div>
-            <Badge tone={OFFER_STATUS_TONES[o.status]}>
-              {OFFER_STATUS_LABELS[o.status]}
-            </Badge>
+            <div className="flex shrink-0 flex-col items-end gap-1.5">
+              <Badge tone={OFFER_STATUS_TONES[o.status]}>
+                {OFFER_STATUS_LABELS[o.status]}
+              </Badge>
+              {o.viewed_at && (
+                <span className="tabular-nums flex items-center gap-1 text-xs text-text-secondary">
+                  <Eye className="size-3.5" /> {o.view_count}
+                </span>
+              )}
+            </div>
           </div>
         </Card>
       ))}

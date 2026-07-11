@@ -139,7 +139,7 @@ export default function EmployeeDetailPage() {
       </button>
 
       <Card className="flex items-center gap-4 p-4">
-        <Avatar name={emp.full_name} size="lg" />
+        <Avatar name={emp.full_name} path={emp.avatar_path} size="lg" />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-semibold">{emp.full_name}</h1>
           <div className="mt-1 flex flex-wrap gap-1.5">

@@ -21,6 +21,8 @@ interface SessionContextValue {
   /** true dopóki nie wiemy, czy użytkownik jest zalogowany i kim jest */
   loading: boolean;
   can: (permission: Permission) => boolean;
+  /** Wymuś ponowne pobranie profilu (np. po zmianie nazwy/avatara). */
+  refresh: () => Promise<void>;
 }
 
 const SessionContext = createContext<SessionContextValue>({
@@ -28,6 +30,7 @@ const SessionContext = createContext<SessionContextValue>({
   user: null,
   loading: true,
   can: () => false,
+  refresh: async () => {},
 });
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -89,6 +92,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         user,
         loading,
         can: (permission) => canBase(user, permission),
+        refresh: async () => {
+          await queryClient.invalidateQueries({ queryKey: qk.profile.me() });
+        },
       }}
     >
       {children}

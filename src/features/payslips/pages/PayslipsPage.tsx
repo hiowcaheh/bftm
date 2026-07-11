@@ -36,35 +36,73 @@ async function sharePayslip(url: string, filename: string, type: string) {
   window.open(url, '_blank');
 }
 
+const MONTHS = [
+  { value: '', label: 'Cały rok' },
+  ...Array.from({ length: 12 }, (_, i) => ({
+    value: String(i + 1),
+    label: format(new Date(2026, i, 1), 'LLLL', { locale: pl }),
+  })),
+];
+
 export default function PayslipsPage() {
   const { user, can } = useSession();
   const canManage = user?.role === 'admin' || can('payslips_manage');
   const employees = useEmployees();
   const [employeeFilter, setEmployeeFilter] = useState('');
+  const [monthFilter, setMonthFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
   const payslips = usePayslips(canManage ? employeeFilter || undefined : undefined);
   const deletePayslip = useDeletePayslip();
+
+  const yearOptions = [
+    { value: '', label: 'Wszystkie lata' },
+    ...[0, 1, 2].map((d) => {
+      const y = new Date().getFullYear() - d;
+      return { value: String(y), label: String(y) };
+    }),
+  ];
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [preview, setPreview] = useState<Payslip | null>(null);
   const [toDelete, setToDelete] = useState<Payslip | null>(null);
   const previewUrl = usePayslipUrl(preview?.file_path ?? null);
 
-  const list = payslips.data ?? [];
+  const list = (payslips.data ?? []).filter(
+    (p) =>
+      (!monthFilter || p.month === Number(monthFilter)) &&
+      (!yearFilter || p.year === Number(yearFilter)),
+  );
 
   return (
     <div className="flex flex-col gap-4">
       {canManage && (
-        <Select
-          aria-label="Filtr pracownika"
-          value={employeeFilter}
-          options={[
-            { value: '', label: 'Wszyscy pracownicy' },
-            ...(employees.data ?? [])
-              .filter((e) => e.role !== 'admin')
-              .map((e) => ({ value: e.id, label: e.full_name })),
-          ]}
-          onChange={(e) => setEmployeeFilter(e.target.value)}
-        />
+        <div className="flex flex-col gap-2">
+          <Select
+            aria-label="Filtr pracownika"
+            value={employeeFilter}
+            options={[
+              { value: '', label: 'Wszyscy pracownicy' },
+              ...(employees.data ?? [])
+                .filter((e) => e.role !== 'admin')
+                .map((e) => ({ value: e.id, label: e.full_name })),
+            ]}
+            onChange={(e) => setEmployeeFilter(e.target.value)}
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <Select
+              aria-label="Filtr miesiąca"
+              value={monthFilter}
+              options={MONTHS}
+              onChange={(e) => setMonthFilter(e.target.value)}
+            />
+            <Select
+              aria-label="Filtr roku"
+              value={yearFilter}
+              options={yearOptions}
+              onChange={(e) => setYearFilter(e.target.value)}
+            />
+          </div>
+        </div>
       )}
 
       {payslips.isLoading && <SkeletonList rows={4} />}
