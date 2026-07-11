@@ -23,7 +23,12 @@ export async function updateSetting(key: string, value: Json): Promise<void> {
 
 export async function fetchCompanyDetails(): Promise<CompanyDetails> {
   const value = await fetchSetting<Partial<CompanyDetails>>('company_details');
-  return { ...EMPTY_COMPANY_DETAILS, ...value };
+  const merged = { ...EMPTY_COMPANY_DETAILS, ...value };
+  // starszy format uslug (same nazwy) -> obiekty z domyslna ikona
+  merged.services = (merged.services ?? []).map((s) =>
+    typeof s === 'string' ? { name: s, icon: 'Hammer' } : s,
+  );
+  return merged;
 }
 
 export async function saveCompany(details: CompanyDetails, slogan: string): Promise<void> {
