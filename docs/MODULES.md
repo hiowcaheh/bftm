@@ -122,8 +122,15 @@
 
 ## reports — Raporty
 
-- **Stan**: placeholder (Etap 8).
-- **Uprawnienia**: `reports_view`, `finance_view`.
+- **Stan**: Etap 8 — zestawienie godzin miesiąca; zakładka Pracownicy
+  (suma per pracownik + rozbicie na projekty, statusy zatwierdzone/szkic,
+  koszt pracy przy finance_view — pod wypłaty), zakładka Projekty (godziny,
+  liczba pracowników, stawka klienta i wartość do fakturowania); nagłówek
+  z sumami; „Udostępnij / kopiuj raport" (tekst przez share lub schowek).
+- **Dane**: RPC `report_hours` (security definer, wymaga reports_view lub
+  finance_view) — agreguje `work_hours` × `employee_compensation` /
+  `projects.hourly_rate`; kwoty tylko przy finance_view (migracja 0016).
+- **Uprawnienia**: `reports_view` (godziny) / `finance_view` (kwoty).
 
 ## settings — Ustawienia
 

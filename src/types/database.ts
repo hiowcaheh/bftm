@@ -375,6 +375,7 @@ export type Database = {
         Args: { p_token: string; p_accept: boolean; p_comment?: string | null };
         Returns: undefined;
       };
+      report_hours: { Args: { p_from: string; p_to: string }; Returns: Json };
       finance_daily: {
         Args: { p_from: string; p_to: string };
         Returns: Array<{

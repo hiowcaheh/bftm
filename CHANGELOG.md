@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.10.0 — Etap 8: Raporty (2026-07-11)
+
+- **Moduł Raporty**: zestawienie godzin miesiąca (nawigacja strzałkami).
+- **Zakładka Pracownicy**: suma godzin per pracownik z rozbiciem na projekty
+  (rozwijane), statusy (zatwierdzone/szkic), koszt pracy przy finance_view —
+  gotowe pod wypłaty.
+- **Zakładka Projekty**: godziny per projekt, liczba pracowników, stawka
+  klienta i **wartość do fakturowania** (godziny × stawka) przy finance_view.
+- Nagłówek z sumą godzin i sumą „Do fakturowania" (+ koszt pracy).
+- **Udostępnij / kopiuj raport**: gotowy tekst zestawienia (share lub schowek).
+- Kwoty liczone w RPC `report_hours` (security definer): stawki pracowników
+  nie opuszczają bazy; dostęp reports_view lub finance_view (migracja 0016).
+
 ## 0.9.6 — więcej ikon + czystszy hero oferty (2026-07-11)
 
 - Rejestr ikon usług rozszerzony do ~75 pozycji, w tym **murowanie**
