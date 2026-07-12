@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.18.3 — obecność zapisywana przy logowaniu (trigger) (2026-07-12)
+
+- **Każde logowanie odświeża „ostatnio online"** przez trigger w bazie —
+  działa niezależnie od wersji aplikacji (nawet na starym, zcache'owanym
+  kodzie). Uzupełniono też daty z historii logowań, więc statusy pojawiły
+  się od razu dla wszystkich.
+- Karta pracownika bez żadnej aktywności pokazuje „Brak aktywności" zamiast
+  pustki.
+
 ## 0.18.2 — obecność łapana przy aktywności (2026-07-12)
 
 - „Ostatnio online" zapisuje się przy logowaniu oraz przy realnym ruchu na
