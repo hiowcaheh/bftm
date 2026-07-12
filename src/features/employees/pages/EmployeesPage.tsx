@@ -12,7 +12,6 @@ import { SkeletonList } from '@/components/ui/Skeleton';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '../hooks';
 import { AddEmployeeSheet } from '../components/AddEmployeeSheet';
-import { OnlineBadge } from '../components/OnlineBadge';
 
 export default function EmployeesPage() {
   const { user } = useSession();
@@ -65,11 +64,10 @@ export default function EmployeesPage() {
               key={emp.id}
               leading={<Avatar name={emp.full_name} path={emp.avatar_path} />}
               title={
-                <span className="flex flex-wrap items-center gap-1.5">
+                <span className="flex items-center gap-2">
                   {emp.full_name}
                   {emp.role === 'admin' && <Badge tone="accent">Admin</Badge>}
                   {!emp.active && <Badge tone="error">Nieaktywny</Badge>}
-                  <OnlineBadge lastSeen={emp.last_seen_at} compact />
                 </span>
               }
               subtitle={emp.phone || emp.email}
