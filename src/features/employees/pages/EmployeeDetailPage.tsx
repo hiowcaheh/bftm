@@ -162,7 +162,7 @@ export default function EmployeeDetailPage() {
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-semibold">{emp.full_name}</h1>
           <div className="mt-1 flex flex-wrap gap-1.5">
-            {emp.role === 'admin' && <Badge tone="accent">Właściciel</Badge>}
+            {emp.role === 'admin' && <Badge tone="accent">Admin</Badge>}
             <OnlineBadge lastSeen={emp.last_seen_at} />
             {!emp.active && <Badge tone="error">Nieaktywny</Badge>}
             {emp.must_change_password && <Badge tone="warning">Czeka na zmianę hasła</Badge>}

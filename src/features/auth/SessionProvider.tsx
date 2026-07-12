@@ -86,10 +86,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!userId) return;
     const ping = () => {
-      void supabase
-        .from('profiles')
-        .update({ last_seen_at: new Date().toISOString() })
-        .eq('id', userId);
+      void supabase.rpc('touch_last_seen');
     };
     ping();
     const interval = setInterval(ping, 60_000);

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.17.0 — podgląd maila + firmowa szata oferty, badge Admin, obecność (2026-07-12)
+
+- **Podgląd maila przed wysłaniem**: klik „Wyślij e-mailem" otwiera podgląd
+  1:1 tego, co dostanie klient, z przyciskiem „Wyślij ofertę mailem".
+- **Nowa szata maila** zgodna z firmowym wzorem: granatowy nagłówek z logo,
+  czerwony pasek „Offert för: …", przycisk „Visa fullständig offert", link
+  zapasowy, data ważności, sekcja „Kontakta oss" (Tomasz/Mateusz, e-post,
+  webbplats) i granatowa stopka. HTML budowany po stronie aplikacji, więc
+  podgląd = wysyłka.
+- **Badge „Admin"** zamiast „Właściciel" wszędzie (karta pracownika, menu
+  Więcej, mój profil).
+- **Obecność online**: naprawiony ping „ostatnio online" (RPC `touch_last_seen`)
+  — badge na karcie pracownika wreszcie się zapełnia; widoczny dla admina
+  i osób z podglądem zespołu.
+
 ## 0.16.1 — poprawka zawieszania „Sprawdź aktualizację" (2026-07-11)
 
 - **„Sprawdź aktualizację" nie kręci się już w nieskończoność**: gdy nowa

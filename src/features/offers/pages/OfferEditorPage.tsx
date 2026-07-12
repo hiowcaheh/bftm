@@ -27,9 +27,12 @@ import { toast } from '@/components/ui/Toast';
 import { date as fmtDate, money, num } from '@/lib/format';
 import type { Json } from '@/types/database';
 import { useSession } from '@/features/auth/SessionProvider';
+import { usePublicBranding } from '@/features/auth/hooks';
 import { useClients } from '@/features/clients/hooks';
-import { useFinanceSettings } from '@/features/settings/hooks';
+import { useCompanyDetails, useFinanceSettings } from '@/features/settings/hooks';
+import { logoPublicUrl } from '@/features/settings/api';
 import { ensureOfferToken, offerPublicUrl } from '../api';
+import { buildOfferEmailHtml, buildOfferEmailSubject } from '../emailTemplate';
 import {
   useDeleteOffer,
   useOffer,
@@ -78,6 +81,8 @@ export default function OfferEditorPage() {
   const existing = useOffer(offerId);
   const clients = useClients();
   const finance = useFinanceSettings(true);
+  const branding = usePublicBranding();
+  const company = useCompanyDetails(true);
   const save = useSaveOffer();
   const publish = usePublishOffer();
   const remove = useDeleteOffer();
@@ -102,6 +107,11 @@ export default function OfferEditorPage() {
   const [shareOpen, setShareOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [emailPreview, setEmailPreview] = useState<{
+    to: string;
+    subject: string;
+    html: string;
+  } | null>(null);
 
   useEffect(() => {
     if (existing.data && !loaded) {
@@ -226,6 +236,38 @@ export default function OfferEditorPage() {
         },
       },
     );
+  };
+
+  const openEmailPreview = () => {
+    const to = client?.email?.trim();
+    if (!to) {
+      toast.error('Ten klient nie ma adresu e-mail — uzupełnij go w kliencie');
+      return;
+    }
+    const companyName =
+      company.data?.name?.trim() ||
+      branding.data?.companyName?.trim() ||
+      'BFTM Fasad & Bygg AB';
+    const email = company.data?.email?.trim() || 'kontakt@bftm.se';
+    const website = email.includes('@') ? `www.${email.split('@')[1]}` : 'www.bftm.se';
+    const html = buildOfferEmailHtml({
+      clientName: client?.name ?? '',
+      offerTitle: title.trim(),
+      offerNumber: offer?.number ?? null,
+      url: shareUrl,
+      validUntil: validUntil || null,
+      companyName,
+      logoUrl: branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null,
+      email,
+      website,
+      contacts: company.data?.contacts ?? [],
+    });
+    setEmailPreview({
+      to,
+      subject: buildOfferEmailSubject(offer?.number ?? null, title.trim()),
+      html,
+    });
+    setShareOpen(false);
   };
 
   if (offerId && existing.isLoading) return <SkeletonList rows={6} />;
@@ -623,32 +665,45 @@ export default function OfferEditorPage() {
               Udostępnij
             </Button>
           </div>
-          <Button
-            fullWidth
-            loading={sendEmail.isPending}
-            icon={<Mail className="size-5" />}
-            onClick={() => {
-              const to = client?.email?.trim();
-              if (!to) {
-                toast.error('Ten klient nie ma adresu e-mail — uzupełnij go w kliencie');
-                return;
-              }
-              sendEmail.mutate(
-                {
-                  to,
-                  clientName: client?.name ?? null,
-                  offerNumber: offer?.number ?? null,
-                  title: title.trim(),
-                  url: shareUrl,
-                  validUntil: validUntil || null,
-                },
-                { onSuccess: () => setShareOpen(false) },
-              );
-            }}
-          >
-            {client?.email ? `Wyślij na ${client.email}` : 'Wyślij e-mailem'}
+          <Button fullWidth icon={<Mail className="size-5" />} onClick={openEmailPreview}>
+            {client?.email ? `Podgląd i wyślij na ${client.email}` : 'Wyślij e-mailem'}
           </Button>
         </div>
+      </Sheet>
+
+      {/* Podgląd maila przed wysłaniem */}
+      <Sheet
+        open={!!emailPreview}
+        onClose={() => setEmailPreview(null)}
+        title="Podgląd maila"
+      >
+        {emailPreview && (
+          <div className="flex flex-col gap-3">
+            <p className="text-sm text-text-secondary">
+              Do: <span className="font-medium text-text">{emailPreview.to}</span>
+            </p>
+            <div className="overflow-hidden rounded-(--radius-card) ring-1 ring-line">
+              <iframe
+                title="Podgląd maila"
+                srcDoc={emailPreview.html}
+                sandbox=""
+                className="h-[55vh] w-full border-0 bg-white"
+              />
+            </div>
+            <Button
+              fullWidth
+              icon={<Send className="size-5" />}
+              loading={sendEmail.isPending}
+              onClick={() =>
+                sendEmail.mutate(emailPreview, {
+                  onSuccess: () => setEmailPreview(null),
+                })
+              }
+            >
+              Wyślij ofertę mailem
+            </Button>
+          </div>
+        )}
       </Sheet>
 
       <ConfirmDialog

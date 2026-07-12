@@ -32,7 +32,7 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
             <ListRow
               leading={<Avatar name={user.fullName} path={user.avatarPath} />}
               title={user.fullName}
-              subtitle={user.role === 'admin' ? 'Właściciel' : user.email}
+              subtitle={user.role === 'admin' ? 'Admin' : user.email}
               chevron
               onClick={() => go('/profil')}
             />
