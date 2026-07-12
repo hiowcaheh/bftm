@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.18.1 — status online tylko na karcie pracownika (2026-07-12)
+
+- Badge obecności („Online" / „ostatnio X temu") pokazuje się **tylko po
+  wejściu w szczegóły pracownika**, a nie na liście zespołu.
+
 ## 0.18.0 — obecność przy każdym członku zespołu (2026-07-12)
 
 - **Status online przy każdym członku** na liście Zespołu (nie tylko na
