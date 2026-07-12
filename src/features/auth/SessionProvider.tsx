@@ -82,20 +82,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, [profile]);
 
-  // Obecność: odświeżaj „ostatnio online" co minutę i po powrocie do apki
+  // Obecność „ostatnio online": zapisujemy nową datę przy logowaniu i przy
+  // realnej aktywności (klik / dotyk / klawisz / powrót do apki), z throttlingiem
+  // co 60 s, żeby nie zasypywać bazy. Gdy ktoś jest bezczynny — data zostaje na
+  // ostatnim ruchu (czyli „ostatnio online" jest zgodne z prawdą).
   useEffect(() => {
     if (!userId) return;
-    const ping = () => {
+    let lastPing = 0;
+    const ping = (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastPing < 60_000) return;
+      lastPing = now;
       void supabase.rpc('touch_last_seen');
     };
-    ping();
-    const interval = setInterval(ping, 60_000);
+    ping(true); // logowanie / wejście do apki
+    const onActivity = () => ping();
     const onVisible = () => {
-      if (document.visibilityState === 'visible') ping();
+      if (document.visibilityState === 'visible') ping(true);
     };
+    window.addEventListener('pointerdown', onActivity, { passive: true });
+    window.addEventListener('keydown', onActivity);
     document.addEventListener('visibilitychange', onVisible);
     return () => {
-      clearInterval(interval);
+      window.removeEventListener('pointerdown', onActivity);
+      window.removeEventListener('keydown', onActivity);
       document.removeEventListener('visibilitychange', onVisible);
     };
   }, [userId]);
