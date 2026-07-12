@@ -387,16 +387,10 @@ export type Database = {
         }>;
       };
       send_offer_email: {
-        Args: {
-          p_to: string;
-          p_client_name: string | null;
-          p_offer_number: string | null;
-          p_title: string;
-          p_url: string;
-          p_valid_until?: string | null;
-        };
+        Args: { p_to: string; p_subject: string; p_html: string };
         Returns: undefined;
       };
+      touch_last_seen: { Args: Record<PropertyKey, never>; Returns: undefined };
       offer_next_number: { Args: Record<PropertyKey, never>; Returns: string };
       offer_publish: { Args: { p_offer_id: string }; Returns: string };
       offer_ensure_token: { Args: { p_offer_id: string }; Returns: string };

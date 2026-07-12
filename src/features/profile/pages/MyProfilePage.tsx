@@ -73,7 +73,7 @@ export default function MyProfilePage() {
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-semibold">{user.fullName}</h1>
           <p className="truncate text-sm text-text-secondary">
-            {user.role === 'admin' ? 'Właściciel' : user.email}
+            {user.role === 'admin' ? 'Admin' : user.email}
           </p>
         </div>
         <input
