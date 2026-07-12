@@ -24,7 +24,7 @@ import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { Switch } from '@/components/ui/Switch';
 import { money } from '@/lib/format';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import type { PermissionMap } from '@/lib/permissions';
 import { useSession } from '@/features/auth/SessionProvider';
@@ -43,6 +43,7 @@ import {
 import { PERMISSION_GROUPS } from '../permissionLabels';
 import { generateTempPassword } from '../types';
 import { TempPasswordDialog } from '../components/TempPasswordDialog';
+import { OnlineBadge } from '../components/OnlineBadge';
 
 const ACTIVITY_LABELS: Record<string, string> = {
   login: 'Logowanie do aplikacji',
@@ -51,25 +52,6 @@ const ACTIVITY_LABELS: Record<string, string> = {
   deactivate: 'Dezaktywacja konta',
   reactivate: 'Reaktywacja konta',
 };
-
-/** „Online" gdy widziany w ostatnich 3 min, inaczej „widziany X temu". */
-function OnlineBadge({ lastSeen }: { lastSeen: string | null }) {
-  if (!lastSeen) return null;
-  const diffMin = (Date.now() - new Date(lastSeen).getTime()) / 60_000;
-  if (diffMin < 3) {
-    return (
-      <Badge tone="success">
-        <span className="inline-block size-1.5 rounded-full bg-success" />
-        Online
-      </Badge>
-    );
-  }
-  return (
-    <Badge tone="neutral">
-      {`Ostatnio ${formatDistanceToNow(new Date(lastSeen), { addSuffix: true, locale: pl })}`}
-    </Badge>
-  );
-}
 
 export default function EmployeeDetailPage() {
   const { id = '' } = useParams();

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.18.0 — obecność przy każdym członku zespołu (2026-07-12)
+
+- **Status online przy każdym członku** na liście Zespołu (nie tylko na
+  karcie): zielony „Online" gdy aktywny w ostatnich 3 min, inaczej „ostatnio
+  X temu". Widoczne dla admina i osób z podglądem zespołu.
+- Wspólny komponent `OnlineBadge` (lista = karta), wersja kompaktowa na liście.
+- Uwaga: żeby czas był aktualny, wszyscy muszą być na 0.17.0+ — dopiero ta
+  wersja pinguje obecność (`touch_last_seen`).
+
 ## 0.17.0 — podgląd maila + firmowa szata oferty, badge Admin, obecność (2026-07-12)
 
 - **Podgląd maila przed wysłaniem**: klik „Wyślij e-mailem" otwiera podgląd
