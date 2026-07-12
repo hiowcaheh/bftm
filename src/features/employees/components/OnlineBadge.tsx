@@ -14,7 +14,14 @@ export function OnlineBadge({
   lastSeen: string | null;
   compact?: boolean;
 }) {
-  if (!lastSeen) return null;
+  if (!lastSeen) {
+    return (
+      <Badge tone="neutral">
+        <span className="inline-block size-1.5 rounded-full bg-text-secondary/50" />
+        Brak aktywności
+      </Badge>
+    );
+  }
   const diffMin = (Date.now() - new Date(lastSeen).getTime()) / 60_000;
 
   if (diffMin < 3) {
