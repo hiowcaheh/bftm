@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.18.2 — obecność łapana przy aktywności (2026-07-12)
+
+- „Ostatnio online" zapisuje się przy logowaniu oraz przy realnym ruchu na
+  stronie (dotyk/klik/klawisz/powrót do apki), throttling co 60 s. Gdy ktoś
+  jest bezczynny, data zostaje na ostatniej aktywności — status jest zgodny
+  z prawdą dla każdego pracownika.
+
 ## 0.18.1 — status online tylko na karcie pracownika (2026-07-12)
 
 - Badge obecności („Online" / „ostatnio X temu") pokazuje się **tylko po
