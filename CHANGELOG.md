@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.1 — subtelny znak wodny z logo w tle (2026-07-12)
+
+- Delikatna firmowa tekstura: logo powtórzone pod skosem, ledwo widoczne,
+  jako tło całej zalogowanej części aplikacji.
+
 ## 0.19.0 — odświeżony Pulpit w stylu Apple (2026-07-12)
 
 - **Kafelki KPI**: duża, półprzezroczysta ikona „w tle" po prawej stronie

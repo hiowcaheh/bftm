@@ -8,6 +8,8 @@ import { NotificationBell } from '@/features/notifications/NotificationBell';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
+import { usePublicBranding } from '@/features/auth/hooks';
+import { logoPublicUrl } from '@/features/settings/api';
 
 export type NavDirection = 'forward' | 'back' | null;
 
@@ -70,12 +72,30 @@ export function AppLayout() {
 
   const direction = directionRef.current;
 
+  const branding = usePublicBranding();
+  const logoUrl = branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null;
+
   return (
     <div
       className="mx-auto flex min-h-dvh max-w-3xl flex-col"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
+      {/* Znak wodny: dziesiątki logo pod skosem, ledwo widoczne — firmowa tekstura */}
+      {logoUrl && (
+        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+          <div
+            className="absolute -inset-1/2"
+            style={{
+              backgroundImage: `url(${logoUrl})`,
+              backgroundRepeat: 'repeat',
+              backgroundSize: '128px',
+              transform: 'rotate(-18deg)',
+              opacity: 0.04,
+            }}
+          />
+        </div>
+      )}
       {/* Stały górny pasek — tytuł zakładki + powiadomienia, widoczny wszędzie */}
       <header
         className="fixed inset-x-0 top-0 z-30 border-b border-line bg-bg/90 backdrop-blur"
