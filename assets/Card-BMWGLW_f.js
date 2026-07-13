@@ -1,1 +1,0 @@
-import{T as e}from"./queryKeys-oHwGsgOR.js";import{at as t}from"./index-B3Ul2O1N.js";var n=e();function r({interactive:e,className:r,...i}){return(0,n.jsx)(`div`,{className:t(`rounded-(--radius-card) bg-white shadow-(--shadow-card)`,e&&`press cursor-pointer`,r),...i})}export{r as t};
