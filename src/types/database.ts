@@ -391,6 +391,10 @@ export type Database = {
         Returns: undefined;
       };
       touch_last_seen: { Args: Record<PropertyKey, never>; Returns: undefined };
+      project_stats: {
+        Args: Record<PropertyKey, never>;
+        Returns: Array<{ project_id: string; total_hours: number; workers: string[] }>;
+      };
       offer_next_number: { Args: Record<PropertyKey, never>; Returns: string };
       offer_publish: { Args: { p_offer_id: string }; Returns: string };
       offer_ensure_token: { Args: { p_offer_id: string }; Returns: string };

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.21.0 — karty projektów z danymi + logo na belce (2026-07-12)
+
+- **Karta projektu**: tekst do lewej, kolorowanie karty wg koloru projektu
+  (listwa), duża ikona w kolorze projektu jako półprzezroczyste tło po prawej
+  (jak na Pulpicie).
+- **Postęp godzin** (przepracowane / limit szacowany) z paskiem oraz
+  **awatary pracowników** — dane z nowego agregatu `project_stats` (migracja
+  0025, tylko odczyt, bez finansów).
+- **Górna belka**: subtelny czerwony napis **BFTM** na środku, na każdej stronie.
+
 ## 0.20.1 — karty projektów z monogramem (2026-07-12)
 
 - Zamiast nasyconego kwadratu z ikoną — **monogram** (inicjały projektu w

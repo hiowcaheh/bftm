@@ -20,6 +20,29 @@ function normalize(row: ProjectRowRaw): ProjectWithClient {
   return { hourly_rate: null, fixed_value: null, ...row };
 }
 
+export interface ProjectStat {
+  totalHours: number;
+  workers: string[];
+}
+
+/** Suma godzin + osoby per projekt (RPC agregujące, bez finansów). */
+export async function fetchProjectStats(): Promise<Map<string, ProjectStat>> {
+  const { data, error } = await supabase.rpc('project_stats');
+  if (error) throw error;
+  const map = new Map<string, ProjectStat>();
+  for (const r of (data ?? []) as Array<{
+    project_id: string;
+    total_hours: number;
+    workers: string[] | null;
+  }>) {
+    map.set(r.project_id, {
+      totalHours: Number(r.total_hours) || 0,
+      workers: r.workers ?? [],
+    });
+  }
+  return map;
+}
+
 export async function fetchProjects(canFinance: boolean): Promise<ProjectWithClient[]> {
   const { data, error } = await supabase
     .from('projects')

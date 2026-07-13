@@ -11,7 +11,7 @@ import { SearchBar } from '@/components/ui/SearchBar';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { useSession } from '@/features/auth/SessionProvider';
 import type { ProjectStatus } from '@/types/database';
-import { useProjects } from '../hooks';
+import { useProjects, useProjectStats } from '../hooks';
 import { PROJECT_STATUS_LABELS } from '../types';
 import { ProjectCard } from '../components/ProjectCard';
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
@@ -51,6 +51,7 @@ function StatTile({
 
 export default function ProjectsPage() {
   const projects = useProjects();
+  const stats = useProjectStats();
   const { can } = useSession();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<ProjectStatus | null>(null);
@@ -139,7 +140,7 @@ export default function ProjectsPage() {
 
       <div className="flex flex-col gap-3">
         {filtered.map((p) => (
-          <ProjectCard key={p.id} project={p} />
+          <ProjectCard key={p.id} project={p} stat={stats.data?.get(p.id) ?? null} />
         ))}
       </div>
 
