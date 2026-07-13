@@ -30,22 +30,26 @@ export interface ProjectStat {
   workers: ProjectWorker[];
 }
 
-/** Suma godzin + osoby (ze zdjęciami) per projekt (RPC agregujące, bez finansów). */
-export async function fetchProjectStats(): Promise<Map<string, ProjectStat>> {
+/**
+ * Suma godzin + osoby (ze zdjęciami) per projekt (RPC agregujące, bez finansów).
+ * Zwraca zwykły obiekt (nie Map!) — cache jest utrwalany w localStorage przez
+ * JSON.stringify, a Map serializuje się do „{}" i psuje odczyt po odtworzeniu.
+ */
+export async function fetchProjectStats(): Promise<Record<string, ProjectStat>> {
   const { data, error } = await supabase.rpc('project_stats');
   if (error) throw error;
-  const map = new Map<string, ProjectStat>();
+  const out: Record<string, ProjectStat> = {};
   for (const r of (data ?? []) as Array<{
     project_id: string;
     total_hours: number;
     workers: ProjectWorker[] | null;
   }>) {
-    map.set(r.project_id, {
+    out[r.project_id] = {
       totalHours: Number(r.total_hours) || 0,
       workers: r.workers ?? [],
-    });
+    };
   }
-  return map;
+  return out;
 }
 
 export async function fetchProjects(canFinance: boolean): Promise<ProjectWithClient[]> {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.22.1 — naprawa crashu na Projektach (2026-07-12)
+
+- **Krytyczna poprawka**: lista projektów wywalała aplikację. Agregat
+  `project_stats` zwracał `Map`, a cache jest utrwalany w localStorage przez
+  JSON — `Map` serializował się do „{}" i po odtworzeniu `.get()` rzucał błąd.
+  Zamienione na zwykły obiekt (serializowalny).
+
 ## 0.22.0 — avatary, sortowanie, ikona wg klienta, mapa budowy (2026-07-12)
 
 - **Prawdziwe zdjęcia pracowników** na kartach projektów (fallback inicjały);

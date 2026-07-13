@@ -145,7 +145,7 @@ export default function ProjectsPage() {
 
       <div className="flex flex-col gap-3">
         {filtered.map((p) => (
-          <ProjectCard key={p.id} project={p} stat={stats.data?.get(p.id) ?? null} />
+          <ProjectCard key={p.id} project={p} stat={stats.data?.[p.id] ?? null} />
         ))}
       </div>
 
