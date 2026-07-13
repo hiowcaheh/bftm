@@ -11,7 +11,7 @@ import {
   ReceiptText,
   Sunrise,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, getISOWeek } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -41,6 +41,10 @@ export default function DashboardPage() {
   const pending = usePendingApprovals();
   const payslipReminder = usePayslipReminder(canManagePayslips);
   const [hoursFormOpen, setHoursFormOpen] = useState(false);
+
+  const now = new Date();
+  const todayLabel = format(now, 'EEEE d/MM', { locale: pl }); // np. „poniedziałek 13/07"
+  const weekNo = getISOWeek(now);
 
   const tiles = [
     ...(can('projects_view')
@@ -92,15 +96,21 @@ export default function DashboardPage() {
           <Card
             key={tile.label}
             interactive
-            className="flex flex-col gap-2 p-4"
+            className="relative min-h-[92px] overflow-hidden p-4"
             onClick={tile.onClick}
           >
-            <div className="flex items-center justify-between">
-              <tile.icon className="size-5 text-accent" strokeWidth={1.8} />
-              {tile.demo && <Badge>wkrótce</Badge>}
+            <tile.icon
+              aria-hidden
+              className="pointer-events-none absolute -right-3 top-1/2 size-24 -translate-y-1/2 text-accent/10"
+              strokeWidth={1.5}
+            />
+            <div className="relative flex flex-col gap-1">
+              <span className="tabular-nums text-2xl font-semibold leading-tight">
+                {tile.value}
+              </span>
+              <span className="text-xs text-text-secondary">{tile.label}</span>
             </div>
-            <span className="tabular-nums text-lg font-semibold">{tile.value}</span>
-            <span className="text-xs text-text-secondary">{tile.label}</span>
+            {tile.demo && <Badge className="absolute right-2 top-2">wkrótce</Badge>}
           </Card>
         ))}
       </section>
@@ -168,7 +178,7 @@ export default function DashboardPage() {
       )}
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base font-semibold">{seesAll ? 'Dziś w pracy' : 'Twój dzień'}</h2>
+        <h2 className="text-base font-semibold first-letter:capitalize">Dzisiaj, {todayLabel}</h2>
         {!seesAll &&
         today.data &&
         today.data.entries.length === 0 &&
@@ -226,7 +236,12 @@ export default function DashboardPage() {
 
       {thisWeek.data && (
         <section className="flex flex-col gap-3">
-          <h2 className="text-base font-semibold">Ten tydzień</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold">Ten tydzień</h2>
+            <span className="rounded-full bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
+              V{weekNo}
+            </span>
+          </div>
           <Card className="flex flex-col divide-y divide-line">
             {thisWeek.data.map((day) => {
               const isToday = day.date === format(new Date(), 'yyyy-MM-dd');
