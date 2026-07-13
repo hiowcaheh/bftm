@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.20.0 — odświeżona zakładka Projekty (2026-07-12)
+
+- **Nowe karty projektów** w stylu Apple: kafelek w kolorze projektu z ikoną,
+  status jako kolorowy badge, klient, adres, szacowane godziny i wartość.
+- **Pasek podsumowania** na górze: Aktywne / Wartość w toku (lub Oferty) /
+  Oferty (lub Zakończone) — mini-kafelki z ikoną w tle, jak na Pulpicie.
+- Zmiany wyłącznie wizualne (frontend) — filtry, wyszukiwarka i dane bez zmian.
+
 ## 0.19.1 — subtelny znak wodny z logo w tle (2026-07-12)
 
 - Delikatna firmowa tekstura: logo powtórzone pod skosem, ledwo widoczne,
