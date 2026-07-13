@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.19.0 — odświeżony Pulpit w stylu Apple (2026-07-12)
+
+- **Kafelki KPI**: duża, półprzezroczysta ikona „w tle" po prawej stronie
+  i większa wartość — nowocześniejszy, czystszy wygląd (admin i pracownik).
+- Nagłówek sekcji dnia: **„Dzisiaj, {dzień tygodnia} DD/MM"** zamiast
+  „Twój dzień".
+- Przy „Ten tydzień" badge z numerem tygodnia (**V{nr}**, np. V29).
+
 ## 0.18.3 — obecność zapisywana przy logowaniu (trigger) (2026-07-12)
 
 - **Każde logowanie odświeża „ostatnio online"** przez trigger w bazie —
