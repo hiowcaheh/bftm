@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Clock, Plus } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { hours as fmtHours, num } from '@/lib/format';
@@ -20,12 +21,17 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
   );
 
   const byEmployee = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, { name: string; avatar_path: string | null; hours: number }>();
     for (const e of entries.data ?? []) {
       const name = e.employee?.full_name ?? '?';
-      map.set(name, (map.get(name) ?? 0) + e.hours);
+      const prev = map.get(name);
+      map.set(name, {
+        name,
+        avatar_path: e.employee?.avatar_path ?? prev?.avatar_path ?? null,
+        hours: (prev?.hours ?? 0) + e.hours,
+      });
     }
-    return [...map.entries()].sort((a, b) => b[1] - a[1]);
+    return [...map.values()].sort((a, b) => b.hours - a.hours);
   }, [entries.data]);
 
   const budget = project.estimated_hours;
@@ -72,11 +78,14 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
       )}
 
       {byEmployee.length > 0 && (
-        <div className="flex flex-col gap-1 border-t border-line pt-2">
-          {byEmployee.map(([name, sum]) => (
-            <div key={name} className="flex items-baseline justify-between gap-2">
-              <span className="min-w-0 truncate text-sm">{name}</span>
-              <span className="tabular-nums shrink-0 text-sm font-medium">{num(sum)} h</span>
+        <div className="flex flex-col gap-2 border-t border-line pt-2.5">
+          {byEmployee.map((emp) => (
+            <div key={emp.name} className="flex items-center justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <Avatar name={emp.name} path={emp.avatar_path} size="sm" />
+                <span className="min-w-0 truncate text-sm">{emp.name}</span>
+              </div>
+              <span className="tabular-nums shrink-0 text-sm font-medium">{num(emp.hours)} h</span>
             </div>
           ))}
         </div>

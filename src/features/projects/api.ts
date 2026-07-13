@@ -31,7 +31,7 @@ export interface ProjectStat {
 }
 
 /**
- * Suma godzin + osoby (ze zdjęciami) per projekt (RPC agregujące, bez finansów).
+ * Suma godzin (wszystkie) + osoby, które pracowały DZIŚ (ze zdjęciami) per projekt.
  * Zwraca zwykły obiekt (nie Map!) — cache jest utrwalany w localStorage przez
  * JSON.stringify, a Map serializuje się do „{}" i psuje odczyt po odtworzeniu.
  */

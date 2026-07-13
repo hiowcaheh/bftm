@@ -91,21 +91,26 @@ export function ProjectCard({
           {showFooter && (
             <div className="mt-1.5 flex items-center justify-between gap-2">
               {workers.length > 0 ? (
-                <div className="flex items-center">
-                  {workers.slice(0, 4).map((w, i) => (
-                    <Avatar
-                      key={i}
-                      name={w.name}
-                      path={w.avatar_path}
-                      size="sm"
-                      className="-ml-2 border-2 border-white first:ml-0"
-                    />
-                  ))}
-                  {workers.length > 4 && (
-                    <span className="ml-1 text-[11px] text-text-secondary">
-                      +{workers.length - 4}
-                    </span>
-                  )}
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="shrink-0 text-[11px] font-medium text-text-secondary">
+                    Dziś
+                  </span>
+                  <div className="flex items-center">
+                    {workers.slice(0, 4).map((w, i) => (
+                      <Avatar
+                        key={i}
+                        name={w.name}
+                        path={w.avatar_path}
+                        size="sm"
+                        className="-ml-2 border-2 border-white first:ml-0"
+                      />
+                    ))}
+                    {workers.length > 4 && (
+                      <span className="ml-1 text-[11px] text-text-secondary">
+                        +{workers.length - 4}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <span />

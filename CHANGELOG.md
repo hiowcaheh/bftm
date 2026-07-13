@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.23.0 — avatary „dziś na budowie" + zdjęcia przy godzinach (2026-07-13)
+
+- **Karta projektu**: avatary pokazują tylko osoby, które pracowały **dziś**
+  na tym projekcie, z podpisem „Dziś" (zamiast wszystkich z historii).
+- **Szczegóły projektu → Godziny**: przy każdym pracowniku na liście „kto ile
+  przepracował" doszło zdjęcie profilowe (fallback inicjały).
+
 ## 0.22.1 — naprawa crashu na Projektach (2026-07-12)
 
 - **Krytyczna poprawka**: lista projektów wywalała aplikację. Agregat
