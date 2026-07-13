@@ -16,6 +16,7 @@ import {
   fetchProject,
   fetchProjects,
   fetchProjectsByClient,
+  fetchProjectStats,
   updateAdditionalWork,
   updateProject,
   uploadPhotos,
@@ -30,6 +31,14 @@ export function useProjects() {
     // finance w kluczu: zmiana uprawnień nie może serwować cudzego cache
     queryKey: [...qk.projects.list(), canFinance],
     queryFn: () => fetchProjects(canFinance),
+  });
+}
+
+export function useProjectStats() {
+  return useQuery({
+    queryKey: [...qk.projects.all, 'stats'],
+    queryFn: fetchProjectStats,
+    staleTime: 60 * 1000,
   });
 }
 
