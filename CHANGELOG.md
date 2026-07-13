@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.20.1 — karty projektów z monogramem (2026-07-12)
+
+- Zamiast nasyconego kwadratu z ikoną — **monogram** (inicjały projektu w
+  jego kolorze na delikatnym tle), styl kontaktów iOS. Nowocześniej i czyściej.
+
 ## 0.20.0 — odświeżona zakładka Projekty (2026-07-12)
 
 - **Nowe karty projektów** w stylu Apple: kafelek w kolorze projektu z ikoną,

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { House, MapPin, Clock } from 'lucide-react';
+import { MapPin, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { moneyWhole, num } from '@/lib/format';
@@ -9,6 +9,16 @@ import {
   PROJECT_STATUS_TONES,
   type ProjectWithClient,
 } from '../types';
+
+/** Inicjały projektu do monogramu: „Brf Lilla" → „BL", „Bromma" → „BR". */
+function initials(name: string): string {
+  const w = name.trim().split(/\s+/).filter(Boolean);
+  const first = w[0];
+  if (!first) return '—';
+  const second = w[1];
+  if (second) return (first.charAt(0) + second.charAt(0)).toUpperCase();
+  return first.slice(0, 2).toUpperCase();
+}
 
 export function ProjectCard({ project }: { project: ProjectWithClient }) {
   const navigate = useNavigate();
@@ -23,20 +33,18 @@ export function ProjectCard({ project }: { project: ProjectWithClient }) {
   return (
     <Card
       interactive
-      className="flex gap-3 p-3"
+      className="flex gap-3 p-3.5"
       onClick={() => navigate(`/projekty/${project.id}`)}
     >
-      {/* Kafelek w kolorze projektu — nowoczesny akcent zamiast cienkiego paska */}
+      {/* Monogram w kolorze projektu — nowoczesny, „kontaktowy" akcent */}
       <div
-        className="flex size-[72px] shrink-0 items-center justify-center rounded-2xl"
-        style={{
-          background: `linear-gradient(140deg, rgba(255,255,255,0.18), rgba(0,0,0,0.28)), ${color}`,
-        }}
+        className="flex size-[50px] shrink-0 items-center justify-center rounded-[15px] text-[17px] font-extrabold"
+        style={{ backgroundColor: `${color}22`, color }}
       >
-        <House className="size-7 text-white/85" strokeWidth={1.8} />
+        {initials(project.name)}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex items-start justify-between gap-2">
           <h3 className="min-w-0 truncate text-[15px] font-semibold">{project.name}</h3>
           <Badge tone={PROJECT_STATUS_TONES[project.status]}>
@@ -56,7 +64,7 @@ export function ProjectCard({ project }: { project: ProjectWithClient }) {
         )}
 
         {showFooter && (
-          <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+          <div className="mt-1 flex items-center justify-between gap-2">
             {project.estimated_hours ? (
               <span className="flex items-center gap-1 text-xs text-text-secondary">
                 <Clock className="size-3.5 shrink-0" /> ~{num(project.estimated_hours)} h
