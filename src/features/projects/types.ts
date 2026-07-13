@@ -1,12 +1,12 @@
-import type { ProjectStatus, Tables, TablesInsert } from '@/types/database';
+import type { ClientType, ProjectStatus, Tables, TablesInsert } from '@/types/database';
 
 export type Project = Tables<'projects'>;
 export type ProjectInsert = TablesInsert<'projects'>;
 export type ProjectActivity = Tables<'project_activities'>;
 
-/** Projekt z dołączoną nazwą klienta (join w api.ts). */
+/** Projekt z dołączoną nazwą i typem klienta (join w api.ts). */
 export interface ProjectWithClient extends Project {
-  client: { id: string; name: string } | null;
+  client: { id: string; name: string; type: ClientType } | null;
 }
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {

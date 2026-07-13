@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.22.0 — avatary, sortowanie, ikona wg klienta, mapa budowy (2026-07-12)
+
+- **Prawdziwe zdjęcia pracowników** na kartach projektów (fallback inicjały);
+  `project_stats` zwraca teraz avatary (migracja 0026).
+- **Domyślne sortowanie** listy projektów: najpierw aktywne, potem oferty,
+  wstrzymane, zakończone, anulowane.
+- **Ikona w tle karty zależna od typu klienta**: klient prywatny (ROT) → dom,
+  firma → budynek.
+- **Karta szczegółów projektu**: podgląd lokalizacji budowy na mapie
+  (OpenStreetMap) + przycisk **„Nawiguj do budowy"** otwierający Mapy Apple.
+
 ## 0.21.0 — karty projektów z danymi + logo na belce (2026-07-12)
 
 - **Karta projektu**: tekst do lewej, kolorowanie karty wg koloru projektu
