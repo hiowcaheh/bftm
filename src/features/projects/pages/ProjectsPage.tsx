@@ -76,7 +76,7 @@ export default function ProjectsPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (projects.data ?? []).filter((p) => {
+    const list = (projects.data ?? []).filter((p) => {
       if (status && p.status !== status) return false;
       if (!q) return true;
       return (
@@ -85,6 +85,11 @@ export default function ProjectsPage() {
         (p.address ?? '').toLowerCase().includes(q)
       );
     });
+    // Domyślnie: najpierw aktywne, potem oferty, wstrzymane, zakończone, anulowane;
+    // w obrębie statusu — najnowsze na górze (dane przychodzą już posortowane po dacie).
+    return [...list].sort(
+      (a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status),
+    );
   }, [projects.data, search, status]);
 
   const canFinance = can('finance_view');

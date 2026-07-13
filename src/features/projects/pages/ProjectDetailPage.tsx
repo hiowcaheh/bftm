@@ -28,6 +28,7 @@ import {
 } from '../types';
 import { ProjectInvoiceSection } from '@/features/finance/components/ProjectInvoiceSection';
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
+import { ProjectMap } from '../components/ProjectMap';
 import { ProjectHoursSection } from '../components/ProjectHoursSection';
 import { ProjectActivitiesSection } from '../components/ProjectActivitiesSection';
 import { AdditionalWorksSection } from '../components/AdditionalWorksSection';
@@ -78,6 +79,8 @@ export default function ProjectDetailPage() {
           {p.description && <p className="text-sm text-text-secondary">{p.description}</p>}
         </div>
       </Card>
+
+      {p.address && <ProjectMap address={p.address} />}
 
       <ListGroup>
         {p.client && (

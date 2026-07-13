@@ -11,7 +11,7 @@ const BASE_COLUMNS =
   'id, client_id, name, status, address, start_date, end_date, billing_type, estimated_hours, description, color, created_by, created_at';
 const FINANCE_COLUMNS = `${BASE_COLUMNS}, hourly_rate, fixed_value`;
 
-const withClient = (cols: string) => `${cols}, client:clients(id, name)`;
+const withClient = (cols: string) => `${cols}, client:clients(id, name, type)`;
 
 type ProjectRowRaw = Omit<ProjectWithClient, 'hourly_rate' | 'fixed_value'> &
   Partial<Pick<ProjectWithClient, 'hourly_rate' | 'fixed_value'>>;
@@ -20,12 +20,17 @@ function normalize(row: ProjectRowRaw): ProjectWithClient {
   return { hourly_rate: null, fixed_value: null, ...row };
 }
 
-export interface ProjectStat {
-  totalHours: number;
-  workers: string[];
+export interface ProjectWorker {
+  name: string;
+  avatar_path: string | null;
 }
 
-/** Suma godzin + osoby per projekt (RPC agregujące, bez finansów). */
+export interface ProjectStat {
+  totalHours: number;
+  workers: ProjectWorker[];
+}
+
+/** Suma godzin + osoby (ze zdjęciami) per projekt (RPC agregujące, bez finansów). */
 export async function fetchProjectStats(): Promise<Map<string, ProjectStat>> {
   const { data, error } = await supabase.rpc('project_stats');
   if (error) throw error;
@@ -33,7 +38,7 @@ export async function fetchProjectStats(): Promise<Map<string, ProjectStat>> {
   for (const r of (data ?? []) as Array<{
     project_id: string;
     total_hours: number;
-    workers: string[] | null;
+    workers: ProjectWorker[] | null;
   }>) {
     map.set(r.project_id, {
       totalHours: Number(r.total_hours) || 0,

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { House, MapPin } from 'lucide-react';
+import { Building2, House, MapPin } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { moneyWhole, num } from '@/lib/format';
@@ -10,14 +11,6 @@ import {
   PROJECT_STATUS_TONES,
   type ProjectWithClient,
 } from '../types';
-
-function nameInitials(name: string): string {
-  const w = name.trim().split(/\s+/).filter(Boolean);
-  const a = w[0];
-  if (!a) return '?';
-  const b = w[1];
-  return (b ? a.charAt(0) + b.charAt(0) : a.slice(0, 2)).toUpperCase();
-}
 
 export function ProjectCard({
   project,
@@ -38,6 +31,8 @@ export function ProjectCard({
   const pct = est > 0 ? Math.min(100, Math.round((logged / est) * 100)) : null;
   const workers = stat?.workers ?? [];
   const showFooter = workers.length > 0 || (can('finance_view') && value !== null);
+  // Firma → budynek, klient prywatny (ROT) → dom
+  const BgIcon = project.client?.type === 'company' ? Building2 : House;
 
   return (
     <Card
@@ -46,7 +41,7 @@ export function ProjectCard({
       onClick={() => navigate(`/projekty/${project.id}`)}
     >
       {/* Duża ikona w kolorze projektu — półprzezroczyste tło po prawej (jak na Pulpicie) */}
-      <House
+      <BgIcon
         aria-hidden
         className="pointer-events-none absolute -right-5 top-1/2 size-32 -translate-y-1/2"
         strokeWidth={1.3}
@@ -97,17 +92,18 @@ export function ProjectCard({
             <div className="mt-1.5 flex items-center justify-between gap-2">
               {workers.length > 0 ? (
                 <div className="flex items-center">
-                  {workers.slice(0, 3).map((w, i) => (
-                    <span
+                  {workers.slice(0, 4).map((w, i) => (
+                    <Avatar
                       key={i}
-                      className="-ml-1.5 flex size-6 items-center justify-center rounded-full border-2 border-white bg-surface text-[9px] font-bold text-text-secondary first:ml-0"
-                    >
-                      {nameInitials(w)}
-                    </span>
+                      name={w.name}
+                      path={w.avatar_path}
+                      size="sm"
+                      className="-ml-2 border-2 border-white first:ml-0"
+                    />
                   ))}
-                  {workers.length > 3 && (
+                  {workers.length > 4 && (
                     <span className="ml-1 text-[11px] text-text-secondary">
-                      +{workers.length - 3}
+                      +{workers.length - 4}
                     </span>
                   )}
                 </div>
