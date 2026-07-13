@@ -6,7 +6,7 @@ export type WorkHoursInsert = TablesInsert<'work_hours'>;
 /** Wpis godzin z nazwami projektu, pracownika i aktywności (join w api.ts). */
 export interface WorkHoursEntry extends WorkHoursRow {
   project: { id: string; name: string; color: string | null } | null;
-  employee: { id: string; full_name: string } | null;
+  employee: { id: string; full_name: string; avatar_path: string | null } | null;
   activity: { id: string; name: string } | null;
 }
 
