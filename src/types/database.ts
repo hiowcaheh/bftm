@@ -397,7 +397,13 @@ export type Database = {
           project_id: string;
           total_hours: number;
           workers: Array<{ name: string; avatar_path: string | null }>;
+          client_name: string | null;
+          client_type: string | null;
         }>;
+      };
+      report_absences: {
+        Args: { p_from: string; p_to: string };
+        Returns: Array<{ employee_id: string; name: string; type: string; days: number }>;
       };
       offer_next_number: { Args: Record<PropertyKey, never>; Returns: string };
       offer_publish: { Args: { p_offer_id: string }; Returns: string };

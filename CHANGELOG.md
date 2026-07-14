@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.24.0 — klient widoczny dla pracownika + nieobecności w raporcie (2026-07-14)
+
+- **Klient projektu widoczny też dla pracownika** (bez `clients_view`):
+  `project_stats` zwraca nazwę i typ klienta (tylko to, nie dane wrażliwe),
+  więc na karcie widać klienta, a ikona w tle zmienia się dom/budynek wg typu.
+- **Nieobecności w raporcie**: przy każdym pracowniku dni Semester / VAB / Sjuk
+  itp. w wybranym miesiącu (nowy agregat `report_absences`, dostęp reports_view).
+  Pracownicy z samą nieobecnością (0 h) też się pokazują (migracja 0028).
+
 ## 0.23.0 — avatary „dziś na budowie" + zdjęcia przy godzinach (2026-07-13)
 
 - **Karta projektu**: avatary pokazują tylko osoby, które pracowały **dziś**

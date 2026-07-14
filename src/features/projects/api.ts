@@ -28,6 +28,8 @@ export interface ProjectWorker {
 export interface ProjectStat {
   totalHours: number;
   workers: ProjectWorker[];
+  clientName: string | null;
+  clientType: string | null;
 }
 
 /**
@@ -43,10 +45,14 @@ export async function fetchProjectStats(): Promise<Record<string, ProjectStat>> 
     project_id: string;
     total_hours: number;
     workers: ProjectWorker[] | null;
+    client_name: string | null;
+    client_type: string | null;
   }>) {
     out[r.project_id] = {
       totalHours: Number(r.total_hours) || 0,
       workers: r.workers ?? [],
+      clientName: r.client_name ?? null,
+      clientType: r.client_type ?? null,
     };
   }
   return out;

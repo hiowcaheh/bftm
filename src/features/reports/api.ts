@@ -38,6 +38,30 @@ export async function fetchHoursReport(from: string, to: string): Promise<HoursR
   return data as unknown as HoursReport;
 }
 
+export interface ReportAbsence {
+  employeeId: string;
+  name: string;
+  type: import('@/types/database').AbsenceType;
+  days: number;
+}
+
+/** Nieobecności okresu per pracownik i typ (Semester/VAB/Sjuk…). */
+export async function fetchAbsencesReport(from: string, to: string): Promise<ReportAbsence[]> {
+  const { data, error } = await supabase.rpc('report_absences', { p_from: from, p_to: to });
+  if (error) throw error;
+  return ((data ?? []) as Array<{
+    employee_id: string;
+    name: string;
+    type: string;
+    days: number;
+  }>).map((r) => ({
+    employeeId: r.employee_id,
+    name: r.name,
+    type: r.type as ReportAbsence['type'],
+    days: Number(r.days) || 0,
+  }));
+}
+
 /** Sama suma godzin okresu — do porównania z poprzednim miesiącem. */
 export async function fetchHoursTotal(from: string, to: string): Promise<number> {
   const { data, error } = await supabase.rpc('report_hours_total', {

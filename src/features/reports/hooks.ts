@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import {
   createReportShare,
+  fetchAbsencesReport,
   fetchHoursReport,
   fetchHoursTotal,
   fetchPublicReport,
@@ -11,6 +12,14 @@ export function useHoursReport(from: string, to: string) {
   return useQuery({
     queryKey: qk.reports.hours(from, to),
     queryFn: () => fetchHoursReport(from, to),
+    staleTime: 60_000,
+  });
+}
+
+export function useAbsencesReport(from: string, to: string) {
+  return useQuery({
+    queryKey: [...qk.reports.hours(from, to), 'absences'],
+    queryFn: () => fetchAbsencesReport(from, to),
     staleTime: 60_000,
   });
 }

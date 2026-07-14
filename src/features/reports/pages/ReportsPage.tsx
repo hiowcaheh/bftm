@@ -23,9 +23,15 @@ import { Copy, Link2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { hours as fmtHours, moneyWhole, monthYear, num } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
+import { ABSENCE_TYPE_LABELS, ABSENCE_TYPE_TONES } from '@/features/absences/types';
 import { reportShareUrl } from '../api';
-import { useCreateReportShare, useHoursReport, useHoursTotal } from '../hooks';
-import type { ReportEmployee, ReportProject } from '../api';
+import {
+  useAbsencesReport,
+  useCreateReportShare,
+  useHoursReport,
+  useHoursTotal,
+} from '../hooks';
+import type { ReportAbsence, ReportEmployee, ReportProject } from '../api';
 
 type Tab = 'employees' | 'projects';
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
@@ -42,8 +48,38 @@ export default function ReportsPage() {
   const prevTo = iso(endOfMonth(subMonths(anchor, 1)));
   const report = useHoursReport(from, to);
   const prevTotal = useHoursTotal(prevFrom, prevTo);
+  const absences = useAbsencesReport(from, to);
   const data = report.data;
   const finance = data?.finance ?? false;
+
+  const absByEmployee = useMemo(() => {
+    const map: Record<string, ReportAbsence[]> = {};
+    for (const a of absences.data ?? []) {
+      (map[a.employeeId] ??= []).push(a);
+    }
+    return map;
+  }, [absences.data]);
+
+  // Lista pracowników = ci z godzinami + ci z samą nieobecnością (0 h)
+  const employeeRows = useMemo(() => {
+    const rows = [...(data?.by_employee ?? [])];
+    const ids = new Set(rows.map((e) => e.id));
+    for (const [id, list] of Object.entries(absByEmployee)) {
+      if (!ids.has(id)) {
+        rows.push({
+          id,
+          name: list[0]?.name ?? '?',
+          total: 0,
+          approved: null,
+          draft: null,
+          invoiced: null,
+          labor_cost: null,
+          projects: [],
+        });
+      }
+    }
+    return rows;
+  }, [data?.by_employee, absByEmployee]);
 
   const canFinance = can('finance_view');
   const share = useCreateReportShare();
@@ -181,16 +217,17 @@ export default function ReportsPage() {
             onChange={setTab}
           />
 
-          {data.total_hours === 0 && (
-            <EmptyState icon={BarChart3} message="Brak godzin w tym miesiącu." />
+          {data.total_hours === 0 && (absences.data?.length ?? 0) === 0 && (
+            <EmptyState icon={BarChart3} message="Brak godzin i nieobecności w tym miesiącu." />
           )}
 
-          {tab === 'employees' && data.by_employee.length > 0 && (
+          {tab === 'employees' && employeeRows.length > 0 && (
             <Card className="flex flex-col divide-y divide-line">
-              {data.by_employee.map((e) => (
+              {employeeRows.map((e) => (
                 <EmployeeRow
                   key={e.id}
                   employee={e}
+                  absences={absByEmployee[e.id] ?? []}
                   finance={finance}
                   open={expanded === e.id}
                   onToggle={() => setExpanded(expanded === e.id ? null : e.id)}
@@ -295,11 +332,13 @@ export default function ReportsPage() {
 
 function EmployeeRow({
   employee: e,
+  absences,
   finance,
   open,
   onToggle,
 }: {
   employee: ReportEmployee;
+  absences: ReportAbsence[];
   finance: boolean;
   open: boolean;
   onToggle: () => void;
@@ -323,6 +362,11 @@ function EmployeeRow({
             {(e.draft ?? 0) > 0 && (
               <Badge tone="warning">{num(e.draft!)} h niezatwierdzone</Badge>
             )}
+            {absences.map((a) => (
+              <Badge key={a.type} tone={ABSENCE_TYPE_TONES[a.type]}>
+                {ABSENCE_TYPE_LABELS[a.type]} {a.days} d
+              </Badge>
+            ))}
             {finance && e.labor_cost != null && (
               <span className="tabular-nums text-[11px] text-text-secondary">
                 koszt {moneyWhole(e.labor_cost)}
