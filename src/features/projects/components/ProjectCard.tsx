@@ -31,8 +31,11 @@ export function ProjectCard({
   const pct = est > 0 ? Math.min(100, Math.round((logged / est) * 100)) : null;
   const workers = stat?.workers ?? [];
   const showFooter = workers.length > 0 || (can('finance_view') && value !== null);
+  // Klient: bezpośrednio (admin/clients_view) albo z agregatu (dla pracownika)
+  const clientName = project.client?.name ?? stat?.clientName ?? null;
+  const clientType = project.client?.type ?? stat?.clientType ?? null;
   // Firma → budynek, klient prywatny (ROT) → dom
-  const BgIcon = project.client?.type === 'company' ? Building2 : House;
+  const BgIcon = clientType === 'company' ? Building2 : House;
 
   return (
     <Card
@@ -58,8 +61,8 @@ export function ProjectCard({
             </Badge>
           </div>
 
-          {project.client && (
-            <p className="truncate text-xs text-text-secondary">{project.client.name}</p>
+          {clientName && (
+            <p className="truncate text-xs text-text-secondary">{clientName}</p>
           )}
 
           {project.address && (
