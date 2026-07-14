@@ -2,9 +2,10 @@ import { useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Building2, Clock, FileQuestion, Users, X } from 'lucide-react';
+import { Building2, CalendarOff, Clock, FileQuestion, Users, X } from 'lucide-react';
 import { moneyWhole, num } from '@/lib/format';
 import { logoPublicUrl } from '@/features/settings/api';
+import { ABSENCE_TYPE_COLORS, ABSENCE_TYPE_LABELS } from '@/features/absences/types';
 import { usePublicReport } from '../hooks';
 
 const NAVY = '#1E2A44';
@@ -187,6 +188,39 @@ export default function PublicReportPage() {
             ))}
           </div>
         </div>
+
+        {/* Nieobecności */}
+        {(r.absences?.length ?? 0) > 0 && (
+          <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+              <CalendarOff className="size-5" style={{ color: NAVY }} /> Nieobecności
+            </h2>
+            <div className="flex flex-col divide-y divide-line">
+              {r.absences!.map((a, i) => {
+                const f = format(new Date(a.date_from), 'd MMM', { locale: pl });
+                const t = format(new Date(a.date_to), 'd MMM', { locale: pl });
+                return (
+                  <div key={i} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                    <span
+                      className="size-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: ABSENCE_TYPE_COLORS[a.type] }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{a.name}</p>
+                      <p className="truncate text-xs text-text-secondary">
+                        {ABSENCE_TYPE_LABELS[a.type]}
+                        {a.note ? ` · ${a.note}` : ''}
+                      </p>
+                    </div>
+                    <span className="tabular-nums shrink-0 text-xs text-text-secondary">
+                      {a.date_from === a.date_to ? f : `${f} – ${t}`}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <p className="pb-6 text-center text-xs text-text-secondary">
           {companyName}

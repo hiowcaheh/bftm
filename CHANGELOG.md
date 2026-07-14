@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.1 — nieobecności także w raporcie z linku (2026-07-14)
+
+- Udostępniany raport (link/snapshot) zawiera teraz sekcję **Nieobecności**:
+  kto, w jakim terminie i z jakiego powodu (Semester/VAB/Sjuk…) + ewentualna
+  notatka. Snapshot zapisuje je w chwili utworzenia linku (migracja 0029).
+
 ## 0.24.0 — klient widoczny dla pracownika + nieobecności w raporcie (2026-07-14)
 
 - **Klient projektu widoczny też dla pracownika** (bez `clients_view`):
