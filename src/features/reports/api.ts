@@ -23,12 +23,22 @@ export interface ReportProject {
   billable: number | null;
 }
 
+export interface ReportAbsenceEntry {
+  name: string;
+  type: import('@/types/database').AbsenceType;
+  date_from: string;
+  date_to: string;
+  note: string | null;
+}
+
 export interface HoursReport {
   by_employee: ReportEmployee[];
   by_project: ReportProject[];
   total_hours: number;
   expenses: number | null;
   finance: boolean;
+  /** Obecne tylko w snapshotcie udostępnianego raportu. */
+  absences?: ReportAbsenceEntry[];
 }
 
 /** Zestawienie godzin okresu (RPC security definer; kwoty tylko finance_view). */
