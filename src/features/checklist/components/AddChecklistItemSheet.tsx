@@ -6,9 +6,9 @@ import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
 import { useProjects } from '@/features/projects/hooks';
+import { useI18n } from '@/lib/i18n/context';
 import { useCreateChecklistItem } from '../hooks';
 import type { ChecklistPriority, ChecklistScope } from '../types';
-import { PRIORITY_LABELS } from '../types';
 
 interface AddChecklistItemSheetProps {
   open: boolean;
@@ -19,6 +19,7 @@ interface AddChecklistItemSheetProps {
 export function AddChecklistItemSheet({ open, onClose, scope }: AddChecklistItemSheetProps) {
   const projects = useProjects();
   const create = useCreateChecklistItem();
+  const { t } = useI18n();
 
   const [projectId, setProjectId] = useState('');
   const [priority, setPriority] = useState<ChecklistPriority>('medium');
@@ -34,11 +35,11 @@ export function AddChecklistItemSheet({ open, onClose, scope }: AddChecklistItem
 
   const submit = () => {
     if (!text.trim()) {
-      toast.error('Wpisz treść zadania');
+      toast.error(t('checklist.errText'));
       return;
     }
     if (scope === 'company' && !projectId) {
-      toast.error('Wybierz projekt');
+      toast.error(t('checklist.errProject'));
       return;
     }
     create.mutate(
@@ -56,39 +57,41 @@ export function AddChecklistItemSheet({ open, onClose, scope }: AddChecklistItem
     <Sheet
       open={open}
       onClose={onClose}
-      title={scope === 'company' ? 'Nowe zadanie firmowe' : 'Nowe zadanie prywatne'}
+      title={scope === 'company' ? t('checklist.newCompany') : t('checklist.newPrivate')}
     >
       <div className="flex flex-col gap-4">
         {scope === 'company' && (
           <Select
-            label="Projekt"
+            label={t('checklist.project')}
             value={projectId}
             options={[
-              { value: '', label: 'Wybierz projekt' },
+              { value: '', label: t('checklist.selectProject') },
               ...(projects.data ?? []).map((p) => ({ value: p.id, label: p.name })),
             ]}
             onChange={(e) => setProjectId(e.target.value)}
           />
         )}
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-text-secondary">Priorytet</span>
+          <span className="text-xs font-medium text-text-secondary">
+            {t('checklist.priority')}
+          </span>
           <SegmentedControl
             options={(['high', 'medium', 'low'] as ChecklistPriority[]).map((p) => ({
               value: p,
-              label: PRIORITY_LABELS[p],
+              label: t(`priority.${p}`),
             }))}
             value={priority}
             onChange={(v) => setPriority(v as ChecklistPriority)}
           />
         </div>
         <Input
-          label="Treść zadania"
+          label={t('checklist.taskText')}
           value={text}
-          placeholder="Co trzeba zrobić?"
+          placeholder={t('checklist.taskPlaceholder')}
           onChange={(e) => setText(e.target.value)}
         />
         <Button size="lg" fullWidth loading={create.isPending} onClick={submit}>
-          Dodaj zadanie
+          {t('checklist.addTask')}
         </Button>
       </div>
     </Sheet>

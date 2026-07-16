@@ -11,16 +11,16 @@ import {
   Sunrise,
 } from 'lucide-react';
 import { format, getISOWeek } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/cn';
 import { hours, moneyWhole, num } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
+import { useI18n } from '@/lib/i18n/context';
 import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
 import { ChecklistSection } from '@/features/checklist/components/ChecklistSection';
 import { WavyDivider } from '@/components/ui/WavyDivider';
-import { ABSENCE_TYPE_LABELS, ABSENCE_TYPE_TONES } from '@/features/absences/types';
+import { ABSENCE_TYPE_TONES } from '@/features/absences/types';
 import type { AbsenceType } from '@/types/database';
 import {
   useDashboardKpi,
@@ -30,11 +30,17 @@ import {
   useToday,
 } from '../hooks';
 
+/** Pierwsza litera wielka — nazwy miesięcy/dni z date-fns bywają małą literą. */
+function cap(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 export default function DashboardPage() {
   const kpi = useDashboardKpi();
   const today = useToday();
   const navigate = useNavigate();
   const { user, can } = useSession();
+  const { t, tp, dateLocale } = useI18n();
   const seesAll = can('hours_view_all');
   const canManagePayslips = user?.role === 'admin' || can('payslips_manage');
   const thisWeek = useThisWeek(true);
@@ -43,14 +49,14 @@ export default function DashboardPage() {
   const [hoursFormOpen, setHoursFormOpen] = useState(false);
 
   const now = new Date();
-  const todayLabel = format(now, 'EEEE d/MM', { locale: pl }); // np. „poniedziałek 13/07"
+  const todayLabel = format(now, 'EEEE d/MM', { locale: dateLocale });
   const weekNo = getISOWeek(now);
 
   const tiles = [
     ...(can('projects_view')
       ? [
           {
-            label: 'Aktywne projekty',
+            label: t('dash.activeProjects'),
             value: kpi.data ? String(kpi.data.activeProjects) : '—',
             icon: House,
             demo: false,
@@ -59,7 +65,7 @@ export default function DashboardPage() {
         ]
       : []),
     {
-      label: 'Godziny w tym miesiącu',
+      label: t('dash.hoursMonth'),
       value: kpi.data ? hours(kpi.data.hoursThisMonth) : '—',
       icon: Clock,
       demo: false,
@@ -68,7 +74,7 @@ export default function DashboardPage() {
     ...(can('expenses_add') || can('expenses_view_all') || can('finance_view')
       ? [
           {
-            label: 'Koszty w tym miesiącu',
+            label: t('dash.expensesMonth'),
             value: kpi.data ? moneyWhole(kpi.data.expensesThisMonth) : '—',
             icon: Receipt,
             demo: false,
@@ -79,7 +85,7 @@ export default function DashboardPage() {
     ...(can('finance_view')
       ? [
           {
-            label: 'Nieopłacone faktury',
+            label: t('dash.unpaidInvoices'),
             value: kpi.data ? moneyWhole(kpi.data.unpaidInvoices ?? 0) : '—',
             icon: Banknote,
             demo: false,
@@ -91,7 +97,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid grid-cols-2 gap-3" aria-label="Wskaźniki">
+      <section className="grid grid-cols-2 gap-3" aria-label={t('dash.indicators')}>
         {tiles.map((tile) => (
           <Card
             key={tile.label}
@@ -110,7 +116,7 @@ export default function DashboardPage() {
               </span>
               <span className="text-xs text-text-secondary">{tile.label}</span>
             </div>
-            {tile.demo && <Badge className="absolute right-2 top-2">wkrótce</Badge>}
+            {tile.demo && <Badge className="absolute right-2 top-2">{t('dash.soon')}</Badge>}
           </Card>
         ))}
       </section>
@@ -126,10 +132,8 @@ export default function DashboardPage() {
             <ReceiptText className="size-6 text-accent" strokeWidth={1.8} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Specyfikacje wypłaty</p>
-            <p className="text-xs text-text-secondary">
-              Twoje specyfikacje wypłaty i historia
-            </p>
+            <p className="text-sm font-semibold">{t('dash.payslipsTitle')}</p>
+            <p className="text-xs text-text-secondary">{t('dash.payslipsSub')}</p>
           </div>
           <ChevronRight className="size-5 shrink-0 text-text-secondary" />
         </Card>
@@ -146,11 +150,13 @@ export default function DashboardPage() {
             <ReceiptText className="size-6 text-accent" strokeWidth={1.8} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Zostało 5 dni do wypłat</p>
+            <p className="text-sm font-semibold">{t('dash.payslipReminderTitle')}</p>
             <p className="text-xs text-text-secondary">
-              Uzupełnij specyfikacje za <span className="capitalize">{payslipReminder.data.monthLabel}</span> —
-              brakuje {payslipReminder.data.missing}{' '}
-              {payslipReminder.data.missing === 1 ? 'pracownika' : 'pracowników'}
+              {t('dash.payslipReminderSub', {
+                month: cap(payslipReminder.data.monthLabel),
+                n: payslipReminder.data.missing,
+                worker: tp('dash.worker', payslipReminder.data.missing),
+              })}
             </p>
           </div>
           <ChevronRight className="size-5 shrink-0 text-text-secondary" />
@@ -167,18 +173,22 @@ export default function DashboardPage() {
             <ClockAlert className="animate-ring size-6 text-warning" strokeWidth={2} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Czekają na zatwierdzenie</p>
+            <p className="text-sm font-semibold">{t('dash.pendingTitle')}</p>
             <p className="text-xs text-text-secondary">
-              {pending.data!.count}{' '}
-              {pending.data!.count === 1 ? 'wpis' : pending.data!.count < 5 ? 'wpisy' : 'wpisów'} •{' '}
-              {hours(pending.data!.hours)} — tapnij, aby przejść do dziennika
+              {t('dash.pendingSub', {
+                n: pending.data!.count,
+                entry: tp('dash.entry', pending.data!.count),
+                hours: hours(pending.data!.hours),
+              })}
             </p>
           </div>
         </Card>
       )}
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base font-semibold first-letter:capitalize">Dzisiaj, {todayLabel}</h2>
+        <h2 className="text-base font-semibold first-letter:capitalize">
+          {t('dash.today', { date: todayLabel })}
+        </h2>
         {!seesAll &&
         today.data &&
         today.data.entries.length === 0 &&
@@ -188,17 +198,15 @@ export default function DashboardPage() {
               <Clock className="size-7" strokeWidth={1.8} />
             </div>
             <div>
-              <p className="text-base font-semibold">Dzień dobry! 👋</p>
-              <p className="mt-0.5 text-sm text-white/80">
-                Nie masz jeszcze wpisu na dziś — dodaj godziny jednym tapnięciem.
-              </p>
+              <p className="text-base font-semibold">{t('dash.goodMorning')}</p>
+              <p className="mt-0.5 text-sm text-white/80">{t('dash.noEntryToday')}</p>
             </div>
             <button
               type="button"
               className="press h-12 w-full rounded-(--radius-input) bg-white text-sm font-semibold text-accent"
               onClick={() => setHoursFormOpen(true)}
             >
-              Dodaj dzisiejsze godziny
+              {t('dash.addTodayHours')}
             </button>
           </div>
         ) : (
@@ -208,7 +216,7 @@ export default function DashboardPage() {
               today.data.entries.length === 0 &&
               today.data.absences.length === 0 && (
                 <p className="flex items-center gap-2 text-sm text-text-secondary">
-                  <Sunrise className="size-5" /> Nikt jeszcze nie wpisał dziś godzin.
+                  <Sunrise className="size-5" /> {t('dash.nobodyToday')}
                 </p>
               )}
             {today.data?.entries.map((e, i) => (
@@ -226,7 +234,7 @@ export default function DashboardPage() {
               <div key={`a${i}`} className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">{a.employeeName}</span>
                 <Badge tone={ABSENCE_TYPE_TONES[a.type as AbsenceType] ?? 'neutral'}>
-                  {ABSENCE_TYPE_LABELS[a.type as AbsenceType] ?? a.type}
+                  {t(`absence.${a.type}`)}
                 </Badge>
               </div>
             ))}
@@ -237,7 +245,7 @@ export default function DashboardPage() {
       {thisWeek.data && (
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold">Ten tydzień</h2>
+            <h2 className="text-base font-semibold">{t('dash.thisWeek')}</h2>
             <span className="rounded-full bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
               V{weekNo}
             </span>
@@ -256,9 +264,11 @@ export default function DashboardPage() {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium capitalize">
-                      {format(new Date(day.date), 'EEEE, dd.MM', { locale: pl })}
+                      {format(new Date(day.date), 'EEEE, dd.MM', { locale: dateLocale })}
                       {isToday && (
-                        <span className="ml-1.5 text-xs font-normal text-accent">dziś</span>
+                        <span className="ml-1.5 text-xs font-normal text-accent">
+                          {t('dash.todayShort')}
+                        </span>
                       )}
                     </p>
                     {day.projects.length > 0 && (
