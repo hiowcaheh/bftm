@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.3 — nieobecności w sekcji Pracownicy (raport z linku) (2026-07-14)
+
+- W udostępnianym raporcie nieobecności są teraz **pod danym pracownikiem,
+  pod jego projektami** — wyszczególnione dzień po dniu (data + typ). Zniknęła
+  osobna sekcja u góry. Pracownicy z samą nieobecnością (0 h) też się pokazują.
+
 ## 0.24.2 — nieobecności: dzień po dniu (link) + w rozwijanym pracowniku (2026-07-14)
 
 - **Raport z linku**: sekcja Nieobecności przeniesiona na górę (przy godzinach)
