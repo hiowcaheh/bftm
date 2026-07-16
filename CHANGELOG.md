@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.29.1 — falowana kreska na pulpicie (2026-07-16)
+
+- Delikatna, falowana kreska oddzielająca sekcje **„Ten tydzień"** i
+  **„Check-lista"** na pulpicie.
+
+
 ## 0.29.0 — sugestia instalacji aplikacji na ekran główny (2026-07-16)
 
 - Gdy apka działa w przeglądarce (nie jako zainstalowana PWA), pojawia się
