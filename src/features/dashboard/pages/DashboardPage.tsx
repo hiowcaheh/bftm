@@ -20,6 +20,7 @@ import { cn } from '@/lib/cn';
 import { hours, moneyWhole, num } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
 import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
+import { ChecklistSection } from '@/features/checklist/components/ChecklistSection';
 import { ABSENCE_TYPE_LABELS, ABSENCE_TYPE_TONES } from '@/features/absences/types';
 import type { AbsenceType } from '@/types/database';
 import {
@@ -276,6 +277,8 @@ export default function DashboardPage() {
           </Card>
         </section>
       )}
+
+      <ChecklistSection />
 
       <FAB
         label="Dodaj godziny"

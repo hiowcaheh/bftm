@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.27.0 — Check-lista na pulpicie (firmowa + prywatna, realtime) (2026-07-16)
+
+- Nowa sekcja **Check-lista** na dole pulpitu (pod „Ten tydzień").
+- **Firmowa** (wspólna, główna): każdy aktywny pracownik może dodawać zadania
+  (projekt + priorytet + treść), odhaczać i usuwać. Zaznaczone są przekreślone;
+  widać kto dodał i kto zamknął.
+- **Prywatna**: własna lista pracownika — widoczna tylko dla niego. Zakładka
+  Firmowa/Prywatna pojawia się u posiadaczy nowej flagi **`checklist_private`**
+  (oraz admina); pozostali widzą samą firmową.
+- **Realtime**: dodanie / zmiana statusu / edycja / usunięcie odświeża się na
+  żywo u wszystkich (Supabase Realtime; migracja 0032).
+- Zabezpieczone RLS: firmową widzą/edytują wszyscy aktywni; prywatną tylko
+  właściciel (i tworzyć może tylko z flagą).
+
 ## 0.26.2 — przyciski kopiowania i szybkie akcje kontaktu (2026-07-16)
 
 - Karta pracownika: przy e-mailu i telefonie przyciski **napisz / zadzwoń**

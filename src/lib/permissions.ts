@@ -24,6 +24,7 @@ export const PERMISSIONS = [
   'photos_upload',
   'payslips_manage',
   'invoices_manage',
+  'checklist_private',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

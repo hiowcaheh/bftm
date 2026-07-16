@@ -100,4 +100,8 @@ export const qk = {
     items: (projectId: string, from: string, to: string) =>
       ['invoiceSpecs', 'items', projectId, from, to] as const,
   },
+  checklist: {
+    all: ['checklist'] as const,
+    list: (scope: string) => ['checklist', 'list', scope] as const,
+  },
 } as const;
