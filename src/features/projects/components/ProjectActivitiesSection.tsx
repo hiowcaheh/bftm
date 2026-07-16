@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { num } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useProjectEntries } from '@/features/timesheet/hooks';
 import { useActivities, useCreateActivity, useDeleteActivity } from '../hooks';
@@ -15,6 +16,7 @@ import type { ProjectActivity } from '../types';
  */
 export function ProjectActivitiesSection({ projectId }: { projectId: string }) {
   const { can } = useSession();
+  const t = useT();
   const canEdit = can('projects_edit');
   const activities = useActivities(projectId);
   const entries = useProjectEntries(projectId);
@@ -52,14 +54,11 @@ export function ProjectActivitiesSection({ projectId }: { projectId: string }) {
     <Card className="flex flex-col gap-3 p-4">
       <div className="flex items-center gap-2">
         <ListChecks className="size-5 text-accent" strokeWidth={1.8} />
-        <h2 className="text-base font-semibold">Aktywności</h2>
+        <h2 className="text-base font-semibold">{t('proj.activities')}</h2>
       </div>
 
       {list.length === 0 && (
-        <p className="text-sm text-text-secondary">
-          Dodaj aktywności (np. „Malowanie", „Montaż fasady", „Prace dodatkowe") — pracownicy
-          będą je wybierać przy wpisywaniu godzin i zobaczysz, kto co robił.
-        </p>
+        <p className="text-sm text-text-secondary">{t('proj.activitiesEmpty')}</p>
       )}
 
       {list.map((activity) => {
@@ -76,7 +75,7 @@ export function ProjectActivitiesSection({ projectId }: { projectId: string }) {
                 {canEdit && (
                   <button
                     type="button"
-                    aria-label={`Usuń aktywność ${activity.name}`}
+                    aria-label={t('proj.deleteActivityAria', { name: activity.name })}
                     className="press text-text-secondary"
                     onClick={() => setToDelete(activity)}
                   >
@@ -105,7 +104,7 @@ export function ProjectActivitiesSection({ projectId }: { projectId: string }) {
 
       {noActivityHours > 0 && list.length > 0 && (
         <p className="text-xs text-text-secondary">
-          Bez przypisanej aktywności: {num(noActivityHours)} h (starsze wpisy)
+          {t('proj.noActivityHours', { h: num(noActivityHours) })}
         </p>
       )}
 
@@ -113,14 +112,14 @@ export function ProjectActivitiesSection({ projectId }: { projectId: string }) {
         <div className="flex items-center gap-2">
           <input
             value={name}
-            placeholder="Nowa aktywność, np. Malowanie"
+            placeholder={t('proj.newActivityPh')}
             className="h-11 min-w-0 flex-1 rounded-(--radius-input) border border-line bg-white px-3.5 text-[1rem] placeholder:text-text-secondary/60 focus:border-accent focus:outline-none"
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && add()}
           />
           <Button
             icon={<Plus className="size-5" />}
-            aria-label="Dodaj aktywność"
+            aria-label={t('proj.addActivity')}
             loading={createActivity.isPending}
             disabled={name.trim().length < 2}
             onClick={add}
@@ -130,9 +129,9 @@ export function ProjectActivitiesSection({ projectId }: { projectId: string }) {
 
       <ConfirmDialog
         open={toDelete !== null}
-        title="Usunąć aktywność?"
-        description={`„${toDelete?.name}" zniknie z listy wyboru. Istniejące wpisy godzin zostaną — stracą tylko przypisanie do tej aktywności.`}
-        confirmLabel="Usuń"
+        title={t('proj.deleteActivityTitle')}
+        description={t('proj.deleteActivityDesc', { name: toDelete?.name ?? '' })}
+        confirmLabel={t('common.delete')}
         destructive
         loading={deleteActivity.isPending}
         onConfirm={() => {

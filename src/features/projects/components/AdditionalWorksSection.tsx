@@ -11,23 +11,21 @@ import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
 import { date as fmtDate, moneyWhole } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
   useAdditionalWorks,
   useDeleteAdditionalWork,
   useSaveAdditionalWork,
 } from '../hooks';
-import {
-  ADDITIONAL_WORK_STATUS_LABELS,
-  ADDITIONAL_WORK_STATUS_TONES,
-  type AdditionalWork,
-} from '../types';
+import { ADDITIONAL_WORK_STATUS_TONES, type AdditionalWork } from '../types';
 
 const STATUS_ORDER: AdditionalWork['status'][] = ['proposed', 'approved', 'rejected'];
 
 /** Prace dodatkowe projektu: lista ze statusami, suma zaakceptowanych, CRUD. */
 export function AdditionalWorksSection({ projectId }: { projectId: string }) {
   const { can } = useSession();
+  const t = useT();
   const canEdit = can('projects_edit');
   const canFinance = can('finance_view');
   const works = useAdditionalWorks(projectId);
@@ -61,12 +59,12 @@ export function AdditionalWorksSection({ projectId }: { projectId: string }) {
 
   const submit = () => {
     if (description.trim().length < 3) {
-      toast.error('Opisz pracę dodatkową');
+      toast.error(t('proj.errWorkDesc'));
       return;
     }
     const parsed = Number(value.trim().replace(',', '.'));
     if (canFinance && (Number.isNaN(parsed) || parsed < 0)) {
-      toast.error('Podaj prawidłową wartość');
+      toast.error(t('proj.errWorkValue'));
       return;
     }
     save.mutate(
@@ -96,7 +94,7 @@ export function AdditionalWorksSection({ projectId }: { projectId: string }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Hammer className="size-5 text-accent" strokeWidth={1.8} />
-          <h2 className="text-base font-semibold">Prace dodatkowe</h2>
+          <h2 className="text-base font-semibold">{t('proj.works')}</h2>
         </div>
         {canEdit && (
           <Button
@@ -108,19 +106,20 @@ export function AdditionalWorksSection({ projectId }: { projectId: string }) {
               setFormOpen(true);
             }}
           >
-            Dodaj
+            {t('common.add')}
           </Button>
         )}
       </div>
 
       {canFinance && approvedTotal > 0 && (
         <p className="tabular-nums text-sm">
-          Zaakceptowane: <span className="font-semibold">{moneyWhole(approvedTotal)}</span>
+          {t('proj.worksApproved')}:{' '}
+          <span className="font-semibold">{moneyWhole(approvedTotal)}</span>
         </p>
       )}
 
       {list.length === 0 && (
-        <p className="text-sm text-text-secondary">Brak prac dodatkowych</p>
+        <p className="text-sm text-text-secondary">{t('proj.worksEmpty')}</p>
       )}
 
       {list.map((w) => (
@@ -143,7 +142,7 @@ export function AdditionalWorksSection({ projectId }: { projectId: string }) {
             </p>
           </div>
           <Badge tone={ADDITIONAL_WORK_STATUS_TONES[w.status]}>
-            {ADDITIONAL_WORK_STATUS_LABELS[w.status]}
+            {t(`awstatus.${w.status}`)}
           </Badge>
         </button>
       ))}
@@ -154,46 +153,46 @@ export function AdditionalWorksSection({ projectId }: { projectId: string }) {
           setFormOpen(false);
           setEditing(null);
         }}
-        title={editing ? 'Edytuj pracę dodatkową' : 'Nowa praca dodatkowa'}
+        title={editing ? t('proj.workEditTitle') : t('proj.workNewTitle')}
       >
         <div className="flex flex-col gap-4">
           <Textarea
-            label="Opis pracy"
-            placeholder="np. dodatkowe szpachlowanie ściany w garażu"
+            label={t('proj.workDesc')}
+            placeholder={t('proj.workDescPh')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
           <div className="grid grid-cols-2 gap-3">
             {canFinance && (
               <Input
-                label="Wartość netto (kr)"
+                label={t('proj.workValue')}
                 inputMode="decimal"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
               />
             )}
             <DateField
-              label="Data"
+              label={t('ts.date')}
               value={workDate}
               onChange={(e) => setWorkDate(e.target.value)}
             />
           </div>
           <Select
-            label="Status"
+            label={t('proj.statusField')}
             value={status}
             options={[
               ...STATUS_ORDER.map((s) => ({
                 value: s,
-                label: ADDITIONAL_WORK_STATUS_LABELS[s],
+                label: t(`awstatus.${s}`),
               })),
               ...(editing?.status === 'invoiced'
-                ? [{ value: 'invoiced', label: ADDITIONAL_WORK_STATUS_LABELS.invoiced }]
+                ? [{ value: 'invoiced', label: t('awstatus.invoiced') }]
                 : []),
             ]}
             onChange={(e) => setStatus(e.target.value as AdditionalWork['status'])}
           />
           <Button size="lg" fullWidth loading={save.isPending} onClick={submit}>
-            {editing ? 'Zapisz zmiany' : 'Dodaj pracę'}
+            {editing ? t('ts.saveChanges') : t('proj.workAdd')}
           </Button>
           {editing && (
             <Button
@@ -202,7 +201,7 @@ export function AdditionalWorksSection({ projectId }: { projectId: string }) {
               icon={<Trash2 className="size-5" />}
               onClick={() => setToDelete(editing)}
             >
-              Usuń
+              {t('common.delete')}
             </Button>
           )}
         </div>
@@ -210,9 +209,9 @@ export function AdditionalWorksSection({ projectId }: { projectId: string }) {
 
       <ConfirmDialog
         open={toDelete !== null}
-        title="Usunąć pracę dodatkową?"
+        title={t('proj.workDeleteTitle')}
         description={toDelete?.description ?? ''}
-        confirmLabel="Usuń"
+        confirmLabel={t('common.delete')}
         destructive
         loading={deleteWork.isPending}
         onConfirm={() => {

@@ -4,6 +4,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { hours as fmtHours, num } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useProjectEntries } from '@/features/timesheet/hooks';
 import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
@@ -13,6 +14,7 @@ import type { ProjectWithClient } from '../types';
 export function ProjectHoursSection({ project }: { project: ProjectWithClient }) {
   const entries = useProjectEntries(project.id);
   const { can } = useSession();
+  const t = useT();
   const [formOpen, setFormOpen] = useState(false);
 
   const total = useMemo(
@@ -42,7 +44,7 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock className="size-5 text-accent" strokeWidth={1.8} />
-          <h2 className="text-base font-semibold">Godziny</h2>
+          <h2 className="text-base font-semibold">{t('proj.hoursLabel')}</h2>
         </div>
         {can('hours_add_own') && (
           <Button
@@ -51,7 +53,7 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
             icon={<Plus className="size-4" />}
             onClick={() => setFormOpen(true)}
           >
-            Dodaj
+            {t('common.add')}
           </Button>
         )}
       </div>
@@ -60,7 +62,7 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
         {fmtHours(total)}
         {budget != null && (
           <span className="ml-1 text-sm font-normal text-text-secondary">
-            / {num(budget)} h budżetu
+            {t('proj.budgetSuffix', { n: num(budget) })}
           </span>
         )}
       </p>

@@ -19,14 +19,11 @@ import { CopyButton } from '@/components/ui/CopyButton';
 import { Sheet } from '@/components/ui/Sheet';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { date, moneyWhole, num } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import type { ProjectStatus } from '@/types/database';
 import { useDeleteProject, useProject, useUpdateProject } from '../hooks';
-import {
-  BILLING_TYPE_LABELS,
-  PROJECT_STATUS_LABELS,
-  PROJECT_STATUS_TONES,
-} from '../types';
+import { PROJECT_STATUS_TONES } from '../types';
 import { ProjectInvoiceSection } from '@/features/finance/components/ProjectInvoiceSection';
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
 import { ProjectMap } from '../components/ProjectMap';
@@ -42,6 +39,7 @@ export default function ProjectDetailPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { can } = useSession();
+  const t = useT();
   const project = useProject(id);
   const update = useUpdateProject(id);
   const deleteProject = useDeleteProject();
@@ -54,7 +52,7 @@ export default function ProjectDetailPage() {
 
   if (project.isLoading) return <SkeletonList rows={5} />;
   if (!project.data) {
-    return <p className="py-16 text-center text-sm text-text-secondary">Nie znaleziono projektu.</p>;
+    return <p className="py-16 text-center text-sm text-text-secondary">{t('proj.notFound')}</p>;
   }
   const p = project.data;
 
@@ -65,7 +63,7 @@ export default function ProjectDetailPage() {
         onClick={() => navigate('/projekty')}
         className="press flex items-center gap-1 self-start text-sm font-medium text-text-secondary"
       >
-        <ArrowLeft className="size-4" /> Projekty
+        <ArrowLeft className="size-4" /> {t('nav.projects')}
       </button>
 
       <Card className="overflow-hidden">
@@ -74,7 +72,7 @@ export default function ProjectDetailPage() {
           <div className="flex items-start justify-between gap-2">
             <h1 className="text-lg font-semibold">{p.name}</h1>
             <Badge tone={PROJECT_STATUS_TONES[p.status]}>
-              {PROJECT_STATUS_LABELS[p.status]}
+              {t(`pstatus.${p.status}`)}
             </Badge>
           </div>
           {p.description && <p className="text-sm text-text-secondary">{p.description}</p>}
@@ -88,7 +86,7 @@ export default function ProjectDetailPage() {
           <ListRow
             leading={<Contact className="size-5 text-text-secondary" />}
             title={p.client.name}
-            subtitle="Klient"
+            subtitle={t('proj.client')}
             chevron
             onClick={() => navigate(`/klienci/${p.client?.id}`)}
           />
@@ -97,22 +95,22 @@ export default function ProjectDetailPage() {
           <ListRow
             leading={<MapPin className="size-5 text-text-secondary" />}
             title={p.address}
-            subtitle="Adres budowy"
-            trailing={<CopyButton value={p.address} label="adres" />}
+            subtitle={t('proj.buildAddress')}
+            trailing={<CopyButton value={p.address} label={t('proj.addressCopy')} />}
           />
         )}
         {(p.start_date || p.end_date) && (
           <ListRow
             leading={<CalendarDays className="size-5 text-text-secondary" />}
             title={`${p.start_date ? date(p.start_date) : '…'} – ${p.end_date ? date(p.end_date) : '…'}`}
-            subtitle="Termin realizacji"
+            subtitle={t('proj.term')}
           />
         )}
         {canFinance && (
           <ListRow
             leading={<Banknote className="size-5 text-text-secondary" />}
             title={[
-              BILLING_TYPE_LABELS[p.billing_type],
+              t(`billing.${p.billing_type}`),
               p.hourly_rate != null && p.billing_type !== 'fixed'
                 ? `${num(p.hourly_rate)} kr/h`
                 : null,
@@ -122,7 +120,7 @@ export default function ProjectDetailPage() {
             ]
               .filter(Boolean)
               .join(' • ')}
-            subtitle="Rozliczenie"
+            subtitle={t('proj.billingRow')}
           />
         )}
       </ListGroup>
@@ -145,14 +143,14 @@ export default function ProjectDetailPage() {
               icon={<Pencil className="size-5" />}
               onClick={() => setEditOpen(true)}
             >
-              Edytuj
+              {t('common.edit')}
             </Button>
             <Button
               variant="secondary"
               icon={<RefreshCw className="size-5" />}
               onClick={() => setStatusOpen(true)}
             >
-              Zmień status
+              {t('proj.changeStatus')}
             </Button>
           </div>
           {isAdmin && (
@@ -161,7 +159,7 @@ export default function ProjectDetailPage() {
               icon={<Trash2 className="size-5" />}
               onClick={() => setConfirmDelete(true)}
             >
-              Usuń projekt
+              {t('proj.deleteProject')}
             </Button>
           )}
         </div>
@@ -169,7 +167,7 @@ export default function ProjectDetailPage() {
 
       <ProjectFormSheet open={editOpen} onClose={() => setEditOpen(false)} project={p} />
 
-      <Sheet open={statusOpen} onClose={() => setStatusOpen(false)} title="Zmień status">
+      <Sheet open={statusOpen} onClose={() => setStatusOpen(false)} title={t('proj.changeStatus')}>
         <div className="flex flex-col gap-2">
           {STATUS_ORDER.map((s) => (
             <Button
@@ -181,7 +179,7 @@ export default function ProjectDetailPage() {
                 setStatusOpen(false);
               }}
             >
-              {PROJECT_STATUS_LABELS[s]}
+              {t(`pstatus.${s}`)}
             </Button>
           ))}
         </div>
@@ -189,9 +187,9 @@ export default function ProjectDetailPage() {
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Usunąć projekt?"
-        description={`„${p.name}" zostanie trwale usunięty. Jeśli ma wpisane godziny lub koszty, usunięcie zostanie zablokowane — wtedy zamiast usuwać, zmień status na Anulowany.`}
-        confirmLabel="Usuń"
+        title={t('proj.deleteTitle')}
+        description={t('proj.deleteDesc', { name: p.name })}
+        confirmLabel={t('common.delete')}
         destructive
         loading={deleteProject.isPending}
         onConfirm={() =>

@@ -10,9 +10,9 @@ import { FAB } from '@/components/ui/FAB';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { useSession } from '@/features/auth/SessionProvider';
+import { useT } from '@/lib/i18n/context';
 import type { ProjectStatus } from '@/types/database';
 import { useProjects, useProjectStats } from '../hooks';
-import { PROJECT_STATUS_LABELS } from '../types';
 import { ProjectCard } from '../components/ProjectCard';
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
 
@@ -53,6 +53,7 @@ export default function ProjectsPage() {
   const projects = useProjects();
   const stats = useProjectStats();
   const { can } = useSession();
+  const t = useT();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<ProjectStatus | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -97,26 +98,34 @@ export default function ProjectsPage() {
   return (
     <div className="flex flex-col gap-4">
       {(projects.data?.length ?? 0) > 0 && (
-        <section className="grid grid-cols-3 gap-2.5" aria-label="Podsumowanie">
-          <StatTile icon={House} value={String(counts.get('active') ?? 0)} label="Aktywne" />
+        <section className="grid grid-cols-3 gap-2.5" aria-label={t('proj.summary')}>
+          <StatTile
+            icon={House}
+            value={String(counts.get('active') ?? 0)}
+            label={t('proj.tileActive')}
+          />
           {canFinance ? (
-            <StatTile icon={Wallet} value={compactSek(activeValue)} label="Wartość w toku" />
+            <StatTile icon={Wallet} value={compactSek(activeValue)} label={t('proj.tileValue')} />
           ) : (
-            <StatTile icon={FileText} value={String(counts.get('offer') ?? 0)} label="Oferty" />
+            <StatTile
+              icon={FileText}
+              value={String(counts.get('offer') ?? 0)}
+              label={t('proj.tileOffers')}
+            />
           )}
           <StatTile
             icon={canFinance ? FileText : CheckCircle2}
             value={String(counts.get(canFinance ? 'offer' : 'completed') ?? 0)}
-            label={canFinance ? 'Oferty' : 'Zakończone'}
+            label={canFinance ? t('proj.tileOffers') : t('proj.tileCompleted')}
           />
         </section>
       )}
 
-      <SearchBar value={search} onChange={setSearch} placeholder="Szukaj projektu…" />
+      <SearchBar value={search} onChange={setSearch} placeholder={t('proj.search')} />
       <Chips
         options={STATUS_ORDER.map((s) => ({
           value: s,
-          label: PROJECT_STATUS_LABELS[s],
+          label: t(`pstatus.${s}`),
           count: counts.get(s) ?? 0,
         }))}
         value={status}
@@ -128,15 +137,11 @@ export default function ProjectsPage() {
       {!projects.isLoading && filtered.length === 0 && (
         <EmptyState
           icon={House}
-          message={
-            search || status
-              ? 'Żaden projekt nie pasuje do filtrów.'
-              : 'Nie ma jeszcze projektów — dodaj pierwszy.'
-          }
+          message={search || status ? t('proj.noneMatch') : t('proj.empty')}
           action={
             canEdit && !search && !status ? (
               <Button icon={<Plus className="size-5" />} onClick={() => setFormOpen(true)}>
-                Dodaj projekt
+                {t('proj.addProject')}
               </Button>
             ) : undefined
           }
@@ -149,7 +154,7 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {canEdit && <FAB label="Dodaj projekt" onClick={() => setFormOpen(true)} />}
+      {canEdit && <FAB label={t('proj.addProject')} onClick={() => setFormOpen(true)} />}
       <ProjectFormSheet open={formOpen} onClose={() => setFormOpen(false)} project={null} />
     </div>
   );
