@@ -81,18 +81,22 @@ export function AppLayout() {
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* Firmowe logo w tle — subtelna nakładka przy górze (nad treścią, pod
-          paskiem i menu; klik przechodzi), widoczna na każdej stronie. */}
+      {/* Firmowa tekstura: dużo malutkich logo pod kątem, ledwo widoczne.
+          Nakładka nad treścią (pod paskiem i menu), klik przechodzi. */}
       {logoUrl && (
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-x-0 top-0 z-[5] flex justify-center overflow-hidden"
+          className="pointer-events-none fixed inset-0 z-[5] overflow-hidden"
         >
-          <img
-            src={logoUrl}
-            alt=""
-            className="w-80 max-w-[82%] object-contain opacity-[0.06]"
-            style={{ marginTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}
+          <div
+            className="absolute -inset-1/2"
+            style={{
+              backgroundImage: `url(${logoUrl})`,
+              backgroundRepeat: 'repeat',
+              backgroundSize: '82px',
+              transform: 'rotate(-24deg)',
+              opacity: 0.03,
+            }}
           />
         </div>
       )}

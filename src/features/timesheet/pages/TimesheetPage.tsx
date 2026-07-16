@@ -59,7 +59,9 @@ export default function TimesheetPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [absenceFormOpen, setAbsenceFormOpen] = useState(false);
   const [editEntry, setEditEntry] = useState<WorkHoursEntry | null>(null);
+  const [presetCell, setPresetCell] = useState<{ employeeId: string; date: string } | null>(null);
   const [absenceToDelete, setAbsenceToDelete] = useState<AbsenceWithEmployee | null>(null);
+  const canEditAll = user?.role === 'admin' || can('hours_edit_all');
 
   const { from, to } = useMemo(() => {
     if (range === 'week') {
@@ -229,6 +231,16 @@ export default function TimesheetPage() {
             absences={absences.data ?? []}
             employees={activeEmployees}
             onEditEntry={requestEdit}
+            onAddForCell={
+              canEditAll
+                ? (employeeId, date) => {
+                    setEditEntry(null);
+                    setTemplate(null);
+                    setPresetCell({ employeeId, date });
+                    setFormOpen(true);
+                  }
+                : undefined
+            }
           />
           {canApprove && draftIds.length > 0 && (
             <Button
@@ -314,9 +326,12 @@ export default function TimesheetPage() {
           setFormOpen(false);
           setEditEntry(null);
           setTemplate(null);
+          setPresetCell(null);
         }}
         entry={editEntry}
         template={template}
+        presetEmployeeId={presetCell?.employeeId}
+        presetDate={presetCell?.date}
       />
       <AbsenceFormSheet open={absenceFormOpen} onClose={() => setAbsenceFormOpen(false)} />
       <ConfirmDialog
