@@ -104,7 +104,7 @@ export function AppLayout() {
         <div className="relative mx-auto flex h-12 max-w-3xl items-center justify-between px-4">
           <h1 className="max-w-[42%] truncate text-lg font-semibold">{pageTitle(pathname)}</h1>
           {/* Subtelny firmowy znak na środku paska */}
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[13px] font-extrabold tracking-[0.14em] text-accent">
+          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[17px] font-extrabold tracking-[0.14em] text-accent">
             BFTM
           </span>
           <NotificationBell />

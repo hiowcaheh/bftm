@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.26.1 — drobne poprawki UI (2026-07-16)
+
+- Przycisk **„Pobierz"** danych firmy przeniesiony do jednej linii, po prawej
+  stronie pola organisationsnummer (akcentowy).
+- **Aktywność konta** pracownika: 10 wpisów na stronę + zakładki ze stronami.
+- Powiększony napis **BFTM** na górnym pasku.
+- Nieco mniejszy dzwoneczek powiadomień (prawy górny róg).
+- Pulpit pracownika: ikona na czerwonej karcie „dodaj godziny" zmieniona ze
+  słońca na **zegar** (jak w zakładce Godziny).
+
 ## 0.26.0 — auto-pobieranie danych firmy po organisationsnummer (2026-07-16)
 
 - W formularzu klienta (typ **Firma**) przycisk **„Pobierz dane firmy"** obok
