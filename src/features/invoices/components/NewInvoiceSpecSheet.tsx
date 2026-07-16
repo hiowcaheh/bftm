@@ -119,7 +119,12 @@ export function NewInvoiceSpecSheet({ open, onClose, onCreated }: NewInvoiceSpec
         />
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-text-secondary">Okres</span>
-          <RangeCalendar from={from} to={to} onChange={(f, t) => (setFrom(f), setTo(t))} />
+          <RangeCalendar
+            from={from}
+            to={to}
+            onChange={(f, t) => (setFrom(f), setTo(t))}
+            showWeekNumbers
+          />
           <p className="tabular-nums text-center text-xs text-text-secondary">{rangeLabel}</p>
         </div>
         <Button
