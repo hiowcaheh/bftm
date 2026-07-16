@@ -140,25 +140,28 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
           error={errors.name}
           onChange={(e) => set({ name: e.target.value })}
         />
-        <div className="flex flex-col gap-1.5">
-          <Input
-            label={form.type === 'company' ? 'Organisationsnummer' : 'Personnummer (opcjonalnie)'}
-            value={form.org_or_person_nr}
-            onChange={(e) => set({ org_or_person_nr: e.target.value })}
-          />
+        <div className="flex items-end gap-2">
+          <div className="min-w-0 flex-1">
+            <Input
+              label={form.type === 'company' ? 'Organisationsnummer' : 'Personnummer (opcjonalnie)'}
+              value={form.org_or_person_nr}
+              onChange={(e) => set({ org_or_person_nr: e.target.value })}
+            />
+          </div>
           {form.type === 'company' && (
             <button
               type="button"
               disabled={looking}
+              aria-label="Pobierz dane firmy"
               onClick={() => void fetchCompany()}
-              className="press flex h-10 items-center justify-center gap-2 self-start rounded-(--radius-input) bg-surface px-3 text-sm font-medium text-text disabled:opacity-60"
+              className="press flex h-12 shrink-0 items-center gap-1.5 rounded-(--radius-input) bg-accent px-3.5 text-sm font-medium text-white disabled:opacity-60"
             >
               {looking ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
                 <Download className="size-4" />
               )}
-              {looking ? 'Pobieranie…' : 'Pobierz dane firmy'}
+              Pobierz
             </button>
           )}
         </div>

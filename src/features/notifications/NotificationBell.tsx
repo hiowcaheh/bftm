@@ -63,11 +63,11 @@ export function NotificationBell() {
         type="button"
         aria-label={`Powiadomienia${unread ? ` (${unread} nieprzeczytanych)` : ''}`}
         onClick={openPanel}
-        className="press relative flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
+        className="press relative flex size-9 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
       >
-        <Bell className="size-5 text-text" strokeWidth={1.8} />
+        <Bell className="size-[1.05rem] text-text" strokeWidth={1.8} />
         {unread > 0 && (
-          <span className="tabular-nums absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
+          <span className="tabular-nums absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
             {unread > 99 ? '99+' : unread}
           </span>
         )}

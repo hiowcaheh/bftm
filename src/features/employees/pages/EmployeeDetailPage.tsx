@@ -77,6 +77,7 @@ export default function EmployeeDetailPage() {
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [confirmActive, setConfirmActive] = useState(false);
+  const [logPage, setLogPage] = useState(0);
   const [newWage, setNewWage] = useState('');
   const [wageFrom, setWageFrom] = useState(() => format(new Date(), 'yyyy-MM-dd'));
 
@@ -326,16 +327,48 @@ export default function EmployeeDetailPage() {
               <h2 className="text-base font-semibold">Aktywność konta</h2>
             </div>
             {activity.data?.length ? (
-              <div className="flex flex-col">
-                {activity.data.map((a) => (
-                  <div key={a.id} className="flex items-baseline justify-between gap-3 py-1.5">
-                    <span className="text-sm">{ACTIVITY_LABELS[a.action] ?? a.action}</span>
-                    <span className="tabular-nums shrink-0 text-xs text-text-secondary">
-                      {format(new Date(a.created_at), 'dd.MM.yyyy HH:mm', { locale: pl })}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              (() => {
+                const PER_PAGE = 10;
+                const pageCount = Math.ceil(activity.data.length / PER_PAGE);
+                const page = Math.min(logPage, pageCount - 1);
+                const rows = activity.data.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
+                return (
+                  <>
+                    <div className="flex flex-col">
+                      {rows.map((a) => (
+                        <div
+                          key={a.id}
+                          className="flex items-baseline justify-between gap-3 py-1.5"
+                        >
+                          <span className="text-sm">{ACTIVITY_LABELS[a.action] ?? a.action}</span>
+                          <span className="tabular-nums shrink-0 text-xs text-text-secondary">
+                            {format(new Date(a.created_at), 'dd.MM.yyyy HH:mm', { locale: pl })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    {pageCount > 1 && (
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        {Array.from({ length: pageCount }, (_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setLogPage(i)}
+                            className={
+                              'tabular-nums press flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-sm font-medium ' +
+                              (i === page
+                                ? 'bg-accent text-white'
+                                : 'bg-surface text-text-secondary')
+                            }
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()
             ) : (
               <p className="text-sm text-text-secondary">
                 Brak zarejestrowanej aktywności — pojawi się przy pierwszym logowaniu.

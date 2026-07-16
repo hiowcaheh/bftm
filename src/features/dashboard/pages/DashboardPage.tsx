@@ -185,7 +185,7 @@ export default function DashboardPage() {
         today.data.absences.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-(--radius-card) bg-gradient-to-br from-accent to-[#8E0000] p-6 text-center text-white shadow-(--shadow-fab)">
             <div className="flex size-14 items-center justify-center rounded-full bg-white/15">
-              <Sunrise className="size-7" strokeWidth={1.8} />
+              <Clock className="size-7" strokeWidth={1.8} />
             </div>
             <div>
               <p className="text-base font-semibold">Dzień dobry! 👋</p>
