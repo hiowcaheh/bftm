@@ -8,6 +8,7 @@ import {
   CircleCheck,
   FileText,
   Info,
+  ListChecks,
   Megaphone,
   ReceiptText,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ const TYPE_STYLES: Record<
   payslip: { icon: ReceiptText, className: 'bg-accent-soft text-accent' },
   absence: { icon: CalendarOff, className: 'bg-warning-soft text-warning' },
   announcement: { icon: Megaphone, className: 'bg-accent-soft text-accent' },
+  checklist: { icon: ListChecks, className: 'bg-accent-soft text-accent' },
   info: { icon: Info, className: 'bg-info-soft text-info' },
 };
 
@@ -41,6 +43,7 @@ const TYPE_ROUTES: Record<string, string> = {
   payslip: '/wyplaty',
   hours_approved: '/godziny',
   offer_response: '/oferty',
+  checklist: '/',
 };
 
 export function NotificationBell() {

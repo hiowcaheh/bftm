@@ -46,7 +46,10 @@ export function useCreateChecklistItem() {
   const { user } = useSession();
   return useMutation({
     mutationFn: (payload: NewChecklistItem) => createChecklistItem(payload, user?.id ?? ''),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: qk.checklist.all }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: qk.checklist.all });
+      toast.success('Zadanie dodane');
+    },
     onError: () => toast.error('Nie udało się dodać zadania'),
   });
 }
@@ -57,7 +60,10 @@ export function useToggleChecklistItem() {
   return useMutation({
     mutationFn: ({ id, done }: { id: string; done: boolean }) =>
       setChecklistDone(id, done, user?.id ?? ''),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: qk.checklist.all }),
+    onSuccess: (_data, vars) => {
+      void queryClient.invalidateQueries({ queryKey: qk.checklist.all });
+      toast.success(vars.done ? 'Zadanie odhaczone' : 'Zadanie odznaczone');
+    },
     onError: () => toast.error('Nie udało się zmienić statusu'),
   });
 }
@@ -66,7 +72,10 @@ export function useDeleteChecklistItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteChecklistItem(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: qk.checklist.all }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: qk.checklist.all });
+      toast.success('Zadanie usunięte');
+    },
     onError: () => toast.error('Nie udało się usunąć zadania'),
   });
 }

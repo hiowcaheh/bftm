@@ -7,7 +7,6 @@ import {
   Banknote,
   ClockAlert,
   ChevronRight,
-  Plus,
   ReceiptText,
   Sunrise,
 } from 'lucide-react';
@@ -15,7 +14,6 @@ import { format, getISOWeek } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
-import { FAB } from '@/components/ui/FAB';
 import { cn } from '@/lib/cn';
 import { hours, moneyWhole, num } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
@@ -280,11 +278,6 @@ export default function DashboardPage() {
 
       <ChecklistSection />
 
-      <FAB
-        label="Dodaj godziny"
-        onClick={() => setHoursFormOpen(true)}
-        icon={<Plus className="size-7" />}
-      />
       <HoursFormSheet
         open={hoursFormOpen}
         onClose={() => setHoursFormOpen(false)}
