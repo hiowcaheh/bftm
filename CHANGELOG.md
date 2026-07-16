@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.30.0 — wielojęzyczność: fundament + przełącznik (2026-07-16)
+
+- Nowy system i18n (PL domyślnie + SV, EN, UK). **Wybór języka w Ustawieniach**
+  (zapisywany per urządzenie, przełącza też lokalizację dat).
+- Pierwsza warstwa przetłumaczona: **dolne menu, „Więcej", tytuły ekranów,
+  Ustawienia, ekran logowania, baner instalacji**. Kolejne ekrany — etapami.
+
+
 ## 0.29.2 — przycisk „Instaluj" w banerze (2026-07-16)
 
 - Baner instalacji ma przycisk **„Instaluj"**. Android/Chrome: uruchamia

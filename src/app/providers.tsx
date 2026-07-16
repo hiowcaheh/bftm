@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { ToastViewport } from '@/components/ui/Toast';
+import { I18nProvider } from '@/lib/i18n/context';
 import { UpdatePrompt } from './UpdatePrompt';
 
 /**
@@ -37,9 +38,11 @@ export function Providers({ children }: { children: ReactNode }) {
         buster: 'v1',
       }}
     >
-      {children}
-      <ToastViewport />
-      <UpdatePrompt />
+      <I18nProvider>
+        {children}
+        <ToastViewport />
+        <UpdatePrompt />
+      </I18nProvider>
     </PersistQueryClientProvider>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Download, Plus, Share, X } from 'lucide-react';
+import { useT } from '@/lib/i18n/context';
 
 /** Zdarzenie beforeinstallprompt (Chrome/Android) — minimalny typ. */
 interface BeforeInstallPromptEvent extends Event {
@@ -39,6 +40,7 @@ export function InstallPrompt() {
   const [show, setShow] = useState(false);
   const [ios, setIos] = useState(false);
   const [guide, setGuide] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     if (isStandalone() || dismissedRecently()) return;
@@ -86,17 +88,15 @@ export function InstallPrompt() {
         <div className="mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-line bg-white p-3 shadow-(--shadow-fab)">
           <img src="/icons/icon-192.png" alt="" className="size-12 shrink-0 rounded-xl" />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Zainstaluj aplikację BFTM</p>
-            <p className="mt-0.5 text-xs text-text-secondary">
-              Szybszy dostęp z ekranu głównego, jak zwykła aplikacja.
-            </p>
+            <p className="text-sm font-semibold">{t('install.title')}</p>
+            <p className="mt-0.5 text-xs text-text-secondary">{t('install.subtitle')}</p>
           </div>
           <button
             type="button"
             onClick={() => void install()}
             className="press flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3.5 text-sm font-semibold text-white"
           >
-            <Download className="size-4" /> Instaluj
+            <Download className="size-4" /> {t('install.button')}
           </button>
           <button
             type="button"
@@ -124,8 +124,8 @@ export function InstallPrompt() {
               <div className="mb-4 flex items-center gap-3">
                 <img src="/icons/icon-192.png" alt="" className="size-12 rounded-xl" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-base font-bold">Dodaj BFTM na ekran główny</p>
-                  <p className="text-xs text-text-secondary">Zajmie 5 sekund</p>
+                  <p className="text-base font-bold">{t('install.guideTitle')}</p>
+                  <p className="text-xs text-text-secondary">{t('install.guideSub')}</p>
                 </div>
                 <button
                   type="button"
@@ -143,8 +143,7 @@ export function InstallPrompt() {
                     1
                   </span>
                   <span className="flex flex-1 items-center gap-1.5 text-sm">
-                    Tapnij <Share className="inline size-5 text-accent" /> (Udostępnij) na dole
-                    ekranu
+                    <Share className="inline size-5 text-accent" /> {t('install.step1')}
                   </span>
                 </li>
                 <li className="flex items-center gap-3">
@@ -152,7 +151,7 @@ export function InstallPrompt() {
                     2
                   </span>
                   <span className="flex flex-1 items-center gap-1.5 text-sm">
-                    Wybierz „Dodaj do ekranu głównego"
+                    {t('install.step2')}
                     <Plus className="inline size-5 text-accent" />
                   </span>
                 </li>
@@ -160,14 +159,11 @@ export function InstallPrompt() {
                   <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">
                     3
                   </span>
-                  <span className="flex-1 text-sm">Potwierdź „Dodaj" — gotowe!</span>
+                  <span className="flex-1 text-sm">{t('install.step3')}</span>
                 </li>
               </ol>
 
-              <p className="mt-4 text-center text-xs text-text-secondary">
-                Na iPhonie aplikacje instaluje się w ten sposób — Apple nie pozwala zrobić tego
-                jednym przyciskiem.
-              </p>
+              <p className="mt-4 text-center text-xs text-text-secondary">{t('install.note')}</p>
             </div>
           </div>,
           document.body,

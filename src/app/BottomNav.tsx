@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { useT } from '@/lib/i18n/context';
 import { bottomNavModules, canAccessModule, moreModules } from './moduleRegistry';
 import { useSession } from '@/features/auth/SessionProvider';
 
@@ -17,6 +18,7 @@ interface BottomNavProps {
 export function BottomNav({ onMoreClick, moreOpen, onNavigateDirection }: BottomNavProps) {
   const { pathname } = useLocation();
   const { can } = useSession();
+  const t = useT();
   const visible = bottomNavModules.filter((m) => canAccessModule(can, m));
   const moreActive = moreOpen || moreModules.some((m) => pathname.startsWith(m.path));
   const currentIndex = visible.findIndex((m) =>
@@ -51,7 +53,7 @@ export function BottomNav({ onMoreClick, moreOpen, onNavigateDirection }: Bottom
             }
           >
             <mod.icon className="size-6" strokeWidth={1.8} />
-            {mod.label}
+            {t(`nav.${mod.id}`)}
           </NavLink>
         ))}
         <button
@@ -63,7 +65,7 @@ export function BottomNav({ onMoreClick, moreOpen, onNavigateDirection }: Bottom
           )}
         >
           <MoreHorizontal className="size-6" strokeWidth={1.8} />
-          Więcej
+          {t('nav.more')}
         </button>
       </div>
     </nav>
