@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.26.2 — przyciski kopiowania i szybkie akcje kontaktu (2026-07-16)
+
+- Karta pracownika: przy e-mailu i telefonie przyciski **napisz / zadzwoń**
+  (mailto/tel) oraz **kopiuj** do schowka.
+- Szczegóły projektu: przy adresie budowy przycisk **kopiuj adres**.
+
 ## 0.26.1 — drobne poprawki UI (2026-07-16)
 
 - Przycisk **„Pobierz"** danych firmy przeniesiony do jednej linii, po prawej

@@ -21,6 +21,7 @@ import { ConfirmDialog } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { DateField } from '@/components/ui/DateField';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
+import { CopyButton } from '@/components/ui/CopyButton';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { Switch } from '@/components/ui/Switch';
 import { money } from '@/lib/format';
@@ -158,6 +159,20 @@ export default function EmployeeDetailPage() {
           leading={<Mail className="size-5 text-text-secondary" />}
           title={emp.email}
           subtitle="E-mail (login)"
+          trailing={
+            emp.email ? (
+              <div className="flex items-center gap-1.5">
+                <a
+                  href={`mailto:${emp.email}`}
+                  aria-label="Napisz e-mail"
+                  className="press flex size-9 items-center justify-center rounded-lg bg-surface text-accent"
+                >
+                  <Mail className="size-4" />
+                </a>
+                <CopyButton value={emp.email} label="e-mail" />
+              </div>
+            ) : undefined
+          }
         />
         <ListRow
           leading={<Phone className="size-5 text-text-secondary" />}
@@ -179,6 +194,20 @@ export default function EmployeeDetailPage() {
             )
           }
           subtitle="Telefon"
+          trailing={
+            emp.phone ? (
+              <div className="flex items-center gap-1.5">
+                <a
+                  href={`tel:${emp.phone}`}
+                  aria-label="Zadzwoń"
+                  className="press flex size-9 items-center justify-center rounded-lg bg-surface text-accent"
+                >
+                  <Phone className="size-4" />
+                </a>
+                <CopyButton value={emp.phone} label="numer" />
+              </div>
+            ) : undefined
+          }
         />
         {isAdmin && (
           <ListRow
