@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.27.1 — poprawki check-listy + logo w tle (2026-07-16)
+
+- Usunięty czerwony przycisk **+** (dodawanie godzin) z pulpitu — kolidował z
+  przyciskiem check-listy. Godziny dodajesz z zakładki Godziny / karty „dodaj
+  dzisiejsze godziny".
+- **Powiadomienie (dzwoneczek)** dla wszystkich aktywnych pracowników przy
+  dodaniu nowego zadania na **firmowej** check-liście (bez powiadomień przy
+  zmianie statusu/usunięciu; migracja 0033).
+- **Toasty** (górne) przy dodaniu / odhaczeniu / usunięciu zadania.
+- **Logo firmowe w tle** — pojedyncze, przy górze, widoczne na każdej stronie
+  (wcześniej ledwo widoczna tekstura tylko na dole pulpitu).
+
 ## 0.27.0 — Check-lista na pulpicie (firmowa + prywatna, realtime) (2026-07-16)
 
 - Nowa sekcja **Check-lista** na dole pulpitu (pod „Ten tydzień").

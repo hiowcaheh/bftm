@@ -81,18 +81,17 @@ export function AppLayout() {
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* Znak wodny: dziesiątki logo pod skosem, ledwo widoczne — firmowa tekstura */}
+      {/* Firmowe logo w tle — pojedyncze, przy górze, widoczne na każdej stronie */}
       {logoUrl && (
-        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-          <div
-            className="absolute -inset-1/2"
-            style={{
-              backgroundImage: `url(${logoUrl})`,
-              backgroundRepeat: 'repeat',
-              backgroundSize: '128px',
-              transform: 'rotate(-18deg)',
-              opacity: 0.04,
-            }}
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-x-0 top-0 -z-10 flex justify-center overflow-hidden"
+        >
+          <img
+            src={logoUrl}
+            alt=""
+            className="w-72 max-w-[78%] object-contain opacity-[0.07]"
+            style={{ marginTop: 'calc(env(safe-area-inset-top) + 5.5rem)' }}
           />
         </div>
       )}
