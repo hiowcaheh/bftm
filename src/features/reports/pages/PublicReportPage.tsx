@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Building2, CalendarOff, Clock, FileQuestion, Users, X } from 'lucide-react';
+import { Building2, Clock, FileQuestion, Users, X } from 'lucide-react';
 import { moneyWhole, num } from '@/lib/format';
 import { logoPublicUrl } from '@/features/settings/api';
 import { ABSENCE_TYPE_COLORS, ABSENCE_TYPE_LABELS } from '@/features/absences/types';
@@ -29,26 +29,44 @@ export default function PublicReportPage() {
     return `${f} – ${t}`;
   }, [data]);
 
-  // Nieobecności rozbite na pojedyncze dni (zakres przycięty do okresu raportu)
-  const absenceDays = useMemo(() => {
-    if (!data) return [] as Array<{ date: string; items: Array<{ name: string; type: AbsenceType }> }>;
+  // Nieobecności per pracownik (dopasowane po nazwisku), rozbite na dni
+  const absByName = useMemo(() => {
+    const map: Record<string, Array<{ date: string; type: AbsenceType }>> = {};
+    if (!data) return map;
     const pf = new Date(data.period_from);
     const pt = new Date(data.period_to);
-    const byDate = new Map<string, Array<{ name: string; type: AbsenceType }>>();
     for (const a of data.report.absences ?? []) {
       const start = new Date(a.date_from) < pf ? pf : new Date(a.date_from);
       const end = new Date(a.date_to) > pt ? pt : new Date(a.date_to);
+      const list = (map[a.name] ??= []);
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const key = format(d, 'yyyy-MM-dd');
-        const arr = byDate.get(key) ?? [];
-        arr.push({ name: a.name, type: a.type });
-        byDate.set(key, arr);
+        list.push({ date: format(d, 'yyyy-MM-dd'), type: a.type });
       }
     }
-    return [...byDate.entries()]
-      .sort((x, y) => x[0].localeCompare(y[0]))
-      .map(([date, items]) => ({ date, items }));
+    for (const list of Object.values(map)) list.sort((x, y) => x.date.localeCompare(y.date));
+    return map;
   }, [data]);
+
+  // Lista pracowników = ci z godzinami + ci z samą nieobecnością (0 h)
+  const employeeRows = useMemo(() => {
+    const rows = [...(data?.report.by_employee ?? [])];
+    const names = new Set(rows.map((e) => e.name));
+    for (const name of Object.keys(absByName)) {
+      if (!names.has(name)) {
+        rows.push({
+          id: name,
+          name,
+          total: 0,
+          approved: null,
+          draft: null,
+          invoiced: null,
+          labor_cost: null,
+          projects: [],
+        });
+      }
+    }
+    return rows;
+  }, [data?.report.by_employee, absByName]);
 
   if (query.isLoading) {
     return (
@@ -136,75 +154,70 @@ export default function PublicReportPage() {
           )}
         </section>
 
-        {/* Nieobecności — dzień po dniu, blisko godzin */}
-        {absenceDays.length > 0 && (
-          <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
-              <CalendarOff className="size-5" style={{ color: NAVY }} /> Nieobecności
-            </h2>
-            <div className="flex flex-col gap-3">
-              {absenceDays.map((d) => (
-                <div key={d.date} className="flex flex-col gap-1">
-                  <p className="text-xs font-semibold capitalize text-text-secondary">
-                    {format(new Date(d.date), 'EEEE d MMM', { locale: pl })}
-                  </p>
-                  {d.items.map((it, i) => (
-                    <div key={i} className="flex items-center gap-2 pl-0.5 text-sm">
-                      <span
-                        className="size-2.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: ABSENCE_TYPE_COLORS[it.type] }}
-                      />
-                      <span className="min-w-0 flex-1 truncate">{it.name}</span>
-                      <span className="shrink-0 text-xs text-text-secondary">
-                        {ABSENCE_TYPE_LABELS[it.type]}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Pracownicy */}
         <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
             <Users className="size-5" style={{ color: NAVY }} /> Pracownicy
           </h2>
           <div className="flex flex-col divide-y divide-line">
-            {r.by_employee.map((e) => (
-              <div key={e.id} className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0">
-                <div className="flex items-baseline justify-between gap-3">
-                  <p className="text-sm font-semibold">{e.name}</p>
-                  <span className="tabular-nums shrink-0 text-base font-bold">
-                    {num(e.total)} h
-                  </span>
-                </div>
-                {(e.projects?.length ?? 0) > 0 && (
-                  <div className="flex flex-col gap-1">
-                    {e.projects!.map((p) => (
-                      <div key={p.name} className="flex items-center gap-2 text-xs">
-                        <span
-                          className="size-2 shrink-0 rounded-full"
-                          style={{ backgroundColor: p.color ?? '#9E9E9E' }}
-                        />
-                        <span className="min-w-0 flex-1 truncate text-text-secondary">
-                          {p.name}
-                        </span>
-                        <span className="tabular-nums text-text-secondary">
-                          {num(p.hours)} h
-                        </span>
-                      </div>
-                    ))}
+            {employeeRows.map((e) => {
+              const absDays = absByName[e.name] ?? [];
+              return (
+                <div key={e.id} className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="text-sm font-semibold">{e.name}</p>
+                    <span className="tabular-nums shrink-0 text-base font-bold">
+                      {num(e.total)} h
+                    </span>
                   </div>
-                )}
-                {finance && e.labor_cost != null && (
-                  <p className="tabular-nums text-[11px] text-text-secondary">
-                    koszt pracy {moneyWhole(e.labor_cost)}
-                  </p>
-                )}
-              </div>
-            ))}
+                  {(e.projects?.length ?? 0) > 0 && (
+                    <div className="flex flex-col gap-1">
+                      {e.projects!.map((p) => (
+                        <div key={p.name} className="flex items-center gap-2 text-xs">
+                          <span
+                            className="size-2 shrink-0 rounded-full"
+                            style={{ backgroundColor: p.color ?? '#9E9E9E' }}
+                          />
+                          <span className="min-w-0 flex-1 truncate text-text-secondary">
+                            {p.name}
+                          </span>
+                          <span className="tabular-nums text-text-secondary">
+                            {num(p.hours)} h
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {/* Nieobecności — dzień po dniu, wyszczególnione pod projektami */}
+                  {absDays.length > 0 && (
+                    <div className="mt-0.5 flex flex-col gap-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
+                        Nieobecności
+                      </p>
+                      {absDays.map((a, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs">
+                          <span
+                            className="size-2 shrink-0 rounded-full"
+                            style={{ backgroundColor: ABSENCE_TYPE_COLORS[a.type] }}
+                          />
+                          <span className="min-w-0 flex-1 truncate capitalize text-text-secondary">
+                            {format(new Date(a.date), 'EEEE d MMM', { locale: pl })}
+                          </span>
+                          <span className="shrink-0 text-text-secondary">
+                            {ABSENCE_TYPE_LABELS[a.type]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {finance && e.labor_cost != null && (
+                    <p className="tabular-nums text-[11px] text-text-secondary">
+                      koszt pracy {moneyWhole(e.labor_cost)}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
