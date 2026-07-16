@@ -12,7 +12,6 @@ import {
   subMonths,
   subWeeks,
 } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Receipt, TrendingDown, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -21,6 +20,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
 import { moneyWhole, monthYear } from '@/lib/format';
+import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import ExpensesPage from '@/features/expenses/pages/ExpensesPage';
 import { projectCost, projectValue } from '../api';
@@ -42,6 +42,7 @@ export default function FinancePage() {
 
 function FinanceReport() {
   const navigate = useNavigate();
+  const { t, dateLocale } = useI18n();
   const [mode, setMode] = useState<Mode>('month');
   const [anchor, setAnchor] = useState(new Date());
 
@@ -50,7 +51,7 @@ function FinanceReport() {
   const to = mode === 'week' ? iso(endOfISOWeek(anchor)) : iso(endOfMonth(anchor));
   const label =
     mode === 'week'
-      ? `Tydzień ${getISOWeek(anchor)} • ${format(startOfISOWeek(anchor), 'dd.MM')}–${format(endOfISOWeek(anchor), 'dd.MM')}`
+      ? `${t('ts.weekLabel', { n: getISOWeek(anchor) })} • ${format(startOfISOWeek(anchor), 'dd.MM')}–${format(endOfISOWeek(anchor), 'dd.MM')}`
       : monthYear(anchor);
 
   const summary = useFinanceSummary(from, to);
@@ -80,7 +81,7 @@ function FinanceReport() {
     if (mode === 'week') {
       return days.map((d) => ({
         key: d.day,
-        label: format(new Date(d.day), 'EEEEEE', { locale: pl }),
+        label: format(new Date(d.day), 'EEEEEE', { locale: dateLocale }),
         revenue: d.revenue,
         cost: d.labor_cost + d.expenses,
       }));
@@ -116,7 +117,7 @@ function FinanceReport() {
     const projectExpenses = projects.reduce((s, p) => s + p.expenses_range, 0);
     const general = totals.expenses - projectExpenses;
     if (general > 0.5) {
-      slices.push({ id: 'general', name: 'Koszty ogólne', color: '#8E8E93', value: general });
+      slices.push({ id: 'general', name: t('fin.generalCosts'), color: '#8E8E93', value: general });
     }
     return slices;
   }, [summary.data, totals.expenses]);
@@ -147,8 +148,8 @@ function FinanceReport() {
     <div className="flex flex-col gap-4">
       <SegmentedControl
         options={[
-          { value: 'week', label: 'Tydzień' },
-          { value: 'month', label: 'Miesiąc' },
+          { value: 'week', label: t('ts.week') },
+          { value: 'month', label: t('ts.month') },
         ]}
         value={mode}
         onChange={setMode}
@@ -157,7 +158,7 @@ function FinanceReport() {
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
-          aria-label="Poprzedni okres"
+          aria-label={t('ts.prevPeriod')}
           className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
           onClick={() => shift(-1)}
         >
@@ -166,7 +167,7 @@ function FinanceReport() {
         <p className="tabular-nums text-sm font-semibold capitalize">{label}</p>
         <button
           type="button"
-          aria-label="Następny okres"
+          aria-label={t('ts.nextPeriod')}
           className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
           onClick={() => shift(1)}
         >
@@ -192,7 +193,7 @@ function FinanceReport() {
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-text-secondary">Zysk okresu (wypracowane − koszty)</p>
+              <p className="text-xs text-text-secondary">{t('fin.profitPeriod')}</p>
               <p
                 className={cn(
                   'text-2xl font-semibold',
@@ -204,58 +205,56 @@ function FinanceReport() {
             </div>
           </Card>
 
-          <section className="grid grid-cols-2 gap-3" aria-label="Podsumowanie finansowe">
+          <section className="grid grid-cols-2 gap-3" aria-label={t('fin.finSummary')}>
             <Card className="flex flex-col gap-1 p-4">
-              <span className="text-xs text-text-secondary">Wypracowane</span>
+              <span className="text-xs text-text-secondary">{t('fin.earned')}</span>
               <span className="tabular-nums text-lg font-semibold">
                 {moneyWhole(totals.revenue)}
               </span>
-              <span className="text-[11px] text-text-secondary">
-                godziny × stawki projektów
-              </span>
+              <span className="text-[11px] text-text-secondary">{t('fin.earnedSub')}</span>
             </Card>
             <Card className="flex flex-col gap-1 p-4">
-              <span className="text-xs text-text-secondary">Koszty</span>
+              <span className="text-xs text-text-secondary">{t('fin.costs')}</span>
               <span className="tabular-nums text-lg font-semibold">
                 {moneyWhole(totals.costs)}
               </span>
               <span className="tabular-nums text-[11px] text-text-secondary">
-                praca {moneyWhole(totals.labor)} • paragony {moneyWhole(totals.expenses)}
+                {t('fin.costsSub', { labor: moneyWhole(totals.labor), exp: moneyWhole(totals.expenses) })}
               </span>
             </Card>
             <Card className="flex flex-col gap-1 p-4">
-              <span className="text-xs text-text-secondary">Czeka na płatność</span>
+              <span className="text-xs text-text-secondary">{t('fin.awaiting')}</span>
               <span className="tabular-nums text-lg font-semibold">
                 {moneyWhole(totals.awaiting)}
               </span>
-              <span className="text-[11px] text-text-secondary">wysłane faktury</span>
+              <span className="text-[11px] text-text-secondary">{t('fin.awaitingSub')}</span>
             </Card>
             <Card className="flex flex-col gap-1 p-4">
-              <span className="text-xs text-text-secondary">Opłacone w okresie</span>
+              <span className="text-xs text-text-secondary">{t('fin.paidPeriod')}</span>
               <span className="tabular-nums text-lg font-semibold">
                 {moneyWhole(totals.paidInRange)}
               </span>
-              <span className="text-[11px] text-text-secondary">pieniądze na koncie</span>
+              <span className="text-[11px] text-text-secondary">{t('fin.paidPeriodSub')}</span>
             </Card>
           </section>
 
           {barGroups.some((g) => g.revenue > 0 || g.cost > 0) && (
             <Card className="flex flex-col gap-3 p-4">
-              <h2 className="text-base font-semibold">Przebieg okresu</h2>
+              <h2 className="text-base font-semibold">{t('fin.periodChart')}</h2>
               <FinanceBars groups={barGroups} />
             </Card>
           )}
 
           {donutSlices.length > 0 && (
             <Card className="flex flex-col gap-3 p-4">
-              <h2 className="text-base font-semibold">Struktura kosztów</h2>
+              <h2 className="text-base font-semibold">{t('fin.costStructure')}</h2>
               <CostDonut slices={donutSlices} />
             </Card>
           )}
 
           {projectRows.length > 0 && (
             <section className="flex flex-col gap-3">
-              <h2 className="text-base font-semibold">Rentowność projektów</h2>
+              <h2 className="text-base font-semibold">{t('fin.profitability')}</h2>
               <Card className="flex flex-col divide-y divide-line">
                 {projectRows.map(({ p, value, cost }) => {
                   const profit = value - cost;
@@ -273,19 +272,19 @@ function FinanceReport() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{p.name}</p>
                         <p className="tabular-nums mt-0.5 text-xs text-text-secondary">
-                          wartość {moneyWhole(value)} • koszty {moneyWhole(cost)}
+                          {t('fin.valueCosts', { value: moneyWhole(value), cost: moneyWhole(cost) })}
                         </p>
                         {p.invoice_count > 0 && (
                           <div className="mt-1">
                             {p.awaiting_total > 0 ? (
                               <Badge tone="warning">
-                                Czeka na płatność: {moneyWhole(p.awaiting_total)}
+                                {t('fin.awaitingAmount', { amount: moneyWhole(p.awaiting_total) })}
                               </Badge>
                             ) : (
                               <Badge tone="success">
                                 {p.invoice_count === 1
-                                  ? 'Faktura opłacona'
-                                  : 'Faktury opłacone'}
+                                  ? t('fin.invoicePaidOne')
+                                  : t('fin.invoicePaidMany')}
                               </Badge>
                             )}
                           </div>
@@ -314,8 +313,8 @@ function FinanceReport() {
                   <Receipt className="size-5 text-text-secondary" strokeWidth={1.8} />
                 </div>
               }
-              title="Paragony i koszty"
-              subtitle="Materiały, paliwo, sprzęt — z paragonami"
+              title={t('fin.receiptsRow')}
+              subtitle={t('fin.receiptsRowSub')}
               chevron
               onClick={() => navigate('/finanse/paragony')}
             />

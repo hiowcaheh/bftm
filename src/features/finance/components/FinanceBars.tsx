@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { money } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 
 export interface BarGroup {
   key: string;
@@ -43,6 +44,7 @@ function barPath(x: number, y: number, w: number, h: number): string {
  * dokładne kwoty pod wykresem (mobile-first zamiast tooltipa).
  */
 export function FinanceBars({ groups }: { groups: BarGroup[] }) {
+  const tr = useT();
   const [selected, setSelected] = useState<string | null>(null);
   const width = 360;
   const plotW = width - PAD_LEFT - PAD_RIGHT;
@@ -75,7 +77,7 @@ export function FinanceBars({ groups }: { groups: BarGroup[] }) {
         viewBox={`0 0 ${width} ${H}`}
         className="w-full"
         role="img"
-        aria-label="Wykres przychodów i kosztów"
+        aria-label={tr('fin.chartAria')}
       >
         {[0, 0.5, 1].map((t) => (
           <g key={t}>
