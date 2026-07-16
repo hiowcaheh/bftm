@@ -14,6 +14,7 @@ import type { InvoiceSpec } from '../api';
 import { generateInvoiceSpecPdf, shareInvoicePdf } from '../pdf';
 import { useDeleteInvoiceSpec, useInvoiceSpecs } from '../hooks';
 import { NewInvoiceSpecSheet } from '../components/NewInvoiceSpecSheet';
+import { PdfPreviewOverlay } from '../components/PdfPreviewOverlay';
 
 const slug = (s: string) =>
   s
@@ -38,8 +39,11 @@ export default function InvoicesPage() {
   const [newOpen, setNewOpen] = useState(false);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<InvoiceSpec | null>(null);
+  const [preview, setPreview] = useState<{ blob: Blob; filename: string; title: string } | null>(
+    null,
+  );
 
-  const generateAndShare = async (spec: InvoiceSpec) => {
+  const generateAndPreview = async (spec: InvoiceSpec) => {
     if (generatingId) return;
     setGeneratingId(spec.id);
     try {
@@ -62,7 +66,7 @@ export default function InvoicesPage() {
         logoDataUrl: logoCache.dataUrl,
       });
       const filename = `underlag-${slug(spec.title || projectName)}-${spec.period_from}.pdf`;
-      await shareInvoicePdf(blob, filename);
+      setPreview({ blob, filename, title: spec.title || projectName });
     } catch {
       toast.error('Nie udało się wygenerować PDF');
     } finally {
@@ -93,7 +97,7 @@ export default function InvoicesPage() {
                   type="button"
                   disabled={busy}
                   className="press flex min-w-0 flex-1 items-center gap-3 p-3 text-left disabled:opacity-60"
-                  onClick={() => void generateAndShare(s)}
+                  onClick={() => void generateAndPreview(s)}
                 >
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface">
                     {busy ? (
@@ -140,7 +144,7 @@ export default function InvoicesPage() {
       <NewInvoiceSpecSheet
         open={newOpen}
         onClose={() => setNewOpen(false)}
-        onCreated={(spec) => void generateAndShare(spec)}
+        onCreated={(spec) => void generateAndPreview(spec)}
       />
 
       <ConfirmDialog
@@ -156,6 +160,17 @@ export default function InvoicesPage() {
           }
         }}
         onCancel={() => setToDelete(null)}
+      />
+
+      <PdfPreviewOverlay
+        open={preview !== null}
+        blob={preview?.blob ?? null}
+        filename={preview?.filename ?? ''}
+        title={preview?.title}
+        onClose={() => setPreview(null)}
+        onShare={() => {
+          if (preview) return shareInvoicePdf(preview.blob, preview.filename);
+        }}
       />
     </div>
   );

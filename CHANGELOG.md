@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.25.1 — podgląd PDF w aplikacji przed wysłaniem (2026-07-16)
+
+- Kliknięcie specyfikacji **otwiera podgląd PDF w aplikacji** (strony renderowane
+  przez `pdf.js`, działa też w PWA na iPhonie) — a dopiero na dole jest przycisk
+  **„Zapisz / wyślij PDF"**. Wcześniej od razu wyskakiwało okno udostępniania.
+- `pdf.js` ładowany leniwie (osobny chunk); worker przez `?worker` (bezpieczny
+  typ MIME na GitHub Pages).
+
 ## 0.25.0 — Specyfikacje faktury (Faktura underlag) → PDF (2026-07-16)
 
 - Nowa zakładka **Specyfikacje faktury** (menu „Więcej", obok Specyfikacji
