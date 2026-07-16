@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { z } from 'zod';
+import { Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet } from '@/components/ui/Sheet';
 import { Switch } from '@/components/ui/Switch';
+import { toast } from '@/components/ui/Toast';
+import { lookupCompanyByOrgnr } from '../api';
 import { useCreateClient, useUpdateClient } from '../hooks';
 import type { Client } from '../types';
 
@@ -38,6 +41,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
   const update = useUpdateClient(client?.id ?? '');
   const [form, setForm] = useState(empty);
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [looking, setLooking] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -61,6 +65,28 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
   }, [open, client]);
 
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
+
+  const fetchCompany = async () => {
+    const nr = form.org_or_person_nr.trim();
+    if (!nr) {
+      toast.error('Wpisz organisationsnummer');
+      return;
+    }
+    setLooking(true);
+    try {
+      const res = await lookupCompanyByOrgnr(nr);
+      if (res.valid && res.name) {
+        set({ name: res.name, address: res.address ?? form.address });
+        toast.success('Dane firmy pobrane');
+      } else {
+        toast.info('Nie znaleziono firmy dla tego numeru');
+      }
+    } catch {
+      toast.error('Nie udało się pobrać danych firmy');
+    } finally {
+      setLooking(false);
+    }
+  };
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -114,11 +140,28 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
           error={errors.name}
           onChange={(e) => set({ name: e.target.value })}
         />
-        <Input
-          label={form.type === 'company' ? 'Organisationsnummer' : 'Personnummer (opcjonalnie)'}
-          value={form.org_or_person_nr}
-          onChange={(e) => set({ org_or_person_nr: e.target.value })}
-        />
+        <div className="flex flex-col gap-1.5">
+          <Input
+            label={form.type === 'company' ? 'Organisationsnummer' : 'Personnummer (opcjonalnie)'}
+            value={form.org_or_person_nr}
+            onChange={(e) => set({ org_or_person_nr: e.target.value })}
+          />
+          {form.type === 'company' && (
+            <button
+              type="button"
+              disabled={looking}
+              onClick={() => void fetchCompany()}
+              className="press flex h-10 items-center justify-center gap-2 self-start rounded-(--radius-input) bg-surface px-3 text-sm font-medium text-text disabled:opacity-60"
+            >
+              {looking ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Download className="size-4" />
+              )}
+              {looking ? 'Pobieranie…' : 'Pobierz dane firmy'}
+            </button>
+          )}
+        </div>
         <Input
           label="E-mail"
           type="email"
