@@ -421,6 +421,10 @@ export type Database = {
         Args: { p_from: string; p_to: string };
         Returns: Array<{ employee_id: string; name: string; type: string; days: number }>;
       };
+      lookup_company_by_orgnr: {
+        Args: { p_orgnr: string };
+        Returns: Json;
+      };
       invoice_spec_items: {
         Args: { p_project: string; p_from: string; p_to: string };
         Returns: Array<{

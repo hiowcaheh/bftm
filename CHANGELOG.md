@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.26.0 — auto-pobieranie danych firmy po organisationsnummer (2026-07-16)
+
+- W formularzu klienta (typ **Firma**) przycisk **„Pobierz dane firmy"** obok
+  organisationsnummer: wpisujesz nr organizacyjny → nazwa i adres wpisują się
+  same (dopisujesz tylko e-mail). Źródło: darmowe VIES (VAT) przez VATComply.
+- Backend: RPC `lookup_company_by_orgnr` (security definer, rozszerzenie `http`),
+  składa szwedzki nr VAT (orgnr + „01"), zabezpieczone prawem edycji klientów
+  (migracja 0031). Klient prywatny (personnummer) — bez zmian, ręcznie.
+
 ## 0.25.4 — lightbox podglądu, większe logo, stopka +org/www, tygodnie w kalendarzu (2026-07-16)
 
 - **Podgląd PDF jako lightbox**: zamazane (blur) i przyciemnione tło ponad całą
