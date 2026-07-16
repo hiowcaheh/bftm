@@ -4,9 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
 
-// GitHub Pages serwuje aplikację spod https://<user>.github.io/bftm/
+// Serwowane z własnej domeny https://app.bftm.se/ (korzeń) przez GitHub Pages
 export default defineConfig({
-  base: '/bftm/',
+  base: '/',
   plugins: [
     react(),
     tailwindcss(),
@@ -22,8 +22,8 @@ export default defineConfig({
         orientation: 'portrait',
         theme_color: '#F2F2F5',
         background_color: '#F2F2F5',
-        start_url: '/bftm/',
-        scope: '/bftm/',
+        start_url: '/',
+        scope: '/',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -37,7 +37,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
-        navigateFallback: '/bftm/index.html',
+        navigateFallback: '/index.html',
         runtimeCaching: [
           {
             // Supabase REST (tylko GET) — najpierw sieć, offline fallback do cache

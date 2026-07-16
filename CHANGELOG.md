@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.28.5 — własna domena app.bftm.se (2026-07-16)
+
+- Aplikacja przełączona na własną domenę **https://app.bftm.se** (baza `/`
+  zamiast `/bftm/`; ścieżki ikon, manifest start_url/scope, service worker).
+- Deploy dodaje plik CNAME (app.bftm.se) do GitHub Pages.
+- Uwaga: stary adres `hiowcaheh.github.io/bftm/` przestaje działać.
+
+
 ## 0.28.4 — koniec migającej ikonki kasku przy starcie (2026-07-16)
 
 - Ekran logowania: zamiast migającej ikonki kasku podczas ładowania jest teraz
