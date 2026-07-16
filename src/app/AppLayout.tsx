@@ -82,11 +82,11 @@ export function AppLayout() {
       onTouchEnd={onTouchEnd}
     >
       {/* Firmowa tekstura: dużo malutkich logo pod kątem, ledwo widoczne.
-          Nakładka nad treścią (pod paskiem i menu), klik przechodzi. */}
+          Za treścią (-z-10) — widoczna tylko w pustych miejscach, nie na kartach. */}
       {logoUrl && (
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-0 z-[5] overflow-hidden"
+          className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
         >
           <div
             className="absolute -inset-1/2"

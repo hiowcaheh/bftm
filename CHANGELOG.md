@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.28.1 — tekstura tła tylko w pustych miejscach (2026-07-16)
+
+- Firmowa tekstura logo jest teraz **za** treścią (nie na wierzchu) — widoczna
+  tylko w pustych miejscach strony; karty (Ten tydzień, tabela godzin itd.)
+  pozostają czyste i czytelne.
+
+
 ## 0.28.0 — szybkie dodawanie w dzienniku + tekstura logo (2026-07-16)
 
 - **Dziennik godzin** (admin / `hours_edit_all`): klik w **pustą komórkę**
