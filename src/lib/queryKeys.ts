@@ -94,4 +94,10 @@ export const qk = {
     list: (employeeId?: string) => ['payslips', 'list', employeeId ?? 'me'] as const,
     file: (path: string) => ['payslips', 'file', path] as const,
   },
+  invoiceSpecs: {
+    all: ['invoiceSpecs'] as const,
+    list: () => ['invoiceSpecs', 'list'] as const,
+    items: (projectId: string, from: string, to: string) =>
+      ['invoiceSpecs', 'items', projectId, from, to] as const,
+  },
 } as const;

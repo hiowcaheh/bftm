@@ -112,6 +112,11 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
         description: 'Wgrywa i zarządza specyfikacjami wypłaty pracowników',
         sensitive: true,
       },
+      {
+        flag: 'invoices_manage',
+        label: 'Specyfikacje faktury',
+        description: 'Tworzy specyfikacje faktury (underlag) i generuje PDF dla klientów',
+      },
     ],
   },
   {

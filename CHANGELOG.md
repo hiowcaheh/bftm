@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.25.0 — Specyfikacje faktury (Faktura underlag) → PDF (2026-07-16)
+
+- Nowa zakładka **Specyfikacje faktury** (menu „Więcej", obok Specyfikacji
+  wypłaty). Lista zapisanych specyfikacji; przycisk **+** otwiera modal:
+  klient → projekt → **okres wybierany kalendarzem zakresu** (jak przy
+  nieobecnościach) → tytuł → **Generuj PDF**.
+- **PDF w układzie underlag** (jak wzorzec faktury): logo firmy w lewym górnym
+  rogu, po prawej firma + „Underlag för {tytuł} – {projekt}" + okres +
+  „Totalt arbetade timmar". Tabela: **ÄTA Namn · Projekt · Datum · Anställd ·
+  Arb. h · Anteckning**. Tekst **zawija się**, a wysokość wiersza rośnie — nic
+  nie wychodzi za ramkę; tabela poprawnie łamie się między stronami.
+- Dane liczone **na żywo** z godzin (RPC `invoice_spec_items`). PDF generowany
+  po stronie klienta (`pdfmake`, ładowany leniwie — nie obciąża głównego
+  bundla). Zapis/wysyłka przez natywne udostępnianie (iOS: „Zapisz w Plikach").
+- Nowa flaga uprawnień **`invoices_manage`** („Specyfikacje faktury") —
+  zakładka i dostęp tylko dla admina lub pracownika z tą flagą; zabezpieczone
+  RLS + guardem w RPC (migracja 0030).
+
 ## 0.24.3 — nieobecności w sekcji Pracownicy (raport z linku) (2026-07-14)
 
 - W udostępnianym raporcie nieobecności są teraz **pod danym pracownikiem,
