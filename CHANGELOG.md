@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.27.2 — logo w tle faktycznie widoczne (2026-07-16)
+
+- Znak wodny z logo chował się za nieprzezroczystymi kartami (widoczny tylko
+  w pustych miejscach). Teraz to subtelna nakładka przy górze (nad treścią,
+  pod paskiem i menu, klik przechodzi) — widoczna na każdej stronie od góry.
+
 ## 0.27.1 — poprawki check-listy + logo w tle (2026-07-16)
 
 - Usunięty czerwony przycisk **+** (dodawanie godzin) z pulpitu — kolidował z
