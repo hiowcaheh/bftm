@@ -132,6 +132,11 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
         label: 'Zdjęcia projektów',
         description: 'Dodaje zdjęcia do projektów',
       },
+      {
+        flag: 'checklist_private',
+        label: 'Prywatna check-lista',
+        description: 'Ma własną, prywatną check-listę na pulpicie (obok firmowej)',
+      },
     ],
   },
 ];

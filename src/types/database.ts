@@ -228,6 +228,20 @@ type InvoiceSpecRow = {
   created_at: string;
 }
 
+type ChecklistItemRow = {
+  id: string;
+  scope: 'company' | 'private';
+  owner_id: string | null;
+  project_id: string | null;
+  priority: 'low' | 'medium' | 'high';
+  text: string;
+  done: boolean;
+  done_by: string | null;
+  done_at: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
 type EmployeePrivateRow = {
   profile_id: string;
   personnummer: string | null;
@@ -340,6 +354,10 @@ export type Database = {
         InvoiceSpecRow,
         Partial<InvoiceSpecRow> &
           Pick<InvoiceSpecRow, 'project_id' | 'period_from' | 'period_to'>
+      >;
+      checklist_items: TableDef<
+        ChecklistItemRow,
+        Partial<ChecklistItemRow> & Pick<ChecklistItemRow, 'scope' | 'text'>
       >;
       notifications: TableDef<
         NotificationRow,
