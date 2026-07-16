@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.28.6 — pewniejsza ikona na ekranie głównym iOS (2026-07-16)
+
+- Dodana kopia `apple-touch-icon.png` w korzeniu + `sizes="180x180"`, żeby iOS
+  na pewno pobierał ikonę BFTM przy „Dodaj do ekranu głównego" (zamiast litery B).
+
+
 ## 0.28.5 — własna domena app.bftm.se (2026-07-16)
 
 - Aplikacja przełączona na własną domenę **https://app.bftm.se** (baza `/`
