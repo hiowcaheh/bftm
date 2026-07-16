@@ -23,7 +23,7 @@ import { Copy, Link2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { hours as fmtHours, moneyWhole, monthYear, num } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
-import { ABSENCE_TYPE_LABELS, ABSENCE_TYPE_TONES } from '@/features/absences/types';
+import { ABSENCE_TYPE_COLORS, ABSENCE_TYPE_LABELS } from '@/features/absences/types';
 import { reportShareUrl } from '../api';
 import {
   useAbsencesReport,
@@ -362,11 +362,11 @@ function EmployeeRow({
             {(e.draft ?? 0) > 0 && (
               <Badge tone="warning">{num(e.draft!)} h niezatwierdzone</Badge>
             )}
-            {absences.map((a) => (
-              <Badge key={a.type} tone={ABSENCE_TYPE_TONES[a.type]}>
-                {ABSENCE_TYPE_LABELS[a.type]} {a.days} d
+            {absences.length > 0 && (
+              <Badge tone="neutral">
+                {absences.reduce((s, a) => s + a.days, 0)} dni nieobecności
               </Badge>
-            ))}
+            )}
             {finance && e.labor_cost != null && (
               <span className="tabular-nums text-[11px] text-text-secondary">
                 koszt {moneyWhole(e.labor_cost)}
@@ -384,9 +384,9 @@ function EmployeeRow({
           )}
         />
       </button>
-      {open && (e.projects?.length ?? 0) > 0 && (
-        <div className="flex flex-col gap-1.5 bg-surface/60 px-4 pt-1 pb-3">
-          {e.projects!.map((p) => (
+      {open && ((e.projects?.length ?? 0) > 0 || absences.length > 0) && (
+        <div className="flex flex-col gap-1.5 bg-surface/60 px-4 pt-2 pb-3">
+          {e.projects?.map((p) => (
             <div key={p.name} className="flex items-center gap-2 text-sm">
               <span
                 className="size-2.5 shrink-0 rounded-full"
@@ -394,6 +394,20 @@ function EmployeeRow({
               />
               <span className="min-w-0 flex-1 truncate text-text-secondary">{p.name}</span>
               <span className="tabular-nums font-medium">{num(p.hours)} h</span>
+            </div>
+          ))}
+          {absences.map((a) => (
+            <div key={a.type} className="flex items-center gap-2 text-sm">
+              <span
+                className="size-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: ABSENCE_TYPE_COLORS[a.type] }}
+              />
+              <span className="min-w-0 flex-1 truncate text-text-secondary">
+                {ABSENCE_TYPE_LABELS[a.type]}
+              </span>
+              <span className="tabular-nums font-medium">
+                {a.days} {a.days === 1 ? 'dzień' : 'dni'}
+              </span>
             </div>
           ))}
         </div>
