@@ -51,11 +51,21 @@ export interface InvoicePdfInput {
   items: InvoiceSpecItem[];
   /** Logo firmy jako data URL (PNG/JPG) — jeśli brak, pokazujemy nazwę. */
   logoDataUrl: string | null;
+  /** Kontakt do stopki. */
+  companyPhone?: string | null;
+  companyEmail?: string | null;
 }
 
 /** Buduje definicję dokumentu w układzie underlag (jak wzorzec faktury). */
 function buildDocDefinition(input: InvoicePdfInput): Record<string, unknown> {
   const { companyName, projectName, title, periodFrom, periodTo, items, logoDataUrl } = input;
+  const footerLine = [
+    companyName,
+    input.companyPhone ? `Tel. ${input.companyPhone}` : null,
+    input.companyEmail || null,
+  ]
+    .filter(Boolean)
+    .join('  ·  ');
   const totalHours = items.reduce((s, i) => s + i.hours, 0);
   const periodStr = `${periodDay(periodFrom)} - ${periodDay(periodTo)}`;
   const underlagLine = title ? `Underlag för ${title} - ${projectName}` : `Underlag – ${projectName}`;
@@ -126,11 +136,17 @@ function buildDocDefinition(input: InvoicePdfInput): Record<string, unknown> {
     pageMargins: [40, 44, 40, 54],
     defaultStyle: { font: 'Roboto', fontSize: 9, lineHeight: 1.15 },
     footer: (currentPage: number, pageCount: number) => ({
-      text: `${companyName}  ·  ${currentPage} / ${pageCount}`,
-      alignment: 'center',
-      fontSize: 8,
-      color: GRAY,
-      margin: [0, 16, 0, 0],
+      stack: [
+        { text: footerLine, alignment: 'center', fontSize: 8, color: GRAY },
+        {
+          text: `${currentPage} / ${pageCount}`,
+          alignment: 'center',
+          fontSize: 7.5,
+          color: GRAY,
+          margin: [0, 2, 0, 0],
+        },
+      ],
+      margin: [40, 16, 40, 0],
     }),
     content: [
       {

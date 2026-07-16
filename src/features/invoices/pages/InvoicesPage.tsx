@@ -9,6 +9,7 @@ import { FAB } from '@/components/ui/FAB';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { toast } from '@/components/ui/Toast';
 import { usePublicBranding } from '@/features/auth/hooks';
+import { useCompanyDetails } from '@/features/settings/hooks';
 import { fetchInvoiceItems, fetchLogoDataUrl } from '../api';
 import type { InvoiceSpec } from '../api';
 import { generateInvoiceSpecPdf, shareInvoicePdf } from '../pdf';
@@ -34,6 +35,7 @@ let logoCache: { path: string | null; dataUrl: string | null } | null = null;
 export default function InvoicesPage() {
   const specs = useInvoiceSpecs();
   const branding = usePublicBranding();
+  const company = useCompanyDetails(true);
   const deleteSpec = useDeleteInvoiceSpec();
 
   const [newOpen, setNewOpen] = useState(false);
@@ -64,6 +66,8 @@ export default function InvoicesPage() {
         periodTo: spec.period_to,
         items,
         logoDataUrl: logoCache.dataUrl,
+        companyPhone: company.data?.phone ?? null,
+        companyEmail: company.data?.email ?? null,
       });
       const filename = `underlag-${slug(spec.title || projectName)}-${spec.period_from}.pdf`;
       setPreview({ blob, filename, title: spec.title || projectName });
