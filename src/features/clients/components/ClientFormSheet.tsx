@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { z } from 'zod';
 import { Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
@@ -8,14 +7,12 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet } from '@/components/ui/Sheet';
 import { Switch } from '@/components/ui/Switch';
 import { toast } from '@/components/ui/Toast';
+import { useT } from '@/lib/i18n/context';
 import { lookupCompanyByOrgnr } from '../api';
 import { useCreateClient, useUpdateClient } from '../hooks';
 import type { Client } from '../types';
 
-const schema = z.object({
-  name: z.string().min(2, 'Podaj nazwę klienta'),
-  email: z.string().email('Nieprawidłowy e-mail').or(z.literal('')),
-});
+const EMAIL_RE = /^\S+@\S+\.\S+$/;
 
 interface ClientFormSheetProps {
   open: boolean;
@@ -37,6 +34,7 @@ const empty = {
 };
 
 export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps) {
+  const t = useT();
   const create = useCreateClient();
   const update = useUpdateClient(client?.id ?? '');
   const [form, setForm] = useState(empty);
@@ -69,7 +67,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
   const fetchCompany = async () => {
     const nr = form.org_or_person_nr.trim();
     if (!nr) {
-      toast.error('Wpisz organisationsnummer');
+      toast.error(t('cli.orgnrErr'));
       return;
     }
     setLooking(true);
@@ -77,12 +75,12 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
       const res = await lookupCompanyByOrgnr(nr);
       if (res.valid && res.name) {
         set({ name: res.name, address: res.address ?? form.address });
-        toast.success('Dane firmy pobrane');
+        toast.success(t('cli.companyFetched'));
       } else {
-        toast.info('Nie znaleziono firmy dla tego numeru');
+        toast.info(t('cli.companyNotFound'));
       }
     } catch {
-      toast.error('Nie udało się pobrać danych firmy');
+      toast.error(t('cli.companyFetchErr'));
     } finally {
       setLooking(false);
     }
@@ -90,16 +88,16 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse(form);
-    if (!parsed.success) {
-      const fieldErrors: typeof errors = {};
-      for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as keyof typeof errors;
-        fieldErrors[key] ??= issue.message;
-      }
+    const fieldErrors: typeof errors = {};
+    if (form.name.trim().length < 2) fieldErrors.name = t('cli.nameErr');
+    if (form.email.trim() && !EMAIL_RE.test(form.email.trim())) {
+      fieldErrors.email = t('cli.emailErr');
+    }
+    if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return;
     }
+    setErrors({});
     const payload = {
       name: form.name.trim(),
       type: form.type,
@@ -116,12 +114,12 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title={client ? 'Edytuj klienta' : 'Nowy klient'}>
+    <Sheet open={open} onClose={onClose} title={client ? t('cli.editClient') : t('cli.newClient')}>
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <SegmentedControl
           options={[
-            { value: 'company', label: 'Firma' },
-            { value: 'private', label: 'Klient prywatny' },
+            { value: 'company', label: t('cli.company') },
+            { value: 'private', label: t('cli.privateClient') },
           ]}
           value={form.type}
           onChange={(type) =>
@@ -135,7 +133,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
           }
         />
         <Input
-          label={form.type === 'company' ? 'Nazwa firmy' : 'Imię i nazwisko'}
+          label={form.type === 'company' ? t('cli.companyName') : t('cli.personName')}
           value={form.name}
           error={errors.name}
           onChange={(e) => set({ name: e.target.value })}
@@ -143,7 +141,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
         <div className="flex items-end gap-2">
           <div className="min-w-0 flex-1">
             <Input
-              label={form.type === 'company' ? 'Organisationsnummer' : 'Personnummer (opcjonalnie)'}
+              label={form.type === 'company' ? 'Organisationsnummer' : t('cli.pnrOptional')}
               value={form.org_or_person_nr}
               onChange={(e) => set({ org_or_person_nr: e.target.value })}
             />
@@ -152,7 +150,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
             <button
               type="button"
               disabled={looking}
-              aria-label="Pobierz dane firmy"
+              aria-label={t('cli.fetchCompany')}
               onClick={() => void fetchCompany()}
               className="press flex h-12 shrink-0 items-center gap-1.5 rounded-(--radius-input) bg-accent px-3.5 text-sm font-medium text-white disabled:opacity-60"
             >
@@ -161,7 +159,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
               ) : (
                 <Download className="size-4" />
               )}
-              Pobierz
+              {t('cli.fetchBtn')}
             </button>
           )}
         </div>
@@ -169,19 +167,19 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
           label="E-mail"
           type="email"
           autoCapitalize="none"
-          hint="Użyjemy go do wysyłki ofert i wizualizacji"
+          hint={t('cli.emailHint')}
           value={form.email}
           error={errors.email}
           onChange={(e) => set({ email: e.target.value })}
         />
         <Input
-          label="Telefon"
+          label={t('cli.phone')}
           type="tel"
           value={form.phone}
           onChange={(e) => set({ phone: e.target.value })}
         />
         <Input
-          label="Adres"
+          label={t('cli.address')}
           value={form.address}
           onChange={(e) => set({ address: e.target.value })}
         />
@@ -191,7 +189,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
             <div className="flex-1">
               <p className="text-sm font-medium">Omvänd byggmoms</p>
               <p className="text-xs text-text-secondary">
-                Odwrotne obciążenie VAT dla usług budowlanych B2B
+                {t('cli.reverseVatDesc')}
               </p>
             </div>
             <Switch
@@ -205,9 +203,9 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
         {form.type === 'private' && (
           <div className="flex min-h-12 items-center gap-3">
             <div className="flex-1">
-              <p className="text-sm font-medium">Uprawniony do ROT</p>
+              <p className="text-sm font-medium">{t('cli.rotTitle')}</p>
               <p className="text-xs text-text-secondary">
-                Odliczenie 30% robocizny (limit 50 000 kr/os./rok)
+                {t('cli.rotDesc')}
               </p>
             </div>
             <Switch
@@ -220,7 +218,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
         )}
 
         <Textarea
-          label="Notatki (opcjonalnie)"
+          label={t('cli.notesOptional')}
           value={form.notes}
           onChange={(e) => set({ notes: e.target.value })}
         />
@@ -230,7 +228,7 @@ export function ClientFormSheet({ open, onClose, client }: ClientFormSheetProps)
           size="lg"
           loading={create.isPending || update.isPending}
         >
-          {client ? 'Zapisz zmiany' : 'Dodaj klienta'}
+          {client ? t('ts.saveChanges') : t('cli.addClient')}
         </Button>
       </form>
     </Sheet>

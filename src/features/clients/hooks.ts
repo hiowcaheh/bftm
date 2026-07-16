@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import {
   createClient,
   deleteClient,
@@ -24,9 +25,9 @@ export function useCreateClient() {
     mutationFn: (payload: ClientInsert) => createClient(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.clients.all });
-      toast.success('Klient dodany');
+      toast.success(translate('cli.created'));
     },
-    onError: () => toast.error('Nie udało się dodać klienta'),
+    onError: () => toast.error(translate('cli.errCreate')),
   });
 }
 
@@ -38,9 +39,9 @@ export function useUpdateClient(id: string) {
       void queryClient.invalidateQueries({ queryKey: qk.clients.all });
       // projekty pokazują nazwę klienta — odśwież też ich cache
       void queryClient.invalidateQueries({ queryKey: qk.projects.all });
-      toast.success('Zapisano zmiany');
+      toast.success(translate('cli.updated'));
     },
-    onError: () => toast.error('Nie udało się zapisać zmian'),
+    onError: () => toast.error(translate('cli.errUpdate')),
   });
 }
 
@@ -51,9 +52,9 @@ export function useDeleteClient() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.clients.all });
       void queryClient.invalidateQueries({ queryKey: qk.projects.all });
-      toast.success('Klient usunięty');
+      toast.success(translate('cli.deleted'));
     },
     onError: () =>
-      toast.error('Nie udało się usunąć klienta — sprawdź, czy nie ma powiązanych danych'),
+      toast.error(translate('cli.errDelete')),
   });
 }
