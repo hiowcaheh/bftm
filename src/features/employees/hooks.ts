@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import type { PermissionMap } from '@/lib/permissions';
 import {
   addCompensation,
@@ -53,9 +54,9 @@ export function useSaveEmployeePrivate(id: string) {
     mutationFn: (patch: Partial<EmployeePrivate>) => saveEmployeePrivate(id, patch),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.detail(id) });
-      toast.success('Zapisano');
+      toast.success(translate('emp.saved'));
     },
-    onError: () => toast.error('Nie udało się zapisać danych'),
+    onError: () => toast.error(translate('emp.errSaveData')),
   });
 }
 
@@ -73,7 +74,7 @@ export function useCreateEmployee() {
     mutationFn: (payload: NewEmployee) => createEmployee(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.all });
-      toast.success('Konto pracownika utworzone');
+      toast.success(translate('emp.accountCreated'));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -86,7 +87,7 @@ export function useResetPassword() {
       resetPassword(id, tempPassword),
     onSuccess: (_d, { id }) => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.detail(id) });
-      toast.success('Hasło zresetowane');
+      toast.success(translate('emp.pwReset'));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -98,7 +99,7 @@ export function useSetActive() {
     mutationFn: ({ id, active }: { id: string; active: boolean }) => setActive(id, active),
     onSuccess: (_d, { active }) => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.all });
-      toast.success(active ? 'Konto aktywowane' : 'Konto dezaktywowane');
+      toast.success(active ? translate('emp.activated') : translate('emp.deactivated'));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -111,7 +112,7 @@ export function useDeleteEmployee() {
     mutationFn: (id: string) => deleteEmployee(id),
     onSuccess: () => {
       void queryClient.invalidateQueries();
-      toast.success('Pracownik usunięty z aplikacji');
+      toast.success(translate('emp.deleted'));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -124,9 +125,9 @@ export function useUpdateEmployee(id: string) {
       updateEmployee(id, patch),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.all });
-      toast.success('Dane zapisane');
+      toast.success(translate('emp.dataSaved'));
     },
-    onError: () => toast.error('Nie udało się zapisać danych'),
+    onError: () => toast.error(translate('emp.errSaveData')),
   });
 }
 
@@ -136,9 +137,9 @@ export function useUpdatePermissions(id: string) {
     mutationFn: (permissions: PermissionMap) => updatePermissions(id, permissions),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.detail(id) });
-      toast.success('Uprawnienia zapisane');
+      toast.success(translate('emp.permsSaved'));
     },
-    onError: () => toast.error('Nie udało się zapisać uprawnień'),
+    onError: () => toast.error(translate('emp.errPerms')),
   });
 }
 
@@ -149,8 +150,8 @@ export function useAddCompensation(id: string) {
       addCompensation(id, wage, validFrom),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.compensation(id) });
-      toast.success('Nowa stawka zapisana');
+      toast.success(translate('emp.wageSaved'));
     },
-    onError: () => toast.error('Nie udało się zapisać stawki'),
+    onError: () => toast.error(translate('emp.errWage')),
   });
 }

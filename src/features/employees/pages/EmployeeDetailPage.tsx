@@ -27,7 +27,7 @@ import { SkeletonList } from '@/components/ui/Skeleton';
 import { Switch } from '@/components/ui/Switch';
 import { money } from '@/lib/format';
 import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { useI18n } from '@/lib/i18n/context';
 import type { PermissionMap } from '@/lib/permissions';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
@@ -48,18 +48,19 @@ import { generateTempPassword } from '../types';
 import { TempPasswordDialog } from '../components/TempPasswordDialog';
 import { OnlineBadge } from '../components/OnlineBadge';
 
-const ACTIVITY_LABELS: Record<string, string> = {
-  login: 'Logowanie do aplikacji',
-  create: 'Utworzenie konta',
-  reset_password: 'Reset hasła przez administratora',
-  deactivate: 'Dezaktywacja konta',
-  reactivate: 'Reaktywacja konta',
+const ACTIVITY_KEYS: Record<string, string> = {
+  login: 'emp.actLogin',
+  create: 'emp.actCreate',
+  reset_password: 'emp.actReset',
+  deactivate: 'emp.actDeactivate',
+  reactivate: 'emp.actReactivate',
 };
 
 export default function EmployeeDetailPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { user } = useSession();
+  const { t, dateLocale } = useI18n();
   const isAdmin = user?.role === 'admin';
 
   const employee = useEmployee(id);
@@ -106,7 +107,7 @@ export default function EmployeeDetailPage() {
 
   if (employee.isLoading) return <SkeletonList rows={5} />;
   if (!employee.data) {
-    return <p className="py-16 text-center text-sm text-text-secondary">Nie znaleziono pracownika.</p>;
+    return <p className="py-16 text-center text-sm text-text-secondary">{t('emp.notFound')}</p>;
   }
   const emp = employee.data;
   const currentWage = compensation.data?.[0];
@@ -142,7 +143,7 @@ export default function EmployeeDetailPage() {
         onClick={() => navigate('/pracownicy')}
         className="press flex items-center gap-1 self-start text-sm font-medium text-text-secondary"
       >
-        <ArrowLeft className="size-4" /> Zespół
+        <ArrowLeft className="size-4" /> {t('nav.employees')}
       </button>
 
       <Card className="flex items-center gap-4 p-4">
@@ -152,8 +153,8 @@ export default function EmployeeDetailPage() {
           <div className="mt-1 flex flex-wrap gap-1.5">
             {emp.role === 'admin' && <Badge tone="accent">Admin</Badge>}
             <OnlineBadge lastSeen={emp.last_seen_at} />
-            {!emp.active && <Badge tone="error">Nieaktywny</Badge>}
-            {emp.must_change_password && <Badge tone="warning">Czeka na zmianę hasła</Badge>}
+            {!emp.active && <Badge tone="error">{t('emp.inactive')}</Badge>}
+            {emp.must_change_password && <Badge tone="warning">{t('emp.waitingPwChange')}</Badge>}
           </div>
         </div>
       </Card>
@@ -162,13 +163,13 @@ export default function EmployeeDetailPage() {
         <ListRow
           leading={<Mail className="size-5 text-text-secondary" />}
           title={emp.email}
-          subtitle="E-mail (login)"
+          subtitle={t('emp.emailLogin')}
           trailing={
             emp.email ? (
               <div className="flex items-center gap-1.5">
                 <a
                   href={`mailto:${emp.email}`}
-                  aria-label="Napisz e-mail"
+                  aria-label={t('emp.writeEmail')}
                   className="press flex size-9 items-center justify-center rounded-lg bg-surface text-accent"
                 >
                   <Mail className="size-4" />
@@ -184,7 +185,7 @@ export default function EmployeeDetailPage() {
             isAdmin ? (
               <input
                 value={phone}
-                placeholder="Dodaj numer telefonu"
+                placeholder={t('emp.addPhone')}
                 className="w-full bg-transparent text-[1rem] outline-none"
                 onChange={(e) => setPhone(e.target.value)}
                 onBlur={() => {
@@ -197,13 +198,13 @@ export default function EmployeeDetailPage() {
               emp.phone || '—'
             )
           }
-          subtitle="Telefon"
+          subtitle={t('emp.phone')}
           trailing={
             emp.phone ? (
               <div className="flex items-center gap-1.5">
                 <a
                   href={`tel:${emp.phone}`}
-                  aria-label="Zadzwoń"
+                  aria-label={t('emp.call')}
                   className="press flex size-9 items-center justify-center rounded-lg bg-surface text-accent"
                 >
                   <Phone className="size-4" />
@@ -262,7 +263,7 @@ export default function EmployeeDetailPage() {
                 ))}
               </div>
             }
-            subtitle="Rozmiary robocze (pracownik może uzupełnić sam w swoim profilu)"
+            subtitle={t('emp.sizes')}
           />
         )}
       </ListGroup>
@@ -272,30 +273,30 @@ export default function EmployeeDetailPage() {
           <Card className="flex flex-col gap-1 p-4">
             <div className="mb-2 flex items-center gap-2">
               <ShieldCheck className="size-5 text-accent" strokeWidth={1.8} />
-              <h2 className="text-base font-semibold">Uprawnienia</h2>
+              <h2 className="text-base font-semibold">{t('emp.permissions')}</h2>
             </div>
             {PERMISSION_GROUPS.map((group) => (
-              <div key={group.label} className="mb-2">
+              <div key={group.key} className="mb-2">
                 <p className="mb-1 text-xs font-semibold tracking-wide text-text-secondary uppercase">
-                  {group.label}
+                  {t(`permg.${group.key}`)}
                 </p>
                 {group.items.map((item) => (
                   <div key={item.flag} className="flex min-h-12 items-center gap-3 py-1">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">
-                        {item.label}
+                        {t(`perm.${item.flag}`)}
                         {item.sensitive && (
                           <Badge tone="warning" className="ml-2">
-                            wrażliwe
+                            {t('emp.sensitive')}
                           </Badge>
                         )}
                       </p>
-                      <p className="text-xs text-text-secondary">{item.description}</p>
+                      <p className="text-xs text-text-secondary">{t(`perm.${item.flag}Desc`)}</p>
                     </div>
                     <Switch
                       checked={perms[item.flag] === true}
                       onChange={(v) => togglePerm(item.flag, v)}
-                      label={item.label}
+                      label={t(`perm.${item.flag}`)}
                       hideLabel
                     />
                   </div>
@@ -307,20 +308,20 @@ export default function EmployeeDetailPage() {
           <Card className="flex flex-col gap-3 p-4">
             <div className="flex items-center gap-2">
               <Banknote className="size-5 text-accent" strokeWidth={1.8} />
-              <h2 className="text-base font-semibold">Stawka godzinowa</h2>
+              <h2 className="text-base font-semibold">{t('emp.wage')}</h2>
             </div>
             <p className="tabular-nums text-lg font-semibold">
-              {currentWage ? `${money(currentWage.hourly_wage)} / h` : 'Nie ustawiono'}
+              {currentWage ? `${money(currentWage.hourly_wage)} / h` : t('emp.wageNotSet')}
               {currentWage && (
                 <span className="ml-2 text-xs font-normal text-text-secondary">
-                  od {format(new Date(currentWage.valid_from), 'dd.MM.yyyy')}
+                  {t('emp.from', { date: format(new Date(currentWage.valid_from), 'dd.MM.yyyy') })}
                 </span>
               )}
             </p>
             <div className="flex items-end gap-2">
               <div className="flex-1">
                 <Input
-                  label="Nowa stawka (kr/h)"
+                  label={t('emp.newWage')}
                   inputMode="decimal"
                   value={newWage}
                   onChange={(e) => setNewWage(e.target.value)}
@@ -328,7 +329,7 @@ export default function EmployeeDetailPage() {
               </div>
               <div className="flex-1">
                 <DateField
-                  label="Obowiązuje od"
+                  label={t('emp.validFrom')}
                   value={wageFrom}
                   onChange={(e) => setWageFrom(e.target.value)}
                 />
@@ -339,15 +340,16 @@ export default function EmployeeDetailPage() {
                 disabled={!newWage.trim()}
                 onClick={submitWage}
               >
-                Zapisz
+                {t('common.save')}
               </Button>
             </div>
             {(compensation.data?.length ?? 0) > 1 && (
               <div className="mt-1 border-t border-line pt-2">
-                <p className="mb-1 text-xs font-semibold text-text-secondary">Historia</p>
+                <p className="mb-1 text-xs font-semibold text-text-secondary">{t('emp.history')}</p>
                 {compensation.data?.slice(1).map((c) => (
                   <p key={c.id} className="tabular-nums text-xs text-text-secondary">
-                    {money(c.hourly_wage)} / h — od {format(new Date(c.valid_from), 'dd.MM.yyyy')}
+                    {money(c.hourly_wage)} / h —{' '}
+                    {t('emp.from', { date: format(new Date(c.valid_from), 'dd.MM.yyyy') })}
                   </p>
                 ))}
               </div>
@@ -357,7 +359,7 @@ export default function EmployeeDetailPage() {
           <Card className="flex flex-col gap-2 p-4">
             <div className="flex items-center gap-2">
               <Clock3 className="size-5 text-accent" strokeWidth={1.8} />
-              <h2 className="text-base font-semibold">Aktywność konta</h2>
+              <h2 className="text-base font-semibold">{t('emp.accountActivity')}</h2>
             </div>
             {activity.data?.length ? (
               (() => {
@@ -373,9 +375,9 @@ export default function EmployeeDetailPage() {
                           key={a.id}
                           className="flex items-baseline justify-between gap-3 py-1.5"
                         >
-                          <span className="text-sm">{ACTIVITY_LABELS[a.action] ?? a.action}</span>
+                          <span className="text-sm">{ACTIVITY_KEYS[a.action] ? t(ACTIVITY_KEYS[a.action]!) : a.action}</span>
                           <span className="tabular-nums shrink-0 text-xs text-text-secondary">
-                            {format(new Date(a.created_at), 'dd.MM.yyyy HH:mm', { locale: pl })}
+                            {format(new Date(a.created_at), 'dd.MM.yyyy HH:mm', { locale: dateLocale })}
                           </span>
                         </div>
                       ))}
@@ -403,9 +405,7 @@ export default function EmployeeDetailPage() {
                 );
               })()
             ) : (
-              <p className="text-sm text-text-secondary">
-                Brak zarejestrowanej aktywności — pojawi się przy pierwszym logowaniu.
-              </p>
+              <p className="text-sm text-text-secondary">{t('emp.noActivity')}</p>
             )}
           </Card>
 
@@ -415,7 +415,7 @@ export default function EmployeeDetailPage() {
               icon={<KeyRound className="size-5" />}
               onClick={() => setConfirmReset(true)}
             >
-              Resetuj hasło
+              {t('emp.resetPw')}
             </Button>
             <Button
               variant={emp.active ? 'destructive' : 'primary'}
@@ -423,7 +423,7 @@ export default function EmployeeDetailPage() {
               loading={setActive.isPending}
               onClick={() => setConfirmActive(true)}
             >
-              {emp.active ? 'Dezaktywuj konto' : 'Aktywuj konto'}
+              {emp.active ? t('emp.deactivate') : t('emp.activate')}
             </Button>
             <Button
               variant="destructive"
@@ -431,7 +431,7 @@ export default function EmployeeDetailPage() {
               loading={deleteEmployee.isPending}
               onClick={() => setConfirmDelete(true)}
             >
-              Usuń pracownika
+              {t('emp.deleteEmployee')}
             </Button>
           </div>
         </>
@@ -439,21 +439,21 @@ export default function EmployeeDetailPage() {
 
       <ConfirmDialog
         open={confirmReset}
-        title="Zresetować hasło?"
-        description={`Wygenerujemy nowe hasło tymczasowe dla ${emp.full_name}. Stare hasło i aktywne sesje przestaną działać, a przy następnym logowaniu system wymusi ustawienie własnego hasła.`}
-        confirmLabel="Resetuj"
+        title={t('emp.resetTitle')}
+        description={t('emp.resetDesc', { name: emp.full_name })}
+        confirmLabel={t('emp.resetConfirm')}
         onConfirm={doReset}
         onCancel={() => setConfirmReset(false)}
       />
       <ConfirmDialog
         open={confirmActive}
-        title={emp.active ? 'Dezaktywować konto?' : 'Aktywować konto?'}
+        title={emp.active ? t('emp.deactivateTitle') : t('emp.activateTitle')}
         description={
           emp.active
-            ? `${emp.full_name} natychmiast straci dostęp do aplikacji — logowanie zostanie zablokowane, a aktywne sesje wygaszone. Dane (godziny, wpisy) zostają.`
-            : `${emp.full_name} odzyska możliwość logowania.`
+            ? t('emp.deactivateDesc', { name: emp.full_name })
+            : t('emp.activateDesc', { name: emp.full_name })
         }
-        confirmLabel={emp.active ? 'Dezaktywuj' : 'Aktywuj'}
+        confirmLabel={emp.active ? t('emp.deactivate') : t('emp.activate')}
         destructive={emp.active}
         onConfirm={() => {
           setActive.mutate({ id, active: !emp.active });
@@ -463,9 +463,9 @@ export default function EmployeeDetailPage() {
       />
       <ConfirmDialog
         open={confirmDelete}
-        title="Usunąć pracownika na zawsze?"
-        description={`${emp.full_name} zostanie trwale usunięty z całej aplikacji: konto, godziny, nieobecności, stawki, dane prywatne, wypłaty i powiadomienia. Tej operacji NIE DA SIĘ cofnąć — jeśli chcesz tylko zablokować dostęp, użyj „Dezaktywuj konto".`}
-        confirmLabel="Usuń na zawsze"
+        title={t('emp.deleteTitle')}
+        description={t('emp.deleteDesc', { name: emp.full_name })}
+        confirmLabel={t('emp.deleteConfirm')}
         destructive
         loading={deleteEmployee.isPending}
         onConfirm={() => {
