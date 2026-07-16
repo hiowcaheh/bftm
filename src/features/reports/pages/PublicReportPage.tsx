@@ -6,6 +6,7 @@ import { Building2, CalendarOff, Clock, FileQuestion, Users, X } from 'lucide-re
 import { moneyWhole, num } from '@/lib/format';
 import { logoPublicUrl } from '@/features/settings/api';
 import { ABSENCE_TYPE_COLORS, ABSENCE_TYPE_LABELS } from '@/features/absences/types';
+import type { AbsenceType } from '@/types/database';
 import { usePublicReport } from '../hooks';
 
 const NAVY = '#1E2A44';
@@ -26,6 +27,27 @@ export default function PublicReportPage() {
     const f = format(new Date(data.period_from), 'd MMM', { locale: pl });
     const t = format(new Date(data.period_to), 'd MMM yyyy', { locale: pl });
     return `${f} – ${t}`;
+  }, [data]);
+
+  // Nieobecności rozbite na pojedyncze dni (zakres przycięty do okresu raportu)
+  const absenceDays = useMemo(() => {
+    if (!data) return [] as Array<{ date: string; items: Array<{ name: string; type: AbsenceType }> }>;
+    const pf = new Date(data.period_from);
+    const pt = new Date(data.period_to);
+    const byDate = new Map<string, Array<{ name: string; type: AbsenceType }>>();
+    for (const a of data.report.absences ?? []) {
+      const start = new Date(a.date_from) < pf ? pf : new Date(a.date_from);
+      const end = new Date(a.date_to) > pt ? pt : new Date(a.date_to);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const key = format(d, 'yyyy-MM-dd');
+        const arr = byDate.get(key) ?? [];
+        arr.push({ name: a.name, type: a.type });
+        byDate.set(key, arr);
+      }
+    }
+    return [...byDate.entries()]
+      .sort((x, y) => x[0].localeCompare(y[0]))
+      .map(([date, items]) => ({ date, items }));
   }, [data]);
 
   if (query.isLoading) {
@@ -114,6 +136,36 @@ export default function PublicReportPage() {
           )}
         </section>
 
+        {/* Nieobecności — dzień po dniu, blisko godzin */}
+        {absenceDays.length > 0 && (
+          <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+              <CalendarOff className="size-5" style={{ color: NAVY }} /> Nieobecności
+            </h2>
+            <div className="flex flex-col gap-3">
+              {absenceDays.map((d) => (
+                <div key={d.date} className="flex flex-col gap-1">
+                  <p className="text-xs font-semibold capitalize text-text-secondary">
+                    {format(new Date(d.date), 'EEEE d MMM', { locale: pl })}
+                  </p>
+                  {d.items.map((it, i) => (
+                    <div key={i} className="flex items-center gap-2 pl-0.5 text-sm">
+                      <span
+                        className="size-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: ABSENCE_TYPE_COLORS[it.type] }}
+                      />
+                      <span className="min-w-0 flex-1 truncate">{it.name}</span>
+                      <span className="shrink-0 text-xs text-text-secondary">
+                        {ABSENCE_TYPE_LABELS[it.type]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Pracownicy */}
         <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
@@ -188,39 +240,6 @@ export default function PublicReportPage() {
             ))}
           </div>
         </div>
-
-        {/* Nieobecności */}
-        {(r.absences?.length ?? 0) > 0 && (
-          <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
-              <CalendarOff className="size-5" style={{ color: NAVY }} /> Nieobecności
-            </h2>
-            <div className="flex flex-col divide-y divide-line">
-              {r.absences!.map((a, i) => {
-                const f = format(new Date(a.date_from), 'd MMM', { locale: pl });
-                const t = format(new Date(a.date_to), 'd MMM', { locale: pl });
-                return (
-                  <div key={i} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                    <span
-                      className="size-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: ABSENCE_TYPE_COLORS[a.type] }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{a.name}</p>
-                      <p className="truncate text-xs text-text-secondary">
-                        {ABSENCE_TYPE_LABELS[a.type]}
-                        {a.note ? ` · ${a.note}` : ''}
-                      </p>
-                    </div>
-                    <span className="tabular-nums shrink-0 text-xs text-text-secondary">
-                      {a.date_from === a.date_to ? f : `${f} – ${t}`}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         <p className="pb-6 text-center text-xs text-text-secondary">
           {companyName}

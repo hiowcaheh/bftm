@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.24.2 — nieobecności: dzień po dniu (link) + w rozwijanym pracowniku (2026-07-14)
+
+- **Raport z linku**: sekcja Nieobecności przeniesiona na górę (przy godzinach)
+  i rozbita na **pojedyncze dni** (kto, którego dnia, jaki typ) zamiast okresów.
+- **Strona Raporty (w apce)**: przy pracowniku zamiast rzędu badge jest teraz
+  zwięzły znacznik „X dni nieobecności", a **szczegóły (każdy typ w osobnej
+  linii) pokazują się po rozwinięciu** strzałką, razem z godzinami.
+
 ## 0.24.1 — nieobecności także w raporcie z linku (2026-07-14)
 
 - Udostępniany raport (link/snapshot) zawiera teraz sekcję **Nieobecności**:
