@@ -58,10 +58,16 @@
   --shadow-fab: 0 4px 16px rgba(204, 0, 0, 0.35);
 }
 
+/* Tło (canvas) trzymamy na <html>. Body zostaje przezroczyste, żeby firmowa
+   tekstura (fixed, -z-10 w AppLayout) była widoczna w pustych miejscach strony,
+   a pod nieprzezroczystymi kartami — nie (czyste boxy). */
+html {
+  background: var(--color-bg);
+}
+
 html,
 body {
   height: 100%;
-  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
   overscroll-behavior: none;
