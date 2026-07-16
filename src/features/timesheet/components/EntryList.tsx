@@ -6,13 +6,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { Sheet } from '@/components/ui/Sheet';
 import { dateLong, hours } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useDeleteEntry } from '../hooks';
-import {
-  HOURS_STATUS_LABELS,
-  HOURS_STATUS_TONES,
-  type WorkHoursEntry,
-} from '../types';
+import { HOURS_STATUS_TONES, type WorkHoursEntry } from '../types';
 
 interface EntryListProps {
   entries: WorkHoursEntry[];
@@ -25,6 +22,7 @@ interface EntryListProps {
 /** Lista wpisów pogrupowana po dniach; tap → akcje (edytuj/duplikuj/usuń). */
 export function EntryList({ entries, showEmployee, onEdit, onDuplicate }: EntryListProps) {
   const { user, can } = useSession();
+  const t = useT();
   const deleteEntry = useDeleteEntry();
   const [selected, setSelected] = useState<WorkHoursEntry | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -47,7 +45,7 @@ export function EntryList({ entries, showEmployee, onEdit, onDuplicate }: EntryL
   };
 
   if (entries.length === 0) {
-    return <EmptyState icon={Clock} message="Brak wpisów w wybranym okresie." />;
+    return <EmptyState icon={Clock} message={t('ts.emptyEntries')} />;
   }
 
   return (
@@ -76,7 +74,7 @@ export function EntryList({ entries, showEmployee, onEdit, onDuplicate }: EntryL
                   <span className="flex items-center gap-2">
                     {showEmployee ? entry.employee?.full_name : entry.project?.name}
                     <Badge tone={HOURS_STATUS_TONES[entry.status]}>
-                      {HOURS_STATUS_LABELS[entry.status]}
+                      {t(`hstatus.${entry.status}`)}
                     </Badge>
                   </span>
                 }
@@ -104,14 +102,14 @@ export function EntryList({ entries, showEmployee, onEdit, onDuplicate }: EntryL
         {selected && (
           <div className="flex flex-col gap-3">
             <Badge tone={HOURS_STATUS_TONES[selected.status]} className="self-start">
-              {HOURS_STATUS_LABELS[selected.status]}
+              {t(`hstatus.${selected.status}`)}
             </Badge>
             <p className="text-sm text-text-secondary">
               {selected.employee?.full_name} • {dateLong(selected.date)}
               {selected.activity && (
                 <>
                   <br />
-                  Aktywność: {selected.activity.name}
+                  {t('ts.activityLabel', { name: selected.activity.name })}
                 </>
               )}
               {selected.description && (
@@ -132,7 +130,7 @@ export function EntryList({ entries, showEmployee, onEdit, onDuplicate }: EntryL
                     onEdit(entry);
                   }}
                 >
-                  <Pencil className="size-5 text-text-secondary" /> Edytuj
+                  <Pencil className="size-5 text-text-secondary" /> {t('common.edit')}
                 </button>
                 <button
                   type="button"
@@ -143,23 +141,23 @@ export function EntryList({ entries, showEmployee, onEdit, onDuplicate }: EntryL
                     onDuplicate(entry);
                   }}
                 >
-                  <Copy className="size-5 text-text-secondary" /> Duplikuj na dziś
+                  <Copy className="size-5 text-text-secondary" /> {t('ts.duplicateToday')}
                 </button>
                 <button
                   type="button"
                   className="press flex h-12 items-center gap-3 rounded-(--radius-input) bg-error-soft px-4 text-sm font-medium text-error"
                   onClick={() => setConfirmDelete(true)}
                 >
-                  <Trash2 className="size-5" /> Usuń
+                  <Trash2 className="size-5" /> {t('common.delete')}
                 </button>
               </>
             ) : (
               <p className="text-xs text-text-secondary">
                 {selected.status === 'invoiced'
-                  ? 'Wpis rozliczony — zmiany może wprowadzać tylko administrator.'
+                  ? t('ts.lockedInvoiced')
                   : selected.status === 'approved' && selected.employee_id === user?.id
-                    ? 'Nie możesz edytować dni, które zostały już zatwierdzone do wypłaty.'
-                    : 'Nie masz uprawnień do edycji tego wpisu.'}
+                    ? t('ts.lockedApproved')
+                    : t('ts.lockedNoPerm')}
               </p>
             )}
           </div>
@@ -168,9 +166,9 @@ export function EntryList({ entries, showEmployee, onEdit, onDuplicate }: EntryL
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Usunąć wpis godzin?"
-        description="Tej operacji nie można cofnąć."
-        confirmLabel="Usuń"
+        title={t('ts.deleteEntryTitle')}
+        description={t('ts.cantUndo')}
+        confirmLabel={t('common.delete')}
         destructive
         loading={deleteEntry.isPending}
         onConfirm={() => {

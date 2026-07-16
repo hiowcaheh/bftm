@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
 import { date as fmtDate } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import type { AbsenceType } from '@/types/database';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
@@ -21,6 +22,7 @@ interface AbsenceFormSheetProps {
 
 export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
   const { user, can } = useSession();
+  const t = useT();
   const canManage = can('absences_manage');
   const employees = useEmployees();
   const create = useCreateAbsence();
@@ -42,9 +44,9 @@ export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
   }, [open, user?.id]);
 
   const rangeLabel = !from
-    ? 'Wybierz dzień na kalendarzu'
+    ? t('abs.pickDay')
     : !to
-      ? `Od ${fmtDate(from)} — wybierz dzień końcowy (albo tapnij tę samą datę)`
+      ? t('abs.pickEnd', { date: fmtDate(from) })
       : from.getTime() === to.getTime()
         ? fmtDate(from)
         : `${fmtDate(from)} – ${fmtDate(to)}`;
@@ -52,14 +54,14 @@ export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
   const submit = async () => {
     if (!employeeId) return;
     if (!from) {
-      toast.error('Wybierz datę na kalendarzu');
+      toast.error(t('abs.errDate'));
       return;
     }
     const end = to ?? from; // jeden tap = jeden dzień
     const isoFrom = format(from, 'yyyy-MM-dd');
     const isoTo = format(end, 'yyyy-MM-dd');
     if (await hasHoursInRange(employeeId, isoFrom, isoTo)) {
-      toast.info('Uwaga: w tym okresie są już wpisane godziny pracy');
+      toast.info(t('abs.hoursWarn'));
     }
     create.mutate(
       {
@@ -75,11 +77,11 @@ export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title="Zgłoś nieobecność" height="tall">
+    <Sheet open={open} onClose={onClose} title={t('ts.reportAbsence')} height="tall">
       <div className="flex flex-col gap-4">
         {canManage && (
           <Select
-            label="Pracownik"
+            label={t('ts.employee')}
             value={employeeId}
             options={(employees.data ?? [])
               .filter((e) => e.active)
@@ -88,21 +90,21 @@ export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
           />
         )}
         <Select
-          label="Rodzaj"
+          label={t('abs.kind')}
           value={type}
-          options={(Object.keys(ABSENCE_TYPE_LABELS) as AbsenceType[]).map((t) => ({
-            value: t,
-            label: ABSENCE_TYPE_LABELS[t],
+          options={(Object.keys(ABSENCE_TYPE_LABELS) as AbsenceType[]).map((k) => ({
+            value: k,
+            label: t(`absence.${k}`),
           }))}
           onChange={(e) => setType(e.target.value as AbsenceType)}
         />
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-text-secondary">Okres nieobecności</span>
+          <span className="text-xs font-medium text-text-secondary">{t('abs.periodField')}</span>
           <RangeCalendar from={from} to={to} onChange={(f, t) => (setFrom(f), setTo(t))} />
           <p className="tabular-nums text-center text-xs text-text-secondary">{rangeLabel}</p>
         </div>
         <Input
-          label="Notatka (opcjonalnie)"
+          label={t('abs.noteOptional')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />
@@ -113,7 +115,7 @@ export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
           loading={create.isPending}
           onClick={() => void submit()}
         >
-          Zapisz nieobecność
+          {t('abs.saveAbsence')}
         </Button>
       </div>
     </Sheet>

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import {
   approveEntries,
   createEntry,
@@ -39,10 +40,10 @@ export function useCreateEntry() {
     mutationFn: (payload: WorkHoursInsert) => createEntry(payload),
     onSuccess: () => {
       invalidateHours(queryClient);
-      toast.success('Godziny zapisane');
+      toast.success(translate('ts.saved'));
     },
     onError: (e: Error) =>
-      toast.error(e.message.includes('wpis') ? e.message : 'Nie udało się zapisać godzin'),
+      toast.error(e.message.includes('wpis') ? e.message : translate('ts.errSave')),
   });
 }
 
@@ -53,14 +54,10 @@ export function useUpdateEntry() {
       updateEntry(id, patch),
     onSuccess: () => {
       invalidateHours(queryClient);
-      toast.success('Wpis zaktualizowany');
+      toast.success(translate('ts.updated'));
     },
     onError: (e: Error) =>
-      toast.error(
-        e.message.includes('wpis')
-          ? e.message
-          : 'Nie udało się zapisać — rozliczone wpisy zmienia tylko administrator',
-      ),
+      toast.error(e.message.includes('wpis') ? e.message : translate('ts.errUpdate')),
   });
 }
 
@@ -70,9 +67,9 @@ export function useDeleteEntry() {
     mutationFn: (id: string) => deleteEntry(id),
     onSuccess: () => {
       invalidateHours(queryClient);
-      toast.success('Wpis usunięty');
+      toast.success(translate('ts.deleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć wpisu'),
+    onError: () => toast.error(translate('ts.errDelete')),
   });
 }
 
@@ -83,8 +80,8 @@ export function useApproveEntries() {
       approveEntries(ids, { label: periodLabel }),
     onSuccess: (_d, { ids }) => {
       invalidateHours(queryClient);
-      toast.success(`Zatwierdzono wpisy: ${ids.length}`);
+      toast.success(translate('ts.approvedN', { n: ids.length }));
     },
-    onError: () => toast.error('Nie udało się zatwierdzić wpisów'),
+    onError: () => toast.error(translate('ts.errApprove')),
   });
 }

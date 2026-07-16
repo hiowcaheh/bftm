@@ -7,6 +7,7 @@ import { NumberStepper } from '@/components/ui/NumberStepper';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
 import { useActivities, useProjects } from '@/features/projects/hooks';
@@ -50,6 +51,7 @@ export function HoursFormSheet({
   presetDate,
 }: HoursFormSheetProps) {
   const { user, can } = useSession();
+  const t = useT();
   const canPickEmployee = can('hours_edit_all');
   const employees = useEmployees();
   const projects = useProjects();
@@ -96,18 +98,18 @@ export function HoursFormSheet({
 
   const save = async (addNext: boolean) => {
     if (!projectId) {
-      toast.error('Wybierz projekt');
+      toast.error(t('ts.errProject'));
       return;
     }
     if (projectActivities.length > 0 && !activityId) {
-      toast.error('Wybierz aktywność — co było robione');
+      toast.error(t('ts.errActivity'));
       return;
     }
     if (!employeeId) return;
 
     // Ostrzeżenie (nieblokujące) o kolizji z nieobecnością
     if (await hasAbsenceOnDate(employeeId, date)) {
-      toast.info('Uwaga: w tym dniu zgłoszona jest nieobecność');
+      toast.info(t('ts.absenceWarn'));
     }
 
     const payload = {
@@ -140,11 +142,11 @@ export function HoursFormSheet({
   const pending = create.isPending || update.isPending;
 
   return (
-    <Sheet open={open} onClose={onClose} title={entry ? 'Edytuj wpis' : 'Dodaj godziny'}>
+    <Sheet open={open} onClose={onClose} title={entry ? t('ts.editEntry') : t('ts.addHours')}>
       <div className="flex flex-col gap-4">
         {canPickEmployee && (
           <Select
-            label="Pracownik"
+            label={t('ts.employee')}
             value={employeeId}
             options={(employees.data ?? [])
               .filter((e) => e.active)
@@ -153,10 +155,10 @@ export function HoursFormSheet({
           />
         )}
         <Select
-          label="Projekt"
+          label={t('common.project')}
           value={projectId}
-          placeholder="Wybierz projekt"
-          options={[{ value: '', label: '— wybierz —' }, ...projectOptions]}
+          placeholder={t('ts.selectProject')}
+          options={[{ value: '', label: t('ts.choose') }, ...projectOptions]}
           onChange={(e) => {
             setProjectId(e.target.value);
             setActivityId(''); // inna lista aktywności dla innego projektu
@@ -164,10 +166,10 @@ export function HoursFormSheet({
         />
         {projectActivities.length > 0 && (
           <Select
-            label="Aktywność (co było robione)"
+            label={t('ts.activityField')}
             value={activityId}
             options={[
-              { value: '', label: '— wybierz —' },
+              { value: '', label: t('ts.choose') },
               ...projectActivities.map((a) => ({ value: a.id, label: a.name })),
             ]}
             onChange={(e) => setActivityId(e.target.value)}
@@ -175,7 +177,7 @@ export function HoursFormSheet({
         )}
         <div className="flex items-end gap-2">
           <div className="flex-1">
-            <DateField label="Data" value={date} onChange={(e) => setDate(e.target.value)} />
+            <DateField label={t('ts.date')} value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <Button
             variant={date === today() ? 'primary' : 'secondary'}
@@ -183,7 +185,7 @@ export function HoursFormSheet({
             className="mb-0.5"
             onClick={() => setDate(today())}
           >
-            Dziś
+            {t('ts.todayBtn')}
           </Button>
           <Button
             variant={date === yesterday() ? 'primary' : 'secondary'}
@@ -191,11 +193,11 @@ export function HoursFormSheet({
             className="mb-0.5"
             onClick={() => setDate(yesterday())}
           >
-            Wczoraj
+            {t('ts.yesterdayBtn')}
           </Button>
         </div>
         <NumberStepper
-          label="Godziny"
+          label={t('ts.hoursField')}
           value={hoursValue}
           onChange={setHoursValue}
           step={0.5}
@@ -204,17 +206,17 @@ export function HoursFormSheet({
           suffix="h"
         />
         <Input
-          label="Opis (opcjonalnie)"
+          label={t('ts.descOptional')}
           value={description}
-          placeholder="np. montaż fasady, elewacja południowa"
+          placeholder={t('ts.descPlaceholder')}
           onChange={(e) => setDescription(e.target.value)}
         />
         <Button size="lg" fullWidth loading={pending} onClick={() => void save(false)}>
-          {entry ? 'Zapisz zmiany' : 'Zapisz'}
+          {entry ? t('ts.saveChanges') : t('common.save')}
         </Button>
         {!entry && (
           <Button variant="secondary" fullWidth loading={pending} onClick={() => void save(true)}>
-            Zapisz i dodaj kolejny
+            {t('ts.saveAndNext')}
           </Button>
         )}
       </div>

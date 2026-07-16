@@ -1,22 +1,15 @@
 import { useMemo, useState } from 'react';
 import { eachDayOfInterval, format, isToday, isWeekend } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { Pencil } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/cn';
 import { date as fmtDate, dateLong, hours, num } from '@/lib/format';
+import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import type { AbsenceWithEmployee } from '@/features/absences/types';
-import {
-  ABSENCE_TYPE_COLORS,
-  ABSENCE_TYPE_LABELS,
-} from '@/features/absences/types';
-import {
-  HOURS_STATUS_LABELS,
-  HOURS_STATUS_TONES,
-  type WorkHoursEntry,
-} from '../types';
+import { ABSENCE_TYPE_COLORS } from '@/features/absences/types';
+import { HOURS_STATUS_TONES, type WorkHoursEntry } from '../types';
 
 interface JournalGridProps {
   from: Date;
@@ -51,6 +44,7 @@ export function JournalGrid({
   const days = useMemo(() => eachDayOfInterval({ start: from, end: to }), [from, to]);
   const [selected, setSelected] = useState<{ employeeId: string; date: string } | null>(null);
   const { user, can } = useSession();
+  const { t, dateLocale } = useI18n();
 
   const canModify = (entry: WorkHoursEntry): boolean => {
     if (user?.role === 'admin') return true;
@@ -118,7 +112,7 @@ export function JournalGrid({
           <thead>
             <tr className="border-b border-line">
               <th className="sticky left-0 z-10 min-w-24 bg-white p-2 text-left font-medium text-text-secondary">
-                Pracownik
+                {t('ts.employee')}
               </th>
               {days.map((d) => (
                 <th
@@ -132,12 +126,12 @@ export function JournalGrid({
                         : 'text-text-secondary',
                   )}
                 >
-                  <div className="capitalize">{format(d, 'EEEEEE', { locale: pl })}</div>
+                  <div className="capitalize">{format(d, 'EEEEEE', { locale: dateLocale })}</div>
                   <div className="tabular-nums">{format(d, 'd')}</div>
                 </th>
               ))}
               <th className="min-w-12 p-2 text-right font-semibold text-text-secondary">
-                Suma
+                {t('ts.total')}
               </th>
             </tr>
           </thead>
@@ -192,7 +186,7 @@ export function JournalGrid({
           </tbody>
           <tfoot>
             <tr className="border-t border-line bg-surface/50">
-              <td className="sticky left-0 z-10 bg-surface p-2 font-semibold">Suma</td>
+              <td className="sticky left-0 z-10 bg-surface p-2 font-semibold">{t('ts.total')}</td>
               {days.map((d) => {
                 const total = dayTotals.get(format(d, 'yyyy-MM-dd'));
                 return (
@@ -214,14 +208,16 @@ export function JournalGrid({
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line px-3 py-2 text-[11px] text-text-secondary">
         <span className="flex items-center gap-1.5">
-          <span className="size-3 rounded bg-accent-soft ring-1 ring-accent/30" /> niezatwierdzone
+          <span className="size-3 rounded bg-accent-soft ring-1 ring-accent/30" />{' '}
+          {t('ts.legendDraft')}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-3 rounded bg-success-soft ring-1 ring-success/30" /> zatwierdzone
+          <span className="size-3 rounded bg-success-soft ring-1 ring-success/30" />{' '}
+          {t('ts.legendApproved')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="size-3 rounded" style={{ backgroundColor: ABSENCE_TYPE_COLORS.sick }} />{' '}
-          nieobecność
+          {t('ts.legendAbsence')}
         </span>
       </div>
 
@@ -245,7 +241,7 @@ export function JournalGrid({
                   className="text-sm font-semibold"
                   style={{ color: ABSENCE_TYPE_COLORS[selectedAbsence.type] }}
                 >
-                  {ABSENCE_TYPE_LABELS[selectedAbsence.type]}
+                  {t(`absence.${selectedAbsence.type}`)}
                 </p>
                 <p className="text-xs text-text-secondary">
                   {selectedAbsence.date_from === selectedAbsence.date_to
@@ -270,7 +266,7 @@ export function JournalGrid({
                   </p>
                 )}
                 <Badge tone={HOURS_STATUS_TONES[e.status]} className="mt-1">
-                  {HOURS_STATUS_LABELS[e.status]}
+                  {t(`hstatus.${e.status}`)}
                 </Badge>
               </div>
               <span className="tabular-nums shrink-0 text-sm font-semibold">
@@ -279,7 +275,7 @@ export function JournalGrid({
               {onEditEntry && canModify(e) && (
                 <button
                   type="button"
-                  aria-label="Edytuj wpis"
+                  aria-label={t('ts.editEntry')}
                   className="press flex size-9 shrink-0 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
                   onClick={() => {
                     setSelected(null);
@@ -292,7 +288,7 @@ export function JournalGrid({
             </div>
           ))}
           {selectedEntries.length === 0 && !selectedAbsence && (
-            <p className="text-sm text-text-secondary">Brak wpisów.</p>
+            <p className="text-sm text-text-secondary">{t('ts.noEntries')}</p>
           )}
         </div>
       </Sheet>

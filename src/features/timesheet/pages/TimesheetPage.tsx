@@ -11,7 +11,6 @@ import {
   subDays,
   subMonths,
 } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { CalendarOff, ChevronLeft, ChevronRight, CheckCheck, Plus, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -23,12 +22,12 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Select } from '@/components/ui/Select';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { date as fmtDate, hours as fmtHours, monthYear } from '@/lib/format';
+import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
 import { useProjects } from '@/features/projects/hooks';
 import { useAbsences, useDeleteAbsence } from '@/features/absences/hooks';
 import {
-  ABSENCE_TYPE_LABELS,
   ABSENCE_TYPE_TONES,
   type AbsenceWithEmployee,
 } from '@/features/absences/types';
@@ -43,12 +42,13 @@ type View = 'journal' | 'list' | 'absences';
 type Range = 'week' | 'month';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
-/** „czw., 09.07" — kompaktowa etykieta dnia w modalu zatwierdzania */
-const dayLabel = (isoDate: string) =>
-  format(new Date(isoDate), 'EEEEEE, dd.MM', { locale: pl });
 
 export default function TimesheetPage() {
   const { user, can } = useSession();
+  const { t, tp, dateLocale } = useI18n();
+  // „czw., 09.07" — kompaktowa etykieta dnia w modalu zatwierdzania
+  const dayLabel = (isoDate: string) =>
+    format(new Date(isoDate), 'EEEEEE, dd.MM', { locale: dateLocale });
   const seesAll = can('hours_view_all');
   const canApprove = can('hours_approve');
 
@@ -98,7 +98,7 @@ export default function TimesheetPage() {
 
   const periodLabel =
     range === 'week'
-      ? `Tydzień ${getISOWeek(anchor)} • ${fmtDate(from)} – ${fmtDate(to)}`
+      ? `${t('ts.weekLabel', { n: getISOWeek(anchor) })} • ${fmtDate(from)} – ${fmtDate(to)}`
       : monthYear(anchor);
 
   const activeEmployees = (employees.data ?? []).filter((e) => e.active);
@@ -130,12 +130,12 @@ export default function TimesheetPage() {
         Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86400000) + 1;
       if (daysCount <= 0) continue;
       const row = byEmployee.get(name) ?? { hours: 0, days: new Map(), absences: new Map() };
-      const label = ABSENCE_TYPE_LABELS[a.type];
+      const label = t(`absence.${a.type}`);
       row.absences.set(label, (row.absences.get(label) ?? 0) + daysCount);
       byEmployee.set(name, row);
     }
     return [...byEmployee.entries()].sort((a, b) => a[0].localeCompare(b[0], 'pl'));
-  }, [draftEntries, absences.data, from, to]);
+  }, [draftEntries, absences.data, from, to, t]);
 
   const [confirmApprove, setConfirmApprove] = useState(false);
   const [editWarnEntry, setEditWarnEntry] = useState<WorkHoursEntry | null>(null);
@@ -164,9 +164,9 @@ export default function TimesheetPage() {
     <div className="flex flex-col gap-4">
       <SegmentedControl
         options={[
-          ...(seesAll ? [{ value: 'journal' as View, label: 'Dziennik' }] : []),
-          { value: 'list' as View, label: 'Lista' },
-          { value: 'absences' as View, label: 'Nieobecności' },
+          ...(seesAll ? [{ value: 'journal' as View, label: t('ts.journal') }] : []),
+          { value: 'list' as View, label: t('ts.list') },
+          { value: 'absences' as View, label: t('ts.absences') },
         ]}
         value={view}
         onChange={setView}
@@ -175,7 +175,7 @@ export default function TimesheetPage() {
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
-          aria-label="Poprzedni okres"
+          aria-label={t('ts.prevPeriod')}
           className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
           onClick={() => shift(-1)}
         >
@@ -187,7 +187,7 @@ export default function TimesheetPage() {
         </div>
         <button
           type="button"
-          aria-label="Następny okres"
+          aria-label={t('ts.nextPeriod')}
           className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
           onClick={() => shift(1)}
         >
@@ -199,8 +199,8 @@ export default function TimesheetPage() {
         <SegmentedControl
           className="flex-1"
           options={[
-            { value: 'week', label: 'Tydzień' },
-            { value: 'month', label: 'Miesiąc' },
+            { value: 'week', label: t('ts.week') },
+            { value: 'month', label: t('ts.month') },
           ]}
           value={range}
           onChange={setRange}
@@ -208,10 +208,10 @@ export default function TimesheetPage() {
         {view !== 'absences' && (
           <div className="flex-1">
             <Select
-              aria-label="Filtr projektu"
+              aria-label={t('ts.projectFilter')}
               value={projectFilter}
               options={[
-                { value: '', label: 'Wszystkie projekty' },
+                { value: '', label: t('ts.allProjects') },
                 ...(projects.data ?? []).map((p) => ({ value: p.id, label: p.name })),
               ]}
               onChange={(e) => setProjectFilter(e.target.value)}
@@ -248,7 +248,7 @@ export default function TimesheetPage() {
               icon={<CheckCheck className="size-5" />}
               onClick={() => setConfirmApprove(true)}
             >
-              Zatwierdź godziny z okresu ({draftIds.length})
+              {t('ts.approvePeriod', { n: draftIds.length })}
             </Button>
           )}
         </>
@@ -268,10 +268,10 @@ export default function TimesheetPage() {
           {(absences.data?.length ?? 0) === 0 ? (
             <EmptyState
               icon={CalendarOff}
-              message="Brak nieobecności w wybranym okresie."
+              message={t('ts.noAbsences')}
               action={
                 <Button icon={<Plus className="size-5" />} onClick={() => setAbsenceFormOpen(true)}>
-                  Zgłoś nieobecność
+                  {t('ts.reportAbsence')}
                 </Button>
               }
             />
@@ -282,7 +282,7 @@ export default function TimesheetPage() {
                   key={a.id}
                   leading={
                     <Badge tone={ABSENCE_TYPE_TONES[a.type]}>
-                      {ABSENCE_TYPE_LABELS[a.type]}
+                      {t(`absence.${a.type}`)}
                     </Badge>
                   }
                   title={a.employee?.full_name ?? ''}
@@ -298,7 +298,7 @@ export default function TimesheetPage() {
                     canDeleteAbsence(a) ? (
                       <button
                         type="button"
-                        aria-label="Usuń nieobecność"
+                        aria-label={t('ts.deleteAbsence')}
                         className="press text-error"
                         onClick={() => setAbsenceToDelete(a)}
                       >
@@ -314,7 +314,7 @@ export default function TimesheetPage() {
       )}
 
       <FAB
-        label={view === 'absences' ? 'Zgłoś nieobecność' : 'Dodaj godziny'}
+        label={view === 'absences' ? t('ts.reportAbsence') : t('ts.addHours')}
         onClick={() =>
           view === 'absences' ? setAbsenceFormOpen(true) : (setEditEntry(null), setFormOpen(true))
         }
@@ -336,13 +336,21 @@ export default function TimesheetPage() {
       <AbsenceFormSheet open={absenceFormOpen} onClose={() => setAbsenceFormOpen(false)} />
       <ConfirmDialog
         open={editWarnEntry !== null}
-        title="Dzień już zatwierdzony"
+        title={t('ts.dayApprovedTitle')}
         description={
           editWarnEntry
-            ? `Wpis ${editWarnEntry.employee?.full_name ?? ''} z ${fmtDate(editWarnEntry.date)} (${fmtHours(editWarnEntry.hours)}) został już ${editWarnEntry.status === 'invoiced' ? 'rozliczony' : 'zatwierdzony do wypłaty'}. Edytować mimo to?`
+            ? t('ts.editWarn', {
+                name: editWarnEntry.employee?.full_name ?? '',
+                date: fmtDate(editWarnEntry.date),
+                hours: fmtHours(editWarnEntry.hours),
+                status:
+                  editWarnEntry.status === 'invoiced'
+                    ? t('ts.statusInvoicedLc')
+                    : t('ts.statusApprovedLc'),
+              })
             : ''
         }
-        confirmLabel="Edytuj mimo to"
+        confirmLabel={t('ts.editAnyway')}
         onConfirm={() => {
           if (editWarnEntry) {
             setEditEntry(editWarnEntry);
@@ -354,11 +362,11 @@ export default function TimesheetPage() {
       />
       <ConfirmDialog
         open={confirmApprove}
-        title="Zatwierdzić godziny do wypłaty?"
+        title={t('ts.approveTitle')}
         description={
           <div className="flex flex-col gap-2">
             <p>
-              Okres: <span className="tabular-nums font-medium">{periodLabel}</span>
+              {t('ts.period')}: <span className="tabular-nums font-medium">{periodLabel}</span>
             </p>
             <div className="flex max-h-72 flex-col gap-3 overflow-y-auto rounded-xl bg-surface p-3">
               {approveSummary.map(([name, row]) => (
@@ -389,19 +397,17 @@ export default function TimesheetPage() {
                     >
                       <span>{label}</span>
                       <span>
-                        {days} {days === 1 ? 'dzień' : 'dni'}
+                        {days} {tp('ts.day', days)}
                       </span>
                     </div>
                   ))}
                 </div>
               ))}
             </div>
-            <p className="text-xs">
-              Zatwierdzone godziny oznaczą się na zielono i będą gotowe do rozliczenia.
-            </p>
+            <p className="text-xs">{t('ts.approveNote')}</p>
           </div>
         }
-        confirmLabel="Zatwierdź"
+        confirmLabel={t('ts.approve')}
         loading={approve.isPending}
         onConfirm={() =>
           approve.mutate(
@@ -413,13 +419,13 @@ export default function TimesheetPage() {
       />
       <ConfirmDialog
         open={absenceToDelete !== null}
-        title="Usunąć nieobecność?"
+        title={t('ts.deleteAbsenceTitle')}
         description={
           absenceToDelete
-            ? `${ABSENCE_TYPE_LABELS[absenceToDelete.type]}: ${fmtDate(absenceToDelete.date_from)} – ${fmtDate(absenceToDelete.date_to)}`
+            ? `${t(`absence.${absenceToDelete.type}`)}: ${fmtDate(absenceToDelete.date_from)} – ${fmtDate(absenceToDelete.date_to)}`
             : ''
         }
-        confirmLabel="Usuń"
+        confirmLabel={t('common.delete')}
         destructive
         loading={deleteAbsence.isPending}
         onConfirm={() => {

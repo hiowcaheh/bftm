@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import { createAbsence, deleteAbsence, fetchAbsences } from './api';
 import type { AbsenceInsert } from './types';
 
@@ -19,9 +20,9 @@ export function useCreateAbsence() {
       void queryClient.invalidateQueries({ queryKey: qk.absences.all });
       void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
       void queryClient.invalidateQueries({ queryKey: qk.workHours.all });
-      toast.success('Nieobecność zapisana');
+      toast.success(translate('abs.saved'));
     },
-    onError: () => toast.error('Nie udało się zapisać nieobecności'),
+    onError: () => toast.error(translate('abs.errSave')),
   });
 }
 
@@ -33,8 +34,8 @@ export function useDeleteAbsence() {
       void queryClient.invalidateQueries({ queryKey: qk.absences.all });
       void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
       void queryClient.invalidateQueries({ queryKey: qk.workHours.all });
-      toast.success('Nieobecność usunięta');
+      toast.success(translate('abs.deleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć nieobecności'),
+    onError: () => toast.error(translate('abs.errDelete')),
   });
 }
