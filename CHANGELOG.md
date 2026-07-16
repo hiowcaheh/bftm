@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.28.2 — nowa ikona aplikacji (BFTM) (2026-07-16)
+
+- Nowa ikona aplikacji: czerwona ceglana ikonka z literami **B/F/T/M** (siatka
+  2×2, F nad M, symetrycznie, pogrubione litery) — odrysowana jako wektor.
+- Podmieniony komplet: favicon (SVG + PNG), apple-touch-icon, ikony PWA
+  192/512 + maskable. Po dodaniu do ekranu głównego pojawi się nowa ikona.
+
+
 ## 0.28.1 — tekstura tła tylko w pustych miejscach (2026-07-16)
 
 - Firmowa tekstura logo jest teraz **za** treścią (nie na wierzchu) — widoczna
