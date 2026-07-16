@@ -22,8 +22,9 @@ import { toast } from '@/components/ui/Toast';
 import { Copy, Link2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { hours as fmtHours, moneyWhole, monthYear, num } from '@/lib/format';
+import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
-import { ABSENCE_TYPE_COLORS, ABSENCE_TYPE_LABELS } from '@/features/absences/types';
+import { ABSENCE_TYPE_COLORS } from '@/features/absences/types';
 import { reportShareUrl } from '../api';
 import {
   useAbsencesReport,
@@ -38,6 +39,7 @@ const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 
 export default function ReportsPage() {
   const { can } = useSession();
+  const { t } = useI18n();
   const [anchor, setAnchor] = useState(new Date());
   const [tab, setTab] = useState<Tab>('employees');
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -94,7 +96,7 @@ export default function ReportsPage() {
   }, [data, prevTotal.data]);
 
   const openShare = () => {
-    setShareTitle(`Raport ${monthYear(anchor)}`);
+    setShareTitle(t('rep.reportDefault', { month: monthYear(anchor) }));
     setIncludeAmounts(false);
     setShareUrl('');
     setShareOpen(true);
@@ -105,7 +107,7 @@ export default function ReportsPage() {
       { from, to, title: shareTitle, includeAmounts: includeAmounts && canFinance },
       {
         onSuccess: (token) => setShareUrl(reportShareUrl(token)),
-        onError: () => toast.error('Nie udało się utworzyć linku'),
+        onError: () => toast.error(t('rep.errLink')),
       },
     );
   };
@@ -128,7 +130,7 @@ export default function ReportsPage() {
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
-          aria-label="Poprzedni miesiąc"
+          aria-label={t('exp.prevMonth')}
           className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
           onClick={() => setAnchor((a) => subMonths(a, 1))}
         >
@@ -137,7 +139,7 @@ export default function ReportsPage() {
         <p className="text-sm font-semibold capitalize">{monthYear(anchor)}</p>
         <button
           type="button"
-          aria-label="Następny miesiąc"
+          aria-label={t('exp.nextMonth')}
           className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
           onClick={() => setAnchor((a) => addMonths(a, 1))}
         >
@@ -152,7 +154,7 @@ export default function ReportsPage() {
           <section className={cn('grid gap-3', finance ? 'grid-cols-2' : 'grid-cols-1')}>
             <Card className="flex flex-col gap-1 p-4">
               <span className="flex items-center gap-1.5 text-xs text-text-secondary">
-                <Clock className="size-4" /> Godziny w miesiącu
+                <Clock className="size-4" /> {t('rep.hoursMonth')}
               </span>
               <span className="tabular-nums text-xl font-semibold">
                 {num(data.total_hours)} h
@@ -169,19 +171,22 @@ export default function ReportsPage() {
                   )}
                 >
                   {monthDelta === 0
-                    ? 'tyle samo co w zeszłym miesiącu'
-                    : `${monthDelta > 0 ? '+' : ''}${num(monthDelta)} h vs ${num(prevTotal.data ?? 0)} h w zeszłym`}
+                    ? t('rep.sameAsLast')
+                    : t('rep.vsLast', {
+                        delta: `${monthDelta > 0 ? '+' : ''}${num(monthDelta)}`,
+                        prev: num(prevTotal.data ?? 0),
+                      })}
                 </span>
               )}
             </Card>
             {finance && (
               <Card className="flex flex-col gap-1 p-4">
-                <span className="text-xs text-text-secondary">Do fakturowania</span>
+                <span className="text-xs text-text-secondary">{t('rep.toInvoice')}</span>
                 <span className="tabular-nums text-xl font-semibold">
                   {moneyWhole(billableTotal)}
                 </span>
                 <span className="tabular-nums text-[11px] text-text-secondary">
-                  koszt pracy {moneyWhole(laborTotal)}
+                  {t('rep.laborCost', { amount: moneyWhole(laborTotal) })}
                 </span>
               </Card>
             )}
@@ -190,10 +195,13 @@ export default function ReportsPage() {
           {finance && profit != null && (
             <Card className="flex items-center justify-between gap-3 p-4">
               <div>
-                <p className="text-xs text-text-secondary">Zysk w tym miesiącu</p>
+                <p className="text-xs text-text-secondary">{t('rep.profitMonth')}</p>
                 <p className="tabular-nums text-[11px] text-text-secondary">
-                  do fakturowania {moneyWhole(billableTotal)} − praca{' '}
-                  {moneyWhole(laborTotal)} − paragony {moneyWhole(data.expenses ?? 0)}
+                  {t('rep.profitFormula', {
+                    billable: moneyWhole(billableTotal),
+                    labor: moneyWhole(laborTotal),
+                    exp: moneyWhole(data.expenses ?? 0),
+                  })}
                 </p>
               </div>
               <span
@@ -210,15 +218,15 @@ export default function ReportsPage() {
 
           <SegmentedControl
             options={[
-              { value: 'employees', label: 'Pracownicy' },
-              { value: 'projects', label: 'Projekty' },
+              { value: 'employees', label: t('rep.tabEmployees') },
+              { value: 'projects', label: t('rep.tabProjects') },
             ]}
             value={tab}
             onChange={setTab}
           />
 
           {data.total_hours === 0 && (absences.data?.length ?? 0) === 0 && (
-            <EmptyState icon={BarChart3} message="Brak godzin i nieobecności w tym miesiącu." />
+            <EmptyState icon={BarChart3} message={t('rep.emptyMonth')} />
           )}
 
           {tab === 'employees' && employeeRows.length > 0 && (
@@ -249,20 +257,17 @@ export default function ReportsPage() {
             className="press flex h-12 items-center justify-center gap-2 rounded-(--radius-input) bg-surface text-sm font-medium"
             onClick={openShare}
           >
-            <Share2 className="size-5 text-text-secondary" /> Udostępnij raport linkiem
+            <Share2 className="size-5 text-text-secondary" /> {t('rep.shareBtn')}
           </button>
         </>
       )}
 
-      <Sheet open={shareOpen} onClose={() => setShareOpen(false)} title="Udostępnij raport">
+      <Sheet open={shareOpen} onClose={() => setShareOpen(false)} title={t('rep.shareTitle')}>
         {!shareUrl ? (
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-text-secondary">
-              Wygeneruj link do tego raportu — otwiera się bez logowania, w szacie
-              firmy. Dane zostają zamrożone na moment utworzenia.
-            </p>
+            <p className="text-sm text-text-secondary">{t('rep.shareDesc')}</p>
             <Input
-              label="Tytuł raportu"
+              label={t('rep.reportTitle')}
               value={shareTitle}
               onChange={(e) => setShareTitle(e.target.value)}
             />
@@ -270,8 +275,8 @@ export default function ReportsPage() {
               <Switch
                 checked={includeAmounts}
                 onChange={setIncludeAmounts}
-                label="Dołącz kwoty"
-                description="Koszt pracy i wartość do fakturowania. Wyłącz, jeśli udostępniasz komuś, kto ma widzieć tylko godziny."
+                label={t('rep.includeAmounts')}
+                description={t('rep.includeAmountsDesc')}
               />
             )}
             <Button
@@ -281,7 +286,7 @@ export default function ReportsPage() {
               loading={share.isPending}
               onClick={generateShare}
             >
-              Utwórz link
+              {t('rep.createLink')}
             </Button>
           </div>
         ) : (
@@ -296,10 +301,10 @@ export default function ReportsPage() {
                 icon={<Copy className="size-5" />}
                 onClick={() => {
                   void navigator.clipboard.writeText(shareUrl);
-                  toast.success('Link skopiowany');
+                  toast.success(t('rep.linkCopied'));
                 }}
               >
-                Kopiuj link
+                {t('rep.copyLink')}
               </Button>
               <Button
                 variant="secondary"
@@ -309,11 +314,11 @@ export default function ReportsPage() {
                     void navigator.share({ title: shareTitle, url: shareUrl });
                   } else {
                     void navigator.clipboard.writeText(shareUrl);
-                    toast.success('Link skopiowany');
+                    toast.success(t('rep.linkCopied'));
                   }
                 }}
               >
-                Udostępnij
+                {t('rep.shareAction')}
               </Button>
             </div>
             <Button
@@ -321,7 +326,7 @@ export default function ReportsPage() {
               fullWidth
               onClick={() => window.open(`${shareUrl}?podglad=1`, '_blank')}
             >
-              Otwórz podgląd
+              {t('rep.openPreview')}
             </Button>
           </div>
         )}
@@ -343,6 +348,7 @@ function EmployeeRow({
   open: boolean;
   onToggle: () => void;
 }) {
+  const { t, tp } = useI18n();
   return (
     <div className="flex flex-col">
       <button
@@ -357,19 +363,19 @@ function EmployeeRow({
           <p className="truncate text-sm font-medium">{e.name}</p>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
             {(e.approved ?? 0) > 0 && (
-              <Badge tone="success">{num(e.approved!)} h zatw.</Badge>
+              <Badge tone="success">{t('rep.approvedShort', { n: num(e.approved!) })}</Badge>
             )}
             {(e.draft ?? 0) > 0 && (
-              <Badge tone="warning">{num(e.draft!)} h niezatwierdzone</Badge>
+              <Badge tone="warning">{t('rep.draftBadge', { n: num(e.draft!) })}</Badge>
             )}
             {absences.length > 0 && (
               <Badge tone="neutral">
-                {absences.reduce((s, a) => s + a.days, 0)} dni nieobecności
+                {t('rep.absenceDays', { n: absences.reduce((s, a) => s + a.days, 0) })}
               </Badge>
             )}
             {finance && e.labor_cost != null && (
               <span className="tabular-nums text-[11px] text-text-secondary">
-                koszt {moneyWhole(e.labor_cost)}
+                {t('rep.costShort', { amount: moneyWhole(e.labor_cost) })}
               </span>
             )}
           </div>
@@ -403,10 +409,10 @@ function EmployeeRow({
                 style={{ backgroundColor: ABSENCE_TYPE_COLORS[a.type] }}
               />
               <span className="min-w-0 flex-1 truncate text-text-secondary">
-                {ABSENCE_TYPE_LABELS[a.type]}
+                {t(`absence.${a.type}`)}
               </span>
               <span className="tabular-nums font-medium">
-                {a.days} {a.days === 1 ? 'dzień' : 'dni'}
+                {a.days} {tp('ts.day', a.days)}
               </span>
             </div>
           ))}
@@ -417,6 +423,7 @@ function EmployeeRow({
 }
 
 function ProjectRow({ project: p, finance }: { project: ReportProject; finance: boolean }) {
+  const { t, tp } = useI18n();
   return (
     <div className="flex items-center gap-3 p-3">
       <div
@@ -426,8 +433,7 @@ function ProjectRow({ project: p, finance }: { project: ReportProject; finance: 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{p.name}</p>
         <p className="tabular-nums mt-0.5 text-xs text-text-secondary">
-          {num(p.total)} h • {p.employees}{' '}
-          {p.employees === 1 ? 'pracownik' : 'pracowników'}
+          {num(p.total)} h • {p.employees} {tp('rep.empl', p.employees)}
           {finance && p.hourly_rate != null && p.billing_type !== 'fixed'
             ? ` • ${num(p.hourly_rate)} kr/h`
             : ''}
@@ -436,7 +442,7 @@ function ProjectRow({ project: p, finance }: { project: ReportProject; finance: 
       {finance && p.billable != null ? (
         <div className="text-right">
           <p className="tabular-nums text-sm font-semibold">{moneyWhole(p.billable)}</p>
-          <p className="text-[11px] text-text-secondary">do faktury</p>
+          <p className="text-[11px] text-text-secondary">{t('rep.toInvoiceShort')}</p>
         </div>
       ) : (
         <span className="tabular-nums text-base font-semibold">{fmtHours(p.total)}</span>
