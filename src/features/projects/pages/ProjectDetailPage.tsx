@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
+import { CopyButton } from '@/components/ui/CopyButton';
 import { Sheet } from '@/components/ui/Sheet';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { date, moneyWhole, num } from '@/lib/format';
@@ -97,6 +98,7 @@ export default function ProjectDetailPage() {
             leading={<MapPin className="size-5 text-text-secondary" />}
             title={p.address}
             subtitle="Adres budowy"
+            trailing={<CopyButton value={p.address} label="adres" />}
           />
         )}
         {(p.start_date || p.end_date) && (
