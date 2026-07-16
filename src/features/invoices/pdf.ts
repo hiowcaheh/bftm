@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, getISOWeek, getISOWeekYear } from 'date-fns';
 import type { InvoiceSpecItem } from './api';
 
 /** Minimalny typ instancji pdfMake — biblioteka ładowana leniwie. */
@@ -35,6 +35,11 @@ const LINE = '#e5e5e5';
 const hrs = (n: number) => n.toFixed(2);
 /** 5.05.2026 — jak w nagłówku okresu na wzorcu. */
 const periodDay = (iso: string) => format(new Date(iso), 'd.MM.yyyy');
+/** Parsuje 'yyyy-MM-dd' jako datę lokalną (bez przesunięcia strefy). */
+const parseLocal = (iso: string) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+};
 
 export interface InvoicePdfInput {
   companyName: string;
@@ -80,14 +85,41 @@ function buildDocDefinition(input: InvoicePdfInput): Record<string, unknown> {
     }),
   );
 
-  const bodyRows = items.map((it) => [
-    { text: it.activity_name ?? '—', fontSize: 9, color: '#111111' },
-    { text: projectName, fontSize: 9, color: '#333333' },
-    { text: it.entry_date, fontSize: 9, color: '#333333', noWrap: true },
-    { text: it.employee_name, fontSize: 9, color: '#111111' },
-    { text: hrs(it.hours), fontSize: 9, color: '#111111', alignment: 'right', noWrap: true },
-    { text: it.note ?? '', fontSize: 9, color: GRAY },
-  ]);
+  // Wiersze pogrupowane po tygodniu ISO — przed każdym tygodniem pasek „v. NN".
+  const bodyRows: unknown[][] = [];
+  let lastWeekKey: string | null = null;
+  for (const it of items) {
+    const d = parseLocal(it.entry_date);
+    const week = getISOWeek(d);
+    const weekKey = `${getISOWeekYear(d)}-${week}`;
+    if (weekKey !== lastWeekKey) {
+      bodyRows.push([
+        {
+          text: `v. ${week}`,
+          colSpan: 6,
+          fillColor: '#eef1f5',
+          bold: true,
+          fontSize: 8.5,
+          color: NAVY,
+          characterSpacing: 0.3,
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+      ]);
+      lastWeekKey = weekKey;
+    }
+    bodyRows.push([
+      { text: it.activity_name ?? '—', fontSize: 9, color: '#111111' },
+      { text: projectName, fontSize: 9, color: '#333333' },
+      { text: it.entry_date, fontSize: 9, color: '#333333', noWrap: true },
+      { text: it.employee_name, fontSize: 9, color: '#111111' },
+      { text: hrs(it.hours), fontSize: 9, color: '#111111', alignment: 'right', noWrap: true },
+      { text: it.note ?? '', fontSize: 9, color: GRAY },
+    ]);
+  }
 
   return {
     pageSize: 'A4',

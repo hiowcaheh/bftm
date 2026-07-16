@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.25.2 — numery tygodni w PDF specyfikacji (2026-07-16)
+
+- W tabeli PDF wiersze są pogrupowane po **tygodniu ISO** (od poniedziałku),
+  a przed każdą grupą jest pasek z numerem tygodnia po lewej („v. 28", „v. 29"…).
+
 ## 0.25.1 — podgląd PDF w aplikacji przed wysłaniem (2026-07-16)
 
 - Kliknięcie specyfikacji **otwiera podgląd PDF w aplikacji** (strony renderowane
