@@ -68,6 +68,7 @@ export default function InvoicesPage() {
         logoDataUrl: logoCache.dataUrl,
         companyPhone: company.data?.phone ?? null,
         companyEmail: company.data?.email ?? null,
+        companyOrgNr: company.data?.org_nr ?? null,
       });
       const filename = `underlag-${slug(spec.title || projectName)}-${spec.period_from}.pdf`;
       setPreview({ blob, filename, title: spec.title || projectName });
@@ -170,7 +171,6 @@ export default function InvoicesPage() {
         open={preview !== null}
         blob={preview?.blob ?? null}
         filename={preview?.filename ?? ''}
-        title={preview?.title}
         onClose={() => setPreview(null)}
         onShare={() => {
           if (preview) return shareInvoicePdf(preview.blob, preview.filename);

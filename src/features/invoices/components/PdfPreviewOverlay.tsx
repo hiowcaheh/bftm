@@ -22,18 +22,16 @@ interface PdfPreviewOverlayProps {
   open: boolean;
   blob: Blob | null;
   filename: string;
-  title?: string;
   onClose: () => void;
   onShare: () => void | Promise<void>;
 }
 
-/** Renderuje strony PDF (pdf.js, ładowany leniwie) jako obrazy — działa też
- *  w PWA na iPhonie, gdzie <iframe> z PDF bywa pusty. Na dole przycisk wysyłki. */
+/** Renderuje strony PDF (pdf.js, ładowany leniwie) jako obrazy w lightboxie
+ *  (zamazane tło + X), działa też w PWA na iPhonie gdzie <iframe> bywa pusty. */
 export function PdfPreviewOverlay({
   open,
   blob,
   filename,
-  title,
   onClose,
   onShare,
 }: PdfPreviewOverlayProps) {
@@ -100,41 +98,41 @@ export function PdfPreviewOverlay({
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[120] flex flex-col bg-neutral-900">
-      <div
-        className="flex items-center justify-between gap-3 border-b border-white/10 bg-neutral-900 px-4 pb-2"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}
+    <div
+      className="fixed inset-0 z-[200] flex flex-col bg-black/75 backdrop-blur-md"
+      onClick={onClose}
+    >
+      {/* Pływający przycisk zamknięcia — jak w lightboxie ze zdjęciem */}
+      <button
+        type="button"
+        aria-label="Zamknij podgląd"
+        className="press absolute right-4 z-10 flex size-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur"
+        style={{ top: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+        onClick={onClose}
       >
-        <button
-          type="button"
-          aria-label="Zamknij podgląd"
-          className="press flex h-10 items-center gap-1.5 rounded-full bg-white/15 pl-2.5 pr-3.5 text-white"
-          onClick={onClose}
-        >
-          <X className="size-5" />
-          <span className="text-sm font-medium">Zamknij</span>
-        </button>
-        <span className="truncate text-sm font-medium text-white/90">
-          {title ?? 'Podgląd PDF'}
-        </span>
-        <span className="w-10" />
-      </div>
+        <X className="size-6" />
+      </button>
 
-      <div className="flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto px-3 py-4">
+      {/* Strony PDF jako karty (klik w tło zamyka; klik w kartę nie) */}
+      <div
+        className="flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto px-4"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 4rem)', paddingBottom: '1rem' }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {loading && (
           <div className="flex flex-1 items-center justify-center">
-            <Loader2 className="size-8 animate-spin text-white/70" />
+            <Loader2 className="size-8 animate-spin text-white/80" />
           </div>
         )}
         {error && !loading && (
-          <p className="mt-8 text-sm text-white/80">Nie udało się wczytać podglądu.</p>
+          <p className="mt-8 text-sm text-white/90">Nie udało się wczytać podglądu.</p>
         )}
         {pages.map((src, i) => (
           <img
             key={i}
             src={src}
             alt={`Strona ${i + 1}`}
-            className="w-full max-w-[820px] rounded-lg bg-white shadow-lg"
+            className="w-full max-w-[820px] rounded-xl bg-white shadow-2xl"
           />
         ))}
       </div>
@@ -142,11 +140,12 @@ export function PdfPreviewOverlay({
       <div
         className="px-4 pt-2"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)' }}
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           disabled={sharing}
-          className="press flex h-12 w-full items-center justify-center gap-2 rounded-(--radius-input) bg-white text-sm font-semibold text-text disabled:opacity-60"
+          className="press flex h-12 w-full items-center justify-center gap-2 rounded-(--radius-input) bg-white text-sm font-semibold text-text shadow-lg disabled:opacity-60"
           onClick={() => {
             setSharing(true);
             void Promise.resolve(onShare()).finally(() => setSharing(false));
@@ -160,7 +159,7 @@ export function PdfPreviewOverlay({
             </>
           )}
         </button>
-        <p className="mt-1.5 text-center text-[11px] text-white/50">{filename}</p>
+        <p className="mt-1.5 text-center text-[11px] text-white/60">{filename}</p>
       </div>
     </div>,
     document.body,

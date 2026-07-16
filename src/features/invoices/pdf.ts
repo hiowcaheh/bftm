@@ -51,18 +51,30 @@ export interface InvoicePdfInput {
   items: InvoiceSpecItem[];
   /** Logo firmy jako data URL (PNG/JPG) — jeśli brak, pokazujemy nazwę. */
   logoDataUrl: string | null;
-  /** Kontakt do stopki. */
+  /** Kontakt / dane do stopki. */
   companyPhone?: string | null;
   companyEmail?: string | null;
+  companyOrgNr?: string | null;
+  companyWebsite?: string | null;
 }
 
 /** Buduje definicję dokumentu w układzie underlag (jak wzorzec faktury). */
 function buildDocDefinition(input: InvoicePdfInput): Record<string, unknown> {
   const { companyName, projectName, title, periodFrom, periodTo, items, logoDataUrl } = input;
-  const footerLine = [
+  const emailDomain = input.companyEmail?.includes('@')
+    ? input.companyEmail.split('@')[1]
+    : null;
+  const website = input.companyWebsite || (emailDomain ? `www.${emailDomain}` : null);
+  const footerLine1 = [
     companyName,
+    input.companyOrgNr ? `Org.nr ${input.companyOrgNr}` : null,
+  ]
+    .filter(Boolean)
+    .join('  ·  ');
+  const footerLine2 = [
     input.companyPhone ? `Tel. ${input.companyPhone}` : null,
     input.companyEmail || null,
+    website,
   ]
     .filter(Boolean)
     .join('  ·  ');
@@ -80,7 +92,7 @@ function buildDocDefinition(input: InvoicePdfInput): Record<string, unknown> {
   };
 
   const headerLeft = logoDataUrl
-    ? { image: logoDataUrl, fit: [150, 70] }
+    ? { image: logoDataUrl, fit: [200, 96] }
     : { text: companyName, fontSize: 14, bold: true, color: NAVY };
 
   // Tabela pozycji
@@ -137,7 +149,10 @@ function buildDocDefinition(input: InvoicePdfInput): Record<string, unknown> {
     defaultStyle: { font: 'Roboto', fontSize: 9, lineHeight: 1.15 },
     footer: (currentPage: number, pageCount: number) => ({
       stack: [
-        { text: footerLine, alignment: 'center', fontSize: 8, color: GRAY },
+        { text: footerLine1, alignment: 'center', fontSize: 8, color: GRAY },
+        ...(footerLine2
+          ? [{ text: footerLine2, alignment: 'center', fontSize: 8, color: GRAY, margin: [0, 1, 0, 0] }]
+          : []),
         {
           text: `${currentPage} / ${pageCount}`,
           alignment: 'center',
@@ -146,7 +161,7 @@ function buildDocDefinition(input: InvoicePdfInput): Record<string, unknown> {
           margin: [0, 2, 0, 0],
         },
       ],
-      margin: [40, 16, 40, 0],
+      margin: [40, 14, 40, 0],
     }),
     content: [
       {

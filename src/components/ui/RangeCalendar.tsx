@@ -5,6 +5,7 @@ import {
   endOfMonth,
   endOfWeek,
   format,
+  getISOWeek,
   isSameDay,
   isSameMonth,
   isToday,
@@ -21,6 +22,8 @@ interface RangeCalendarProps {
   from: Date | null;
   to: Date | null;
   onChange: (from: Date | null, to: Date | null) => void;
+  /** Kolumna z numerem tygodnia ISO po lewej stronie każdego wiersza. */
+  showWeekNumbers?: boolean;
 }
 
 /**
@@ -28,13 +31,17 @@ interface RangeCalendarProps {
  * i zakres rysuje się na kalendarzu; tap wcześniejszej daty zaczyna od nowa.
  * Jeden dzień = tap dwa razy w tę samą datę.
  */
-export function RangeCalendar({ from, to, onChange }: RangeCalendarProps) {
+export function RangeCalendar({ from, to, onChange, showWeekNumbers }: RangeCalendarProps) {
   const [month, setMonth] = useState(() => from ?? new Date());
 
   const days = eachDayOfInterval({
     start: startOfWeek(startOfMonth(month), { weekStartsOn: 1 }),
     end: endOfWeek(endOfMonth(month), { weekStartsOn: 1 }),
   });
+
+  // Tygodnie po 7 dni (poniedziałek…niedziela) — do kolumny z numerem tygodnia.
+  const weeks: Date[][] = [];
+  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
 
   const pick = (day: Date) => {
     if (!from || (from && to)) {
@@ -73,7 +80,13 @@ export function RangeCalendar({ from, to, onChange }: RangeCalendarProps) {
         </button>
       </div>
 
-      <div className="grid grid-cols-7 text-center text-[11px] font-medium text-text-secondary">
+      <div
+        className={cn(
+          'text-center text-[11px] font-medium text-text-secondary',
+          showWeekNumbers ? 'grid grid-cols-[2rem_repeat(7,1fr)]' : 'grid grid-cols-7',
+        )}
+      >
+        {showWeekNumbers && <span className="py-1 text-text-secondary/50">v.</span>}
         {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map((d) => (
           <span key={d} className="py-1">
             {d}
@@ -81,31 +94,45 @@ export function RangeCalendar({ from, to, onChange }: RangeCalendarProps) {
         ))}
       </div>
 
-      <div className="grid grid-cols-7">
-        {days.map((day) => {
-          const isFrom = from && isSameDay(day, from);
-          const isTo = to && isSameDay(day, to);
-          const between = inRange(day) && !isFrom && !isTo;
-          return (
-            <button
-              key={day.toISOString()}
-              type="button"
-              onClick={() => pick(day)}
-              className={cn(
-                'tabular-nums relative flex h-11 items-center justify-center text-sm',
-                !isSameMonth(day, month) && 'text-text-secondary/40',
-                between && 'bg-accent-soft',
-                (isFrom || isTo) && 'font-semibold',
-                isFrom && (to ? 'rounded-l-full' : 'rounded-full'),
-                isTo && 'rounded-r-full',
-                (isFrom || isTo) && 'bg-accent text-white',
-                !isFrom && !isTo && isToday(day) && 'font-semibold text-accent',
-              )}
-            >
-              {format(day, 'd')}
-            </button>
-          );
-        })}
+      <div className="flex flex-col">
+        {weeks.map((week) => (
+          <div
+            key={week[0]!.toISOString()}
+            className={cn(
+              showWeekNumbers ? 'grid grid-cols-[2rem_repeat(7,1fr)]' : 'grid grid-cols-7',
+            )}
+          >
+            {showWeekNumbers && (
+              <span className="tabular-nums flex h-11 items-center justify-center text-[11px] font-medium text-text-secondary/60">
+                {getISOWeek(week[0]!)}
+              </span>
+            )}
+            {week.map((day) => {
+              const isFrom = from && isSameDay(day, from);
+              const isTo = to && isSameDay(day, to);
+              const between = inRange(day) && !isFrom && !isTo;
+              return (
+                <button
+                  key={day.toISOString()}
+                  type="button"
+                  onClick={() => pick(day)}
+                  className={cn(
+                    'tabular-nums relative flex h-11 items-center justify-center text-sm',
+                    !isSameMonth(day, month) && 'text-text-secondary/40',
+                    between && 'bg-accent-soft',
+                    (isFrom || isTo) && 'font-semibold',
+                    isFrom && (to ? 'rounded-l-full' : 'rounded-full'),
+                    isTo && 'rounded-r-full',
+                    (isFrom || isTo) && 'bg-accent text-white',
+                    !isFrom && !isTo && isToday(day) && 'font-semibold text-accent',
+                  )}
+                >
+                  {format(day, 'd')}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );

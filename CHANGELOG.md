@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.25.4 — lightbox podglądu, większe logo, stopka +org/www, tygodnie w kalendarzu (2026-07-16)
+
+- **Podgląd PDF jako lightbox**: zamazane (blur) i przyciemnione tło ponad całą
+  aplikacją, strony PDF jako karty „jak zdjęcie", pływający przycisk **✕** w rogu,
+  zamknięcie też tapnięciem w tło lub Escape. Menu na dole jest wygaszone.
+- **Większe logo** w nagłówku PDF (fit 200×96 zamiast 150×70).
+- **Stopka PDF**: dodany **Org.nr** i **strona www** (z domeny e-maila) obok
+  telefonu i e-maila — w dwóch wyśrodkowanych liniach.
+- **Kalendarz w modalu** specyfikacji: kolumna z **numerem tygodnia (ISO)** po
+  lewej przy każdym wierszu (opcja `showWeekNumbers` w RangeCalendar).
+
 ## 0.25.3 — poprawki podglądu PDF: logo, stopka, modal (2026-07-16)
 
 - **Logo w PDF** ładowane przez `storage.download()` (ten sam kanał co reszta
