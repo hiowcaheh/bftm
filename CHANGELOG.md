@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.28.3 — ikona aplikacji: błyszcząca wersja 3D (2026-07-16)
+
+- Ikona aplikacji zmieniona na dostarczoną wersję **3D/glossy** (czerwona
+  kafelka z wytłoczonymi literami BF/TM). Przycięta do kafelki i wygenerowana
+  w komplecie: favicon, apple-touch-icon, PWA 192/512 + maskable.
+
+
 ## 0.28.2 — nowa ikona aplikacji (BFTM) (2026-07-16)
 
 - Nowa ikona aplikacji: czerwona ceglana ikonka z literami **B/F/T/M** (siatka
