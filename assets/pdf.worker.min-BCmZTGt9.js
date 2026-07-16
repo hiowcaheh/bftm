@@ -1,0 +1,1 @@
+function e(e){return new Worker(`/assets/pdf.worker.min-0U6_TkH3.js`,{name:e?.name})}export{e as default};
