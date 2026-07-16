@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, HardHat } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { toast } from '@/components/ui/Toast';
@@ -55,13 +55,12 @@ export default function LoginPage() {
           <img
             src={logoUrl}
             alt="Logo firmy"
-            className="max-h-56 w-full object-contain"
+            className="max-h-56 w-full animate-fade-in object-contain"
           />
-        ) : (
-          <div className="flex size-28 items-center justify-center rounded-[2rem] bg-accent shadow-(--shadow-fab)">
-            <HardHat className="size-14 text-white" />
-          </div>
-        )}
+        ) : branding.isLoading ? (
+          // delikatny placeholder w trakcie ładowania — bez migającej ikonki kasku
+          <div className="h-28 w-40 animate-pulse rounded-3xl bg-surface" />
+        ) : null}
         <h1 className="text-xl font-semibold">{branding.data?.companyName ?? 'BFTM'}</h1>
         {branding.data?.slogan && (
           <p className="text-center text-sm text-text-secondary italic">

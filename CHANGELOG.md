@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.28.4 — koniec migającej ikonki kasku przy starcie (2026-07-16)
+
+- Ekran logowania: zamiast migającej ikonki kasku podczas ładowania jest teraz
+  delikatny placeholder, a logo firmy pojawia się płynnie (fade-in) gdy się wczyta.
+
+
 ## 0.28.3 — ikona aplikacji: błyszcząca wersja 3D (2026-07-16)
 
 - Ikona aplikacji zmieniona na dostarczoną wersję **3D/glossy** (czerwona
