@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.29.0 — sugestia instalacji aplikacji na ekran główny (2026-07-16)
+
+- Gdy apka działa w przeglądarce (nie jako zainstalowana PWA), pojawia się
+  baner **„Zainstaluj aplikację BFTM"**. Android/Chrome: przycisk „Zainstaluj"
+  (natywne okno). iOS/Safari: instrukcja „Udostępnij → Dodaj do ekranu głównego".
+  Zamknięcie zapamiętywane na 14 dni; nie pokazuje się w trybie standalone.
+
+
 ## 0.28.6 — pewniejsza ikona na ekranie głównym iOS (2026-07-16)
 
 - Dodana kopia `apple-touch-icon.png` w korzeniu + `sizes="180x180"`, żeby iOS

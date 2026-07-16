@@ -9,7 +9,7 @@ import { CompanySection } from '../components/CompanySection';
 import { FinanceSection } from '../components/FinanceSection';
 import { AccountSection } from '../components/AccountSection';
 
-const APP_VERSION = '0.28.6'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
+const APP_VERSION = '0.29.0'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
 
 /**
  * Ustawienia: Firma (tylko admin), Moje konto, Aplikacja.
