@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.29.2 — przycisk „Instaluj" w banerze (2026-07-16)
+
+- Baner instalacji ma przycisk **„Instaluj"**. Android/Chrome: uruchamia
+  natywne okno instalacji (aplikacja sama się instaluje). iOS/Safari: otwiera
+  czytelną instrukcję krok-po-kroku (Apple nie udostępnia auto-instalacji).
+
+
 ## 0.29.1 — falowana kreska na pulpicie (2026-07-16)
 
 - Delikatna, falowana kreska oddzielająca sekcje **„Ten tydzień"** i
