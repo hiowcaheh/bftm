@@ -3,6 +3,7 @@ import { LogOut } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { Avatar } from '@/components/ui/Avatar';
+import { useT } from '@/lib/i18n/context';
 import { canAccessModule, moreModules } from './moduleRegistry';
 import { useSignOut } from '@/features/auth/hooks';
 import { useSession } from '@/features/auth/SessionProvider';
@@ -17,6 +18,7 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
   const navigate = useNavigate();
   const signOut = useSignOut();
   const { user, can } = useSession();
+  const t = useT();
   const visible = moreModules.filter((m) => canAccessModule(can, m));
 
   const go = (path: string) => {
@@ -25,7 +27,7 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
   };
 
   return (
-    <Drawer open={open} onClose={onClose} title="Więcej">
+    <Drawer open={open} onClose={onClose} title={t('nav.more')}>
       <div className="flex flex-col gap-4">
         {user && (
           <ListGroup>
@@ -47,7 +49,7 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
                   <mod.icon className="size-5 text-text-secondary" strokeWidth={1.8} />
                 </div>
               }
-              title={mod.label}
+              title={t(`nav.${mod.id}`)}
               chevron
               onClick={() => go(mod.path)}
             />
@@ -60,7 +62,7 @@ export function MoreDrawer({ open, onClose }: MoreDrawerProps) {
                 <LogOut className="size-5 text-error" strokeWidth={1.8} />
               </div>
             }
-            title={<span className="text-error">Wyloguj</span>}
+            title={<span className="text-error">{t('auth.signOut')}</span>}
             onClick={() => {
               onClose();
               signOut.mutate(undefined, {

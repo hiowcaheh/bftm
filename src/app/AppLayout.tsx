@@ -10,17 +10,18 @@ import { InstallPrompt } from '@/components/InstallPrompt';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
 import { usePublicBranding } from '@/features/auth/hooks';
+import { useT } from '@/lib/i18n/context';
 import { logoPublicUrl } from '@/features/settings/api';
 
 export type NavDirection = 'forward' | 'back' | null;
 
-/** Tytuł w górnym pasku wyprowadzony z rejestru modułów. */
-function pageTitle(pathname: string): string {
-  if (pathname === '/') return 'Pulpit';
-  if (pathname === '/profil') return 'Mój profil';
-  if (pathname === '/finanse/paragony') return 'Paragony';
+/** Klucz tłumaczenia tytułu w górnym pasku (wyprowadzony z rejestru modułów). */
+function pageTitleKey(pathname: string): string {
+  if (pathname === '/') return 'nav.dashboard';
+  if (pathname === '/profil') return 'nav.profile';
+  if (pathname === '/finanse/paragony') return 'nav.receipts';
   const module = modules.find((m) => m.path !== '/' && pathname.startsWith(m.path));
-  return module?.label ?? 'BFTM';
+  return module ? `nav.${module.id}` : 'BFTM';
 }
 
 /**
@@ -75,6 +76,7 @@ export function AppLayout() {
 
   const branding = usePublicBranding();
   const logoUrl = branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null;
+  const t = useT();
 
   return (
     <div
@@ -107,7 +109,7 @@ export function AppLayout() {
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="relative mx-auto flex h-12 max-w-3xl items-center justify-between px-4">
-          <h1 className="max-w-[42%] truncate text-lg font-semibold">{pageTitle(pathname)}</h1>
+          <h1 className="max-w-[42%] truncate text-lg font-semibold">{t(pageTitleKey(pathname))}</h1>
           {/* Subtelny firmowy znak na środku paska */}
           <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[17px] font-extrabold tracking-[0.14em] text-accent">
             BFTM

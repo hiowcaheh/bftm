@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { toast } from '@/components/ui/Toast';
 import { cn } from '@/lib/cn';
 import { supabase, setRememberMe } from '@/lib/supabaseClient';
+import { useT } from '@/lib/i18n/context';
 import { usePublicBranding, useSignIn } from '../hooks';
 
 /**
@@ -22,6 +23,7 @@ export default function LoginPage() {
   const branding = usePublicBranding();
   const signIn = useSignIn();
   const navigate = useNavigate();
+  const t = useT();
 
   const logoUrl = branding.data?.logoPath
     ? supabase.storage.from('logos').getPublicUrl(branding.data.logoPath).data.publicUrl
@@ -30,7 +32,7 @@ export default function LoginPage() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!login.trim() || !password) {
-      toast.error('Podaj login i hasło');
+      toast.error(t('auth.needCreds'));
       return;
     }
     setRememberMe(remember);
@@ -71,14 +73,14 @@ export default function LoginPage() {
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Input
-          label="Login lub e-mail"
+          label={t('auth.loginLabel')}
           autoComplete="username"
           autoCapitalize="none"
           value={login}
           onChange={(e) => setLogin(e.target.value)}
         />
         <Input
-          label="Hasło"
+          label={t('auth.password')}
           type="password"
           autoComplete="current-password"
           value={password}
@@ -97,10 +99,10 @@ export default function LoginPage() {
           >
             {remember && <Check className="size-3.5" strokeWidth={3} />}
           </span>
-          <span className="text-sm">Zapamiętaj mnie</span>
+          <span className="text-sm">{t('auth.remember')}</span>
         </button>
         <Button type="submit" size="lg" fullWidth loading={signIn.isPending} className="mt-2">
-          Zaloguj
+          {t('auth.signIn')}
         </Button>
       </form>
     </div>
