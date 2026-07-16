@@ -9,6 +9,7 @@ import {
   Phone,
   Shirt,
   ShieldCheck,
+  Trash2,
   UserX,
   UserCheck,
   Mail,
@@ -32,6 +33,7 @@ import { useSession } from '@/features/auth/SessionProvider';
 import {
   useAddCompensation,
   useCompensation,
+  useDeleteEmployee,
   useEmployee,
   useEmployeeActivity,
   useEmployeePrivate,
@@ -67,6 +69,7 @@ export default function EmployeeDetailPage() {
   const updatePermissions = useUpdatePermissions(id);
   const resetPassword = useResetPassword();
   const setActive = useSetActive();
+  const deleteEmployee = useDeleteEmployee();
   const addCompensation = useAddCompensation(id);
 
   const privateData = useEmployeePrivate(id, isAdmin);
@@ -78,6 +81,7 @@ export default function EmployeeDetailPage() {
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [confirmActive, setConfirmActive] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [logPage, setLogPage] = useState(0);
   const [newWage, setNewWage] = useState('');
   const [wageFrom, setWageFrom] = useState(() => format(new Date(), 'yyyy-MM-dd'));
@@ -421,6 +425,14 @@ export default function EmployeeDetailPage() {
             >
               {emp.active ? 'Dezaktywuj konto' : 'Aktywuj konto'}
             </Button>
+            <Button
+              variant="destructive"
+              icon={<Trash2 className="size-5" />}
+              loading={deleteEmployee.isPending}
+              onClick={() => setConfirmDelete(true)}
+            >
+              Usuń pracownika
+            </Button>
           </div>
         </>
       )}
@@ -448,6 +460,23 @@ export default function EmployeeDetailPage() {
           setConfirmActive(false);
         }}
         onCancel={() => setConfirmActive(false)}
+      />
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Usunąć pracownika na zawsze?"
+        description={`${emp.full_name} zostanie trwale usunięty z całej aplikacji: konto, godziny, nieobecności, stawki, dane prywatne, wypłaty i powiadomienia. Tej operacji NIE DA SIĘ cofnąć — jeśli chcesz tylko zablokować dostęp, użyj „Dezaktywuj konto".`}
+        confirmLabel="Usuń na zawsze"
+        destructive
+        loading={deleteEmployee.isPending}
+        onConfirm={() => {
+          deleteEmployee.mutate(id, {
+            onSuccess: () => {
+              setConfirmDelete(false);
+              navigate('/pracownicy', { replace: true });
+            },
+          });
+        }}
+        onCancel={() => setConfirmDelete(false)}
       />
       <TempPasswordDialog
         open={tempPassword !== null}

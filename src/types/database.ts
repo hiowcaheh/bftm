@@ -395,6 +395,10 @@ export type Database = {
         Args: { p_profile_id: string; p_active: boolean };
         Returns: undefined;
       };
+      admin_delete_employee: {
+        Args: { p_profile_id: string };
+        Returns: undefined;
+      };
       finance_project_summary: {
         Args: { p_from: string; p_to: string };
         Returns: Array<{

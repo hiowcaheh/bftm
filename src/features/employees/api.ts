@@ -53,6 +53,17 @@ export async function setActive(profileId: string, active: boolean): Promise<voi
   if (error) throw new Error(rpcMessage(error.message));
 }
 
+/**
+ * Trwale usuwa pracownika z całej aplikacji (konto Auth, profil, godziny,
+ * nieobecności, stawki, dane prywatne, powiadomienia, wypłaty, avatar).
+ */
+export async function deleteEmployee(profileId: string): Promise<void> {
+  const { error } = await supabase.rpc('admin_delete_employee', {
+    p_profile_id: profileId,
+  });
+  if (error) throw new Error(rpcMessage(error.message));
+}
+
 export async function updateEmployee(
   id: string,
   patch: { full_name?: string; phone?: string | null },

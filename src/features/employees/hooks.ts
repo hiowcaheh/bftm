@@ -5,6 +5,7 @@ import type { PermissionMap } from '@/lib/permissions';
 import {
   addCompensation,
   createEmployee,
+  deleteEmployee,
   fetchActivity,
   fetchCompensation,
   fetchEmployee,
@@ -98,6 +99,19 @@ export function useSetActive() {
     onSuccess: (_d, { active }) => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.all });
       toast.success(active ? 'Konto aktywowane' : 'Konto dezaktywowane');
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+/** Trwałe usunięcie pracownika — czyści też cache godzin/raportów, bo znikają jego wpisy. */
+export function useDeleteEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteEmployee(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries();
+      toast.success('Pracownik usunięty z aplikacji');
     },
     onError: (e: Error) => toast.error(e.message),
   });
