@@ -10,6 +10,7 @@ import {
   Wallet,
   BarChart3,
   ReceiptText,
+  FileSpreadsheet,
   Settings,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
@@ -127,6 +128,15 @@ export const modules: AppModule[] = [
     // widoczny dla każdego zalogowanego (pracownik widzi swoje, admin wszystkie)
     navPlacement: 'more',
     element: lazy(() => import('@/features/payslips/pages/PayslipsPage')),
+  },
+  {
+    id: 'invoices',
+    label: 'Specyfikacje faktury',
+    icon: FileSpreadsheet,
+    path: '/specyfikacje-faktury',
+    requiredPermission: 'invoices_manage',
+    navPlacement: 'more',
+    element: lazy(() => import('@/features/invoices/pages/InvoicesPage')),
   },
   {
     id: 'settings',

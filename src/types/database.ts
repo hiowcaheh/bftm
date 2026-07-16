@@ -217,6 +217,17 @@ type PayslipRow = {
   created_at: string;
 }
 
+type InvoiceSpecRow = {
+  id: string;
+  client_id: string | null;
+  project_id: string;
+  period_from: string;
+  period_to: string;
+  title: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
 type EmployeePrivateRow = {
   profile_id: string;
   personnummer: string | null;
@@ -325,6 +336,11 @@ export type Database = {
         Partial<PayslipRow> &
           Pick<PayslipRow, 'employee_id' | 'year' | 'month' | 'file_path'>
       >;
+      invoice_specs: TableDef<
+        InvoiceSpecRow,
+        Partial<InvoiceSpecRow> &
+          Pick<InvoiceSpecRow, 'project_id' | 'period_from' | 'period_to'>
+      >;
       notifications: TableDef<
         NotificationRow,
         Partial<NotificationRow> & Pick<NotificationRow, 'recipient_id' | 'title'>
@@ -404,6 +420,16 @@ export type Database = {
       report_absences: {
         Args: { p_from: string; p_to: string };
         Returns: Array<{ employee_id: string; name: string; type: string; days: number }>;
+      };
+      invoice_spec_items: {
+        Args: { p_project: string; p_from: string; p_to: string };
+        Returns: Array<{
+          entry_date: string;
+          employee_name: string;
+          activity_name: string | null;
+          hours: number;
+          note: string | null;
+        }>;
       };
       offer_next_number: { Args: Record<PropertyKey, never>; Returns: string };
       offer_publish: { Args: { p_offer_id: string }; Returns: string };
