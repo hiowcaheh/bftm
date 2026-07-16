@@ -15,7 +15,7 @@ import {
 import type { LucideProps } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { useI18n } from '@/lib/i18n/context';
 import { Drawer } from '@/components/ui/Drawer';
 import { cn } from '@/lib/cn';
 import { useMarkAllRead, useNotifications } from './hooks';
@@ -47,6 +47,7 @@ const TYPE_ROUTES: Record<string, string> = {
 };
 
 export function NotificationBell() {
+  const { t, dateLocale } = useI18n();
   const notifications = useNotifications();
   const markAllRead = useMarkAllRead();
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export function NotificationBell() {
     <>
       <button
         type="button"
-        aria-label={`Powiadomienia${unread ? ` (${unread} nieprzeczytanych)` : ''}`}
+        aria-label={unread ? t('notif.ariaUnread', { n: unread }) : t('notif.aria')}
         onClick={openPanel}
         className="press relative flex size-9 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
       >
@@ -76,18 +77,18 @@ export function NotificationBell() {
         )}
       </button>
 
-      <Drawer open={open} onClose={() => setOpen(false)} title="Powiadomienia">
+      <Drawer open={open} onClose={() => setOpen(false)} title={t('notif.title')}>
         {list.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <div className="flex size-14 items-center justify-center rounded-full bg-white shadow-(--shadow-card)">
               <BellOff className="size-6 text-text-secondary/60" />
             </div>
-            <p className="text-sm text-text-secondary">Nie masz jeszcze żadnych powiadomień.</p>
+            <p className="text-sm text-text-secondary">{t('notif.empty')}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
             <p className="flex items-center gap-1.5 text-xs text-text-secondary">
-              <CheckCheck className="size-4" /> Wszystkie oznaczone jako przeczytane
+              <CheckCheck className="size-4" /> {t('notif.allRead')}
             </p>
             {list.map((n) => {
               const style = TYPE_STYLES[n.type] ?? TYPE_STYLES.info!;
@@ -133,7 +134,7 @@ export function NotificationBell() {
                     <p className="mt-1 text-[11px] text-text-secondary/70">
                       {formatDistanceToNow(new Date(n.created_at), {
                         addSuffix: true,
-                        locale: pl,
+                        locale: dateLocale,
                       })}
                     </p>
                   </div>

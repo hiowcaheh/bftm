@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { SkeletonList } from '@/components/ui/Skeleton';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useMyPrivate, useSaveMyProfile, useUploadAvatar } from '../hooks';
 
@@ -16,6 +17,7 @@ import { useMyPrivate, useSaveMyProfile, useUploadAvatar } from '../hooks';
  */
 export default function MyProfilePage() {
   const navigate = useNavigate();
+  const t = useT();
   const { user } = useSession();
   const priv = useMyPrivate();
   const save = useSaveMyProfile();
@@ -55,7 +57,7 @@ export default function MyProfilePage() {
         onClick={() => navigate(-1)}
         className="press flex items-center gap-1 self-start text-sm font-medium text-text-secondary"
       >
-        <ArrowLeft className="size-4" /> Wstecz
+        <ArrowLeft className="size-4" /> {t('prof.back')}
       </button>
 
       <Card className="flex items-center gap-4 p-4">
@@ -63,7 +65,7 @@ export default function MyProfilePage() {
           type="button"
           className="press relative"
           onClick={() => avatarRef.current?.click()}
-          aria-label="Zmień zdjęcie profilowe"
+          aria-label={t('prof.changeAvatar')}
         >
           <Avatar name={user.fullName} path={user.avatarPath} size="lg" />
           <span className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full bg-accent text-white shadow">
@@ -93,7 +95,7 @@ export default function MyProfilePage() {
         <ListRow
           leading={<Mail className="size-5 text-text-secondary" />}
           title={user.email}
-          subtitle="E-mail (login)"
+          subtitle={t('emp.emailLogin')}
         />
       </ListGroup>
 
@@ -102,12 +104,12 @@ export default function MyProfilePage() {
       ) : (
         <Card className="flex flex-col gap-4 p-4">
           <Input
-            label="Imię i nazwisko"
+            label={t('emp.fullName')}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
           />
           <Input
-            label="Telefon"
+            label={t('prof.phone')}
             type="tel"
             placeholder="+46 ..."
             value={phone}
@@ -122,20 +124,20 @@ export default function MyProfilePage() {
           />
           <div className="grid grid-cols-3 gap-3">
             <Input
-              label="Koszulka"
-              placeholder="np. L"
+              label={t('prof.shirt')}
+              placeholder={t('prof.shirtPh')}
               value={shirt}
               onChange={(e) => setShirt(e.target.value)}
             />
             <Input
-              label="Spodnie"
-              placeholder="np. 52"
+              label={t('prof.pants')}
+              placeholder={t('prof.pantsPh')}
               value={pants}
               onChange={(e) => setPants(e.target.value)}
             />
             <Input
-              label="Buty"
-              placeholder="np. 44"
+              label={t('prof.shoes')}
+              placeholder={t('prof.shoesPh')}
               value={shoes}
               onChange={(e) => setShoes(e.target.value)}
             />
@@ -155,7 +157,7 @@ export default function MyProfilePage() {
               })
             }
           >
-            Zapisz
+            {t('common.save')}
           </Button>
         </Card>
       )}

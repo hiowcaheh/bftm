@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { FileText, Loader2, Plus, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
@@ -8,6 +7,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FAB } from '@/components/ui/FAB';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { toast } from '@/components/ui/Toast';
+import { useI18n } from '@/lib/i18n/context';
 import { usePublicBranding } from '@/features/auth/hooks';
 import { useCompanyDetails } from '@/features/settings/hooks';
 import { fetchInvoiceItems, fetchLogoDataUrl } from '../api';
@@ -26,13 +26,15 @@ const slug = (s: string) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 40) || 'underlag';
 
-const periodLabel = (from: string, to: string) =>
-  `${format(new Date(from), 'd MMM', { locale: pl })} – ${format(new Date(to), 'd MMM yyyy', { locale: pl })}`;
+
 
 /** Cache logo (data URL) w module — pobierane raz na sesję. */
 let logoCache: { path: string | null; dataUrl: string | null } | null = null;
 
 export default function InvoicesPage() {
+  const { t, dateLocale } = useI18n();
+  const periodLabel = (from: string, to: string) =>
+    `${format(new Date(from), 'd MMM', { locale: dateLocale })} – ${format(new Date(to), 'd MMM yyyy', { locale: dateLocale })}`;
   const specs = useInvoiceSpecs();
   const branding = usePublicBranding();
   const company = useCompanyDetails(true);
@@ -56,7 +58,7 @@ export default function InvoicesPage() {
       }
       const items = await fetchInvoiceItems(spec.project_id, spec.period_from, spec.period_to);
       if (items.length === 0) {
-        toast.info('Brak wpisanych godzin dla tego projektu w wybranym okresie');
+        toast.info(t('inv.noHoursPeriod'));
       }
       const blob = await generateInvoiceSpecPdf({
         companyName: branding.data?.companyName ?? 'BFTM Fasad & Bygg AB',
@@ -73,7 +75,7 @@ export default function InvoicesPage() {
       const filename = `underlag-${slug(spec.title || projectName)}-${spec.period_from}.pdf`;
       setPreview({ blob, filename, title: spec.title || projectName });
     } catch {
-      toast.error('Nie udało się wygenerować PDF');
+      toast.error(t('inv.pdfErr'));
     } finally {
       setGeneratingId(null);
     }
@@ -88,7 +90,7 @@ export default function InvoicesPage() {
       {!specs.isLoading && list.length === 0 && (
         <EmptyState
           icon={FileText}
-          message="Brak specyfikacji faktury — utwórz pierwszą przyciskiem +."
+          message={t('inv.empty')}
         />
       )}
 
@@ -128,7 +130,7 @@ export default function InvoicesPage() {
                 </button>
                 <button
                   type="button"
-                  aria-label="Usuń specyfikację"
+                  aria-label={t('inv.deleteAria')}
                   className="press mr-1 flex size-9 shrink-0 items-center justify-center rounded-lg text-text-secondary"
                   onClick={() => setToDelete(s)}
                 >
@@ -141,7 +143,7 @@ export default function InvoicesPage() {
       )}
 
       <FAB
-        label="Nowa specyfikacja"
+        label={t('inv.newSpec')}
         icon={<Plus className="size-7" />}
         onClick={() => setNewOpen(true)}
       />
@@ -154,9 +156,9 @@ export default function InvoicesPage() {
 
       <ConfirmDialog
         open={toDelete !== null}
-        title="Usunąć specyfikację?"
-        description="Pozycja zniknie z listy. Godziny i wpisy pozostają nienaruszone."
-        confirmLabel="Usuń"
+        title={t('inv.deleteTitle')}
+        description={t('inv.deleteDesc')}
+        confirmLabel={t('common.delete')}
         destructive
         loading={deleteSpec.isPending}
         onConfirm={() => {

@@ -6,6 +6,7 @@ import { RangeCalendar } from '@/components/ui/RangeCalendar';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
+import { useT } from '@/lib/i18n/context';
 import { date as fmtDate } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useClients } from '@/features/clients/hooks';
@@ -21,6 +22,7 @@ interface NewInvoiceSpecSheetProps {
 }
 
 export function NewInvoiceSpecSheet({ open, onClose, onCreated }: NewInvoiceSpecSheetProps) {
+  const t = useT();
   const { user } = useSession();
   const clients = useClients();
   const projects = useProjects();
@@ -58,20 +60,20 @@ export function NewInvoiceSpecSheet({ open, onClose, onCreated }: NewInvoiceSpec
   }, [projectOptions, projectId]);
 
   const rangeLabel = !from
-    ? 'Wybierz pierwszy dzień na kalendarzu'
+    ? t('inv.pickFirstDay')
     : !to
-      ? `Od ${fmtDate(from)} — wybierz dzień końcowy`
+      ? t('inv.pickEnd', { date: fmtDate(from) })
       : from.getTime() === to.getTime()
         ? fmtDate(from)
         : `${fmtDate(from)} – ${fmtDate(to)}`;
 
   const submit = () => {
     if (!projectId) {
-      toast.error('Wybierz projekt');
+      toast.error(t('inv.errProject'));
       return;
     }
     if (!from) {
-      toast.error('Wybierz okres na kalendarzu');
+      toast.error(t('inv.errPeriod'));
       return;
     }
     const end = to ?? from;
@@ -94,31 +96,31 @@ export function NewInvoiceSpecSheet({ open, onClose, onCreated }: NewInvoiceSpec
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title="Nowa specyfikacja faktury" height="tall">
+    <Sheet open={open} onClose={onClose} title={t('inv.newSpecTitle')} height="tall">
       <div className="flex flex-col gap-4">
         <Select
-          label="Klient (opcjonalnie)"
+          label={t('inv.clientOptional')}
           value={clientId}
           options={[
-            { value: '', label: 'Wszyscy klienci' },
+            { value: '', label: t('inv.allClients') },
             ...(clients.data ?? []).map((c) => ({ value: c.id, label: c.name })),
           ]}
           onChange={(e) => setClientId(e.target.value)}
         />
         <Select
-          label="Projekt"
+          label={t('common.project')}
           value={projectId}
-          options={[{ value: '', label: 'Wybierz projekt' }, ...projectOptions]}
+          options={[{ value: '', label: t('ts.selectProject') }, ...projectOptions]}
           onChange={(e) => setProjectId(e.target.value)}
         />
         <Input
-          label="Tytuł (np. Puts reparation)"
+          label={t('inv.titleField')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Widoczny w nagłówku PDF"
+          placeholder={t('inv.titleHint')}
         />
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-text-secondary">Okres</span>
+          <span className="text-xs font-medium text-text-secondary">{t('ts.period')}</span>
           <RangeCalendar
             from={from}
             to={to}
@@ -134,7 +136,7 @@ export function NewInvoiceSpecSheet({ open, onClose, onCreated }: NewInvoiceSpec
           loading={create.isPending}
           onClick={submit}
         >
-          Generuj PDF
+          {t('inv.generatePdf')}
         </Button>
       </div>
     </Sheet>

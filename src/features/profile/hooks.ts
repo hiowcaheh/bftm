@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
   fetchMyPrivate,
@@ -37,9 +38,9 @@ export function useSaveMyProfile() {
       void queryClient.invalidateQueries({ queryKey: qk.profile.all });
       void queryClient.invalidateQueries({ queryKey: qk.employees.all });
       await refresh();
-      toast.success('Profil zapisany');
+      toast.success(translate('prof.saved'));
     },
-    onError: () => toast.error('Nie udało się zapisać profilu'),
+    onError: () => toast.error(translate('prof.errSave')),
   });
 }
 
@@ -51,8 +52,8 @@ export function useUploadAvatar() {
     onSuccess: async () => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.all });
       await refresh();
-      toast.success('Zdjęcie profilowe zapisane');
+      toast.success(translate('prof.avatarSaved'));
     },
-    onError: (e: Error) => toast.error(e.message || 'Nie udało się zapisać zdjęcia'),
+    onError: (e: Error) => toast.error(e.message || translate('prof.errAvatar')),
   });
 }

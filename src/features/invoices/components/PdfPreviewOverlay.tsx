@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Download, Loader2, X } from 'lucide-react';
+import { useT } from '@/lib/i18n/context';
 
 type PdfJsModule = typeof import('pdfjs-dist');
 let pdfjsPromise: Promise<PdfJsModule> | null = null;
@@ -35,6 +36,7 @@ export function PdfPreviewOverlay({
   onClose,
   onShare,
 }: PdfPreviewOverlayProps) {
+  const t = useT();
   const [pages, setPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -105,7 +107,7 @@ export function PdfPreviewOverlay({
       {/* Pływający przycisk zamknięcia — jak w lightboxie ze zdjęciem */}
       <button
         type="button"
-        aria-label="Zamknij podgląd"
+        aria-label={t('inv.closePreview')}
         className="press absolute right-4 z-10 flex size-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur"
         style={{ top: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
         onClick={onClose}
@@ -125,7 +127,7 @@ export function PdfPreviewOverlay({
           </div>
         )}
         {error && !loading && (
-          <p className="mt-8 text-sm text-white/90">Nie udało się wczytać podglądu.</p>
+          <p className="mt-8 text-sm text-white/90">{t('inv.previewErr')}</p>
         )}
         {pages.map((src, i) => (
           <img

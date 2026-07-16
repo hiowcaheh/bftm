@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { FileText, FileUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
+import { useI18n } from '@/lib/i18n/context';
 import { useEmployees } from '@/features/employees/hooks';
 import { useUploadPayslip } from '../hooks';
 import type { Payslip } from '../api';
@@ -18,13 +18,13 @@ interface Props {
   existing: Payslip[];
 }
 
-const MONTHS = Array.from({ length: 12 }, (_, i) => ({
-  value: String(i + 1),
-  label: format(new Date(2026, i, 1), 'LLLL', { locale: pl }),
-}));
-
 /** Formularz wgrania lönespec: pracownik + miesiąc/rok + plik (PDF/zdjęcie). */
 export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing }: Props) {
+  const { t, dateLocale } = useI18n();
+  const MONTHS = Array.from({ length: 12 }, (_, i) => ({
+    value: String(i + 1),
+    label: format(new Date(2026, i, 1), 'LLLL', { locale: dateLocale }),
+  }));
   const employees = useEmployees();
   const upload = useUploadPayslip();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -68,11 +68,11 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
 
   const submit = () => {
     if (!employeeId) {
-      toast.error('Wybierz pracownika');
+      toast.error(t('pay.errEmployee'));
       return;
     }
     if (!file) {
-      toast.error('Dodaj plik specyfikacji (PDF lub zdjęcie)');
+      toast.error(t('pay.errFile'));
       return;
     }
     const existingRow =
@@ -96,12 +96,12 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title="Wyślij specyfikację wypłaty">
+    <Sheet open={open} onClose={onClose} title={t('pay.uploadTitle')}>
       <div className="flex flex-col gap-4">
         <Select
-          label="Pracownik"
+          label={t('ts.employee')}
           value={employeeId}
-          placeholder="Wybierz pracownika…"
+          placeholder={t('pay.selectEmployee')}
           options={(employees.data ?? [])
             .filter((e) => e.role !== 'admin')
             .map((e) => ({ value: e.id, label: e.full_name }))}
@@ -109,13 +109,13 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
         />
         <div className="grid grid-cols-2 gap-3">
           <Select
-            label="Miesiąc"
+            label={t('pay.month')}
             value={month}
             options={MONTHS}
             onChange={(e) => setMonth(e.target.value)}
           />
           <Select
-            label="Rok"
+            label={t('pay.year')}
             value={year}
             options={years}
             onChange={(e) => setYear(e.target.value)}
@@ -129,9 +129,9 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
         >
           <FileUp className="size-7 text-text-secondary" />
           <span className="text-sm font-medium">
-            {file ? file.name : 'Wybierz plik (PDF lub zdjęcie)'}
+            {file ? file.name : t('pay.pickFile')}
           </span>
-          <span className="text-xs text-text-secondary">z galerii, plików lub aparatu</span>
+          <span className="text-xs text-text-secondary">{t('pay.pickFileSub')}</span>
         </button>
         <input
           ref={fileRef}
@@ -147,7 +147,7 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
             {previewUrl ? (
               <img
                 src={previewUrl}
-                alt="Podgląd specyfikacji"
+                alt={t('pay.filePreviewAlt')}
                 className="max-h-80 w-full object-contain"
               />
             ) : (
@@ -155,9 +155,7 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
                 <FileText className="size-8 shrink-0 text-accent" strokeWidth={1.6} />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{file.name}</p>
-                  <p className="text-xs text-text-secondary">
-                    PDF — podgląd dostępny po wysłaniu
-                  </p>
+                  <p className="text-xs text-text-secondary">{t('pay.pdfAfterUpload')}</p>
                 </div>
               </div>
             )}
@@ -165,20 +163,20 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
         )}
 
         <Input
-          label="Notatka (opcjonalnie)"
-          placeholder="np. wypłata 25.06"
+          label={t('abs.noteOptional')}
+          placeholder={t('pay.notePh')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />
 
         {alreadyExists && (
           <p className="rounded-xl bg-warning-soft px-3 py-2 text-xs text-warning">
-            Za ten miesiąc jest już specyfikacja — zostanie zastąpiona nową.
+            {t('pay.replaceWarn')}
           </p>
         )}
 
         <Button size="lg" fullWidth loading={upload.isPending} onClick={submit}>
-          Wyślij pracownikowi
+          {t('pay.sendBtn')}
         </Button>
       </div>
     </Sheet>

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { Download, FileText, Plus, Share2, Trash2, X } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
@@ -11,14 +10,14 @@ import { Select } from '@/components/ui/Select';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { toast } from '@/components/ui/Toast';
 import { date as fmtDate } from '@/lib/format';
+import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
 import { useDeletePayslip, usePayslips, usePayslipUrl } from '../hooks';
 import type { Payslip } from '../api';
 import { PayslipUploadSheet } from '../components/PayslipUploadSheet';
 
-const monthLabel = (year: number, month: number) =>
-  format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: pl });
+
 
 /** Zapisanie/udostępnienie pliku (iOS: menu „Zapisz w Plikach / Zdjęcia"). */
 async function sharePayslip(url: string, filename: string, type: string) {
@@ -36,16 +35,18 @@ async function sharePayslip(url: string, filename: string, type: string) {
   window.open(url, '_blank');
 }
 
-const MONTHS = [
-  { value: '', label: 'Cały rok' },
-  ...Array.from({ length: 12 }, (_, i) => ({
-    value: String(i + 1),
-    label: format(new Date(2026, i, 1), 'LLLL', { locale: pl }),
-  })),
-];
-
 export default function PayslipsPage() {
   const { user, can } = useSession();
+  const { t, dateLocale } = useI18n();
+  const monthLabel = (year: number, month: number) =>
+    format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: dateLocale });
+  const MONTHS = [
+    { value: '', label: t('pay.allYear') },
+    ...Array.from({ length: 12 }, (_, i) => ({
+      value: String(i + 1),
+      label: format(new Date(2026, i, 1), 'LLLL', { locale: dateLocale }),
+    })),
+  ];
   const canManage = user?.role === 'admin' || can('payslips_manage');
   const employees = useEmployees();
   const [employeeFilter, setEmployeeFilter] = useState('');
@@ -55,7 +56,7 @@ export default function PayslipsPage() {
   const deletePayslip = useDeletePayslip();
 
   const yearOptions = [
-    { value: '', label: 'Wszystkie lata' },
+    { value: '', label: t('pay.allYears') },
     ...[0, 1, 2].map((d) => {
       const y = new Date().getFullYear() - d;
       return { value: String(y), label: String(y) };
@@ -78,10 +79,10 @@ export default function PayslipsPage() {
       {canManage && (
         <div className="flex flex-col gap-2">
           <Select
-            aria-label="Filtr pracownika"
+            aria-label={t('pay.employeeFilter')}
             value={employeeFilter}
             options={[
-              { value: '', label: 'Wszyscy pracownicy' },
+              { value: '', label: t('pay.allEmployees') },
               ...(employees.data ?? [])
                 .filter((e) => e.role !== 'admin')
                 .map((e) => ({ value: e.id, label: e.full_name })),
@@ -90,13 +91,13 @@ export default function PayslipsPage() {
           />
           <div className="grid grid-cols-2 gap-2">
             <Select
-              aria-label="Filtr miesiąca"
+              aria-label={t('pay.monthFilter')}
               value={monthFilter}
               options={MONTHS}
               onChange={(e) => setMonthFilter(e.target.value)}
             />
             <Select
-              aria-label="Filtr roku"
+              aria-label={t('pay.yearFilter')}
               value={yearFilter}
               options={yearOptions}
               onChange={(e) => setYearFilter(e.target.value)}
@@ -110,11 +111,7 @@ export default function PayslipsPage() {
       {!payslips.isLoading && list.length === 0 && (
         <EmptyState
           icon={FileText}
-          message={
-            canManage
-              ? 'Brak specyfikacji — wyślij pierwszą przyciskiem +.'
-              : 'Nie masz jeszcze żadnych specyfikacji wypłaty.'
-          }
+          message={canManage ? t('pay.emptyManager') : t('pay.emptyOwn')}
         />
       )}
 
@@ -137,8 +134,8 @@ export default function PayslipsPage() {
                 <p className="truncate text-xs text-text-secondary">
                   {[
                     canManage ? p.employee?.full_name : null,
-                    p.file_type === 'application/pdf' ? 'PDF' : 'Zdjęcie',
-                    `wysłano ${fmtDate(p.created_at)}`,
+                    p.file_type === 'application/pdf' ? 'PDF' : t('pay.photo'),
+                    t('pay.sentAt', { date: fmtDate(p.created_at) }),
                   ]
                     .filter(Boolean)
                     .join(' • ')}
@@ -151,7 +148,7 @@ export default function PayslipsPage() {
 
       {canManage && (
         <FAB
-          label="Wyślij specyfikację"
+          label={t('pay.sendFab')}
           icon={<Plus className="size-7" />}
           onClick={() => setUploadOpen(true)}
         />
@@ -189,7 +186,7 @@ export default function PayslipsPage() {
               {canManage ? (
                 <button
                   type="button"
-                  aria-label="Usuń specyfikację"
+                  aria-label={t('pay.deleteAria')}
                   className="press flex size-10 items-center justify-center rounded-full bg-white/15 text-white"
                   onClick={() => setToDelete(preview)}
                 >
@@ -202,16 +199,16 @@ export default function PayslipsPage() {
 
             <div className="flex min-h-0 flex-1 items-center justify-center p-2">
               {!previewUrl.data ? (
-                <p className="text-sm text-white/70">Wczytywanie…</p>
+                <p className="text-sm text-white/70">{t('pay.loading')}</p>
               ) : preview.file_type === 'application/pdf' ? (
                 <div className="flex flex-col items-center gap-4 text-center">
                   <FileText className="size-16 text-white/60" strokeWidth={1.4} />
-                  <p className="text-sm text-white/80">Specyfikacja w formacie PDF</p>
+                  <p className="text-sm text-white/80">{t('pay.pdfPreview')}</p>
                 </div>
               ) : (
                 <img
                   src={previewUrl.data}
-                  alt="Specyfikacja wypłaty"
+                  alt={t('pay.imgAlt')}
                   className="max-h-full max-w-full object-contain"
                 />
               )}
@@ -231,17 +228,17 @@ export default function PayslipsPage() {
                   const ext = preview.file_type === 'application/pdf' ? 'pdf' : 'jpg';
                   const filename = `specyfikacja-${preview.year}-${String(preview.month).padStart(2, '0')}.${ext}`;
                   void sharePayslip(previewUrl.data, filename, preview.file_type).catch(
-                    () => toast.error('Nie udało się udostępnić pliku'),
+                    () => toast.error(t('pay.shareErr')),
                   );
                 }}
               >
                 {preview.file_type === 'application/pdf' ? (
                   <>
-                    <Download className="size-5" /> Zapisz / otwórz PDF
+                    <Download className="size-5" /> {t('pay.savePdf')}
                   </>
                 ) : (
                   <>
-                    <Share2 className="size-5" /> Zapisz / udostępnij
+                    <Share2 className="size-5" /> {t('pay.saveShare')}
                   </>
                 )}
               </button>
@@ -252,9 +249,9 @@ export default function PayslipsPage() {
 
       <ConfirmDialog
         open={toDelete !== null}
-        title="Usunąć specyfikację?"
-        description="Plik zostanie trwale usunięty; pracownik straci do niego dostęp."
-        confirmLabel="Usuń"
+        title={t('pay.deleteTitle')}
+        description={t('pay.deleteDesc')}
+        confirmLabel={t('common.delete')}
         destructive
         loading={deletePayslip.isPending}
         onConfirm={() => {
