@@ -34,6 +34,10 @@ interface HoursFormSheetProps {
   /** szablon (Duplikuj): prefill pól jak we wzorze, ale data = dziś i tryb NOWEGO wpisu */
   template?: WorkHoursEntry | null;
   presetProjectId?: string;
+  /** Nowy wpis z ustawionym pracownikiem (klik w pustą komórkę dziennika). */
+  presetEmployeeId?: string;
+  /** Nowy wpis z ustawioną datą (klik w pustą komórkę dziennika). */
+  presetDate?: string;
 }
 
 export function HoursFormSheet({
@@ -42,6 +46,8 @@ export function HoursFormSheet({
   entry,
   template,
   presetProjectId,
+  presetEmployeeId,
+  presetDate,
 }: HoursFormSheetProps) {
   const { user, can } = useSession();
   const canPickEmployee = can('hours_edit_all');
@@ -62,15 +68,15 @@ export function HoursFormSheet({
   useEffect(() => {
     if (open) {
       const source = entry ?? template ?? null;
-      setEmployeeId(source?.employee_id ?? user?.id ?? '');
+      setEmployeeId(source?.employee_id ?? presetEmployeeId ?? user?.id ?? '');
       setProjectId(source?.project_id ?? presetProjectId ?? '');
       setActivityId(source?.activity_id ?? '');
-      // szablon (Duplikuj) zawsze startuje od dzisiejszej daty
-      setDate(entry?.date ?? today());
+      // szablon (Duplikuj) zawsze startuje od dzisiejszej daty; klik w komórkę → jej data
+      setDate(entry?.date ?? presetDate ?? today());
       setHoursValue(source?.hours ?? 8);
       setDescription(source?.description ?? '');
     }
-  }, [open, entry, template, presetProjectId, user?.id]);
+  }, [open, entry, template, presetProjectId, presetEmployeeId, presetDate, user?.id]);
 
   // Ostatnio używane projekty na górze listy
   const projectOptions = useMemo(() => {

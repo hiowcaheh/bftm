@@ -25,6 +25,8 @@ interface JournalGridProps {
   absences: AbsenceWithEmployee[];
   employees: Array<{ id: string; full_name: string }>;
   onEditEntry?: (entry: WorkHoursEntry) => void;
+  /** Klik w pustą komórkę → dodanie godzin z ustawionym pracownikiem i dniem. */
+  onAddForCell?: (employeeId: string, date: string) => void;
 }
 
 interface CellInfo {
@@ -44,6 +46,7 @@ export function JournalGrid({
   absences,
   employees,
   onEditEntry,
+  onAddForCell,
 }: JournalGridProps) {
   const days = useMemo(() => eachDayOfInterval({ start: from, end: to }), [from, to]);
   const [selected, setSelected] = useState<{ employeeId: string; date: string } | null>(null);
@@ -160,16 +163,21 @@ export function JournalGrid({
                               : 'bg-accent-soft text-accent'),
                           !cell && absence && 'text-white',
                           !cell && !absence && isWeekend(d) && 'bg-surface/50',
+                          !cell && !absence && onAddForCell && 'active:bg-surface',
                         )}
                         style={
                           !cell && absence
                             ? { backgroundColor: ABSENCE_TYPE_COLORS[absence.type] }
                             : undefined
                         }
-                        onClick={() =>
-                          (cell || absence) &&
-                          setSelected({ employeeId: emp.id, date: format(d, 'yyyy-MM-dd') })
-                        }
+                        onClick={() => {
+                          const dateIso = format(d, 'yyyy-MM-dd');
+                          if (cell || absence) {
+                            setSelected({ employeeId: emp.id, date: dateIso });
+                          } else {
+                            onAddForCell?.(emp.id, dateIso);
+                          }
+                        }}
                       >
                         {cell ? num(cell.sum) : absence ? '•' : ''}
                       </button>

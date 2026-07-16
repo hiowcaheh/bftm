@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.28.0 — szybkie dodawanie w dzienniku + tekstura logo (2026-07-16)
+
+- **Dziennik godzin** (admin / `hours_edit_all`): klik w **pustą komórkę**
+  (pracownik × dzień) otwiera formularz dodawania z już wybranym pracownikiem
+  i dniem — szybsze uzupełnianie pustych dni. Komórki z wpisem działają jak
+  dotąd (szczegóły + edycja).
+- **Tło**: znak wodny wrócił do drobnej tekstury — mnóstwo malutkich logo pod
+  kątem, jeszcze mniej widoczne (opacity 3%).
+
 ## 0.27.2 — logo w tle faktycznie widoczne (2026-07-16)
 
 - Znak wodny z logo chował się za nieprzezroczystymi kartami (widoczny tylko
