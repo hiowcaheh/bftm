@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.25.3 — poprawki podglądu PDF: logo, stopka, modal (2026-07-16)
+
+- **Logo w PDF** ładowane przez `storage.download()` (ten sam kanał co reszta
+  Supabase) — wcześniej `fetch` po publicznym URL bywał blokowany i logo się
+  nie pokazywało.
+- **Stopka PDF** zawiera teraz telefon i e-mail firmy obok nazwy
+  (np. „BFTM Fasad & Bygg AB · Tel. … · kontakt@…").
+- **Podgląd PDF** jako pełny modal: wyższy z-index (nad dolnym menu), blokada
+  przewijania tła, wyraźny przycisk **„✕ Zamknij"** w lewym górnym rogu,
+  zamykanie klawiszem Escape.
+
 ## 0.25.2 — numery tygodni w PDF specyfikacji (2026-07-16)
 
 - W tabeli PDF wiersze są pogrupowane po **tygodniu ISO** (od poniedziałku),

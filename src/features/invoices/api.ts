@@ -1,18 +1,18 @@
 import { supabase } from '@/lib/supabaseClient';
 
-/** Logo firmy z publicznego bucketa jako data URL — do osadzenia w PDF. */
+/** Logo firmy z bucketa jako data URL — do osadzenia w PDF. Używa
+ *  storage.download() (ten sam kanał CORS co reszta zapytań Supabase),
+ *  więc działa tam gdzie zwykły fetch po publicznym URL bywa blokowany. */
 export async function fetchLogoDataUrl(logoPath: string | null): Promise<string | null> {
   if (!logoPath) return null;
   try {
-    const url = supabase.storage.from('logos').getPublicUrl(logoPath).data.publicUrl;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const blob = await res.blob();
+    const { data, error } = await supabase.storage.from('logos').download(logoPath);
+    if (error || !data) return null;
     return await new Promise<string | null>((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(typeof reader.result === 'string' ? reader.result : null);
       reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
+      reader.readAsDataURL(data);
     });
   } catch {
     return null;

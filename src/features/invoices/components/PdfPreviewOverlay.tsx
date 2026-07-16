@@ -84,26 +84,40 @@ export function PdfPreviewOverlay({
     };
   }, [open, blob]);
 
+  // Blokada przewijania tła + zamykanie klawiszem Escape gdy podgląd otwarty
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[70] flex flex-col bg-neutral-800">
+    <div className="fixed inset-0 z-[120] flex flex-col bg-neutral-900">
       <div
-        className="flex items-center justify-between gap-3 px-4 pb-2"
+        className="flex items-center justify-between gap-3 border-b border-white/10 bg-neutral-900 px-4 pb-2"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}
       >
         <button
           type="button"
-          aria-label="Zamknij"
-          className="press flex size-10 items-center justify-center rounded-full bg-white/15 text-white"
+          aria-label="Zamknij podgląd"
+          className="press flex h-10 items-center gap-1.5 rounded-full bg-white/15 pl-2.5 pr-3.5 text-white"
           onClick={onClose}
         >
           <X className="size-5" />
+          <span className="text-sm font-medium">Zamknij</span>
         </button>
-        <span className="truncate text-sm font-medium text-white">
+        <span className="truncate text-sm font-medium text-white/90">
           {title ?? 'Podgląd PDF'}
         </span>
-        <span className="size-10" />
+        <span className="w-10" />
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto px-3 py-4">
