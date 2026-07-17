@@ -228,6 +228,15 @@ type InvoiceSpecRow = {
   created_at: string;
 }
 
+type PushSubscriptionRow = {
+  id: string;
+  profile_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  created_at: string;
+};
+
 type ChecklistItemRow = {
   id: string;
   scope: 'company' | 'private';
@@ -358,6 +367,11 @@ export type Database = {
       checklist_items: TableDef<
         ChecklistItemRow,
         Partial<ChecklistItemRow> & Pick<ChecklistItemRow, 'scope' | 'text'>
+      >;
+      push_subscriptions: TableDef<
+        PushSubscriptionRow,
+        Partial<PushSubscriptionRow> &
+          Pick<PushSubscriptionRow, 'profile_id' | 'endpoint' | 'p256dh' | 'auth'>
       >;
       notifications: TableDef<
         NotificationRow,

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.33.0 — powiadomienia push na telefon (2026-07-17)
+
+- **Ustawienia → Powiadomienia push**: przełącznik włączający powiadomienia
+  na tym urządzeniu (działa też na iPhonie dla zainstalowanej PWA).
+  Po włączeniu każde powiadomienie z dzwoneczka (nowe zadanie na check-liście,
+  specyfikacja wypłaty, akceptacja oferty…) przychodzi też na ekran telefonu.
+- Tap w powiadomienie otwiera aplikację na właściwej zakładce.
+- Technicznie: własny service worker (Web Push), tabela subskrypcji per
+  urządzenie (RLS), trigger w bazie → Edge Function `push` z kluczami VAPID
+  (migracja 0037).
+
+
 ## 0.32.0 — usuwanie godzin z dziennika + czysta strona oferty (2026-07-17)
 
 - **Dziennik godzin**: w szczegółach dnia (tap w kratkę) obok ołówka jest teraz
