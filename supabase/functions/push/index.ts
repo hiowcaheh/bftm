@@ -37,7 +37,7 @@ Deno.serve(async (req: Request) => {
     return new Response('unauthorized', { status: 401 });
   }
 
-  const { recipient_id, title, body, type } = await req.json();
+  const { recipient_id, title, body, type, unread } = await req.json();
   if (!recipient_id || !title) return new Response('bad request', { status: 400 });
 
   const { data: subs, error } = await supabase
@@ -46,7 +46,13 @@ Deno.serve(async (req: Request) => {
     .eq('profile_id', recipient_id);
   if (error) return new Response(error.message, { status: 500 });
 
-  const payload = JSON.stringify({ title, body: body ?? '', type: type ?? 'info' });
+  // unread → badge (kółeczko z liczbą) na ikonce aplikacji
+  const payload = JSON.stringify({
+    title,
+    body: body ?? '',
+    type: type ?? 'info',
+    unread: typeof unread === 'number' ? unread : undefined,
+  });
   let sent = 0;
 
   await Promise.all(

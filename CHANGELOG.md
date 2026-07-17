@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.34.0 — licznik na ikonce aplikacji (2026-07-17)
+
+- Czerwone kółeczko z liczbą nieprzeczytanych powiadomień na ikonce aplikacji
+  (Badging API; iOS 16.4+ w zainstalowanej PWA, Android/Chrome).
+- Badge aktualizuje się przy pushu (service worker) i na żywo w aplikacji
+  (dzwoneczek); znika po otwarciu panelu powiadomień.
+- Edge Function `push` v2 + trigger `notify_push` przekazują liczbę
+  nieprzeczytanych w payloadzie (migracja 0039).
+
 ## 0.33.1 — powiadomienia w języku odbiorcy (2026-07-17)
 
 - Język wybrany w Ustawieniach zapisuje się teraz w profilu pracownika,

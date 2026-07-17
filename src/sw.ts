@@ -52,7 +52,14 @@ interface PushPayload {
   title: string;
   body?: string;
   type?: string;
+  unread?: number;
 }
+
+// Badging API w SW — liczba nieprzeczytanych na ikonce aplikacji
+const swNavigator = self.navigator as Navigator & {
+  setAppBadge?: (count?: number) => Promise<void>;
+  clearAppBadge?: () => Promise<void>;
+};
 
 self.addEventListener('push', (event) => {
   let data: PushPayload = { title: 'BFTM' };
@@ -62,12 +69,18 @@ self.addEventListener('push', (event) => {
     if (event.data) data.body = event.data.text();
   }
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body || undefined,
-      icon: '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
-      data: { type: data.type ?? 'info' },
-    }),
+    (async () => {
+      if (typeof data.unread === 'number') {
+        if (data.unread > 0) await swNavigator.setAppBadge?.(data.unread).catch(() => {});
+        else await swNavigator.clearAppBadge?.().catch(() => {});
+      }
+      await self.registration.showNotification(data.title, {
+        body: data.body || undefined,
+        icon: '/icons/icon-192.png',
+        badge: '/icons/icon-192.png',
+        data: { type: data.type ?? 'info' },
+      });
+    })(),
   );
 });
 
