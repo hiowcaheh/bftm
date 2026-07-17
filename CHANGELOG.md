@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.1 — tłumaczenie ekranu błędu (2026-07-17)
+
+- Ekran awaryjny („Coś poszło nie tak") również w 4 językach.
+
+
 ## 0.31.0 — cała aplikacja przetłumaczona + produkcja (2026-07-17)
 
 - **Pełne i18n (PL/SV/EN/UK)**: przetłumaczone WSZYSTKIE ekrany — Pulpit,
