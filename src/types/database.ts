@@ -21,6 +21,7 @@ type ProfileRow = {
   email: string;
   phone: string | null;
   role: Role;
+  lang: 'pl' | 'sv' | 'en' | 'uk';
   permissions: Json;
   active: boolean;
   must_change_password: boolean;

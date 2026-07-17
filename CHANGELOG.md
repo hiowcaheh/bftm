@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.33.1 — powiadomienia w języku odbiorcy (2026-07-17)
+
+- Język wybrany w Ustawieniach zapisuje się teraz w profilu pracownika,
+  a **powiadomienia (dzwoneczek i push) przychodzą w języku odbiorcy** —
+  nie w języku osoby, która wykonała akcję. Dotyczy check-listy,
+  zatwierdzenia godzin i specyfikacji wypłaty (migracja 0038).
+
+
 ## 0.33.0 — powiadomienia push na telefon (2026-07-17)
 
 - **Ustawienia → Powiadomienia push**: przełącznik włączający powiadomienia

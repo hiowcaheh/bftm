@@ -74,6 +74,17 @@ export function activeDateLocale(): Locale {
   return dateLocales[activeLang];
 }
 
+
+/** Tłumaczenie w KONKRETNYM języku — np. powiadomienia w języku odbiorcy. */
+export function translateFor(lang: Lang, key: string, vars?: Record<string, string | number>): string {
+  return tr(lang, key, vars);
+}
+
+/** Locale date-fns konkretnego języka (daty w powiadomieniach dla odbiorcy). */
+export function dateLocaleFor(lang: Lang): Locale {
+  return dateLocales[lang];
+}
+
 /** Liczba mnoga poza Reactem. */
 export function translateP(key: string, count: number): string {
   return trPlural(activeLang, key, count);

@@ -1,0 +1,9 @@
+-- 0038 — język użytkownika w profilu + powiadomienia w języku ODBIORCY.
+-- Zastosowane przez MCP apply_migration (migration:
+-- profile_lang_localized_notifications).
+--
+-- * profiles.lang ('pl'|'sv'|'en'|'uk', default 'pl') — zapisywany przy
+--   zmianie języka w Ustawieniach (saveMyLanguage).
+-- * notify_checklist_created: tytuł powiadomienia per język odbiorcy (CASE).
+-- * Powiadomienia klienckie (zatwierdzenie godzin, wypłata) tłumaczone
+--   przez translateFor(recipient.lang, ...) po stronie frontendu.
