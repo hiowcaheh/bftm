@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.31.0 — cała aplikacja przetłumaczona + produkcja (2026-07-17)
+
+- **Pełne i18n (PL/SV/EN/UK)**: przetłumaczone WSZYSTKIE ekrany — Pulpit,
+  Check-lista, Godziny (dziennik/lista/formularze), Nieobecności, Projekty
+  (karty, sekcje, mapa), Klienci, Zespół (w tym uprawnienia), Finanse i Koszty,
+  Raporty, Oferty (kreator), Wypłaty, Specyfikacje faktury, Profil, Ustawienia,
+  Powiadomienia, wszystkie toasty, dialogi i komunikaty błędów. Daty i liczba
+  mnoga dopasowują się do języka. Strony klienckie (oferta, raport publiczny,
+  PDF-y, e-maile) celowo pozostają po szwedzku.
+- **Naprawa dezaktywacji konta** (błąd „character varying = uuid") + nowa opcja
+  **„Usuń pracownika"** — trwale kasuje konto z całej aplikacji (godziny,
+  nieobecności, stawki, wypłaty, avatar) z mocnym potwierdzeniem.
+- **Wyczyszczenie danych do produkcji**: usunięte projekty testowe, godziny,
+  klienci, oferty, wypłaty i konta testowe — zostaje tylko konto administratora
+  i ustawienia firmy.
+- **Bezpieczeństwo (audyt)**: wysyłka maili ofert wymaga teraz uprawnienia do
+  ofert; funkcje wewnętrzne odcięte od dostępu anonimowego (publiczne zostają
+  tylko strony oferty i raportu z tokenem).
+- **Wydajność bazy**: polityki RLS przepisane na `(select auth.uid())`
+  (liczone raz na zapytanie) + nowe indeksy pod klucze obce.
+- Nowy `CLAUDE.md` — pełna pamięć projektu dla przyszłych sesji rozwoju.
+
+
 ## 0.30.0 — wielojęzyczność: fundament + przełącznik (2026-07-16)
 
 - Nowy system i18n (PL domyślnie + SV, EN, UK). **Wybór języka w Ustawieniach**

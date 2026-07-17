@@ -1,0 +1,11 @@
+-- 0036 — optymalizacja RLS (advisor auth_rls_initplan).
+-- Zastosowane przez MCP apply_migration; kopia skrócona.
+--
+-- We wszystkich politykach RLS auth.uid() zamienione na (select auth.uid()),
+-- żeby planner liczył wartość raz na zapytanie zamiast raz na wiersz.
+-- Semantyka polityk bez zmian. Dodane indeksy:
+--   work_hours(created_by), checklist_items(project_id),
+--   offers(client_id), invoice_specs(project_id).
+--
+-- Pełna treść: historia migracji w dashboardzie Supabase
+-- (migration: rls_initplan_optimization).

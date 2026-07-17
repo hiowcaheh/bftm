@@ -1,0 +1,13 @@
+-- 0035 — utwardzenie uprawnień funkcji (Supabase advisor).
+-- Zastosowane przez MCP apply_migration; kopia 1:1.
+--
+-- 1. send_offer_email wymaga teraz is_admin() lub has_perm('offers_edit')
+--    (wcześniej wystarczyło aktywne konto — każdy pracownik mógł wysyłać
+--    dowolne maile przez firmowy klucz Resend).
+-- 2. Funkcje wyzwalaczy (notify_checklist_created, on_login_touch_last_seen,
+--    rls_auto_enable) nie są już wywoływalne przez API (revoke execute).
+-- 3. Wszystkie wewnętrzne funkcje straciły EXECUTE dla roli anon —
+--    publicznie zostają tylko offer_public, offer_respond, report_share_public.
+--
+-- Pełna treść: patrz historia migracji w dashboardzie Supabase
+-- (migration: harden_function_grants).

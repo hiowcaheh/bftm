@@ -1,8 +1,10 @@
 # BFTM — Zarządzanie firmą budowlaną
 
-Mobilna aplikacja PWA (interfejs po polsku) do prowadzenia firmy budowlanej w Szwecji:
-projekty, dziennik godzin, klienci, koszty, oferty z ROT / omvänd byggmoms, raporty pod
-faktury i analityka rentowności.
+Mobilna aplikacja PWA do prowadzenia firmy budowlanej w Szwecji: projekty, dziennik
+godzin, klienci, koszty, oferty z ROT / omvänd byggmoms, raporty pod faktury i analityka
+rentowności. Interfejs w 4 językach (PL domyślnie + SV / EN / UK — wybór w Ustawieniach).
+
+Produkcja: **https://app.bftm.se** (custom domena, GitHub Pages).
 
 ## Stack
 
@@ -20,7 +22,7 @@ cp .env.example .env.local   # od Etapu 2: uzupełnij URL i anon key Supabase
 npm run dev
 ```
 
-Aplikacja działa pod `http://localhost:5173/bftm/`.
+Aplikacja działa pod `http://localhost:5173/`.
 
 ## Build i deploy
 
@@ -30,8 +32,8 @@ npm run preview  # lokalny podgląd builda
 ```
 
 Deploy: push do `main` uruchamia `.github/workflows/deploy.yml` → GitHub Pages
-(`https://hiowcaheh.github.io/bftm/`). Wymagane sekrety repo (Settings → Secrets →
-Actions): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`; Pages → Source: **GitHub Actions**.
+pod custom domeną **app.bftm.se** (CNAME w workflow). Wymagane sekrety repo
+(Settings → Secrets → Actions): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 
 ## Architektura w pigułce
 
