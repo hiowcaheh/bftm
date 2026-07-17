@@ -1,0 +1,1 @@
+import{D as e}from"./context-D2DqQEHn.js";import{Z as t}from"./index-CjoIfOgH.js";var n=e();function r({interactive:e,className:r,...i}){return(0,n.jsx)(`div`,{className:t(`rounded-(--radius-card) bg-white shadow-(--shadow-card)`,e&&`press cursor-pointer`,r),...i})}export{r as t};
