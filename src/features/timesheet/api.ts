@@ -91,18 +91,30 @@ export async function approveEntries(
   for (const row of affected ?? []) {
     byEmployee.set(row.employee_id, (byEmployee.get(row.employee_id) ?? 0) + row.hours);
   }
+  // Język każdego odbiorcy → powiadomienie w jego języku
+  const recipientIds = [...byEmployee.keys()].filter((id) => id !== approverId);
+  const { data: langs } = await supabase
+    .from('profiles')
+    .select('id, lang')
+    .in('id', recipientIds);
+  const langOf = new Map((langs ?? []).map((r) => [r.id, r.lang]));
+
   const { sendNotifications } = await import('@/features/notifications/api');
+  const { translateFor } = await import('@/lib/i18n/context');
   await sendNotifications(
-    [...byEmployee.entries()]
-      .filter(([employeeId]) => employeeId !== approverId)
-      .map(([employeeId, total]) => ({
+    recipientIds.map((employeeId) => {
+      const lang = langOf.get(employeeId) ?? 'pl';
+      const total = byEmployee.get(employeeId) ?? 0;
+      return {
         recipient_id: employeeId,
         type: 'hours_approved',
-        title: 'Godziny zatwierdzone',
+        title: translateFor(lang, 'notif.hoursApproved'),
         // Każdy człon okresu w osobnej linii (render: whitespace-pre-line)
-        body: [...period.label.split(' • '), `${total} h — zatwierdzone do wypłaty`].join(
-          '\n',
-        ),
-      })),
+        body: [
+          ...period.label.split(' • '),
+          translateFor(lang, 'notif.hoursApprovedBody', { h: total }),
+        ].join('\n'),
+      };
+    }),
   );
 }

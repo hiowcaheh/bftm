@@ -78,3 +78,11 @@ export async function saveFinanceSettings(
   const current = await fetchFinanceSettings();
   await updateSetting('finance', { ...current, ...patch } as unknown as Json);
 }
+
+/** Zapis języka użytkownika w profilu — powiadomienia przychodzą w tym języku. */
+export async function saveMyLanguage(lang: 'pl' | 'sv' | 'en' | 'uk'): Promise<void> {
+  const { data } = await supabase.auth.getUser();
+  const id = data.user?.id;
+  if (!id) return;
+  await supabase.from('profiles').update({ lang }).eq('id', id);
+}

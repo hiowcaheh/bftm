@@ -14,11 +14,12 @@ import {
 import { useI18n } from '@/lib/i18n/context';
 import { LANGS } from '@/lib/i18n/types';
 import { useSession } from '@/features/auth/SessionProvider';
+import { saveMyLanguage } from '../api';
 import { CompanySection } from '../components/CompanySection';
 import { FinanceSection } from '../components/FinanceSection';
 import { AccountSection } from '../components/AccountSection';
 
-const APP_VERSION = '0.33.0'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
+const APP_VERSION = '0.33.1'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
 
 /**
  * Ustawienia: Język, Firma (tylko admin), Moje konto, Aplikacja.
@@ -92,7 +93,11 @@ export default function SettingsPage() {
             leading={<span className="text-2xl leading-none">{l.flag}</span>}
             title={l.label}
             trailing={lang === l.code ? <Check className="size-5 text-accent" /> : undefined}
-            onClick={() => setLang(l.code)}
+            onClick={() => {
+              setLang(l.code);
+              // język w profilu → powiadomienia przychodzą w języku odbiorcy
+              void saveMyLanguage(l.code);
+            }}
           />
         ))}
       </ListGroup>

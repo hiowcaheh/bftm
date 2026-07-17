@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { qk } from '@/lib/queryKeys';
+import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/ui/Toast';
-import { activeDateLocale, translate } from '@/lib/i18n/context';
+import { dateLocaleFor, translate, translateFor } from '@/lib/i18n/context';
 import { sendNotifications } from '@/features/notifications/api';
 import {
   deletePayslip,
@@ -30,21 +31,27 @@ export function usePayslipUrl(path: string | null) {
   });
 }
 
-const monthLabel = (year: number, month: number) =>
-  format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: activeDateLocale() });
-
 export function useUploadPayslip() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: UploadPayslipInput) => {
       await uploadPayslip(input);
-      // Powiadom pracownika o wysłanej specyfikacji
+      // Powiadom pracownika — w JEGO języku (profiles.lang)
+      const { data: rec } = await supabase
+        .from('profiles')
+        .select('lang')
+        .eq('id', input.employeeId)
+        .maybeSingle();
+      const lang = rec?.lang ?? 'pl';
+      const month = format(new Date(input.year, input.month - 1, 1), 'LLLL yyyy', {
+        locale: dateLocaleFor(lang),
+      });
       await sendNotifications([
         {
           recipient_id: input.employeeId,
           type: 'payslip',
-          title: translate('pay.notifTitle'),
-          body: `Twoja specyfikacja wypłaty za ${monthLabel(input.year, input.month)} jest już dostępna w aplikacji.`,
+          title: translateFor(lang, 'pay.notifTitle'),
+          body: translateFor(lang, 'notif.payslipBody', { month }),
         },
       ]);
     },

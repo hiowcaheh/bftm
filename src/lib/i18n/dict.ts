@@ -715,6 +715,9 @@ const pl: Dict = {
     title: 'Powiadomienia',
     empty: 'Nie masz jeszcze żadnych powiadomień.',
     allRead: 'Wszystkie oznaczone jako przeczytane',
+    hoursApproved: 'Godziny zatwierdzone',
+    hoursApprovedBody: '{h} h — zatwierdzone do wypłaty',
+    payslipBody: 'Twoja specyfikacja wypłaty za {month} jest już dostępna w aplikacji.',
   },
   ui: {
     increase: 'Zwiększ',
@@ -1578,6 +1581,9 @@ const sv: Dict = {
     title: 'Notiser',
     empty: 'Du har inga notiser än.',
     allRead: 'Alla markerade som lästa',
+    hoursApproved: 'Timmar godkända',
+    hoursApprovedBody: '{h} h — godkända för lön',
+    payslipBody: 'Din lönespecifikation för {month} finns nu i appen.',
   },
   ui: {
     increase: 'Öka',
@@ -2435,6 +2441,9 @@ const en: Dict = {
     title: 'Notifications',
     empty: "You don't have any notifications yet.",
     allRead: 'All marked as read',
+    hoursApproved: 'Hours approved',
+    hoursApprovedBody: '{h} h — approved for payroll',
+    payslipBody: 'Your payslip for {month} is now available in the app.',
   },
   ui: {
     increase: 'Increase',
@@ -3298,6 +3307,9 @@ const uk: Dict = {
     title: 'Сповіщення',
     empty: 'У вас ще немає сповіщень.',
     allRead: 'Усі позначено як прочитані',
+    hoursApproved: 'Години затверджено',
+    hoursApprovedBody: '{h} год — затверджено до виплати',
+    payslipBody: 'Ваш розрахунковий листок за {month} уже доступний у застосунку.',
   },
   ui: {
     increase: 'Збільшити',
