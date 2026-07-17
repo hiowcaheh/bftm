@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.32.0 — usuwanie godzin z dziennika + czysta strona oferty (2026-07-17)
+
+- **Dziennik godzin**: w szczegółach dnia (tap w kratkę) obok ołówka jest teraz
+  **kosz** — admin i osoby z uprawnieniem do edycji godzin mogą usunąć wpis
+  bezpośrednio z dziennika (z potwierdzeniem).
+- **Strony publiczne (oferta / raport)**: klient nie widzi już toastu
+  „Dostępna nowa wersja aplikacji" — komunikat aktualizacji pokazuje się tylko
+  wewnątrz aplikacji.
+
+
 ## 0.31.1 — tłumaczenie ekranu błędu (2026-07-17)
 
 - Ekran awaryjny („Coś poszło nie tak") również w 4 językach.
