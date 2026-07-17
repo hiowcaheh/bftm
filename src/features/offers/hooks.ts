@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import type { Json, TablesInsert } from '@/types/database';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
@@ -60,7 +61,7 @@ export function useSaveOffer() {
       return offerId;
     },
     onSuccess: invalidate,
-    onError: () => toast.error('Nie udało się zapisać oferty'),
+    onError: () => toast.error(translate('off.errSave')),
   });
 }
 
@@ -81,17 +82,17 @@ export function useDeleteOffer() {
     mutationFn: (id: string) => deleteOffer(id),
     onSuccess: () => {
       invalidate();
-      toast.success('Oferta usunięta');
+      toast.success(translate('off.deleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć oferty'),
+    onError: () => toast.error(translate('off.errDelete')),
   });
 }
 
 export function useSendOfferEmail() {
   return useMutation({
     mutationFn: (input: SendOfferEmailInput) => sendOfferEmail(input),
-    onSuccess: () => toast.success('Oferta wysłana e-mailem'),
-    onError: (e) => toast.error((e as Error).message || 'Nie udało się wysłać oferty'),
+    onSuccess: () => toast.success(translate('off.emailSent')),
+    onError: (e) => toast.error((e as Error).message || translate('off.errEmail')),
   });
 }
 
@@ -101,7 +102,7 @@ export function useUpdateOfferStatus() {
     mutationFn: ({ id, status }: { id: string; status: Offer['status'] }) =>
       updateOffer(id, { status }),
     onSuccess: invalidate,
-    onError: () => toast.error('Nie udało się zmienić statusu'),
+    onError: () => toast.error(translate('off.errStatus')),
   });
 }
 

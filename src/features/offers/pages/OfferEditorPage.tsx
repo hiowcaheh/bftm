@@ -26,6 +26,7 @@ import { Switch } from '@/components/ui/Switch';
 import { toast } from '@/components/ui/Toast';
 import { date as fmtDate, money, num } from '@/lib/format';
 import type { Json } from '@/types/database';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { usePublicBranding } from '@/features/auth/hooks';
 import { useClients } from '@/features/clients/hooks';
@@ -40,12 +41,7 @@ import {
   useSaveOffer,
   useSendOfferEmail,
 } from '../hooks';
-import {
-  computeOfferTotals,
-  OFFER_STATUS_LABELS,
-  OFFER_STATUS_TONES,
-  type OfferItem,
-} from '../types';
+import { computeOfferTotals, OFFER_STATUS_TONES, type OfferItem } from '../types';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 const VAT_RATES = [25, 12, 6, 0];
@@ -76,6 +72,7 @@ export default function OfferEditorPage() {
   const offerId = isNew ? null : routeId;
   const navigate = useNavigate();
   const { can } = useSession();
+  const t = useT();
   const canEdit = can('offers_edit');
 
   const existing = useOffer(offerId);
@@ -194,11 +191,11 @@ export default function OfferEditorPage() {
 
   const validate = (): boolean => {
     if (!title.trim()) {
-      toast.error('Nadaj ofercie tytuł (np. „Takarbete — Brf Lilla Malmtorp")');
+      toast.error(t('off.errTitle'));
       return false;
     }
     if (items.length === 0) {
-      toast.error('Dodaj przynajmniej jedną pozycję');
+      toast.error(t('off.errItems'));
       return false;
     }
     return true;
@@ -210,7 +207,7 @@ export default function OfferEditorPage() {
       { id: offerId, offer: payload(), items },
       {
         onSuccess: (newId) => {
-          toast.success('Oferta zapisana');
+          toast.success(t('off.saved'));
           if (isNew) navigate(`/oferty/${newId}`, { replace: true });
         },
       },
@@ -241,7 +238,7 @@ export default function OfferEditorPage() {
   const openEmailPreview = () => {
     const to = client?.email?.trim();
     if (!to) {
-      toast.error('Ten klient nie ma adresu e-mail — uzupełnij go w kliencie');
+      toast.error(t('off.errNoEmail'));
       return;
     }
     const companyName =
@@ -274,7 +271,7 @@ export default function OfferEditorPage() {
   if (offerId && !existing.isLoading && !existing.data) {
     return (
       <p className="py-16 text-center text-sm text-text-secondary">
-        Nie znaleziono oferty.
+        {t('off.notFound')}
       </p>
     );
   }
@@ -287,44 +284,48 @@ export default function OfferEditorPage() {
           onClick={() => navigate('/oferty')}
           className="press flex items-center gap-1 text-sm font-medium text-text-secondary"
         >
-          <ArrowLeft className="size-4" /> Oferty
+          <ArrowLeft className="size-4" /> {t('nav.offers')}
         </button>
         <div className="flex items-center gap-2">
           {offer && <span className="text-xs text-text-secondary">{offer.number}</span>}
-          <Badge tone={OFFER_STATUS_TONES[status]}>{OFFER_STATUS_LABELS[status]}</Badge>
+          <Badge tone={OFFER_STATUS_TONES[status]}>{t(`ostatus.${status}`)}</Badge>
         </div>
       </div>
 
       {offer?.viewed_at && (
         <p className="flex items-center gap-1.5 rounded-xl bg-info-soft px-3 py-2 text-xs text-info">
           <Eye className="size-4 shrink-0" />
-          Otwarta przez klienta {offer.view_count}{' '}
-          {offer.view_count === 1 ? 'raz' : 'razy'} (pierwszy raz{' '}
-          {fmtDate(offer.viewed_at)})
-          {offer.response_comment ? ` • komentarz: „${offer.response_comment}"` : ''}
+          {t('off.openedByClient', {
+            n: offer.view_count,
+            times: offer.view_count === 1 ? t('off.timeOne') : t('off.timeMany'),
+            date: fmtDate(offer.viewed_at),
+          })}
+          {offer.response_comment
+            ? ` • ${t('off.commentLc', { comment: offer.response_comment })}`
+            : ''}
         </p>
       )}
 
       <Card className="flex flex-col gap-4 p-4">
         <Input
-          label="Tytuł oferty"
-          placeholder="np. Takarbete — Brf Lilla Malmtorp"
+          label={t('off.titleField')}
+          placeholder={t('off.titlePh')}
           value={title}
           disabled={!canEdit}
           onChange={(e) => setTitle(e.target.value)}
         />
         <Select
-          label="Klient"
+          label={t('proj.client')}
           value={clientId}
           disabled={!canEdit}
           options={[
-            { value: '', label: 'Wybierz klienta…' },
+            { value: '', label: t('off.selectClient') },
             ...(clients.data ?? []).map((c) => ({ value: c.id, label: c.name })),
           ]}
           onChange={(e) => onClientChange(e.target.value)}
         />
         <DateField
-          label="Ważna do"
+          label={t('off.validUntil')}
           value={validUntil}
           disabled={!canEdit}
           onChange={(e) => setValidUntil(e.target.value)}
@@ -333,7 +334,7 @@ export default function OfferEditorPage() {
 
       <Card className="flex flex-col gap-3 p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">Pozycje</h2>
+          <h2 className="text-base font-semibold">{t('off.items')}</h2>
           {canEdit && (
             <Button
               variant="ghost"
@@ -344,13 +345,13 @@ export default function OfferEditorPage() {
                 setItemSheet({ index: null });
               }}
             >
-              Dodaj
+              {t('common.add')}
             </Button>
           )}
         </div>
 
         {items.length === 0 && (
-          <p className="text-sm text-text-secondary">Brak pozycji</p>
+          <p className="text-sm text-text-secondary">{t('off.noItems')}</p>
         )}
 
         {items.map((item, i) => (
@@ -368,7 +369,7 @@ export default function OfferEditorPage() {
               <p className="text-sm font-medium">{item.description}</p>
               <p className="tabular-nums mt-0.5 text-xs text-text-secondary">
                 {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)} • moms{' '}
-                {num(item.vat_rate)}%{item.is_labor ? ' • robocizna (ROT)' : ''}
+                {num(item.vat_rate)}%{item.is_labor ? ` • ${t('off.laborRot')}` : ''}
               </p>
             </div>
             <span className="tabular-nums shrink-0 text-sm font-semibold">
@@ -380,7 +381,7 @@ export default function OfferEditorPage() {
       </Card>
 
       <Card className="flex flex-col gap-3 p-4">
-        <h2 className="text-base font-semibold">Podatki i odliczenia</h2>
+        <h2 className="text-base font-semibold">{t('off.taxes')}</h2>
         <Switch
           checked={reverseVat}
           disabled={!canEdit}
@@ -389,61 +390,61 @@ export default function OfferEditorPage() {
             if (v) setRotEnabled(false);
           }}
           label="Omvänd byggmoms"
-          description="Klient jest firmą budowlaną — moms rozlicza nabywca, oferta bez VAT i bez ROT"
+          description={t('off.reverseVatDesc')}
         />
         <Switch
           checked={rotEnabled}
           disabled={!canEdit || reverseVat}
           onChange={setRotEnabled}
-          label="Odliczenie ROT"
-          description="Klient prywatny — od sumy odejmujemy 30% kosztów robocizny"
+          label={t('off.rotLabel')}
+          description={t('off.rotDesc')}
         />
         {rotEnabled && (
           <Input
-            label="Liczba osób z prawem do ROT"
+            label={t('off.rotPersons')}
             inputMode="numeric"
             value={rotPersons}
             disabled={!canEdit}
             onChange={(e) => setRotPersons(e.target.value)}
-            hint={`Limit ${money((finance.data?.rot.cap_per_person ?? 50000) * (Number(rotPersons) || 1))} (${num(finance.data?.rot.pct ?? 30)}% robocizny brutto)`}
+            hint={t('off.rotHint', { cap: money((finance.data?.rot.cap_per_person ?? 50000) * (Number(rotPersons) || 1)), pct: num(finance.data?.rot.pct ?? 30) })}
           />
         )}
       </Card>
 
       <Card className="flex flex-col gap-4 p-4">
-        <h2 className="text-base font-semibold">Informacje dla klienta</h2>
+        <h2 className="text-base font-semibold">{t('off.clientInfo')}</h2>
         <Input
-          label="Gwarancja (garanti)"
-          placeholder="np. 5 års garanti på utfört arbete"
+          label={t('off.guarantee')}
+          placeholder={t('off.guaranteePh')}
           value={guarantee}
           disabled={!canEdit}
           onChange={(e) => setGuarantee(e.target.value)}
         />
         <Input
-          label="Prace dodatkowe (ÄTA-arbeten)"
-          placeholder="np. ÄTA-arbeten debiteras 550 kr/tim efter godkännande"
+          label={t('off.ata')}
+          placeholder={t('off.ataPh')}
           value={ataInfo}
           disabled={!canEdit}
           onChange={(e) => setAtaInfo(e.target.value)}
         />
         <Input
-          label="Dojazd (reseräkning)"
-          placeholder="np. Reseräkning 350 kr per dag"
+          label={t('off.travel')}
+          placeholder={t('off.travelPh')}
           value={travelInfo}
           disabled={!canEdit}
           onChange={(e) => setTravelInfo(e.target.value)}
         />
         <Input
-          label="Termin płatności (dni)"
+          label={t('off.paymentDays')}
           inputMode="numeric"
           value={paymentDays}
           disabled={!canEdit}
           onChange={(e) => setPaymentDays(e.target.value)}
-          hint={'Klient zobaczy „Betalningsvillkor: X dagar"'}
+          hint={t('off.paymentHint')}
         />
         <Textarea
-          label="Komentarze dla klienta (opcjonalnie)"
-          placeholder="np. zakres prac, terminy rozpoczęcia, ustalenia z rozmowy"
+          label={t('off.comments')}
+          placeholder={t('off.commentsPh')}
           value={notes}
           disabled={!canEdit}
           onChange={(e) => setNotes(e.target.value)}
@@ -452,7 +453,7 @@ export default function OfferEditorPage() {
 
       <Card className="tabular-nums flex flex-col gap-1 p-4 text-sm">
         <div className="flex justify-between">
-          <span className="text-text-secondary">Netto</span>
+          <span className="text-text-secondary">{t('exp.net')}</span>
           <span>{money(totals.net)}</span>
         </div>
         {totals.vatByRate.map((v) => (
@@ -474,7 +475,7 @@ export default function OfferEditorPage() {
           </div>
         )}
         <div className="mt-1 flex justify-between border-t border-line pt-1 text-base font-semibold">
-          <span>Do zapłaty</span>
+          <span>{t('off.toPay')}</span>
           <span>{money(totals.toPay)}</span>
         </div>
       </Card>
@@ -487,7 +488,7 @@ export default function OfferEditorPage() {
               loading={save.isPending && !publish.isPending}
               onClick={saveDraft}
             >
-              Zapisz
+              {t('common.save')}
             </Button>
             <Button
               icon={<Send className="size-5" />}
@@ -501,7 +502,7 @@ export default function OfferEditorPage() {
                 }
               }}
             >
-              {status === 'draft' ? 'Wyślij klientowi' : 'Udostępnij'}
+              {status === 'draft' ? t('off.sendToClient') : t('off.shareBtn')}
             </Button>
           </div>
           {offerId && (
@@ -520,7 +521,7 @@ export default function OfferEditorPage() {
                 }
               }}
             >
-              Podgląd oferty klienta
+              {t('off.previewClient')}
             </Button>
           )}
           {offerId && (
@@ -530,7 +531,7 @@ export default function OfferEditorPage() {
               icon={<Trash2 className="size-5" />}
               onClick={() => setConfirmDelete(true)}
             >
-              Usuń ofertę
+              {t('off.deleteOffer')}
             </Button>
           )}
         </div>
@@ -540,18 +541,18 @@ export default function OfferEditorPage() {
       <Sheet
         open={itemSheet !== null}
         onClose={() => setItemSheet(null)}
-        title={itemSheet?.index != null ? 'Edytuj pozycję' : 'Nowa pozycja'}
+        title={itemSheet?.index != null ? t('off.editItem') : t('off.newItem')}
       >
         <div className="flex flex-col gap-4">
           <Textarea
-            label="Opis"
-            placeholder="np. Byte av takpannor inkl. underlagspapp"
+            label={t('off.itemDesc')}
+            placeholder={t('off.itemDescPh')}
             value={draftItem.description}
             onChange={(e) => setDraftItem({ ...draftItem, description: e.target.value })}
           />
           <div className="grid grid-cols-3 gap-3">
             <Input
-              label="Ilość"
+              label={t('off.qty')}
               inputMode="decimal"
               value={String(draftItem.quantity)}
               onChange={(e) =>
@@ -562,13 +563,13 @@ export default function OfferEditorPage() {
               }
             />
             <Select
-              label="Jedn."
+              label={t('off.unit')}
               value={draftItem.unit ?? ''}
               options={UNITS.map((u) => ({ value: u, label: u }))}
               onChange={(e) => setDraftItem({ ...draftItem, unit: e.target.value })}
             />
             <Input
-              label="Cena netto"
+              label={t('off.netPrice')}
               inputMode="decimal"
               value={String(draftItem.unit_price)}
               onChange={(e) =>
@@ -580,7 +581,7 @@ export default function OfferEditorPage() {
             />
           </div>
           <Select
-            label="Stawka moms"
+            label={t('off.vatRate')}
             value={String(draftItem.vat_rate)}
             options={VAT_RATES.map((r) => ({ value: String(r), label: `${r}%` }))}
             onChange={(e) => setDraftItem({ ...draftItem, vat_rate: Number(e.target.value) })}
@@ -588,15 +589,15 @@ export default function OfferEditorPage() {
           <Switch
             checked={draftItem.is_labor}
             onChange={(v) => setDraftItem({ ...draftItem, is_labor: v })}
-            label="To jest robocizna"
-            description="Włącz przy pozycjach za pracę — tylko od nich liczy się odliczenie ROT (materiały zostawiasz wyłączone)"
+            label={t('off.isLabor')}
+            description={t('off.isLaborDesc')}
           />
           <Button
             size="lg"
             fullWidth
             onClick={() => {
               if (draftItem.description.trim().length < 2) {
-                toast.error('Opisz pozycję');
+                toast.error(t('off.errItemDesc'));
                 return;
               }
               setItems((prev) => {
@@ -610,7 +611,7 @@ export default function OfferEditorPage() {
               setItemSheet(null);
             }}
           >
-            {itemSheet?.index != null ? 'Zapisz pozycję' : 'Dodaj pozycję'}
+            {itemSheet?.index != null ? t('off.saveItem') : t('off.addItem')}
           </Button>
           {itemSheet?.index != null && (
             <Button
@@ -622,19 +623,16 @@ export default function OfferEditorPage() {
                 setItemSheet(null);
               }}
             >
-              Usuń pozycję
+              {t('off.deleteItem')}
             </Button>
           )}
         </div>
       </Sheet>
 
       {/* Udostępnianie */}
-      <Sheet open={shareOpen} onClose={() => setShareOpen(false)} title="Wyślij ofertę">
+      <Sheet open={shareOpen} onClose={() => setShareOpen(false)} title={t('off.shareTitle')}>
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-secondary">
-            Klient zobaczy ofertę pod tym linkiem — bez logowania, z logo firmy
-            i przyciskiem akceptacji:
-          </p>
+          <p className="text-sm text-text-secondary">{t('off.shareDesc')}</p>
           <div className="flex items-center gap-2 rounded-xl bg-surface p-3">
             <Link2 className="size-4 shrink-0 text-text-secondary" />
             <span className="min-w-0 flex-1 truncate text-xs">{shareUrl}</span>
@@ -645,10 +643,10 @@ export default function OfferEditorPage() {
               icon={<Copy className="size-5" />}
               onClick={() => {
                 void navigator.clipboard.writeText(shareUrl);
-                toast.success('Link skopiowany');
+                toast.success(t('rep.linkCopied'));
               }}
             >
-              Kopiuj link
+              {t('rep.copyLink')}
             </Button>
             <Button
               variant="secondary"
@@ -658,15 +656,15 @@ export default function OfferEditorPage() {
                   void navigator.share({ title: `Offert — ${title}`, url: shareUrl });
                 } else {
                   void navigator.clipboard.writeText(shareUrl);
-                  toast.success('Link skopiowany');
+                  toast.success(t('rep.linkCopied'));
                 }
               }}
             >
-              Udostępnij
+              {t('off.shareBtn')}
             </Button>
           </div>
           <Button fullWidth icon={<Mail className="size-5" />} onClick={openEmailPreview}>
-            {client?.email ? `Podgląd i wyślij na ${client.email}` : 'Wyślij e-mailem'}
+            {client?.email ? t('off.previewSend', { email: client.email }) : t('off.sendEmail')}
           </Button>
         </div>
       </Sheet>
@@ -675,16 +673,16 @@ export default function OfferEditorPage() {
       <Sheet
         open={!!emailPreview}
         onClose={() => setEmailPreview(null)}
-        title="Podgląd maila"
+        title={t('off.emailPreview')}
       >
         {emailPreview && (
           <div className="flex flex-col gap-3">
             <p className="text-sm text-text-secondary">
-              Do: <span className="font-medium text-text">{emailPreview.to}</span>
+              {t('off.emailTo')} <span className="font-medium text-text">{emailPreview.to}</span>
             </p>
             <div className="overflow-hidden rounded-(--radius-card) ring-1 ring-line">
               <iframe
-                title="Podgląd maila"
+                title={t('off.emailPreview')}
                 srcDoc={emailPreview.html}
                 sandbox=""
                 className="h-[55vh] w-full border-0 bg-white"
@@ -700,7 +698,7 @@ export default function OfferEditorPage() {
                 })
               }
             >
-              Wyślij ofertę mailem
+              {t('off.sendOfferEmail')}
             </Button>
           </div>
         )}
@@ -708,9 +706,9 @@ export default function OfferEditorPage() {
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Usunąć ofertę?"
-        description={`Oferta ${offer?.number ?? ''} zostanie trwale usunięta — link klienta przestanie działać.`}
-        confirmLabel="Usuń"
+        title={t('off.deleteTitle')}
+        description={t('off.deleteDesc', { number: offer?.number ?? '' })}
+        confirmLabel={t('common.delete')}
         destructive
         loading={remove.isPending}
         onConfirm={() => {
