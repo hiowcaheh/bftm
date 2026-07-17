@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { translateFor } from '@/lib/i18n/context';
 import type { Json } from '@/types/database';
 import type { PermissionMap } from '@/lib/permissions';
 import type { Compensation, Employee, LoginActivity, NewEmployee } from './types';
@@ -160,4 +161,27 @@ export async function fetchActivity(profileId: string): Promise<LoginActivity[]>
 /** Komunikaty RAISE EXCEPTION z Postgresa są już po polsku — wyciągamy sam tekst. */
 function rpcMessage(message: string): string {
   return message.replace(/^.*?:\s*/, '').trim() || 'Operacja nie powiodła się';
+}
+
+/**
+ * Ogłoszenie od admina do całego aktywnego zespołu (poza nadawcą).
+ * Tytuł w języku odbiorcy; treść bez tłumaczenia (pisana ręcznie).
+ */
+export async function sendAnnouncement(senderId: string, text: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, lang')
+    .eq('active', true)
+    .neq('id', senderId);
+  if (error) throw error;
+  if (!data || data.length === 0) return;
+  const { error: insertError } = await supabase.from('notifications').insert(
+    data.map((p) => ({
+      recipient_id: p.id,
+      type: 'announcement',
+      title: translateFor(p.lang, 'notif.announcement'),
+      body: text,
+    })),
+  );
+  if (insertError) throw insertError;
 }

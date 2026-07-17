@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.35.0 — komplet powiadomień (2026-07-17)
+
+- **Nieobecności**: zgłoszenie nieobecności wysyła powiadomienie (dzwonek + push)
+  do adminów i osób z flagą „zarządzanie nieobecnościami" (migracja 0041).
+- **Oferty**: gdy klient otworzy ofertę (licznik wyświetleń +1), admini i osoby
+  z flagą edycji ofert dostają powiadomienie z numerem oferty i liczbą wyświetleń.
+- **Ogłoszenia**: nowy przycisk megafonu w Zespole (admin) — treść trafia do
+  całego aktywnego zespołu jako powiadomienie i push, tytuł w języku odbiorcy.
+- Nowe typy w dzwoneczku i service workerze (ikony, trasy po tapnięciu).
+
 ## 0.34.1 — poprawka licznika na ikonce (2026-07-17)
 
 - Kółeczko pokazywało nieaktualną liczbę, gdy pushe dotarły w złej kolejności —
