@@ -1,0 +1,1 @@
+import{J as e}from"./queryKeys-CNVCaymw.js";import{Y as t}from"./index-BNz1CEDB.js";var n=e();function r({interactive:e,className:r,...i}){return(0,n.jsx)(`div`,{className:t(`rounded-(--radius-card) bg-white shadow-(--shadow-card)`,e&&`press cursor-pointer`,r),...i})}export{r as t};
