@@ -116,6 +116,9 @@ const TYPE_ROUTES: Record<string, string> = {
   payslip: '/#/wyplaty',
   hours_approved: '/#/godziny',
   offer_response: '/#/oferty',
+  offer_viewed: '/#/oferty',
+  absence: '/#/godziny',
+  announcement: '/#/',
   checklist: '/#/',
 };
 

@@ -466,6 +466,12 @@ const pl: Dict = {
     errInvoiceDelete: 'Nie udało się usunąć faktury',
   },
   emp: {
+    announce: 'Ogłoszenie',
+    announceTitle: 'Wyślij ogłoszenie',
+    announcePh: 'Treść ogłoszenia…',
+    announceSend: 'Wyślij',
+    announceSent: 'Ogłoszenie wysłane',
+    announceErr: 'Nie udało się wysłać ogłoszenia',
     search: 'Szukaj pracownika…',
     noneMatch: 'Nikt nie pasuje do wyszukiwania.',
     empty: 'Nie ma jeszcze żadnych pracowników — dodaj pierwszego.',
@@ -710,6 +716,7 @@ const pl: Dict = {
     errAvatar: 'Nie udało się zapisać zdjęcia',
   },
   notif: {
+    announcement: 'Ogłoszenie',
     aria: 'Powiadomienia',
     ariaUnread: 'Powiadomienia ({n} nieprzeczytanych)',
     title: 'Powiadomienia',
@@ -1332,6 +1339,12 @@ const sv: Dict = {
     errInvoiceDelete: 'Det gick inte att ta bort fakturan',
   },
   emp: {
+    announce: 'Meddelande',
+    announceTitle: 'Skicka meddelande',
+    announcePh: 'Meddelandetext…',
+    announceSend: 'Skicka',
+    announceSent: 'Meddelandet skickat',
+    announceErr: 'Det gick inte att skicka meddelandet',
     search: 'Sök anställd…',
     noneMatch: 'Ingen matchar sökningen.',
     empty: 'Det finns inga anställda än — lägg till den första.',
@@ -1576,6 +1589,7 @@ const sv: Dict = {
     errAvatar: 'Det gick inte att spara bilden',
   },
   notif: {
+    announcement: 'Meddelande',
     aria: 'Notiser',
     ariaUnread: 'Notiser ({n} olästa)',
     title: 'Notiser',
@@ -2192,6 +2206,12 @@ const en: Dict = {
     errInvoiceDelete: 'Could not delete the invoice',
   },
   emp: {
+    announce: 'Announcement',
+    announceTitle: 'Send announcement',
+    announcePh: 'Announcement text…',
+    announceSend: 'Send',
+    announceSent: 'Announcement sent',
+    announceErr: 'Could not send the announcement',
     search: 'Search employees…',
     noneMatch: 'Nobody matches the search.',
     empty: 'No employees yet — add the first one.',
@@ -2436,6 +2456,7 @@ const en: Dict = {
     errAvatar: 'Could not save the photo',
   },
   notif: {
+    announcement: 'Announcement',
     aria: 'Notifications',
     ariaUnread: 'Notifications ({n} unread)',
     title: 'Notifications',
@@ -3058,6 +3079,12 @@ const uk: Dict = {
     errInvoiceDelete: 'Не вдалося видалити рахунок',
   },
   emp: {
+    announce: 'Оголошення',
+    announceTitle: 'Надіслати оголошення',
+    announcePh: 'Текст оголошення…',
+    announceSend: 'Надіслати',
+    announceSent: 'Оголошення надіслано',
+    announceErr: 'Не вдалося надіслати оголошення',
     search: 'Шукати працівника…',
     noneMatch: 'Ніхто не відповідає пошуку.',
     empty: 'Працівників ще немає — додайте першого.',
@@ -3302,6 +3329,7 @@ const uk: Dict = {
     errAvatar: 'Не вдалося зберегти фото',
   },
   notif: {
+    announcement: 'Оголошення',
     aria: 'Сповіщення',
     ariaUnread: 'Сповіщення ({n} непрочитаних)',
     title: 'Сповіщення',

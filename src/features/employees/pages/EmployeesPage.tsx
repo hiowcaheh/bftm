@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus } from 'lucide-react';
+import { Megaphone, Users, UserPlus } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -13,6 +13,7 @@ import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '../hooks';
 import { AddEmployeeSheet } from '../components/AddEmployeeSheet';
+import { AnnouncementSheet } from '../components/AnnouncementSheet';
 
 export default function EmployeesPage() {
   const { user } = useSession();
@@ -21,6 +22,7 @@ export default function EmployeesPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [addOpen, setAddOpen] = useState(false);
+  const [announceOpen, setAnnounceOpen] = useState(false);
   const isAdmin = user?.role === 'admin';
 
   const filtered = useMemo(() => {
@@ -37,7 +39,21 @@ export default function EmployeesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <SearchBar value={search} onChange={setSearch} placeholder={t('emp.search')} />
+      <div className="flex items-center gap-2">
+        <div className="flex-1">
+          <SearchBar value={search} onChange={setSearch} placeholder={t('emp.search')} />
+        </div>
+        {isAdmin && (
+          <button
+            type="button"
+            aria-label={t('emp.announceTitle')}
+            onClick={() => setAnnounceOpen(true)}
+            className="press flex size-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-(--shadow-card)"
+          >
+            <Megaphone className="size-5 text-text-secondary" strokeWidth={1.8} />
+          </button>
+        )}
+      </div>
 
       {employees.isLoading && <SkeletonList rows={4} />}
 
@@ -78,6 +94,7 @@ export default function EmployeesPage() {
 
       {isAdmin && <FAB label={t('emp.addEmployee')} onClick={() => setAddOpen(true)} />}
       <AddEmployeeSheet open={addOpen} onClose={() => setAddOpen(false)} />
+      <AnnouncementSheet open={announceOpen} onClose={() => setAnnounceOpen(false)} />
     </div>
   );
 }
