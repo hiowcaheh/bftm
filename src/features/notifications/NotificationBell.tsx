@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell,
@@ -16,6 +16,7 @@ import type { LucideProps } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useI18n } from '@/lib/i18n/context';
+import { syncAppBadge } from '@/lib/badge';
 import { Drawer } from '@/components/ui/Drawer';
 import { cn } from '@/lib/cn';
 import { useMarkAllRead, useNotifications } from './hooks';
@@ -55,6 +56,11 @@ export function NotificationBell() {
 
   const list = notifications.data ?? [];
   const unread = list.filter((n) => !n.read_at).length;
+
+  // kółeczko z liczbą na ikonce aplikacji podąża za liczbą nieprzeczytanych
+  useEffect(() => {
+    if (notifications.data) syncAppBadge(unread);
+  }, [notifications.data, unread]);
 
   const openPanel = () => {
     setOpen(true);
