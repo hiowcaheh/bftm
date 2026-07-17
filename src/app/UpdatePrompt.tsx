@@ -3,6 +3,7 @@ import { RotateCw } from 'lucide-react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from '@/components/ui/Toast';
 import { useSwUpdateStore } from '@/lib/swUpdate';
+import { translate } from '@/lib/i18n/context';
 
 /** Jak często aktywnie pytać serwer o nowy service worker. */
 const UPDATE_CHECK_INTERVAL = 60_000;
@@ -49,8 +50,8 @@ export function UpdatePrompt() {
   useEffect(() => {
     setNeedRefresh(needRefresh);
     if (needRefresh) {
-      toast.info('Dostępna nowa wersja aplikacji', {
-        label: 'Odśwież',
+      toast.info(translate('ui.newVersion'), {
+        label: translate('ui.refresh'),
         icon: <RotateCw className="size-4" />,
         onClick: () => void updateServiceWorker(true),
       });

@@ -1,9 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
-import { translate } from '@/lib/i18n/context';
+import { activeDateLocale, translate } from '@/lib/i18n/context';
 import { sendNotifications } from '@/features/notifications/api';
 import {
   deletePayslip,
@@ -32,7 +31,7 @@ export function usePayslipUrl(path: string | null) {
 }
 
 const monthLabel = (year: number, month: number) =>
-  format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: pl });
+  format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: activeDateLocale() });
 
 export function useUploadPayslip() {
   const queryClient = useQueryClient();

@@ -1,28 +1,18 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { KeyRound } from 'lucide-react';
-import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { toast } from '@/components/ui/Toast';
+import { useT } from '@/lib/i18n/context';
 import { verifyCurrentPassword } from '@/features/auth/api';
 import { useChangePassword } from '@/features/auth/hooks';
 import { useSession } from '@/features/auth/SessionProvider';
 
-const schema = z
-  .object({
-    current: z.string().min(1, 'Podaj obecne hasło'),
-    password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
-    confirm: z.string(),
-  })
-  .refine((v) => v.password === v.confirm, {
-    message: 'Hasła nie są identyczne',
-    path: ['confirm'],
-  });
-
 /** Ustawienia → Moje konto: dobrowolna zmiana hasła (stare + nowe ×2). */
 export function AccountSection() {
+  const t = useT();
   const { user } = useSession();
   const changePassword = useChangePassword();
   const [form, setForm] = useState({ current: '', password: '', confirm: '' });
@@ -31,13 +21,11 @@ export function AccountSection() {
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse(form);
-    if (!parsed.success) {
-      const fieldErrors: typeof errors = {};
-      for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as keyof typeof form;
-        fieldErrors[key] ??= issue.message;
-      }
+    const fieldErrors: typeof errors = {};
+    if (!form.current) fieldErrors.current = t('setc.currentPwErr');
+    if (form.password.length < 6) fieldErrors.password = t('setc.pwTooShort');
+    if (form.password !== form.confirm) fieldErrors.confirm = t('setc.pwMismatch');
+    if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return;
     }
@@ -48,7 +36,7 @@ export function AccountSection() {
     const ok = await verifyCurrentPassword(user.email, form.current);
     setVerifying(false);
     if (!ok) {
-      toast.error('Obecne hasło jest nieprawidłowe');
+      toast.error(t('setc.wrongCurrentPw'));
       return;
     }
     changePassword.mutate(form.password, {
@@ -60,14 +48,14 @@ export function AccountSection() {
     <Card className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
         <KeyRound className="size-5 text-accent" strokeWidth={1.8} />
-        <h2 className="text-base font-semibold">Moje konto</h2>
+        <h2 className="text-base font-semibold">{t('setc.account')}</h2>
       </div>
       <p className="text-xs text-text-secondary">
-        Zalogowano jako {user?.fullName} ({user?.email})
+        {t('setc.loggedAs', { name: user?.fullName ?? '', email: user?.email ?? '' })}
       </p>
       <form onSubmit={(e) => void onSubmit(e)} className="flex flex-col gap-4">
         <Input
-          label="Obecne hasło"
+          label={t('setc.currentPw')}
           type="password"
           autoComplete="current-password"
           value={form.current}
@@ -75,7 +63,7 @@ export function AccountSection() {
           onChange={(e) => setForm((f) => ({ ...f, current: e.target.value }))}
         />
         <Input
-          label="Nowe hasło"
+          label={t('setc.newPw')}
           type="password"
           autoComplete="new-password"
           value={form.password}
@@ -83,7 +71,7 @@ export function AccountSection() {
           onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
         />
         <Input
-          label="Powtórz nowe hasło"
+          label={t('setc.repeatPw')}
           type="password"
           autoComplete="new-password"
           value={form.confirm}
@@ -96,7 +84,7 @@ export function AccountSection() {
           fullWidth
           loading={verifying || changePassword.isPending}
         >
-          Zmień hasło
+          {t('setc.changePw')}
         </Button>
       </form>
     </Card>

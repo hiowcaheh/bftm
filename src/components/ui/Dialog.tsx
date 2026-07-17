@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
+import { useT } from '@/lib/i18n/context';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -19,14 +20,17 @@ export function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = 'Potwierdź',
-  cancelLabel = 'Anuluj',
+  confirmLabel,
+  cancelLabel,
   destructive = false,
   loading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const t = useT();
   if (!open) return null;
+  const confirmText = confirmLabel ?? t('ui.confirm');
+  const cancelText = cancelLabel ?? t('common.cancel');
 
   return createPortal(
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-6">
@@ -48,7 +52,7 @@ export function ConfirmDialog({
         )}
         <div className="mt-6 flex gap-3">
           <Button variant="secondary" fullWidth onClick={onCancel}>
-            {cancelLabel}
+            {cancelText}
           </Button>
           <Button
             variant={destructive ? 'destructive' : 'primary'}
@@ -56,7 +60,7 @@ export function ConfirmDialog({
             loading={loading}
             onClick={onConfirm}
           >
-            {confirmLabel}
+            {confirmText}
           </Button>
         </div>
       </div>

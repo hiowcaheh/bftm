@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n/context';
 import {
   addMonths,
   eachDayOfInterval,
@@ -14,7 +15,7 @@ import {
   startOfWeek,
   subMonths,
 } from 'date-fns';
-import { pl } from 'date-fns/locale';
+
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
@@ -32,6 +33,7 @@ interface RangeCalendarProps {
  * Jeden dzień = tap dwa razy w tę samą datę.
  */
 export function RangeCalendar({ from, to, onChange, showWeekNumbers }: RangeCalendarProps) {
+  const { t, dateLocale } = useI18n();
   const [month, setMonth] = useState(() => from ?? new Date());
 
   const days = eachDayOfInterval({
@@ -61,18 +63,18 @@ export function RangeCalendar({ from, to, onChange, showWeekNumbers }: RangeCale
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"
-          aria-label="Poprzedni miesiąc"
+          aria-label={t('exp.prevMonth')}
           className="press flex size-9 items-center justify-center rounded-full bg-surface"
           onClick={() => setMonth((m) => subMonths(m, 1))}
         >
           <ChevronLeft className="size-5" />
         </button>
         <span className="text-sm font-semibold capitalize">
-          {format(month, 'LLLL yyyy', { locale: pl })}
+          {format(month, 'LLLL yyyy', { locale: dateLocale })}
         </span>
         <button
           type="button"
-          aria-label="Następny miesiąc"
+          aria-label={t('exp.nextMonth')}
           className="press flex size-9 items-center justify-center rounded-full bg-surface"
           onClick={() => setMonth((m) => addMonths(m, 1))}
         >
@@ -87,7 +89,7 @@ export function RangeCalendar({ from, to, onChange, showWeekNumbers }: RangeCale
         )}
       >
         {showWeekNumbers && <span className="py-1 text-text-secondary/50">v.</span>}
-        {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map((d) => (
+        {t('ui.weekdays').split('|').map((d) => (
           <span key={d} className="py-1">
             {d}
           </span>

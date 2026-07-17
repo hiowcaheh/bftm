@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import {
   changePassword,
   fetchPublicBranding,
@@ -37,7 +38,7 @@ export function useChangePassword() {
     mutationFn: (newPassword: string) => changePassword(newPassword),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.profile.all });
-      toast.success('Hasło zostało zmienione');
+      toast.success(translate('setc.pwChanged'));
     },
     onError: (e: Error) => toast.error(e.message),
   });

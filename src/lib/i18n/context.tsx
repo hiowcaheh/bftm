@@ -69,6 +69,11 @@ export function translate(key: string, vars?: Record<string, string | number>): 
   return tr(activeLang, key, vars);
 }
 
+/** Locale date-fns aktualnego języka — dla helperów poza Reactem (format.ts). */
+export function activeDateLocale(): Locale {
+  return dateLocales[activeLang];
+}
+
 /** Liczba mnoga poza Reactem. */
 export function translateP(key: string, count: number): string {
   return trPlural(activeLang, key, count);

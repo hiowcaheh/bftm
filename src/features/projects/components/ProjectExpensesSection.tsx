@@ -6,10 +6,7 @@ import { moneyWhole } from '@/lib/format';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useProjectExpenses } from '@/features/expenses/hooks';
-import {
-  EXPENSE_CATEGORY_LABELS,
-  EXPENSE_CATEGORY_ORDER,
-} from '@/features/expenses/types';
+import { EXPENSE_CATEGORY_ORDER } from '@/features/expenses/types';
 import { ExpenseFormSheet } from '@/features/expenses/components/ExpenseFormSheet';
 
 /** Koszty projektu: suma + rozbicie wg kategorii + szybkie dodawanie. */

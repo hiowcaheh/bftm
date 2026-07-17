@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn';
+import { translate } from '@/lib/i18n/context';
 
 interface SwitchProps {
   checked: boolean;
@@ -43,7 +44,7 @@ export function Switch({
     return (
       <button
         type="button"
-        aria-label={label ?? 'Przełącznik'}
+        aria-label={label ?? translate('ui.toggle')}
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className="shrink-0"

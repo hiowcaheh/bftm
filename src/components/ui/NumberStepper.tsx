@@ -1,6 +1,7 @@
 import { Minus, Plus } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { num } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 
 interface NumberStepperProps {
   value: number;
@@ -24,6 +25,7 @@ export function NumberStepper({
   suffix,
   className,
 }: NumberStepperProps) {
+  const t = useT();
   const dec = () => onChange(Math.max(min, Math.round((value - step) * 100) / 100));
   const inc = () => onChange(Math.min(max, Math.round((value + step) * 100) / 100));
 
@@ -35,7 +37,7 @@ export function NumberStepper({
           type="button"
           onClick={dec}
           disabled={value <= min}
-          aria-label="Zmniejsz"
+          aria-label={t('ui.decrease')}
           className="press flex size-11 items-center justify-center rounded-lg bg-surface text-text disabled:opacity-30"
         >
           <Minus className="size-5" />
@@ -48,7 +50,7 @@ export function NumberStepper({
           type="button"
           onClick={inc}
           disabled={value >= max}
-          aria-label="Zwiększ"
+          aria-label={t('ui.increase')}
           className="press flex size-11 items-center justify-center rounded-lg bg-surface text-text disabled:opacity-30"
         >
           <Plus className="size-5" />

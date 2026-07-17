@@ -7,6 +7,7 @@ import { Input, Textarea } from '@/components/ui/Input';
 import { Sheet } from '@/components/ui/Sheet';
 import { ICON_KEYS, iconByKey } from '@/lib/iconRegistry';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useT } from '@/lib/i18n/context';
 import { usePublicBranding } from '@/features/auth/hooks';
 import { logoPublicUrl } from '../api';
 import { useCompanyDetails, useSaveCompany, useUploadLogo } from '../hooks';
@@ -14,6 +15,7 @@ import { EMPTY_COMPANY_DETAILS, type CompanyDetails } from '../types';
 
 /** Ustawienia → Firma: dane do PDF-ów, branding i logo (tylko admin). */
 export function CompanySection() {
+  const t = useT();
   const details = useCompanyDetails(true);
   const save = useSaveCompany();
   const uploadLogo = useUploadLogo();
@@ -49,19 +51,19 @@ export function CompanySection() {
     <Card className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
         <Building2 className="size-5 text-accent" strokeWidth={1.8} />
-        <h2 className="text-base font-semibold">Firma</h2>
+        <h2 className="text-base font-semibold">{t('setc.company')}</h2>
       </div>
 
       <div className="flex items-center gap-4">
         {logoPath ? (
           <img
             src={logoPublicUrl(logoPath)}
-            alt="Logo firmy"
+            alt={t('setc.logoAlt')}
             className="size-16 rounded-2xl border border-line object-contain"
           />
         ) : (
           <div className="flex size-16 items-center justify-center rounded-2xl bg-surface text-xs text-text-secondary">
-            brak logo
+            {t('setc.noLogo')}
           </div>
         )}
         <Button
@@ -71,7 +73,7 @@ export function CompanySection() {
           loading={uploadLogo.isPending}
           onClick={() => fileRef.current?.click()}
         >
-          {logoPath ? 'Zmień logo' : 'Dodaj logo'}
+          {logoPath ? t('setc.changeLogo') : t('setc.addLogo')}
         </Button>
         <input
           ref={fileRef}
@@ -88,17 +90,17 @@ export function CompanySection() {
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Input
-          label="Nazwa firmy"
+          label={t('setc.companyName')}
           value={form.name}
           onChange={(e) => set({ name: e.target.value })}
         />
         <Input
-          label="Slogan (na ekranie logowania)"
+          label={t('setc.slogan')}
           value={slogan}
           onChange={(e) => setSlogan(e.target.value)}
         />
         <Input
-          label="Adres"
+          label={t('setc.address')}
           value={form.address}
           onChange={(e) => set({ address: e.target.value })}
         />
@@ -130,7 +132,7 @@ export function CompanySection() {
         {[0, 1].map((i) => (
           <div key={i} className="grid grid-cols-2 gap-3">
             <Input
-              label={`Kontakt ${i + 1} — imię`}
+              label={t('setc.contactName', { n: i + 1 })}
               placeholder={i === 0 ? 'np. Tomasz' : 'np. Mateusz'}
               value={form.contacts[i]?.name ?? ''}
               onChange={(e) => {
@@ -140,7 +142,7 @@ export function CompanySection() {
               }}
             />
             <Input
-              label="Telefon"
+              label={t('setc.phone')}
               type="tel"
               value={form.contacts[i]?.phone ?? ''}
               onChange={(e) => {
@@ -153,7 +155,7 @@ export function CompanySection() {
         ))}
         <div className="grid grid-cols-2 gap-3">
           <Input
-            label="Telefon"
+            label={t('setc.phone')}
             type="tel"
             value={form.phone}
             onChange={(e) => set({ phone: e.target.value })}
@@ -166,23 +168,21 @@ export function CompanySection() {
           />
         </div>
         <Textarea
-          label="O firmie (na stronie oferty, po szwedzku)"
+          label={t('setc.about')}
           rows={4}
           value={form.about}
           onChange={(e) => set({ about: e.target.value })}
-          hint={'Ten tekst klient czyta w sekcji „Om oss" na stronie oferty'}
+          hint={t('setc.aboutHint')}
         />
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-text-secondary">
-            Usługi na stronie oferty (nazwa + ikonka)
-          </p>
+          <p className="text-xs font-medium text-text-secondary">{t('setc.services')}</p>
           {form.services.map((service, i) => {
             const Icon = iconByKey(service.icon);
             return (
               <div key={i} className="flex items-center gap-2">
                 <button
                   type="button"
-                  aria-label="Wybierz ikonkę"
+                  aria-label={t('setc.pickIcon')}
                   className="press flex size-11 shrink-0 items-center justify-center rounded-xl bg-surface"
                   onClick={() => setIconPickerIndex(i)}
                 >
@@ -190,7 +190,7 @@ export function CompanySection() {
                 </button>
                 <input
                   value={service.name}
-                  placeholder="np. Fasad & puts"
+                  placeholder={t('setc.servicePh')}
                   className="h-11 min-w-0 flex-1 rounded-(--radius-input) border border-line bg-white px-3 text-[1rem] outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                   onChange={(e) => {
                     const services = [...form.services];
@@ -200,7 +200,7 @@ export function CompanySection() {
                 />
                 <button
                   type="button"
-                  aria-label="Usuń usługę"
+                  aria-label={t('setc.removeService')}
                   className="press flex size-11 shrink-0 items-center justify-center rounded-xl bg-error-soft text-error"
                   onClick={() => set({ services: form.services.filter((_, x) => x !== i) })}
                 >
@@ -218,7 +218,7 @@ export function CompanySection() {
               set({ services: [...form.services, { name: '', icon: 'Hammer' }] })
             }
           >
-            Dodaj usługę
+            {t('setc.addService')}
           </Button>
         </div>
         <label className="flex min-h-12 items-center gap-3 text-sm">
@@ -228,17 +228,17 @@ export function CompanySection() {
             onChange={(e) => set({ f_skatt: e.target.checked })}
             className="size-5 accent-(--color-accent)"
           />
-          Godkänd för F-skatt (adnotacja na PDF)
+          {t('setc.fskatt')}
         </label>
         <Button type="submit" fullWidth loading={save.isPending}>
-          Zapisz dane firmy
+          {t('setc.saveCompany')}
         </Button>
       </form>
 
       <Sheet
         open={iconPickerIndex !== null}
         onClose={() => setIconPickerIndex(null)}
-        title="Wybierz ikonkę"
+        title={t('setc.pickIcon')}
       >
         <div className="grid grid-cols-6 gap-2">
           {ICON_KEYS.map((key) => {

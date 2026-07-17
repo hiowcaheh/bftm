@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/Switch';
 import { money } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useFinanceSettings, useSaveFinanceSettings } from '../hooks';
 
 const toNumber = (v: string) => Number(v.trim().replace(',', '.'));
@@ -14,6 +15,7 @@ const toNumber = (v: string) => Number(v.trim().replace(',', '.'));
  * do liczenia pełnego kosztu godziny w raportach.
  */
 export function FinanceSection() {
+  const t = useT();
   const settings = useFinanceSettings(true);
   const save = useSaveFinanceSettings();
 
@@ -43,7 +45,7 @@ export function FinanceSection() {
     <Card className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
         <Percent className="size-5 text-accent" strokeWidth={1.8} />
-        <h2 className="text-base font-semibold">Finanse — koszt pracodawcy</h2>
+        <h2 className="text-base font-semibold">{t('setc.finTitle')}</h2>
       </div>
 
       <Input
@@ -51,43 +53,40 @@ export function FinanceSection() {
         inputMode="decimal"
         value={employerFee}
         onChange={(e) => setEmployerFee(e.target.value)}
-        hint="Składki pracodawcy od pensji (2026: 31,42%)"
+        hint={t('setc.feeHint')}
       />
       <Input
-        label="Dodatkowy narzut firmy (%)"
+        label={t('setc.overheadLabel')}
         inputMode="decimal"
         value={overhead}
         onChange={(e) => setOverhead(e.target.value)}
-        hint="Opcjonalny własny narzut (ubezpieczenia, narzędzia, auto…)"
+        hint={t('setc.overheadHint')}
       />
 
       <div className="flex flex-col gap-2 rounded-xl bg-surface p-3">
         <Switch
           checked={includeVacation}
           onChange={setIncludeVacation}
-          label="Doliczaj rezerwę urlopową do kosztu godziny"
+          label={t('setc.vacToggle')}
         />
-        <p className="text-xs text-text-secondary">
-          Wyłączone: koszt godziny = brutto + arbetsgivaravgifter, dokładnie jak na
-          lönespecifikation. Włączone: do każdej godziny doliczana jest rezerwa na
-          semesterersättning — pełny koszt ekonomiczny, przydatny przy kalkulacji ofert.
-        </p>
+        <p className="text-xs text-text-secondary">{t('setc.vacDesc')}</p>
         {includeVacation && (
           <Input
             label="Semesterersättning (%)"
             inputMode="decimal"
             value={vacationPay}
             onChange={(e) => setVacationPay(e.target.value)}
-            hint="Ustawowo min. 12%"
+            hint={t('setc.vacHint')}
           />
         )}
       </div>
 
       {multiplier && (
         <p className="tabular-nums rounded-xl bg-surface p-3 text-xs text-text-secondary">
-          Godzina pracownika kosztuje firmę <b>×{multiplier.toFixed(4).replace('.', ',')}</b>{' '}
-          stawki brutto. Przykład: stawka 210 kr/h → {money(210 * multiplier)}/h.
-          Tak liczone są koszty pracy w zakładce Finanse.
+          {t('setc.multiplierInfo', {
+            mult: multiplier.toFixed(4).replace('.', ','),
+            example: money(210 * multiplier),
+          })}
         </p>
       )}
 
@@ -105,7 +104,7 @@ export function FinanceSection() {
           })
         }
       >
-        Zapisz parametry
+        {t('setc.saveParams')}
       </Button>
     </Card>
   );
