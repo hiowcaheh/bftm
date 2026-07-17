@@ -12,6 +12,13 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'prompt',
+      // własny SW (src/sw.ts): precache + runtime cache + Web Push
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+      },
       includeAssets: ['icons/apple-touch-icon.png'],
       manifest: {
         name: 'BFTM — Zarządzanie firmą budowlaną',
@@ -32,33 +39,6 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
-          },
-        ],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
-        navigateFallback: '/index.html',
-        runtimeCaching: [
-          {
-            // Supabase REST (tylko GET) — najpierw sieć, offline fallback do cache
-            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*$/,
-            method: 'GET',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-rest',
-              networkTimeoutSeconds: 5,
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 14 },
-            },
-          },
-          {
-            // Supabase Storage (logo, zdjęcia) — cache z cichym odświeżaniem
-            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*$/,
-            method: 'GET',
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'supabase-storage',
-              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
           },
         ],
       },

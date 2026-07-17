@@ -68,6 +68,12 @@ npx tsc --noEmit   # szybki typecheck
   (`lookup_company_by_orgnr`; ec.europa.eu blokuje IP datacenter).
 - Realtime: tabela `checklist_items` (publikacja supabase_realtime + replica identity
   full); frontend subskrybuje w `features/checklist/hooks.ts`.
+- Web Push (0.33.x): własny SW `src/sw.ts` (strategia injectManifest w vite.config;
+  precache + runtime cache + handler push/notificationclick). Subskrypcje w tabeli
+  `push_subscriptions` (RLS owner-only), klient w `src/lib/push.ts` (klucz publiczny
+  VAPID zaszyty), przełącznik w Ustawieniach. Wysyłka: trigger `notifications_push`
+  → pg_net POST → Edge Function `push` (supabase/functions/push; czyta sekrety
+  VAPID z `app_secrets`, autoryzacja nagłówkiem x-push-secret).
 - Funkcje publiczne (anon): tylko `offer_public`, `offer_respond`,
   `report_share_public`. Reszta ma revoke dla anon (migracja 0035).
 - RLS: wszystkie polityki używają `(select auth.uid())` (migracja 0036) — nowe

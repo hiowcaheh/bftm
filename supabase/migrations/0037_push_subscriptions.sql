@@ -1,0 +1,11 @@
+-- 0037 — powiadomienia push (Web Push / VAPID). Zastosowane przez MCP
+-- apply_migration; kopia skrócona (pełna treść: historia migracji w dashboardzie,
+-- migration: push_subscriptions).
+--
+-- * extension pg_net (asynchroniczny HTTP z triggerów)
+-- * tabela push_subscriptions (profile_id, endpoint unique, p256dh, auth)
+--   z RLS: właściciel widzi/zapisuje/kasuje tylko swoje subskrypcje
+-- * sekrety VAPID + push_fn_secret w app_secrets
+-- * trigger notifications_push: nowy wiersz w notifications →
+--   net.http_post do Edge Function `push` (nagłówek x-push-secret),
+--   tylko gdy odbiorca ma jakąkolwiek subskrypcję.

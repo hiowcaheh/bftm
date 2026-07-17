@@ -1,9 +1,16 @@
-import { useState } from 'react';
-import { Check, Info, Languages, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BellRing, Check, Info, Languages, RefreshCw } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
+import { Switch } from '@/components/ui/Switch';
 import { toast } from '@/components/ui/Toast';
 import { checkForSwUpdate, installSwUpdate } from '@/lib/swUpdate';
+import {
+  getExistingSubscription,
+  isPushSupported,
+  subscribePush,
+  unsubscribePush,
+} from '@/lib/push';
 import { useI18n } from '@/lib/i18n/context';
 import { LANGS } from '@/lib/i18n/types';
 import { useSession } from '@/features/auth/SessionProvider';
@@ -11,7 +18,7 @@ import { CompanySection } from '../components/CompanySection';
 import { FinanceSection } from '../components/FinanceSection';
 import { AccountSection } from '../components/AccountSection';
 
-const APP_VERSION = '0.32.0'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
+const APP_VERSION = '0.33.0'; // aktualizowane przy każdym etapie, patrz CHANGELOG.md
 
 /**
  * Ustawienia: Język, Firma (tylko admin), Moje konto, Aplikacja.
@@ -22,6 +29,38 @@ export default function SettingsPage() {
   const [checking, setChecking] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [installing, setInstalling] = useState(false);
+  const [pushOn, setPushOn] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const pushSupported = isPushSupported();
+
+  useEffect(() => {
+    if (!pushSupported) return;
+    void getExistingSubscription().then((sub) => setPushOn(sub !== null));
+  }, [pushSupported]);
+
+  const togglePush = async (on: boolean) => {
+    if (!user || pushBusy) return;
+    setPushBusy(true);
+    try {
+      if (on) {
+        await subscribePush(user.id);
+        setPushOn(true);
+        toast.success(t('settings.pushOn'));
+      } else {
+        await unsubscribePush();
+        setPushOn(false);
+        toast.info(t('settings.pushOff'));
+      }
+    } catch (e) {
+      toast.error(
+        (e as Error).message === 'permission-denied'
+          ? t('settings.pushDenied')
+          : t('settings.pushErr'),
+      );
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const checkForUpdate = async () => {
     setChecking(true);
@@ -57,6 +96,28 @@ export default function SettingsPage() {
           />
         ))}
       </ListGroup>
+
+      {pushSupported && (
+        <ListGroup>
+          <ListRow
+            leading={
+              <div className="flex size-10 items-center justify-center rounded-xl bg-surface">
+                <BellRing className="size-5 text-text-secondary" strokeWidth={1.8} />
+              </div>
+            }
+            title={t('settings.push')}
+            subtitle={t('settings.pushSub')}
+            trailing={
+              <Switch
+                checked={pushOn}
+                onChange={(v) => void togglePush(v)}
+                label={t('settings.push')}
+                hideLabel
+              />
+            }
+          />
+        </ListGroup>
+      )}
 
       {user?.role === 'admin' && <CompanySection />}
       {user?.role === 'admin' && <FinanceSection />}
