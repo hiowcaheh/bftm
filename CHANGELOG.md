@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.34.1 — poprawka licznika na ikonce (2026-07-17)
+
+- Kółeczko pokazywało nieaktualną liczbę, gdy pushe dotarły w złej kolejności —
+  teraz service worker przy każdym pushu pobiera z bazy aktualny stan
+  (RPC `unread_count_for_endpoint`, migracja 0040); payload zostaje fallbackiem.
+
 ## 0.34.0 — licznik na ikonce aplikacji (2026-07-17)
 
 - Czerwone kółeczko z liczbą nieprzeczytanych powiadomień na ikonce aplikacji

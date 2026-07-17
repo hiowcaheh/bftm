@@ -61,6 +61,32 @@ const swNavigator = self.navigator as Navigator & {
   clearAppBadge?: () => Promise<void>;
 };
 
+// Pushe potrafią dochodzić w złej kolejności, więc liczba z payloadu bywa
+// nieświeża — przy każdym pushu pytamy bazę o AKTUALNY stan (klucz: endpoint
+// własnej subskrypcji). Payloadowe `unread` zostaje jako fallback offline.
+async function fetchUnreadCount(): Promise<number | null> {
+  try {
+    const sub = await self.registration.pushManager.getSubscription();
+    if (!sub) return null;
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/unread_count_for_endpoint`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ p_endpoint: sub.endpoint }),
+      },
+    );
+    if (!res.ok) return null;
+    const n: unknown = await res.json();
+    return typeof n === 'number' ? n : null;
+  } catch {
+    return null;
+  }
+}
+
 self.addEventListener('push', (event) => {
   let data: PushPayload = { title: 'BFTM' };
   try {
@@ -70,8 +96,9 @@ self.addEventListener('push', (event) => {
   }
   event.waitUntil(
     (async () => {
-      if (typeof data.unread === 'number') {
-        if (data.unread > 0) await swNavigator.setAppBadge?.(data.unread).catch(() => {});
+      const unread = (await fetchUnreadCount()) ?? data.unread;
+      if (typeof unread === 'number') {
+        if (unread > 0) await swNavigator.setAppBadge?.(unread).catch(() => {});
         else await swNavigator.clearAppBadge?.().catch(() => {});
       }
       await self.registration.showNotification(data.title, {
