@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { WifiOff } from 'lucide-react';
+import { useT } from '@/lib/i18n/context';
 
 /**
  * Pasek offline: gdy telefon traci sieć, aplikacja działa dalej na
@@ -7,6 +8,7 @@ import { WifiOff } from 'lucide-react';
  * być nieaktualne. Znika po powrocie połączenia.
  */
 export function OfflineBanner() {
+  const t = useT();
   const [offline, setOffline] = useState(
     typeof navigator !== 'undefined' && !navigator.onLine,
   );
@@ -30,7 +32,7 @@ export function OfflineBanner() {
       style={{ top: 'calc(env(safe-area-inset-top) + 3rem)' }}
       role="status"
     >
-      <WifiOff className="size-3.5" /> Brak połączenia — pokazujemy ostatnie dane
+      <WifiOff className="size-3.5" /> {t('ui.offline')}
     </div>
   );
 }

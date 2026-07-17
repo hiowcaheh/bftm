@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { activeDateLocale, translate } from '@/lib/i18n/context';
 import { sendNotifications } from '@/features/notifications/api';
 import {
   deletePayslip,
@@ -31,7 +31,7 @@ export function usePayslipUrl(path: string | null) {
 }
 
 const monthLabel = (year: number, month: number) =>
-  format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: pl });
+  format(new Date(year, month - 1, 1), 'LLLL yyyy', { locale: activeDateLocale() });
 
 export function useUploadPayslip() {
   const queryClient = useQueryClient();
@@ -43,16 +43,16 @@ export function useUploadPayslip() {
         {
           recipient_id: input.employeeId,
           type: 'payslip',
-          title: 'Specyfikacja wypłaty',
+          title: translate('pay.notifTitle'),
           body: `Twoja specyfikacja wypłaty za ${monthLabel(input.year, input.month)} jest już dostępna w aplikacji.`,
         },
       ]);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.payslips.all });
-      toast.success('Specyfikacja wysłana');
+      toast.success(translate('pay.sent'));
     },
-    onError: (e: Error) => toast.error(e.message || 'Nie udało się wysłać specyfikacji'),
+    onError: (e: Error) => toast.error(e.message || translate('pay.errSend')),
   });
 }
 
@@ -62,8 +62,8 @@ export function useDeletePayslip() {
     mutationFn: (p: Payslip) => deletePayslip(p),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.payslips.all });
-      toast.success('Specyfikacja usunięta');
+      toast.success(translate('pay.deleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć'),
+    onError: () => toast.error(translate('pay.errDelete')),
   });
 }

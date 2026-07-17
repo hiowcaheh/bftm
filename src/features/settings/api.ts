@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabaseClient';
 import type { Json } from '@/types/database';
 import type { CompanyBranding, CompanyDetails, FinanceSettings } from './types';
 import { DEFAULT_FINANCE_SETTINGS, EMPTY_COMPANY_DETAILS } from './types';
+import { translate } from '@/lib/i18n/context';
 
 export async function fetchSetting<T>(key: string): Promise<T | null> {
   const { data, error } = await supabase
@@ -50,7 +51,7 @@ export async function uploadLogo(file: File): Promise<string> {
     cacheControl: '3600',
     upsert: false,
   });
-  if (error) throw new Error('Nie udało się przesłać logo');
+  if (error) throw new Error(translate('setc.errLogo'));
 
   const branding = await fetchSetting<CompanyBranding>('company_branding');
   await updateSetting('company_branding', {

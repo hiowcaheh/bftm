@@ -1,5 +1,5 @@
 import { formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { useI18n } from '@/lib/i18n/context';
 import { Badge } from '@/components/ui/Badge';
 
 /**
@@ -14,11 +14,12 @@ export function OnlineBadge({
   lastSeen: string | null;
   compact?: boolean;
 }) {
+  const { t, dateLocale } = useI18n();
   if (!lastSeen) {
     return (
       <Badge tone="neutral">
         <span className="inline-block size-1.5 rounded-full bg-text-secondary/50" />
-        Brak aktywności
+        {t('emp.noActivityBadge')}
       </Badge>
     );
   }
@@ -34,8 +35,8 @@ export function OnlineBadge({
   }
 
   const text = compact
-    ? formatDistanceToNowStrict(new Date(lastSeen), { locale: pl })
-    : `Ostatnio ${formatDistanceToNow(new Date(lastSeen), { addSuffix: true, locale: pl })}`;
+    ? formatDistanceToNowStrict(new Date(lastSeen), { locale: dateLocale })
+    : t('emp.lastSeen', { ago: formatDistanceToNow(new Date(lastSeen), { addSuffix: true, locale: dateLocale }) });
 
   return (
     <Badge tone="neutral">

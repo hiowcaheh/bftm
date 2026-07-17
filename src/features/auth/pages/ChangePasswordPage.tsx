@@ -1,21 +1,11 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { KeyRound } from 'lucide-react';
-import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useT } from '@/lib/i18n/context';
 import { useChangePassword } from '../hooks';
 import { useSession } from '../SessionProvider';
-
-const schema = z
-  .object({
-    password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
-    confirm: z.string(),
-  })
-  .refine((v) => v.password === v.confirm, {
-    message: 'Hasła nie są identyczne',
-    path: ['confirm'],
-  });
 
 /**
  * Wymuszona zmiana hasła — pokazywana zamiast aplikacji, dopóki
@@ -27,21 +17,19 @@ export default function ChangePasswordPage() {
   const [errors, setErrors] = useState<{ password?: string; confirm?: string }>({});
   const changePassword = useChangePassword();
   const { user } = useSession();
+  const t = useT();
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse({ password, confirm });
-    if (!parsed.success) {
-      const fieldErrors: typeof errors = {};
-      for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as 'password' | 'confirm';
-        fieldErrors[key] ??= issue.message;
-      }
+    const fieldErrors: typeof errors = {};
+    if (password.length < 6) fieldErrors.password = t('setc.pwTooShort');
+    if (password !== confirm) fieldErrors.confirm = t('setc.pwMismatch');
+    if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return;
     }
     setErrors({});
-    changePassword.mutate(parsed.data.password);
+    changePassword.mutate(password);
   };
 
   return (
@@ -56,16 +44,16 @@ export default function ChangePasswordPage() {
         <div className="flex size-16 items-center justify-center rounded-full bg-accent-soft">
           <KeyRound className="size-8 text-accent" />
         </div>
-        <h1 className="text-xl font-semibold">Ustaw nowe hasło</h1>
+        <h1 className="text-xl font-semibold">{t('setc.setNewPwTitle')}</h1>
         <p className="text-sm text-text-secondary">
-          {user?.email ? `Konto: ${user.email}. ` : ''}
-          Ze względów bezpieczeństwa musisz zmienić hasło startowe, zanim przejdziesz dalej.
+          {user?.email ? t('setc.accountLabel', { email: user.email }) : ''}
+          {t('setc.setNewPwDesc')}
         </p>
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Input
-          label="Nowe hasło"
+          label={t('setc.newPw')}
           type="password"
           autoComplete="new-password"
           value={password}
@@ -73,7 +61,7 @@ export default function ChangePasswordPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <Input
-          label="Powtórz nowe hasło"
+          label={t('setc.repeatPw')}
           type="password"
           autoComplete="new-password"
           value={confirm}
@@ -87,7 +75,7 @@ export default function ChangePasswordPage() {
           loading={changePassword.isPending}
           className="mt-2"
         >
-          Zapisz nowe hasło
+          {t('setc.saveNewPw')}
         </Button>
       </form>
     </div>

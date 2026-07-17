@@ -1,5 +1,5 @@
 import { format as formatDate } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { activeDateLocale } from '@/lib/i18n/context';
 
 const sekFormatter = new Intl.NumberFormat('sv-SE', {
   style: 'currency',
@@ -43,19 +43,19 @@ export function num(value: number): string {
 /** „07.01.2026" */
 export function date(value: Date | string): string {
   const d = typeof value === 'string' ? new Date(value) : value;
-  return formatDate(d, 'dd.MM.yyyy', { locale: pl });
+  return formatDate(d, 'dd.MM.yyyy', { locale: activeDateLocale() });
 }
 
 /** „wtorek, 7 stycznia" */
 export function dateLong(value: Date | string): string {
   const d = typeof value === 'string' ? new Date(value) : value;
-  return formatDate(d, 'EEEE, d MMMM', { locale: pl });
+  return formatDate(d, 'EEEE, d MMMM', { locale: activeDateLocale() });
 }
 
 /** „styczeń 2026" */
 export function monthYear(value: Date | string): string {
   const d = typeof value === 'string' ? new Date(value) : value;
-  return formatDate(d, 'LLLL yyyy', { locale: pl });
+  return formatDate(d, 'LLLL yyyy', { locale: activeDateLocale() });
 }
 
 /** „2026-01-07" — format dla kolumn date w Postgresie */

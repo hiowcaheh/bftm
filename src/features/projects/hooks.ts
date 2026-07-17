@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
   createActivity,
@@ -67,9 +68,9 @@ export function useCreateProject() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.projects.all });
       void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
-      toast.success('Projekt dodany');
+      toast.success(translate('proj.created'));
     },
-    onError: () => toast.error('Nie udało się dodać projektu'),
+    onError: () => toast.error(translate('proj.errCreate')),
   });
 }
 
@@ -80,9 +81,9 @@ export function useUpdateProject(id: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.projects.all });
       void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
-      toast.success('Zapisano zmiany');
+      toast.success(translate('proj.updated'));
     },
-    onError: () => toast.error('Nie udało się zapisać zmian'),
+    onError: () => toast.error(translate('proj.errUpdate')),
   });
 }
 
@@ -100,9 +101,9 @@ export function useCreateActivity(projectId: string) {
     mutationFn: (name: string) => createActivity(projectId, name),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.projects.activities(projectId) });
-      toast.success('Aktywność dodana');
+      toast.success(translate('proj.activityAdded'));
     },
-    onError: () => toast.error('Nie udało się dodać aktywności'),
+    onError: () => toast.error(translate('proj.errActivityAdd')),
   });
 }
 
@@ -113,9 +114,9 @@ export function useDeleteActivity(projectId: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.projects.activities(projectId) });
       void queryClient.invalidateQueries({ queryKey: qk.workHours.all });
-      toast.success('Aktywność usunięta');
+      toast.success(translate('proj.activityDeleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć aktywności'),
+    onError: () => toast.error(translate('proj.errActivityDelete')),
   });
 }
 
@@ -139,9 +140,9 @@ export function useSaveAdditionalWork(projectId: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.additionalWorks.byProject(projectId) });
       void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
-      toast.success('Praca dodatkowa zapisana');
+      toast.success(translate('proj.workSaved'));
     },
-    onError: () => toast.error('Nie udało się zapisać pracy dodatkowej'),
+    onError: () => toast.error(translate('proj.errWorkSave')),
   });
 }
 
@@ -151,9 +152,9 @@ export function useDeleteAdditionalWork(projectId: string) {
     mutationFn: (id: string) => deleteAdditionalWork(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.additionalWorks.byProject(projectId) });
-      toast.success('Praca dodatkowa usunięta');
+      toast.success(translate('proj.workDeleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć'),
+    onError: () => toast.error(translate('proj.errWorkDelete')),
   });
 }
 
@@ -172,9 +173,9 @@ export function useUploadPhotos(projectId: string) {
       uploadPhotos(projectId, files, userId),
     onSuccess: (_d, { files }) => {
       void queryClient.invalidateQueries({ queryKey: qk.projects.photos(projectId) });
-      toast.success(files.length === 1 ? 'Zdjęcie dodane' : `Dodano zdjęcia: ${files.length}`);
+      toast.success(files.length === 1 ? translate('proj.photoAdded') : translate('proj.photosAdded', { n: files.length }));
     },
-    onError: (e: Error) => toast.error(e.message || 'Nie udało się przesłać zdjęć'),
+    onError: (e: Error) => toast.error(e.message || translate('proj.errPhotoUpload')),
   });
 }
 
@@ -184,9 +185,9 @@ export function useDeletePhoto(projectId: string) {
     mutationFn: ({ id, path }: { id: string; path: string }) => deletePhoto(id, path),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.projects.photos(projectId) });
-      toast.success('Zdjęcie usunięte');
+      toast.success(translate('proj.photoDeleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć zdjęcia'),
+    onError: () => toast.error(translate('proj.errPhotoDelete')),
   });
 }
 
@@ -197,9 +198,9 @@ export function useDeleteProject() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.projects.all });
       void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
-      toast.success('Projekt usunięty');
+      toast.success(translate('proj.deleted'));
     },
     onError: () =>
-      toast.error('Nie udało się usunąć projektu — ma powiązane wpisy (godziny, koszty)'),
+      toast.error(translate('proj.errDelete')),
   });
 }

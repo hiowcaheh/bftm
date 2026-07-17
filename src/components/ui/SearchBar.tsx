@@ -1,5 +1,6 @@
 import { Search, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { translate } from '@/lib/i18n/context';
 
 interface SearchBarProps {
   value: string;
@@ -28,7 +29,7 @@ export function SearchBar({
       {value && (
         <button
           type="button"
-          aria-label="Wyczyść"
+          aria-label={translate('ui.clear')}
           onClick={() => onChange('')}
           className="absolute top-1/2 right-3 -translate-y-1/2 text-text-secondary"
         >

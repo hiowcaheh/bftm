@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { date as fmtDate } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import type { PhotoWithUrl } from '../api';
 import { useDeletePhoto, useProjectPhotos, useUploadPhotos } from '../hooks';
@@ -13,6 +14,7 @@ import { useDeletePhoto, useProjectPhotos, useUploadPhotos } from '../hooks';
 /** Galeria zdjęć projektu: siatka, multi-upload z kompresją, pełny ekran. */
 export function ProjectPhotosSection({ projectId }: { projectId: string }) {
   const { user, can } = useSession();
+  const t = useT();
   const photos = useProjectPhotos(projectId);
   const upload = useUploadPhotos(projectId);
   const deletePhoto = useDeletePhoto(projectId);
@@ -51,7 +53,7 @@ export function ProjectPhotosSection({ projectId }: { projectId: string }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Images className="size-5 text-accent" strokeWidth={1.8} />
-          <h2 className="text-base font-semibold">Zdjęcia</h2>
+          <h2 className="text-base font-semibold">{t('proj.photos')}</h2>
           {list.length > 0 && (
             <span className="text-xs text-text-secondary">({list.length})</span>
           )}
@@ -64,13 +66,13 @@ export function ProjectPhotosSection({ projectId }: { projectId: string }) {
             loading={upload.isPending}
             onClick={() => fileRef.current?.click()}
           >
-            Dodaj
+            {t('common.add')}
           </Button>
         )}
       </div>
 
       {list.length === 0 ? (
-        <p className="text-sm text-text-secondary">Brak zdjęć</p>
+        <p className="text-sm text-text-secondary">{t('proj.photosEmpty')}</p>
       ) : (
         <div className="grid grid-cols-3 gap-1.5">
           {list.map((photo, i) => (
@@ -83,7 +85,7 @@ export function ProjectPhotosSection({ projectId }: { projectId: string }) {
               {photo.url && (
                 <img
                   src={photo.url}
-                  alt={photo.caption ?? 'Zdjęcie projektu'}
+                  alt={photo.caption ?? t('proj.photoAlt')}
                   loading="lazy"
                   className="h-full w-full object-cover"
                 />
@@ -136,7 +138,7 @@ export function ProjectPhotosSection({ projectId }: { projectId: string }) {
               {canDelete(preview) ? (
                 <button
                   type="button"
-                  aria-label="Usuń zdjęcie"
+                  aria-label={t('proj.deletePhoto')}
                   className="press flex size-10 items-center justify-center rounded-full bg-white/15 text-white"
                   onClick={() => setConfirmDelete(true)}
                 >
@@ -151,7 +153,7 @@ export function ProjectPhotosSection({ projectId }: { projectId: string }) {
                 <img
                   key={preview.id}
                   src={preview.url}
-                  alt={preview.caption ?? 'Zdjęcie projektu'}
+                  alt={preview.caption ?? t('proj.photoAlt')}
                   className="animate-fade-in max-h-full max-w-full object-contain"
                 />
               )}
@@ -169,9 +171,9 @@ export function ProjectPhotosSection({ projectId }: { projectId: string }) {
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Usunąć zdjęcie?"
-        description="Zdjęcie zostanie trwale usunięte z projektu."
-        confirmLabel="Usuń"
+        title={t('proj.deletePhotoTitle')}
+        description={t('proj.deletePhotoDesc')}
+        confirmLabel={t('common.delete')}
         destructive
         loading={deletePhoto.isPending}
         onConfirm={() => {

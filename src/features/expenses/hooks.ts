@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import {
   createExpense,
   deleteExpense,
@@ -47,9 +48,9 @@ export function useCreateExpense() {
     mutationFn: (payload: ExpenseInsert) => createExpense(payload),
     onSuccess: () => {
       invalidate(queryClient);
-      toast.success('Koszt zapisany');
+      toast.success(translate('exp.saved'));
     },
-    onError: () => toast.error('Nie udało się zapisać kosztu'),
+    onError: () => toast.error(translate('exp.errSave')),
   });
 }
 
@@ -60,9 +61,9 @@ export function useUpdateExpense() {
       updateExpense(id, patch),
     onSuccess: () => {
       invalidate(queryClient);
-      toast.success('Koszt zaktualizowany');
+      toast.success(translate('exp.updated'));
     },
-    onError: () => toast.error('Nie udało się zapisać zmian'),
+    onError: () => toast.error(translate('exp.errUpdate')),
   });
 }
 
@@ -72,8 +73,8 @@ export function useDeleteExpense() {
     mutationFn: (id: string) => deleteExpense(id),
     onSuccess: () => {
       invalidate(queryClient);
-      toast.success('Koszt usunięty');
+      toast.success(translate('exp.deleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć kosztu'),
+    onError: () => toast.error(translate('exp.errDelete')),
   });
 }

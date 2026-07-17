@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import {
   createInvoiceSpec,
   deleteInvoiceSpec,
@@ -29,7 +30,7 @@ export function useCreateInvoiceSpec() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.invoiceSpecs.all });
     },
-    onError: () => toast.error('Nie udało się zapisać specyfikacji'),
+    onError: () => toast.error(translate('inv.errSave')),
   });
 }
 
@@ -39,8 +40,8 @@ export function useDeleteInvoiceSpec() {
     mutationFn: (id: string) => deleteInvoiceSpec(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.invoiceSpecs.all });
-      toast.success('Specyfikacja usunięta');
+      toast.success(translate('inv.deleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć specyfikacji'),
+    onError: () => toast.error(translate('inv.errDelete')),
   });
 }

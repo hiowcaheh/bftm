@@ -8,16 +8,18 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FAB } from '@/components/ui/FAB';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { date as fmtDate } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import type { OfferStatus } from '@/types/database';
 import { useOffers } from '../hooks';
-import { OFFER_STATUS_LABELS, OFFER_STATUS_TONES } from '../types';
+import { OFFER_STATUS_TONES } from '../types';
 
 const STATUS_ORDER: OfferStatus[] = ['draft', 'sent', 'accepted', 'rejected', 'expired'];
 
 export default function OffersPage() {
   const navigate = useNavigate();
   const { can } = useSession();
+  const t = useT();
   const offers = useOffers();
   const [status, setStatus] = useState<OfferStatus | null>(null);
 
@@ -29,7 +31,7 @@ export default function OffersPage() {
   return (
     <div className="flex flex-col gap-4">
       <Chips
-        options={STATUS_ORDER.map((s) => ({ value: s, label: OFFER_STATUS_LABELS[s] }))}
+        options={STATUS_ORDER.map((s) => ({ value: s, label: t(`ostatus.${s}`) }))}
         value={status}
         onChange={setStatus}
       />
@@ -39,11 +41,7 @@ export default function OffersPage() {
       {!offers.isLoading && list.length === 0 && (
         <EmptyState
           icon={FileText}
-          message={
-            status
-              ? 'Brak ofert o tym statusie.'
-              : 'Brak ofert — utwórz pierwszą przyciskiem +.'
-          }
+          message={status ? t('off.emptyStatus') : t('off.empty')}
         />
       )}
 
@@ -64,7 +62,7 @@ export default function OffersPage() {
                 {[
                   o.client?.name ??
                     ((o.client_snapshot as { name?: string } | null)?.name || null),
-                  o.valid_until ? `ważna do ${fmtDate(o.valid_until)}` : null,
+                  o.valid_until ? t('off.validUntilLc', { date: fmtDate(o.valid_until) }) : null,
                 ]
                   .filter(Boolean)
                   .join(' • ')}
@@ -72,7 +70,7 @@ export default function OffersPage() {
             </div>
             <div className="flex shrink-0 flex-col items-end gap-1.5">
               <Badge tone={OFFER_STATUS_TONES[o.status]}>
-                {OFFER_STATUS_LABELS[o.status]}
+                {t(`ostatus.${o.status}`)}
               </Badge>
               {o.viewed_at && (
                 <span className="tabular-nums flex items-center gap-1 text-xs text-text-secondary">
@@ -86,7 +84,7 @@ export default function OffersPage() {
 
       {can('offers_edit') && (
         <FAB
-          label="Nowa oferta"
+          label={t('off.newOffer')}
           icon={<Plus className="size-7" />}
           onClick={() => navigate('/oferty/nowa')}
         />

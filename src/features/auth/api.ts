@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { Profile } from './types';
+import { translate } from '@/lib/i18n/context';
 
 /** Branding + e-mail admina — wiersze settings czytelne dla anon (ekran logowania). */
 export interface PublicBranding {
@@ -54,12 +55,12 @@ export async function signIn(loginOrEmail: string, password: string): Promise<vo
   // dopiero wtedy sesja (JWT) jest na pewno ustawiona i RLS przepuści insert.
   if (error) {
     if (error.message.includes('Invalid login credentials')) {
-      throw new Error('Nieprawidłowy login lub hasło');
+      throw new Error(translate('auth.errBadCreds'));
     }
     if (error.message.includes('banned') || error.status === 403) {
-      throw new Error('Konto jest zablokowane — skontaktuj się z administratorem');
+      throw new Error(translate('auth.errBlocked'));
     }
-    throw new Error('Nie udało się zalogować — spróbuj ponownie');
+    throw new Error(translate('auth.errLogin'));
   }
 }
 
@@ -82,12 +83,12 @@ export async function changePassword(newPassword: string): Promise<void> {
   const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) {
     if (error.message.includes('at least')) {
-      throw new Error('Hasło musi mieć co najmniej 6 znaków');
+      throw new Error(translate('setc.pwTooShort'));
     }
     if (error.message.includes('different from the old')) {
-      throw new Error('Nowe hasło musi być inne niż obecne');
+      throw new Error(translate('auth.errPwSame'));
     }
-    throw new Error('Nie udało się zmienić hasła — spróbuj ponownie');
+    throw new Error(translate('auth.errPwChange'));
   }
   const { data: userData } = await supabase.auth.getUser();
   if (userData.user) {

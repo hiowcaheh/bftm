@@ -11,21 +11,19 @@ import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { date as fmtDate, money, monthYear } from '@/lib/format';
+import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useProjects } from '@/features/projects/hooks';
 import type { ExpenseCategory } from '@/types/database';
 import { useDeleteExpense, useExpenses, useReceiptUrl } from '../hooks';
-import {
-  EXPENSE_CATEGORY_LABELS,
-  EXPENSE_CATEGORY_ORDER,
-  type ExpenseWithProject,
-} from '../types';
+import { EXPENSE_CATEGORY_ORDER, type ExpenseWithProject } from '../types';
 import { ExpenseFormSheet } from '../components/ExpenseFormSheet';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 
 export default function ExpensesPage() {
   const { user, can } = useSession();
+  const { t } = useI18n();
   const projects = useProjects();
   const deleteExpense = useDeleteExpense();
 
@@ -60,7 +58,7 @@ export default function ExpensesPage() {
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
-          aria-label="Poprzedni miesiąc"
+          aria-label={t('exp.prevMonth')}
           className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
           onClick={() => setAnchor((a) => subMonths(a, 1))}
         >
@@ -72,7 +70,7 @@ export default function ExpensesPage() {
         </div>
         <button
           type="button"
-          aria-label="Następny miesiąc"
+          aria-label={t('exp.nextMonth')}
           className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card)"
           onClick={() => setAnchor((a) => addMonths(a, 1))}
         >
@@ -83,16 +81,16 @@ export default function ExpensesPage() {
       <Chips
         options={EXPENSE_CATEGORY_ORDER.map((c) => ({
           value: c,
-          label: EXPENSE_CATEGORY_LABELS[c],
+          label: t(`ecat.${c}`),
         }))}
         value={category}
         onChange={setCategory}
       />
       <Select
-        aria-label="Filtr projektu"
+        aria-label={t('ts.projectFilter')}
         value={projectFilter}
         options={[
-          { value: '', label: 'Wszystkie projekty i koszty ogólne' },
+          { value: '', label: t('exp.allProjectsGeneral') },
           ...(projects.data ?? []).map((p) => ({ value: p.id, label: p.name })),
         ]}
         onChange={(e) => setProjectFilter(e.target.value)}
@@ -103,11 +101,7 @@ export default function ExpensesPage() {
       {!expenses.isLoading && (expenses.data?.length ?? 0) === 0 && (
         <EmptyState
           icon={Receipt}
-          message={
-            category || projectFilter
-              ? 'Brak kosztów pasujących do filtrów.'
-              : 'Brak kosztów w tym miesiącu.'
-          }
+          message={category || projectFilter ? t('exp.noneMatch') : t('exp.emptyMonth')}
         />
       )}
 
@@ -129,8 +123,8 @@ export default function ExpensesPage() {
                 </span>
               }
               subtitle={[
-                EXPENSE_CATEGORY_LABELS[e.category],
-                e.project?.name ?? 'Koszt ogólny',
+                t(`ecat.${e.category}`),
+                e.project?.name ?? t('exp.general'),
                 fmtDate(e.date),
               ].join(' • ')}
               trailing={<span className="font-semibold text-text">{money(e.amount_gross)}</span>}
@@ -142,7 +136,7 @@ export default function ExpensesPage() {
 
       {can('expenses_add') && (
         <FAB
-          label="Dodaj koszt"
+          label={t('exp.addExpense')}
           onClick={() => {
             setEditExpense(null);
             setFormOpen(true);
@@ -167,12 +161,12 @@ export default function ExpensesPage() {
         {selected && (
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap gap-1.5">
-              <Badge>{EXPENSE_CATEGORY_LABELS[selected.category]}</Badge>
-              <Badge tone="neutral">{selected.project?.name ?? 'Koszt ogólny'}</Badge>
+              <Badge>{t(`ecat.${selected.category}`)}</Badge>
+              <Badge tone="neutral">{selected.project?.name ?? t('exp.general')}</Badge>
             </div>
             <div className="tabular-nums rounded-xl bg-surface p-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-text-secondary">Netto</span>
+                <span className="text-text-secondary">{t('exp.net')}</span>
                 <span>{money(selected.amount_net)}</span>
               </div>
               <div className="flex justify-between">
@@ -180,7 +174,7 @@ export default function ExpensesPage() {
                 <span>{money(selected.vat_amount)}</span>
               </div>
               <div className="flex justify-between font-semibold">
-                <span>Brutto</span>
+                <span>{t('exp.grossLabel')}</span>
                 <span>{money(selected.amount_gross)}</span>
               </div>
             </div>
@@ -191,11 +185,11 @@ export default function ExpensesPage() {
               (receipt.data ? (
                 <img
                   src={receipt.data}
-                  alt="Paragon"
+                  alt={t('exp.receiptAlt')}
                   className="max-h-96 w-full rounded-xl object-contain"
                 />
               ) : (
-                <p className="text-xs text-text-secondary">Wczytywanie paragonu…</p>
+                <p className="text-xs text-text-secondary">{t('exp.receiptLoading')}</p>
               ))}
             {canModify(selected) && (
               <div className="grid grid-cols-2 gap-3">
@@ -208,14 +202,14 @@ export default function ExpensesPage() {
                     setFormOpen(true);
                   }}
                 >
-                  <Pencil className="size-5 text-text-secondary" /> Edytuj
+                  <Pencil className="size-5 text-text-secondary" /> {t('common.edit')}
                 </button>
                 <button
                   type="button"
                   className="press flex h-12 items-center justify-center gap-2 rounded-(--radius-input) bg-error-soft text-sm font-medium text-error"
                   onClick={() => setConfirmDelete(true)}
                 >
-                  <Trash2 className="size-5" /> Usuń
+                  <Trash2 className="size-5" /> {t('common.delete')}
                 </button>
               </div>
             )}
@@ -225,9 +219,9 @@ export default function ExpensesPage() {
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Usunąć koszt?"
-        description="Tej operacji nie można cofnąć."
-        confirmLabel="Usuń"
+        title={t('exp.deleteTitle')}
+        description={t('ts.cantUndo')}
+        confirmLabel={t('common.delete')}
         destructive
         loading={deleteExpense.isPending}
         onConfirm={() => {

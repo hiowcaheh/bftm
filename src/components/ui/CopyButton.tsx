@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { toast } from './Toast';
+import { translate } from '@/lib/i18n/context';
 
 interface CopyButtonProps {
   value: string;
@@ -17,17 +18,17 @@ export function CopyButton({ value, label, className }: CopyButtonProps) {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
-      toast.success(label ? `Skopiowano ${label}` : 'Skopiowano');
+      toast.success(label ? translate('ui.copied', { what: label }) : translate('ui.copiedPlain'));
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast.error('Nie udało się skopiować');
+      toast.error(translate('ui.copyErr'));
     }
   };
 
   return (
     <button
       type="button"
-      aria-label={label ? `Kopiuj ${label}` : 'Kopiuj'}
+      aria-label={label ? `${translate('common.copy')} ${label}` : translate('common.copy')}
       onClick={(e) => {
         e.stopPropagation();
         void copy();

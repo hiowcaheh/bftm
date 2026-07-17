@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
   createChecklistItem,
@@ -48,9 +49,9 @@ export function useCreateChecklistItem() {
     mutationFn: (payload: NewChecklistItem) => createChecklistItem(payload, user?.id ?? ''),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.checklist.all });
-      toast.success('Zadanie dodane');
+      toast.success(translate('checklist.added'));
     },
-    onError: () => toast.error('Nie udało się dodać zadania'),
+    onError: () => toast.error(translate('checklist.errAdd')),
   });
 }
 
@@ -62,9 +63,9 @@ export function useToggleChecklistItem() {
       setChecklistDone(id, done, user?.id ?? ''),
     onSuccess: (_data, vars) => {
       void queryClient.invalidateQueries({ queryKey: qk.checklist.all });
-      toast.success(vars.done ? 'Zadanie odhaczone' : 'Zadanie odznaczone');
+      toast.success(vars.done ? translate('checklist.checked') : translate('checklist.unchecked'));
     },
-    onError: () => toast.error('Nie udało się zmienić statusu'),
+    onError: () => toast.error(translate('checklist.errStatus')),
   });
 }
 
@@ -74,8 +75,8 @@ export function useDeleteChecklistItem() {
     mutationFn: (id: string) => deleteChecklistItem(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.checklist.all });
-      toast.success('Zadanie usunięte');
+      toast.success(translate('checklist.deleted'));
     },
-    onError: () => toast.error('Nie udało się usunąć zadania'),
+    onError: () => toast.error(translate('checklist.errDelete')),
   });
 }

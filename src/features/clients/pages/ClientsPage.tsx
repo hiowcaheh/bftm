@@ -9,6 +9,7 @@ import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { useSession } from '@/features/auth/SessionProvider';
+import { useT } from '@/lib/i18n/context';
 import { useClients } from '../hooks';
 import { ClientFormSheet } from '../components/ClientFormSheet';
 
@@ -16,6 +17,7 @@ export default function ClientsPage() {
   const clients = useClients();
   const navigate = useNavigate();
   const { can } = useSession();
+  const t = useT();
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const canEdit = can('clients_edit');
@@ -35,22 +37,18 @@ export default function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <SearchBar value={search} onChange={setSearch} placeholder="Szukaj klienta…" />
+      <SearchBar value={search} onChange={setSearch} placeholder={t('cli.search')} />
 
       {clients.isLoading && <SkeletonList rows={4} />}
 
       {!clients.isLoading && filtered.length === 0 && (
         <EmptyState
           icon={Contact}
-          message={
-            search
-              ? 'Żaden klient nie pasuje do wyszukiwania.'
-              : 'Nie ma jeszcze klientów — dodaj pierwszego.'
-          }
+          message={search ? t('cli.noneMatch') : t('cli.empty')}
           action={
             canEdit && !search ? (
               <Button icon={<UserPlus className="size-5" />} onClick={() => setFormOpen(true)}>
-                Dodaj klienta
+                {t('cli.addClient')}
               </Button>
             ) : undefined
           }
@@ -86,7 +84,7 @@ export default function ClientsPage() {
         </ListGroup>
       )}
 
-      {canEdit && <FAB label="Dodaj klienta" onClick={() => setFormOpen(true)} />}
+      {canEdit && <FAB label={t('cli.addClient')} onClick={() => setFormOpen(true)} />}
       <ClientFormSheet open={formOpen} onClose={() => setFormOpen(false)} client={null} />
     </div>
   );

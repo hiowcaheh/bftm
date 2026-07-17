@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom';
 import { Copy, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { toast } from '@/components/ui/Toast';
+import { useT } from '@/lib/i18n/context';
 
 interface TempPasswordDialogProps {
   open: boolean;
@@ -15,14 +16,15 @@ interface TempPasswordDialogProps {
  * odzyskać (w bazie jest tylko hash). Admin może zawsze zresetować ponownie.
  */
 export function TempPasswordDialog({ open, password, email, onClose }: TempPasswordDialogProps) {
+  const t = useT();
   if (!open) return null;
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(password);
-      toast.success('Hasło skopiowane do schowka');
+      toast.success(t('emp.pwCopied'));
     } catch {
-      toast.error('Nie udało się skopiować — przepisz hasło ręcznie');
+      toast.error(t('emp.pwCopyErr'));
     }
   };
 
@@ -37,11 +39,8 @@ export function TempPasswordDialog({ open, password, email, onClose }: TempPassw
         <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-accent-soft">
           <KeyRound className="size-6 text-accent" />
         </div>
-        <h2 className="text-lg font-semibold">Hasło tymczasowe</h2>
-        <p className="mt-1 text-sm text-text-secondary">
-          Przekaż je pracownikowi ({email}). Zobaczysz je tylko TERAZ — przy pierwszym
-          logowaniu system wymusi ustawienie własnego hasła.
-        </p>
+        <h2 className="text-lg font-semibold">{t('emp.tempPwTitle')}</h2>
+        <p className="mt-1 text-sm text-text-secondary">{t('emp.tempPwDesc', { email })}</p>
         <button
           type="button"
           onClick={() => void copy()}
@@ -51,7 +50,7 @@ export function TempPasswordDialog({ open, password, email, onClose }: TempPassw
           <Copy className="size-5 text-text-secondary" />
         </button>
         <Button fullWidth className="mt-5" onClick={onClose}>
-          Zapisałem hasło — zamknij
+          {t('emp.savedPwClose')}
         </Button>
       </div>
     </div>,

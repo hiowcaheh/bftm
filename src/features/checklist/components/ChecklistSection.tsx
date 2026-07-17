@@ -5,6 +5,7 @@ import { ConfirmDialog } from '@/components/ui/Dialog';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { cn } from '@/lib/cn';
 import { useSession } from '@/features/auth/SessionProvider';
+import { useI18n } from '@/lib/i18n/context';
 import {
   useChecklist,
   useChecklistRealtime,
@@ -12,7 +13,7 @@ import {
   useToggleChecklistItem,
 } from '../hooks';
 import type { ChecklistItem, ChecklistScope } from '../types';
-import { PRIORITY_COLORS, PRIORITY_LABELS, PRIORITY_ORDER } from '../types';
+import { PRIORITY_COLORS, PRIORITY_ORDER } from '../types';
 import { AddChecklistItemSheet } from './AddChecklistItemSheet';
 
 function sortItems(items: ChecklistItem[]): ChecklistItem[] {
@@ -26,6 +27,7 @@ function sortItems(items: ChecklistItem[]): ChecklistItem[] {
 
 export function ChecklistSection() {
   const { can } = useSession();
+  const { t, tp } = useI18n();
   const hasPrivate = can('checklist_private');
 
   useChecklistRealtime();
@@ -49,11 +51,11 @@ export function ChecklistSection() {
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-base font-semibold">
-          <ListChecks className="size-5 text-accent" strokeWidth={1.8} /> Check-lista
+          <ListChecks className="size-5 text-accent" strokeWidth={1.8} /> {t('checklist.title')}
         </h2>
         <button
           type="button"
-          aria-label="Dodaj zadanie"
+          aria-label={t('checklist.addTask')}
           onClick={() => setAddOpen(true)}
           className="press flex size-9 items-center justify-center rounded-full bg-accent text-white"
         >
@@ -64,8 +66,8 @@ export function ChecklistSection() {
       {hasPrivate && (
         <SegmentedControl
           options={[
-            { value: 'company', label: 'Firmowa' },
-            { value: 'private', label: 'Prywatna' },
+            { value: 'company', label: t('checklist.company') },
+            { value: 'private', label: t('checklist.private') },
           ]}
           value={activeScope}
           onChange={setScope}
@@ -74,12 +76,14 @@ export function ChecklistSection() {
 
       <Card className="flex flex-col p-2">
         {source.isLoading ? (
-          <p className="px-2 py-6 text-center text-sm text-text-secondary">Ładowanie…</p>
+          <p className="px-2 py-6 text-center text-sm text-text-secondary">
+            {t('checklist.loading')}
+          </p>
         ) : items.length === 0 ? (
           <p className="px-2 py-6 text-center text-sm text-text-secondary">
             {activeScope === 'company'
-              ? 'Brak zadań — dodaj pierwsze przyciskiem +.'
-              : 'Twoja prywatna lista jest pusta — dodaj coś przyciskiem +.'}
+              ? t('checklist.emptyCompany')
+              : t('checklist.emptyPrivate')}
           </p>
         ) : (
           <div className="flex flex-col divide-y divide-line">
@@ -87,7 +91,7 @@ export function ChecklistSection() {
               <div key={it.id} className="flex items-start gap-2.5 px-1 py-2.5">
                 <button
                   type="button"
-                  aria-label={it.done ? 'Odznacz' : 'Zaznacz jako zrobione'}
+                  aria-label={it.done ? t('checklist.unmark') : t('checklist.markDone')}
                   disabled={toggle.isPending}
                   onClick={() => toggle.mutate({ id: it.id, done: !it.done })}
                   className="press mt-0.5 shrink-0"
@@ -114,7 +118,7 @@ export function ChecklistSection() {
                         className="size-2 rounded-full"
                         style={{ backgroundColor: PRIORITY_COLORS[it.priority] }}
                       />
-                      {PRIORITY_LABELS[it.priority]}
+                      {t(`priority.${it.priority}`)}
                     </span>
                     {it.projectName && (
                       <span className="inline-flex items-center gap-1">
@@ -129,7 +133,7 @@ export function ChecklistSection() {
                       {it.done && it.doneByName
                         ? `✓ ${it.doneByName}`
                         : it.createdByName
-                          ? `dodał ${it.createdByName}`
+                          ? t('checklist.addedBy', { name: it.createdByName })
                           : ''}
                     </span>
                   </div>
@@ -137,7 +141,7 @@ export function ChecklistSection() {
 
                 <button
                   type="button"
-                  aria-label="Usuń zadanie"
+                  aria-label={t('checklist.deleteTask')}
                   onClick={() => setToDelete(it)}
                   className="press mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg text-text-secondary"
                 >
@@ -152,8 +156,8 @@ export function ChecklistSection() {
       {!source.isLoading && items.length > 0 && (
         <p className="px-1 text-xs text-text-secondary">
           {openCount === 0
-            ? 'Wszystko odhaczone 🎉'
-            : `${openCount} ${openCount === 1 ? 'zadanie' : openCount < 5 ? 'zadania' : 'zadań'} do zrobienia`}
+            ? t('checklist.allDone')
+            : t('checklist.toDo', { n: openCount, task: tp('checklist.task', openCount) })}
         </p>
       )}
 
@@ -161,9 +165,9 @@ export function ChecklistSection() {
 
       <ConfirmDialog
         open={toDelete !== null}
-        title="Usunąć zadanie?"
+        title={t('checklist.deleteTitle')}
         description={toDelete?.text ?? ''}
-        confirmLabel="Usuń"
+        confirmLabel={t('common.delete')}
         destructive
         loading={del.isPending}
         onConfirm={() => {

@@ -23,44 +23,81 @@ function lookup(obj: unknown, path: string): string | undefined {
   return typeof val === 'string' ? val : undefined;
 }
 
+function interpolate(s: string, vars?: Record<string, string | number>): string {
+  if (!vars) return s;
+  let out = s;
+  for (const [k, v] of Object.entries(vars)) {
+    out = out.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+  }
+  return out;
+}
+
+/** Tłumaczenie klucza dla danego języka (z fallbackiem na PL, potem klucz). */
+function tr(lang: Lang, key: string, vars?: Record<string, string | number>): string {
+  const s = lookup(dicts[lang], key) ?? lookup(dicts.pl, key) ?? key;
+  return interpolate(s, vars);
+}
+
+/**
+ * Liczba mnoga: wybiera kategorię (`one`/`few`/`many`/`other`) przez
+ * `Intl.PluralRules` i zwraca odpowiednią formę spod `key`.
+ */
+function trPlural(lang: Lang, key: string, count: number): string {
+  const cat = new Intl.PluralRules(lang).select(count);
+  return lookup(dicts[lang], `${key}.${cat}`) ?? lookup(dicts[lang], `${key}.other`) ?? lookup(dicts.pl, `${key}.${cat}`) ?? lookup(dicts.pl, `${key}.other`) ?? key;
+}
+
 type TFn = (key: string, vars?: Record<string, string | number>) => string;
+type TPFn = (key: string, count: number) => string;
 
 interface I18nCtx {
   lang: Lang;
   setLang: (l: Lang) => void;
   t: TFn;
+  tp: TPFn;
   dateLocale: Locale;
 }
 
 const Ctx = createContext<I18nCtx | null>(null);
+
+// Aktualny język na poziomie modułu — dla `translate`/`translateP`
+// używanych poza Reactem (np. toasty w hookach mutacji).
+let activeLang: Lang = detect();
+
+/** Tłumaczenie poza Reactem (używa aktualnie wybranego języka). */
+export function translate(key: string, vars?: Record<string, string | number>): string {
+  return tr(activeLang, key, vars);
+}
+
+/** Locale date-fns aktualnego języka — dla helperów poza Reactem (format.ts). */
+export function activeDateLocale(): Locale {
+  return dateLocales[activeLang];
+}
+
+/** Liczba mnoga poza Reactem. */
+export function translateP(key: string, count: number): string {
+  return trPlural(activeLang, key, count);
+}
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(detect);
 
   useEffect(() => {
     document.documentElement.lang = lang;
+    activeLang = lang;
   }, [lang]);
 
   const setLang = useCallback((l: Lang) => {
     localStorage.setItem(KEY, l);
+    activeLang = l;
     setLangState(l);
   }, []);
 
-  const t = useCallback<TFn>(
-    (key, vars) => {
-      let s = lookup(dicts[lang], key) ?? lookup(dicts.pl, key) ?? key;
-      if (vars) {
-        for (const [k, v] of Object.entries(vars)) {
-          s = s.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
-        }
-      }
-      return s;
-    },
-    [lang],
-  );
+  const t = useCallback<TFn>((key, vars) => tr(lang, key, vars), [lang]);
+  const tp = useCallback<TPFn>((key, count) => trPlural(lang, key, count), [lang]);
 
   return (
-    <Ctx.Provider value={{ lang, setLang, t, dateLocale: dateLocales[lang] }}>
+    <Ctx.Provider value={{ lang, setLang, t, tp, dateLocale: dateLocales[lang] }}>
       {children}
     </Ctx.Provider>
   );

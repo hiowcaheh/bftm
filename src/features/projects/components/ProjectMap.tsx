@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Navigation, MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { useT } from '@/lib/i18n/context';
 
 interface Geo {
   lat: number;
@@ -24,6 +25,7 @@ async function geocode(address: string): Promise<Geo | null> {
  * nawigację w Mapach Apple. Podgląd jest keyless; nawigacja w natywnej apce.
  */
 export function ProjectMap({ address }: { address: string }) {
+  const t = useT();
   const geo = useQuery({
     queryKey: ['geocode', address],
     queryFn: () => geocode(address),
@@ -51,7 +53,7 @@ export function ProjectMap({ address }: { address: string }) {
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-1 text-xs text-text-secondary">
             <MapPin className="size-5" />
-            {geo.isLoading ? 'Ładowanie mapy…' : 'Nie udało się zlokalizować adresu'}
+            {geo.isLoading ? t('proj.mapLoading') : t('proj.mapFail')}
           </div>
         )}
       </div>
@@ -61,7 +63,7 @@ export function ProjectMap({ address }: { address: string }) {
         rel="noreferrer"
         className="press flex h-12 items-center justify-center gap-2 border-t border-line text-sm font-semibold text-accent"
       >
-        <Navigation className="size-4" /> Nawiguj do budowy
+        <Navigation className="size-4" /> {t('proj.navigate')}
       </a>
     </Card>
   );

@@ -9,12 +9,14 @@ import { FAB } from '@/components/ui/FAB';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { SkeletonList } from '@/components/ui/Skeleton';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '../hooks';
 import { AddEmployeeSheet } from '../components/AddEmployeeSheet';
 
 export default function EmployeesPage() {
   const { user } = useSession();
+  const t = useT();
   const employees = useEmployees();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -35,22 +37,18 @@ export default function EmployeesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <SearchBar value={search} onChange={setSearch} placeholder="Szukaj pracownika…" />
+      <SearchBar value={search} onChange={setSearch} placeholder={t('emp.search')} />
 
       {employees.isLoading && <SkeletonList rows={4} />}
 
       {!employees.isLoading && filtered.length === 0 && (
         <EmptyState
           icon={Users}
-          message={
-            search
-              ? 'Nikt nie pasuje do wyszukiwania.'
-              : 'Nie ma jeszcze żadnych pracowników — dodaj pierwszego.'
-          }
+          message={search ? t('emp.noneMatch') : t('emp.empty')}
           action={
             isAdmin && !search ? (
               <Button icon={<UserPlus className="size-5" />} onClick={() => setAddOpen(true)}>
-                Dodaj pracownika
+                {t('emp.addEmployee')}
               </Button>
             ) : undefined
           }
@@ -67,7 +65,7 @@ export default function EmployeesPage() {
                 <span className="flex items-center gap-2">
                   {emp.full_name}
                   {emp.role === 'admin' && <Badge tone="accent">Admin</Badge>}
-                  {!emp.active && <Badge tone="error">Nieaktywny</Badge>}
+                  {!emp.active && <Badge tone="error">{t('emp.inactive')}</Badge>}
                 </span>
               }
               subtitle={emp.phone || emp.email}
@@ -78,7 +76,7 @@ export default function EmployeesPage() {
         </ListGroup>
       )}
 
-      {isAdmin && <FAB label="Dodaj pracownika" onClick={() => setAddOpen(true)} />}
+      {isAdmin && <FAB label={t('emp.addEmployee')} onClick={() => setAddOpen(true)} />}
       <AddEmployeeSheet open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   );

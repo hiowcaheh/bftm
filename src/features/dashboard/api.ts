@@ -1,6 +1,6 @@
 import { endOfMonth, format, startOfMonth } from 'date-fns';
-import { pl } from 'date-fns/locale';
 import { supabase } from '@/lib/supabaseClient';
+import { activeDateLocale } from '@/lib/i18n/context';
 
 export interface DashboardKpi {
   activeProjects: number;
@@ -235,7 +235,7 @@ export async function fetchPayslipReminder(): Promise<PayslipReminder> {
   const missing = Math.max(employees - covered, 0);
   return {
     show: now.getDate() >= 20 && employees > 0 && missing > 0,
-    monthLabel: format(prev, 'LLLL yyyy', { locale: pl }),
+    monthLabel: format(prev, 'LLLL yyyy', { locale: activeDateLocale() }),
     missing,
   };
 }

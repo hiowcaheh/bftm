@@ -4,13 +4,10 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { moneyWhole, num } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import type { ProjectStat } from '../api';
-import {
-  PROJECT_STATUS_LABELS,
-  PROJECT_STATUS_TONES,
-  type ProjectWithClient,
-} from '../types';
+import { PROJECT_STATUS_TONES, type ProjectWithClient } from '../types';
 
 export function ProjectCard({
   project,
@@ -21,6 +18,7 @@ export function ProjectCard({
 }) {
   const navigate = useNavigate();
   const { can } = useSession();
+  const t = useT();
   const color = project.color ?? '#CC0000';
   const value =
     project.billing_type === 'fixed' || project.billing_type === 'mixed'
@@ -57,7 +55,7 @@ export function ProjectCard({
           <div className="flex items-start justify-between gap-2">
             <h3 className="min-w-0 truncate text-[15px] font-semibold">{project.name}</h3>
             <Badge tone={PROJECT_STATUS_TONES[project.status]}>
-              {PROJECT_STATUS_LABELS[project.status]}
+              {t(`pstatus.${project.status}`)}
             </Badge>
           </div>
 
@@ -82,7 +80,7 @@ export function ProjectCard({
                 />
               </div>
               <div className="mt-1 flex justify-between text-[11px] text-text-secondary">
-                <span>Godziny</span>
+                <span>{t('proj.hoursLabel')}</span>
                 <span className="tabular-nums font-medium text-text">
                   {num(logged)} / {num(est)} h
                 </span>
@@ -96,7 +94,7 @@ export function ProjectCard({
               {workers.length > 0 ? (
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="shrink-0 text-[11px] font-medium text-text-secondary">
-                    Dziś
+                    {t('ts.todayBtn')}
                   </span>
                   <div className="flex items-center">
                     {workers.slice(0, 4).map((w, i) => (

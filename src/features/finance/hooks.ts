@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
+import { translate } from '@/lib/i18n/context';
 import type { TablesInsert } from '@/types/database';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
@@ -59,7 +60,7 @@ export function useSaveProjectInvoice() {
       payload: TablesInsert<'project_invoices'>;
     }) => (id ? updateProjectInvoice(id, payload) : createProjectInvoice(payload)),
     onSuccess: invalidate,
-    onError: () => toast.error('Nie udało się zapisać faktury'),
+    onError: () => toast.error(translate('fin.errInvoiceSave')),
   });
 }
 
@@ -69,7 +70,7 @@ export function useMarkInvoicePaid() {
     mutationFn: ({ id, paidAt }: { id: string; paidAt: string | null }) =>
       updateProjectInvoice(id, { paid_at: paidAt }),
     onSuccess: invalidate,
-    onError: () => toast.error('Nie udało się zapisać płatności'),
+    onError: () => toast.error(translate('fin.errPaymentSave')),
   });
 }
 
@@ -78,6 +79,6 @@ export function useDeleteProjectInvoice() {
   return useMutation({
     mutationFn: (id: string) => deleteProjectInvoice(id),
     onSuccess: invalidate,
-    onError: () => toast.error('Nie udało się usunąć faktury'),
+    onError: () => toast.error(translate('fin.errInvoiceDelete')),
   });
 }

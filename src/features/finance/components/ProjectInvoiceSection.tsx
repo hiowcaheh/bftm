@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/cn';
 import { date as fmtDate, hours as fmtHours, money, moneyWhole } from '@/lib/format';
+import { useT } from '@/lib/i18n/context';
 import { projectCost, projectValue, type ProjectInvoice } from '../api';
 import {
   useDeleteProjectInvoice,
@@ -26,6 +27,7 @@ const iso = (d: Date) => format(d, 'yyyy-MM-dd');
  * wiele faktur (np. za kolejne etapy), każda z własnym terminem i statusem.
  */
 export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
+  const t = useT();
   const now = new Date();
   const summary = useFinanceSummary(iso(startOfMonth(now)), iso(endOfMonth(now)));
   const invoices = useProjectInvoices(projectId);
@@ -104,7 +106,7 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Banknote className="size-5 text-accent" strokeWidth={1.8} />
-          <h2 className="text-base font-semibold">Finanse projektu</h2>
+          <h2 className="text-base font-semibold">{t('fin.projectFinance')}</h2>
         </div>
         <Button
           variant="ghost"
@@ -115,27 +117,27 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
             setFormOpen(true);
           }}
         >
-          Faktura
+          {t('fin.invoiceBtn')}
         </Button>
       </div>
 
       <div className="tabular-nums rounded-xl bg-surface p-3 text-sm">
         <div className="flex justify-between">
-          <span className="text-text-secondary">Wartość (z dodatkowymi)</span>
+          <span className="text-text-secondary">{t('fin.valueWithExtras')}</span>
           <span>{moneyWhole(value)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-text-secondary">
-            Koszt pracy ({fmtHours(p.hours_total)})
+            {t('fin.laborCost', { hours: fmtHours(p.hours_total) })}
           </span>
           <span>{moneyWhole(p.labor_cost_total)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-text-secondary">Paragony</span>
+          <span className="text-text-secondary">{t('fin.receipts')}</span>
           <span>{moneyWhole(p.expenses_total)}</span>
         </div>
         <div className="mt-1 flex justify-between border-t border-line pt-1 font-semibold">
-          <span>Zostaje</span>
+          <span>{t('fin.remains')}</span>
           <span className={cn(profit >= 0 ? 'text-success' : 'text-error')}>
             {profit >= 0 ? '+' : ''}
             {moneyWhole(profit)}
@@ -146,8 +148,8 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
       {list.length > 0 && (
         <>
           <p className="tabular-nums text-xs text-text-secondary">
-            Zafakturowane {moneyWhole(invoicedTotal)} z {moneyWhole(value)}
-            {awaiting > 0 ? ` • czeka na płatność ${moneyWhole(awaiting)}` : ''}
+            {t('fin.invoicedOf', { a: moneyWhole(invoicedTotal), b: moneyWhole(value) })}
+            {awaiting > 0 ? ` • ${t('fin.awaitingLc', { amount: moneyWhole(awaiting) })}` : ''}
           </p>
           <div className="flex flex-col gap-2">
             {list.map((inv) => (
@@ -165,11 +167,11 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
                   <p className="mt-0.5 text-xs text-text-secondary">
                     {[
                       inv.note,
-                      `wysłana ${fmtDate(inv.sent_at)}`,
+                      t('fin.sentAt', { date: fmtDate(inv.sent_at) }),
                       inv.paid_at
-                        ? `opłacona ${fmtDate(inv.paid_at)}`
+                        ? t('fin.paidAt', { date: fmtDate(inv.paid_at) })
                         : inv.due_at
-                          ? `termin ${fmtDate(inv.due_at)}`
+                          ? t('fin.dueAt', { date: fmtDate(inv.due_at) })
                           : null,
                     ]
                       .filter(Boolean)
@@ -177,9 +179,9 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
                   </p>
                 </div>
                 {inv.paid_at ? (
-                  <Badge tone="success">Opłacona</Badge>
+                  <Badge tone="success">{t('fin.paidBadge')}</Badge>
                 ) : (
-                  <Badge tone="warning">Czeka</Badge>
+                  <Badge tone="warning">{t('fin.waitingBadge')}</Badge>
                 )}
               </button>
             ))}
@@ -193,24 +195,24 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
           setFormOpen(false);
           setEditing(null);
         }}
-        title={editing ? 'Edytuj fakturę' : 'Nowa faktura'}
+        title={editing ? t('fin.editInvoice') : t('fin.newInvoice')}
       >
         <div className="flex flex-col gap-4">
           <Input
-            label="Kwota faktury (kr)"
+            label={t('fin.amountField')}
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
           <Input
-            label="Czego dotyczy (opcjonalnie)"
-            placeholder="np. Etap 1 — elewacja północna"
+            label={t('fin.noteField')}
+            placeholder={t('fin.notePh')}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
           <div className="grid grid-cols-2 gap-3">
             <DateField
-              label="Data wysłania"
+              label={t('fin.sentDate')}
               value={sentDate}
               onChange={(e) => {
                 setSentDate(e.target.value);
@@ -220,13 +222,13 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
               }}
             />
             <DateField
-              label="Termin płatności"
+              label={t('fin.dueDate')}
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
             />
           </div>
           <Button size="lg" fullWidth loading={save.isPending} onClick={submit}>
-            {editing ? 'Zapisz zmiany' : 'Dodaj fakturę'}
+            {editing ? t('ts.saveChanges') : t('fin.addInvoice')}
           </Button>
           {editing && !editing.paid_at && (
             <Button
@@ -238,7 +240,7 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
                 setFormOpen(false);
               }}
             >
-              Oznacz jako opłaconą
+              {t('fin.markPaid')}
             </Button>
           )}
           {editing?.paid_at && (
@@ -259,7 +261,7 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
                 )
               }
             >
-              Cofnij „opłacona"
+              {t('fin.undoPaid')}
             </Button>
           )}
           {editing && (
@@ -269,7 +271,7 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
               icon={<Trash2 className="size-5" />}
               onClick={() => setToDelete(editing)}
             >
-              Usuń fakturę
+              {t('fin.deleteInvoice')}
             </Button>
           )}
         </div>
@@ -278,11 +280,11 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
       <Sheet
         open={paidSheet !== null}
         onClose={() => setPaidSheet(null)}
-        title="Faktura opłacona"
+        title={t('fin.invoicePaidTitle')}
       >
         <div className="flex flex-col gap-4">
           <DateField
-            label="Data wpływu pieniędzy"
+            label={t('fin.paidDateField')}
             value={paidDate}
             onChange={(e) => setPaidDate(e.target.value)}
           />
@@ -304,16 +306,16 @@ export function ProjectInvoiceSection({ projectId }: { projectId: string }) {
               }
             }}
           >
-            Zapisz
+            {t('common.save')}
           </Button>
         </div>
       </Sheet>
 
       <ConfirmDialog
         open={toDelete !== null}
-        title="Usunąć fakturę?"
-        description={toDelete ? `Faktura na ${money(toDelete.amount)} zostanie usunięta.` : ''}
-        confirmLabel="Usuń"
+        title={t('fin.deleteInvoiceTitle')}
+        description={toDelete ? t('fin.deleteInvoiceDesc', { amount: money(toDelete.amount) }) : ''}
+        confirmLabel={t('common.delete')}
         destructive
         loading={remove.isPending}
         onConfirm={() => {

@@ -1,23 +1,16 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Sheet } from '@/components/ui/Sheet';
+import { useT } from '@/lib/i18n/context';
 import { DEFAULT_EMPLOYEE_PERMISSIONS } from '@/lib/permissions';
 import { useCreateEmployee } from '../hooks';
 import { generateTempPassword } from '../types';
 import { TempPasswordDialog } from './TempPasswordDialog';
 
-const schema = z.object({
-  full_name: z.string().min(3, 'Podaj imię i nazwisko'),
-  email: z.string().email('Podaj prawidłowy adres e-mail'),
-  phone: z.string(),
-  personnummer: z.string(),
-  temp_password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
-  hourly_wage: z.string(),
-});
+const EMAIL_RE = /^\S+@\S+\.\S+$/;
 
 interface AddEmployeeSheetProps {
   open: boolean;
@@ -25,6 +18,7 @@ interface AddEmployeeSheetProps {
 }
 
 export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
+  const t = useT();
   const create = useCreateEmployee();
   const [form, setForm] = useState({
     full_name: '',
@@ -53,13 +47,11 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse(form);
-    if (!parsed.success) {
-      const fieldErrors: typeof errors = {};
-      for (const issue of parsed.error.issues) {
-        const key = issue.path[0] as keyof typeof form;
-        fieldErrors[key] ??= issue.message;
-      }
+    const fieldErrors: typeof errors = {};
+    if (form.full_name.trim().length < 3) fieldErrors.full_name = t('emp.fullNameErr');
+    if (!EMAIL_RE.test(form.email.trim())) fieldErrors.email = t('emp.emailErr');
+    if (form.temp_password.length < 6) fieldErrors.temp_password = t('emp.tempPwErr');
+    if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return;
     }
@@ -68,7 +60,7 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
       ? Number(form.hourly_wage.replace(',', '.'))
       : null;
     if (wage !== null && (Number.isNaN(wage) || wage < 0)) {
-      setErrors({ hourly_wage: 'Podaj prawidłową stawkę (np. 250)' });
+      setErrors({ hourly_wage: t('emp.wageErr') });
       return;
     }
     create.mutate(
@@ -92,16 +84,16 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
 
   return (
     <>
-      <Sheet open={open} onClose={onClose} title="Nowy pracownik">
+      <Sheet open={open} onClose={onClose} title={t('emp.newEmployee')}>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <Input
-            label="Imię i nazwisko"
+            label={t('emp.fullName')}
             value={form.full_name}
             error={errors.full_name}
             onChange={(e) => set({ full_name: e.target.value })}
           />
           <Input
-            label="E-mail (login pracownika)"
+            label={t('emp.emailField')}
             type="email"
             autoCapitalize="none"
             value={form.email}
@@ -109,52 +101,48 @@ export function AddEmployeeSheet({ open, onClose }: AddEmployeeSheetProps) {
             onChange={(e) => set({ email: e.target.value })}
           />
           <Input
-            label="Telefon (opcjonalnie)"
+            label={t('emp.phoneOptional')}
             type="tel"
             value={form.phone}
             onChange={(e) => set({ phone: e.target.value })}
           />
           <Input
-            label="Personnummer (opcjonalnie)"
+            label={t('cli.pnrOptional')}
             inputMode="numeric"
             placeholder="ÅÅÅÅMMDD-XXXX"
-            hint="Pracownik może go też sam uzupełnić w swoim profilu"
+            hint={t('emp.pnrHint')}
             value={form.personnummer}
             onChange={(e) => set({ personnummer: e.target.value })}
           />
           <Input
-            label="Stawka godzinowa brutto w kr (opcjonalnie)"
+            label={t('emp.wageField')}
             inputMode="decimal"
             value={form.hourly_wage}
             error={errors.hourly_wage}
-            hint="Koszt firmy = stawka × narzuty; edytowalna później z historią"
+            hint={t('emp.wageHint')}
             onChange={(e) => set({ hourly_wage: e.target.value })}
           />
           <div className="flex items-end gap-2">
             <div className="flex-1">
               <Input
-                label="Hasło tymczasowe"
+                label={t('emp.tempPw')}
                 value={form.temp_password}
                 error={errors.temp_password}
-                hint="Pokażemy je jeszcze raz po utworzeniu konta"
+                hint={t('emp.tempPwHint')}
                 onChange={(e) => set({ temp_password: e.target.value })}
               />
             </div>
             <Button
               variant="secondary"
               icon={<RefreshCw className="size-4" />}
-              aria-label="Wygeneruj nowe hasło"
+              aria-label={t('emp.genPw')}
               className="mb-6"
               onClick={() => set({ temp_password: generateTempPassword() })}
             />
           </div>
-          <p className="text-xs text-text-secondary">
-            Nowe konto dostaje domyślnie: własne godziny + podgląd projektów. Pozostałe
-            uprawnienia włączysz w profilu pracownika. Przy pierwszym logowaniu system
-            wymusi zmianę hasła.
-          </p>
+          <p className="text-xs text-text-secondary">{t('emp.defaultPermsNote')}</p>
           <Button type="submit" fullWidth size="lg" loading={create.isPending}>
-            Utwórz konto
+            {t('emp.createAccount')}
           </Button>
         </form>
       </Sheet>

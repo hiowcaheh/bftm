@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
+import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useProjects } from '@/features/projects/hooks';
 import type { ExpenseCategory } from '@/types/database';
 import { uploadReceipt } from '../api';
 import { useCreateExpense, useUpdateExpense } from '../hooks';
-import { EXPENSE_CATEGORY_LABELS, EXPENSE_CATEGORY_ORDER } from '../types';
+import { EXPENSE_CATEGORY_ORDER } from '../types';
 import type { ExpenseWithProject } from '../types';
 
 const VAT_RATES = [25, 12, 6, 0];
@@ -37,6 +38,7 @@ export function ExpenseFormSheet({
   presetProjectId,
 }: ExpenseFormSheetProps) {
   const { user } = useSession();
+  const t = useT();
   const projects = useProjects();
   const create = useCreateExpense();
   const update = useUpdateExpense();
@@ -94,11 +96,11 @@ export function ExpenseFormSheet({
 
   const save = async () => {
     if (!description.trim()) {
-      toast.error('Podaj opis kosztu');
+      toast.error(t('exp.errDesc'));
       return;
     }
     if (parse(gross) <= 0) {
-      toast.error('Podaj kwotę brutto');
+      toast.error(t('exp.errGross'));
       return;
     }
     setSaving(true);
@@ -125,36 +127,36 @@ export function ExpenseFormSheet({
         create.mutate(payload, { onSuccess: onClose });
       }
     } catch {
-      toast.error('Nie udało się przesłać paragonu');
+      toast.error(t('exp.errUpload'));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title={expense ? 'Edytuj koszt' : 'Nowy koszt'} height="tall">
+    <Sheet open={open} onClose={onClose} title={expense ? t('exp.editExpense') : t('exp.newExpense')} height="tall">
       <div className="flex flex-col gap-4">
         <Input
-          label="Opis"
-          placeholder="np. farba elewacyjna"
+          label={t('exp.descLabel')}
+          placeholder={t('exp.descPh')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
         <div className="grid grid-cols-2 gap-3">
           <Select
-            label="Kategoria"
+            label={t('exp.categoryField')}
             value={category}
             options={EXPENSE_CATEGORY_ORDER.map((c) => ({
               value: c,
-              label: EXPENSE_CATEGORY_LABELS[c],
+              label: t(`ecat.${c}`),
             }))}
             onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
           />
           <Select
-            label="Projekt"
+            label={t('common.project')}
             value={projectId}
             options={[
-              { value: '', label: 'Koszt ogólny firmy' },
+              { value: '', label: t('exp.generalCompany') },
               ...(projects.data ?? []).map((p) => ({ value: p.id, label: p.name })),
             ]}
             onChange={(e) => setProjectId(e.target.value)}
@@ -162,17 +164,17 @@ export function ExpenseFormSheet({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Input
-            label="Dostawca (opcjonalnie)"
-            placeholder="np. Beijer"
+            label={t('exp.supplierOptional')}
+            placeholder={t('exp.supplierPh')}
             value={supplier}
             onChange={(e) => setSupplier(e.target.value)}
           />
-          <DateField label="Data" value={date} onChange={(e) => setDate(e.target.value)} />
+          <DateField label={t('ts.date')} value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <Input
-            label="Brutto (kr)"
+            label={t('exp.grossField')}
             inputMode="decimal"
             value={gross}
             onChange={(e) => onGross(e.target.value)}
@@ -184,7 +186,7 @@ export function ExpenseFormSheet({
             onChange={(e) => onVat(Number(e.target.value))}
           />
           <Input
-            label="Netto (kr)"
+            label={t('exp.netField')}
             inputMode="decimal"
             value={net}
             onChange={(e) => onNet(e.target.value)}
@@ -202,14 +204,14 @@ export function ExpenseFormSheet({
             icon={<Camera className="size-5" />}
             onClick={() => fileRef.current?.click()}
           >
-            {receiptFile || existingReceipt ? 'Zmień paragon' : 'Dodaj paragon'}
+            {receiptFile || existingReceipt ? t('exp.changeReceipt') : t('exp.addReceipt')}
           </Button>
           {(receiptFile || existingReceipt) && (
             <span className="flex items-center gap-1 text-xs text-text-secondary">
-              {receiptFile ? receiptFile.name : 'zapisany paragon'}
+              {receiptFile ? receiptFile.name : t('exp.savedReceipt')}
               <button
                 type="button"
-                aria-label="Usuń paragon"
+                aria-label={t('exp.removeReceipt')}
                 className="press text-error"
                 onClick={() => {
                   setReceiptFile(null);
@@ -240,7 +242,7 @@ export function ExpenseFormSheet({
           loading={saving || create.isPending || update.isPending}
           onClick={() => void save()}
         >
-          {expense ? 'Zapisz zmiany' : 'Dodaj koszt'}
+          {expense ? t('ts.saveChanges') : t('exp.addExpense')}
         </Button>
       </div>
     </Sheet>

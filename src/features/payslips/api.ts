@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { compressImage } from '@/lib/imageCompress';
+import { translate } from '@/lib/i18n/context';
 
 export interface Payslip {
   id: string;
@@ -56,7 +57,7 @@ export async function uploadPayslip(input: UploadPayslipInput): Promise<void> {
   const { error: uploadError } = await supabase.storage
     .from('payslips')
     .upload(path, blob, { contentType: type });
-  if (uploadError) throw new Error('Nie udało się przesłać pliku');
+  if (uploadError) throw new Error(translate('pay.errUpload'));
 
   const { data: userData } = await supabase.auth.getUser();
   const { error } = await supabase.from('payslips').upsert(
