@@ -2,6 +2,7 @@ import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { translate } from '@/lib/i18n/context';
 
 interface Props {
   children: ReactNode;
@@ -30,12 +31,9 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="flex size-16 items-center justify-center rounded-full bg-error-soft">
             <TriangleAlert className="size-8 text-error" />
           </div>
-          <h1 className="text-lg font-semibold">Coś poszło nie tak</h1>
-          <p className="text-sm text-text-secondary">
-            Wystąpił nieoczekiwany błąd. Odśwież aplikację — jeśli problem wraca, skontaktuj
-            się z administratorem.
-          </p>
-          <Button onClick={() => window.location.reload()}>Odśwież aplikację</Button>
+          <h1 className="text-lg font-semibold">{translate('ui.errTitle')}</h1>
+          <p className="text-sm text-text-secondary">{translate('ui.errDesc')}</p>
+          <Button onClick={() => window.location.reload()}>{translate('ui.errReload')}</Button>
         </div>
       );
     }
