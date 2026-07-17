@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { eachDayOfInterval, format, isToday, isWeekend } from 'date-fns';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+import { ConfirmDialog } from '@/components/ui/Dialog';
 import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/cn';
 import { date as fmtDate, dateLong, hours, num } from '@/lib/format';
@@ -9,6 +10,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import type { AbsenceWithEmployee } from '@/features/absences/types';
 import { ABSENCE_TYPE_COLORS } from '@/features/absences/types';
+import { useDeleteEntry } from '../hooks';
 import { HOURS_STATUS_TONES, type WorkHoursEntry } from '../types';
 
 interface JournalGridProps {
@@ -43,8 +45,10 @@ export function JournalGrid({
 }: JournalGridProps) {
   const days = useMemo(() => eachDayOfInterval({ start: from, end: to }), [from, to]);
   const [selected, setSelected] = useState<{ employeeId: string; date: string } | null>(null);
+  const [toDelete, setToDelete] = useState<WorkHoursEntry | null>(null);
   const { user, can } = useSession();
   const { t, dateLocale } = useI18n();
+  const deleteEntry = useDeleteEntry();
 
   const canModify = (entry: WorkHoursEntry): boolean => {
     if (user?.role === 'admin') return true;
@@ -285,6 +289,16 @@ export function JournalGrid({
                   <Pencil className="size-4 text-text-secondary" />
                 </button>
               )}
+              {canModify(e) && (
+                <button
+                  type="button"
+                  aria-label={t('common.delete')}
+                  className="press flex size-9 shrink-0 items-center justify-center rounded-full bg-error-soft"
+                  onClick={() => setToDelete(e)}
+                >
+                  <Trash2 className="size-4 text-error" />
+                </button>
+              )}
             </div>
           ))}
           {selectedEntries.length === 0 && !selectedAbsence && (
@@ -292,6 +306,27 @@ export function JournalGrid({
           )}
         </div>
       </Sheet>
+
+      <ConfirmDialog
+        open={toDelete !== null}
+        title={t('ts.deleteEntryTitle')}
+        description={
+          toDelete
+            ? `${toDelete.project?.name ?? ''} • ${hours(toDelete.hours)} — ${t('ts.cantUndo')}`
+            : ''
+        }
+        confirmLabel={t('common.delete')}
+        destructive
+        loading={deleteEntry.isPending}
+        onConfirm={() => {
+          if (toDelete) {
+            deleteEntry.mutate(toDelete.id, {
+              onSuccess: () => setToDelete(null),
+            });
+          }
+        }}
+        onCancel={() => setToDelete(null)}
+      />
     </div>
   );
 }

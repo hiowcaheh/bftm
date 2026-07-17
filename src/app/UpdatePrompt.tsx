@@ -9,6 +9,12 @@ import { translate } from '@/lib/i18n/context';
 const UPDATE_CHECK_INTERVAL = 60_000;
 
 /**
+ * Strony publiczne (oferta/raport pod tokenem) ogląda klient końcowy —
+ * nie pokazujemy mu toastu o aktualizacji aplikacji.
+ */
+const isPublicPage = () => /^#\/(oferta|raport)\//.test(window.location.hash);
+
+/**
  * Rejestruje service workera, publikuje stan aktualizacji do store'a
  * (używa go Ustawienia → „Sprawdź aktualizację") i pokazuje toast
  * „Dostępna nowa wersja — Odśwież", gdy nowa wersja wykryje się sama.
@@ -49,7 +55,7 @@ export function UpdatePrompt() {
 
   useEffect(() => {
     setNeedRefresh(needRefresh);
-    if (needRefresh) {
+    if (needRefresh && !isPublicPage()) {
       toast.info(translate('ui.newVersion'), {
         label: translate('ui.refresh'),
         icon: <RotateCw className="size-4" />,
