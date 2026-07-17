@@ -1,0 +1,30 @@
+# Ręczny deploy Edge Function do Supabase — używany, gdy deploy przez MCP
+# jest niemożliwy. Token podaje się przy uruchomieniu i od razu unieważnia.
+name: deploy-edge-fn
+
+on:
+  workflow_dispatch:
+    inputs:
+      function:
+        description: 'Nazwa funkcji (folder w supabase/functions)'
+        required: true
+        default: 'push'
+      token:
+        description: 'Supabase access token (sbp_...) — po deployu unieważnić'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mask token
+        run: echo "::add-mask::${{ inputs.token }}"
+      - name: Ensure supabase config
+        run: test -f supabase/config.toml || echo 'project_id = "bftm"' > supabase/config.toml
+      - name: Deploy function
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ inputs.token }}
+        run: >
+          npx supabase@latest functions deploy "${{ inputs.function }}"
+          --project-ref ixositdqghamqeproryp --no-verify-jwt --use-api
