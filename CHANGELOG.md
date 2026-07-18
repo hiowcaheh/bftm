@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.36.1 — szlify raportu tygodnia (2026-07-17)
+
+- Powiadomienie z raportem ma przycisk „Zobacz szczegóły" — jasne, że się klika.
+- Numer tygodnia (ISO) w tytule i nagłówku raportu („Podsumowanie tygodnia nr 29").
+- Przypomnienie o godzinach pomija weekendy (migracja 0044).
+
 ## 0.36.0 — automaty i zachęta do push (2026-07-17)
 
 - **Podsumowanie tygodnia** dla adminów: w każdą niedzielę o 20:00 push +

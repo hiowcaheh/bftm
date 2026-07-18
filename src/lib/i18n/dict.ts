@@ -716,6 +716,7 @@ const pl: Dict = {
     errAvatar: 'Nie udało się zapisać zdjęcia',
   },
   notif: {
+    seeDetails: 'Zobacz szczegóły',
     pushAskTitle: 'Włącz powiadomienia',
     pushAskDesc: 'Bądź na bieżąco: nowe zadania, zatwierdzone godziny i wypłaty prosto na Twój telefon.',
     pushAskOn: 'Włącz powiadomienia',
@@ -1593,6 +1594,7 @@ const sv: Dict = {
     errAvatar: 'Det gick inte att spara bilden',
   },
   notif: {
+    seeDetails: 'Visa detaljer',
     pushAskTitle: 'Aktivera notiser',
     pushAskDesc: 'Håll dig uppdaterad: nya uppgifter, godkända timmar och lönebesked direkt till din telefon.',
     pushAskOn: 'Aktivera notiser',
@@ -2464,6 +2466,7 @@ const en: Dict = {
     errAvatar: 'Could not save the photo',
   },
   notif: {
+    seeDetails: 'See details',
     pushAskTitle: 'Enable notifications',
     pushAskDesc: 'Stay up to date: new tasks, approved hours and payslips straight to your phone.',
     pushAskOn: 'Enable notifications',
@@ -3341,6 +3344,7 @@ const uk: Dict = {
     errAvatar: 'Не вдалося зберегти фото',
   },
   notif: {
+    seeDetails: 'Переглянути деталі',
     pushAskTitle: 'Увімкнути сповіщення',
     pushAskDesc: 'Будьте в курсі: нові завдання, підтверджені години та виплати просто на ваш телефон.',
     pushAskOn: 'Увімкнути сповіщення',

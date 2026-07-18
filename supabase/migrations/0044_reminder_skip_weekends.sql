@@ -1,0 +1,3 @@
+-- 0044 — przypomnienie o godzinach nie chodzi w weekendy (sob/nd).
+-- Zastosowane przez MCP apply_migration; pełna definicja daily_hours_reminder()
+-- jak w 0043 + warunek: extract(isodow from v_today) in (6,7) -> return.

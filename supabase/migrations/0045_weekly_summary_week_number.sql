@@ -1,0 +1,4 @@
+-- 0045 — numer tygodnia (ISO) w tytule i nagłówku raportu tygodniowego.
+-- Zastosowane przez MCP apply_migration; pełna definicja weekly_admin_summary()
+-- jak w 0043 + v_week := extract(week from v_from), tytuł „Podsumowanie
+-- tygodnia nr N" i nagłówek „Tydzień N • DD.MM–DD.MM.YYYY" (×4 języki).
