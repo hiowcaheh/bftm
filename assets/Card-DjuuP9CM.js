@@ -1,1 +1,0 @@
-import{D as e}from"./context-BBvawgBS.js";import{tt as t}from"./index-DircX_T9.js";var n=e();function r({interactive:e,className:r,...i}){return(0,n.jsx)(`div`,{className:t(`rounded-(--radius-card) bg-white shadow-(--shadow-card)`,e&&`press cursor-pointer`,r),...i})}export{r as t};
