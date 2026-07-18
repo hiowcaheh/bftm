@@ -119,6 +119,8 @@ const TYPE_ROUTES: Record<string, string> = {
   offer_viewed: '/#/oferty',
   absence: '/#/godziny',
   announcement: '/#/',
+  hours_reminder: '/#/godziny',
+  weekly_summary: '/#/',
   checklist: '/#/',
 };
 

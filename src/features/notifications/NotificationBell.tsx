@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  AlarmClock,
+  BarChart3,
   Bell,
   BellOff,
   CalendarOff,
@@ -12,7 +14,9 @@ import {
   ListChecks,
   Megaphone,
   ReceiptText,
+  X,
 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import type { LucideProps } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { formatDistanceToNow } from 'date-fns';
@@ -34,6 +38,8 @@ const TYPE_STYLES: Record<
   absence: { icon: CalendarOff, className: 'bg-warning-soft text-warning' },
   announcement: { icon: Megaphone, className: 'bg-accent-soft text-accent' },
   checklist: { icon: ListChecks, className: 'bg-accent-soft text-accent' },
+  weekly_summary: { icon: BarChart3, className: 'bg-accent-soft text-accent' },
+  hours_reminder: { icon: AlarmClock, className: 'bg-warning-soft text-warning' },
   info: { icon: Info, className: 'bg-info-soft text-info' },
 };
 
@@ -48,6 +54,7 @@ const TYPE_ROUTES: Record<string, string> = {
   offer_response: '/oferty',
   offer_viewed: '/oferty',
   absence: '/godziny',
+  hours_reminder: '/godziny',
   checklist: '/',
 };
 
@@ -57,6 +64,8 @@ export function NotificationBell() {
   const markAllRead = useMarkAllRead();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  // podsumowanie tygodnia otwiera się w modalu zamiast nawigacji
+  const [summary, setSummary] = useState<{ title: string; body: string } | null>(null);
 
   const list = notifications.data ?? [];
   const unread = list.filter((n) => !n.read_at).length;
@@ -103,19 +112,22 @@ export function NotificationBell() {
             {list.map((n) => {
               const style = TYPE_STYLES[n.type] ?? TYPE_STYLES.info!;
               const Icon = style.icon;
+              const isSummary = n.type === 'weekly_summary';
               const route = TYPE_ROUTES[n.type];
               return (
                 <button
                   key={n.id}
                   type="button"
-                  disabled={!route}
+                  disabled={!route && !isSummary}
                   className={cn(
                     'press flex gap-3 rounded-xl bg-white p-3 text-left shadow-(--shadow-card)',
                     !n.read_at && 'ring-1 ring-accent/30',
-                    !route && 'cursor-default',
+                    !route && !isSummary && 'cursor-default',
                   )}
                   onClick={() => {
-                    if (route) {
+                    if (isSummary) {
+                      setSummary({ title: n.title, body: n.body ?? '' });
+                    } else if (route) {
                       setOpen(false);
                       navigate(route);
                     }
@@ -137,7 +149,12 @@ export function NotificationBell() {
                       )}
                     </div>
                     {n.body && (
-                      <p className="mt-0.5 whitespace-pre-line text-xs leading-relaxed text-text-secondary first-line:font-semibold first-line:text-text">
+                      <p
+                        className={cn(
+                          'mt-0.5 whitespace-pre-line text-xs leading-relaxed text-text-secondary first-line:font-semibold first-line:text-text',
+                          isSummary && 'line-clamp-3',
+                        )}
+                      >
                         {n.body}
                       </p>
                     )}
@@ -154,6 +171,45 @@ export function NotificationBell() {
           </div>
         )}
       </Drawer>
+
+      {summary &&
+        createPortal(
+          <div className="fixed inset-0 z-[90] flex items-center justify-center p-6">
+            <button
+              aria-label={t('common.close')}
+              className="animate-fade-in absolute inset-0 bg-black/40"
+              onClick={() => setSummary(null)}
+              tabIndex={-1}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={summary.title}
+              className="animate-toast-in relative flex max-h-[80vh] w-full max-w-sm flex-col rounded-(--radius-card) bg-white shadow-(--shadow-card)"
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-black/5 p-5 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent">
+                    <BarChart3 className="size-5" strokeWidth={1.8} />
+                  </div>
+                  <h2 className="text-lg font-semibold">{summary.title}</h2>
+                </div>
+                <button
+                  type="button"
+                  aria-label={t('common.close')}
+                  onClick={() => setSummary(null)}
+                  className="press flex size-8 items-center justify-center rounded-full bg-surface"
+                >
+                  <X className="size-4 text-text-secondary" />
+                </button>
+              </div>
+              <div className="overflow-y-auto p-5 pt-4">
+                <p className="whitespace-pre-line text-sm leading-relaxed">{summary.body}</p>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

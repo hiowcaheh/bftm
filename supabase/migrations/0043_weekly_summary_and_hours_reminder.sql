@@ -1,0 +1,9 @@
+-- 0043 — automaty: niedzielne podsumowanie tygodnia dla adminów (20:00)
+-- + codzienne przypomnienie o godzinach dla pracowników z pushem (20:00).
+-- Zastosowane przez MCP apply_migration. pg_cron chodzi w UTC — jobs strzelają
+-- o 18 i 19 UTC, a funkcje same sprawdzają, czy w Sztokholmie jest 20:00.
+-- Pełna treść: weekly_admin_summary() (raport per język admina, pomija pusty
+-- tydzień), daily_hours_reminder() (tylko pracownicy z subskrypcją push, bez
+-- wpisanych godzin i bez nieobecności danego dnia), revoke exec dla anon/auth,
+-- cron.schedule 'weekly-admin-summary' (0 18,19 * * 0) i 'daily-hours-reminder'
+-- (0 18,19 * * *).

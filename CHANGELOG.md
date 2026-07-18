@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.36.0 — automaty i zachęta do push (2026-07-17)
+
+- **Podsumowanie tygodnia** dla adminów: w każdą niedzielę o 20:00 push +
+  powiadomienie z raportem (suma godzin, per pracownik, per projekt); tap
+  w dzwoneczku otwiera modal z pełnymi szczegółami. Pusty tydzień = brak raportu.
+- **Przypomnienie o godzinach**: codziennie o 20:00 pracownicy z włączonym push,
+  którzy nie wpisali dziś godzin (i nie mają nieobecności), dostają przypomnienie.
+- **Zachęta do push**: po zalogowaniu (raz) eleganckie okno proponujące
+  włączenie powiadomień; odrzucenie zapamiętane, push zostaje w Ustawieniach.
+- Harmonogramy pg_cron w bazie (migracja 0043), całość w 4 językach.
+
 ## 0.35.0 — komplet powiadomień (2026-07-17)
 
 - **Nieobecności**: zgłoszenie nieobecności wysyła powiadomienie (dzwonek + push)
