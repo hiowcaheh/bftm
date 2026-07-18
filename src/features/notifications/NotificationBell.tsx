@@ -5,6 +5,7 @@ import {
   BarChart3,
   Bell,
   BellOff,
+  ChevronRight,
   CalendarOff,
   CheckCheck,
   CircleCheck,
@@ -157,6 +158,12 @@ export function NotificationBell() {
                       >
                         {n.body}
                       </p>
+                    )}
+                    {isSummary && (
+                      <span className="mt-2 inline-flex items-center gap-0.5 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-semibold text-accent">
+                        {t('notif.seeDetails')}
+                        <ChevronRight className="size-3.5" strokeWidth={2.2} />
+                      </span>
                     )}
                     <p className="mt-1 text-[11px] text-text-secondary/70">
                       {formatDistanceToNow(new Date(n.created_at), {
