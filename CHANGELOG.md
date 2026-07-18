@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.36.2 — poprawka chipa „Zobacz szczegóły" (2026-07-17)
+
+- Mniejszy chip, w jednym wierszu z datą powiadomienia, wyrównany do prawej.
+
 ## 0.36.1 — szlify raportu tygodnia (2026-07-17)
 
 - Powiadomienie z raportem ma przycisk „Zobacz szczegóły" — jasne, że się klika.

@@ -159,18 +159,20 @@ export function NotificationBell() {
                         {n.body}
                       </p>
                     )}
-                    {isSummary && (
-                      <span className="mt-2 inline-flex items-center gap-0.5 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-semibold text-accent">
-                        {t('notif.seeDetails')}
-                        <ChevronRight className="size-3.5" strokeWidth={2.2} />
-                      </span>
-                    )}
-                    <p className="mt-1 text-[11px] text-text-secondary/70">
-                      {formatDistanceToNow(new Date(n.created_at), {
-                        addSuffix: true,
-                        locale: dateLocale,
-                      })}
-                    </p>
+                    <div className="mt-1 flex items-center justify-between gap-2">
+                      <p className="text-[11px] text-text-secondary/70">
+                        {formatDistanceToNow(new Date(n.created_at), {
+                          addSuffix: true,
+                          locale: dateLocale,
+                        })}
+                      </p>
+                      {isSummary && (
+                        <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-semibold text-accent">
+                          {t('notif.seeDetails')}
+                          <ChevronRight className="size-3" strokeWidth={2.2} />
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );
