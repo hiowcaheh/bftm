@@ -1,0 +1,5 @@
+-- 0047 — balans bieżącego miesiąca na Pulpit (admin/finance_view).
+-- Zastosowane przez MCP apply_migration. RPC finance_month_balance():
+-- przychód godzinowy (hourly/mixed, real-time) + faktury fastpris WYSTAWIONE
+-- w miesiącu (sent_at/created_at), koszty pracy (employee_wage_at × mnożnik)
+-- + paragony; miesiąc wg Europe/Stockholm; revoke exec dla anon.

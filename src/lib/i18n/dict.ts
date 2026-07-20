@@ -80,6 +80,7 @@ const pl: Dict = {
     note: 'Na iPhonie aplikacje instaluje się w ten sposób — Apple nie pozwala zrobić tego jednym przyciskiem.',
   },
   dash: {
+    balanceMonth: 'Balans miesiąca',
     indicators: 'Wskaźniki',
     activeProjects: 'Aktywne projekty',
     hoursMonth: 'Godziny w tym miesiącu',
@@ -952,6 +953,7 @@ const sv: Dict = {
     note: 'På iPhone installeras appar så här — Apple tillåter inte installation med ett tryck.',
   },
   dash: {
+    balanceMonth: 'Månadens balans',
     indicators: 'Nyckeltal',
     activeProjects: 'Aktiva projekt',
     hoursMonth: 'Timmar denna månad',
@@ -1830,6 +1832,7 @@ const en: Dict = {
     note: "On iPhone, apps are installed this way — Apple doesn't allow a one-tap install.",
   },
   dash: {
+    balanceMonth: 'Month balance',
     indicators: 'Indicators',
     activeProjects: 'Active projects',
     hoursMonth: 'Hours this month',
@@ -2702,6 +2705,7 @@ const uk: Dict = {
     note: 'На iPhone застосунки встановлюються саме так — Apple не дозволяє встановлення одним дотиком.',
   },
   dash: {
+    balanceMonth: 'Баланс місяця',
     indicators: 'Показники',
     activeProjects: 'Активні проєкти',
     hoursMonth: 'Години цього місяця',
