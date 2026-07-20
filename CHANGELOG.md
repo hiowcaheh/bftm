@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.38.1 — poprawka powiązania godzin z fakturą (2026-07-20)
+
+- Fakturowanie godzin używa teraz osobnej kolumny work_hours.project_invoice_id
+  (stara invoice_batch_id wskazuje inną tabelę — specyfikacje). Bez tej poprawki
+  „Faktura za godziny" zwracałaby błąd klucza obcego. Przetestowane end-to-end.
+- Migracje 0051–0052.
+
 ## 0.38.0 — Faktury projektów w Finansach (2026-07-20)
 
 - Nowa sekcja **Faktury projektów** w Finansach (nad paragonami): wszystkie
