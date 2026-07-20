@@ -7,9 +7,13 @@ import { useSession } from '@/features/auth/SessionProvider';
 import {
   createProjectInvoice,
   deleteProjectInvoice,
+  fetchAllInvoices,
   fetchFinanceDaily,
   fetchFinanceSummary,
+  fetchInvoiceSuggestions,
   fetchProjectInvoices,
+  fetchUninvoicedHours,
+  invoiceProjectHours,
   updateProjectInvoice,
 } from './api';
 
@@ -46,7 +50,49 @@ function useInvalidateFinance() {
   const queryClient = useQueryClient();
   return () => {
     void queryClient.invalidateQueries({ queryKey: qk.finance.all });
+    // fakturowanie zmienia status godzin i kafelki pulpitu
+    void queryClient.invalidateQueries({ queryKey: qk.workHours.all });
+    void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
   };
+}
+
+export function useAllInvoices() {
+  const { can } = useSession();
+  return useQuery({
+    queryKey: qk.finance.invoicesAll(),
+    queryFn: fetchAllInvoices,
+    enabled: can('finance_view'),
+  });
+}
+
+export function useInvoiceSuggestions() {
+  const { can } = useSession();
+  return useQuery({
+    queryKey: qk.finance.suggestions(),
+    queryFn: fetchInvoiceSuggestions,
+    enabled: can('finance_view'),
+  });
+}
+
+export function useUninvoicedHours(projectId: string | null, from: string, to: string) {
+  return useQuery({
+    queryKey: qk.finance.uninvoiced(projectId ?? '-', from, to),
+    queryFn: () => fetchUninvoicedHours(projectId!, from, to),
+    enabled: projectId !== null && !!from && !!to,
+  });
+}
+
+export function useInvoiceHours() {
+  const invalidate = useInvalidateFinance();
+  return useMutation({
+    mutationFn: invoiceProjectHours,
+    onSuccess: () => {
+      invalidate();
+      toast.success(translate('fin.invoiceCreated'));
+    },
+    onError: (e) =>
+      toast.error((e as Error).message?.replace(/^.*?:\s*/, '') || translate('fin.errInvoiceSave')),
+  });
 }
 
 export function useSaveProjectInvoice() {

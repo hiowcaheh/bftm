@@ -414,6 +414,17 @@ export type Database = {
         Args: { p_profile_id: string };
         Returns: undefined;
       };
+      invoice_project_hours: {
+        Args: {
+          p_project: string;
+          p_from: string;
+          p_to: string;
+          p_sent: string;
+          p_due: string | null;
+          p_note: string | null;
+        };
+        Returns: string;
+      };
       finance_month_balance: {
         Args: Record<PropertyKey, never>;
         Returns: Array<{
