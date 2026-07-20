@@ -50,17 +50,17 @@ export async function fetchKpi(
   if (hoursRes.error) throw hoursRes.error;
   if (expensesRes.error) throw expensesRes.error;
   const balanceRow = Array.isArray(balanceRes.data) ? balanceRes.data[0] : null;
+  // NaN nie może wyciec do UI (np. niepełny wiersz) — wtedy 0
+  const safe = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
   return {
     activeProjects: projectsRes.count ?? 0,
     hoursThisMonth: (hoursRes.data ?? []).reduce((s, r) => s + r.hours, 0),
     expensesThisMonth: (expensesRes.data ?? []).reduce((s, r) => s + r.amount_gross, 0),
     monthProfit: balanceRow
-      ? Number(balanceRow.revenue_hours) -
-        Number(balanceRow.labor_cost) -
-        Number(balanceRow.expenses)
+      ? safe(balanceRow.revenue_hours) - safe(balanceRow.labor_cost) - safe(balanceRow.expenses)
       : null,
     awaitingTotal: balanceRow
-      ? Number(balanceRow.awaiting_invoiced) + Number(balanceRow.awaiting_fixed)
+      ? safe(balanceRow.awaiting_invoiced) + safe(balanceRow.awaiting_fixed)
       : null,
   };
 }

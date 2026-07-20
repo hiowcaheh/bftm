@@ -76,28 +76,26 @@ export default function DashboardPage() {
     // pozostali z flagą kosztów — paragony jak dotąd
     ...(can('finance_view')
       ? [
+          // Number.isFinite — stary cache (persist) może nie mieć tych pól
           {
             label: t('dash.profitMonth'),
-            value:
-              kpi.data && kpi.data.monthProfit !== null
-                ? `${kpi.data.monthProfit > 0 ? '+' : ''}${moneyWhole(kpi.data.monthProfit)}`
-                : '—',
-            valueClass:
-              kpi.data && kpi.data.monthProfit !== null
-                ? kpi.data.monthProfit >= 0
-                  ? 'text-success'
-                  : 'text-accent'
-                : undefined,
+            value: Number.isFinite(kpi.data?.monthProfit)
+              ? `${kpi.data!.monthProfit! > 0 ? '+' : ''}${moneyWhole(kpi.data!.monthProfit!)}`
+              : '—',
+            valueClass: Number.isFinite(kpi.data?.monthProfit)
+              ? kpi.data!.monthProfit! >= 0
+                ? 'text-success'
+                : 'text-accent'
+              : undefined,
             icon: Scale,
             demo: false,
             onClick: () => navigate('/finanse'),
           },
           {
             label: t('dash.awaiting'),
-            value:
-              kpi.data && kpi.data.awaitingTotal !== null
-                ? moneyWhole(kpi.data.awaitingTotal)
-                : '—',
+            value: Number.isFinite(kpi.data?.awaitingTotal)
+              ? moneyWhole(kpi.data!.awaitingTotal!)
+              : '—',
             icon: Banknote,
             demo: false,
             onClick: () => navigate('/finanse'),
