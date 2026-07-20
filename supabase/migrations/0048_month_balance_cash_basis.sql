@@ -1,0 +1,5 @@
+-- 0048 — balans miesiąca metodą KASOWĄ (jak likviditet w Fortnox):
+-- przychód = faktury OZNACZONE JAKO OPŁACONE w tym miesiącu (paid_at,
+-- wszystkie projekty), koszty = praca (real-time) + paragony. Funkcja zwraca
+-- też revenue_invoiced (fakturerat w miesiącu) do przyszłego użytku.
+-- Zastosowane przez MCP apply_migration (drop + create, zmiana typu zwrotki).
