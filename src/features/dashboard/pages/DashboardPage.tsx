@@ -8,6 +8,7 @@ import {
   ClockAlert,
   ChevronRight,
   ReceiptText,
+  Scale,
   Sunrise,
 } from 'lucide-react';
 import { format, getISOWeek } from 'date-fns';
@@ -71,17 +72,37 @@ export default function DashboardPage() {
       demo: false,
       onClick: () => navigate('/godziny'),
     },
-    ...(can('expenses_add') || can('expenses_view_all') || can('finance_view')
+    // finance_view widzi balans miesiąca; pozostali z kosztami — paragony jak dotąd
+    ...(can('finance_view')
       ? [
           {
-            label: t('dash.expensesMonth'),
-            value: kpi.data ? moneyWhole(kpi.data.expensesThisMonth) : '—',
-            icon: Receipt,
+            label: t('dash.balanceMonth'),
+            value:
+              kpi.data && kpi.data.monthBalance !== null
+                ? `${kpi.data.monthBalance > 0 ? '+' : ''}${moneyWhole(kpi.data.monthBalance)}`
+                : '—',
+            valueClass:
+              kpi.data && kpi.data.monthBalance !== null
+                ? kpi.data.monthBalance >= 0
+                  ? 'text-success'
+                  : 'text-accent'
+                : undefined,
+            icon: Scale,
             demo: false,
             onClick: () => navigate('/finanse'),
           },
         ]
-      : []),
+      : can('expenses_add') || can('expenses_view_all')
+        ? [
+            {
+              label: t('dash.expensesMonth'),
+              value: kpi.data ? moneyWhole(kpi.data.expensesThisMonth) : '—',
+              icon: Receipt,
+              demo: false,
+              onClick: () => navigate('/finanse'),
+            },
+          ]
+        : []),
     ...(can('finance_view')
       ? [
           {
@@ -111,7 +132,12 @@ export default function DashboardPage() {
               strokeWidth={1.5}
             />
             <div className="relative flex flex-col gap-1">
-              <span className="tabular-nums text-2xl font-semibold leading-tight">
+              <span
+                className={cn(
+                  'tabular-nums text-2xl font-semibold leading-tight',
+                  'valueClass' in tile ? tile.valueClass : undefined,
+                )}
+              >
                 {tile.value}
               </span>
               <span className="text-xs text-text-secondary">{tile.label}</span>

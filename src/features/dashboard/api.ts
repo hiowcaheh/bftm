@@ -7,6 +7,8 @@ export interface DashboardKpi {
   hoursThisMonth: number;
   expensesThisMonth: number;
   unpaidInvoices: number | null;
+  /** Balans miesiąca (przychody − koszty pracy − paragony), tylko finance_view. */
+  monthBalance: number | null;
 }
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
@@ -23,7 +25,7 @@ export async function fetchKpi(
   const now = new Date();
   const monthFrom = iso(startOfMonth(now));
   const monthTo = iso(endOfMonth(now));
-  const [projectsRes, hoursRes, expensesRes, invoicesRes] = await Promise.all([
+  const [projectsRes, hoursRes, expensesRes, invoicesRes, balanceRes] = await Promise.all([
     canProjects
       ? supabase
           .from('projects')
@@ -43,15 +45,25 @@ export async function fetchKpi(
     canFinance
       ? supabase.from('project_invoices').select('amount').is('paid_at', null)
       : Promise.resolve({ data: null, error: null }),
+    canFinance
+      ? supabase.rpc('finance_month_balance')
+      : Promise.resolve({ data: null, error: null }),
   ]);
   if (hoursRes.error) throw hoursRes.error;
   if (expensesRes.error) throw expensesRes.error;
+  const balanceRow = Array.isArray(balanceRes.data) ? balanceRes.data[0] : null;
   return {
     activeProjects: projectsRes.count ?? 0,
     hoursThisMonth: (hoursRes.data ?? []).reduce((s, r) => s + r.hours, 0),
     expensesThisMonth: (expensesRes.data ?? []).reduce((s, r) => s + r.amount_gross, 0),
     unpaidInvoices: canFinance
       ? (invoicesRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0)
+      : null,
+    monthBalance: balanceRow
+      ? Number(balanceRow.revenue_hours) +
+        Number(balanceRow.revenue_invoiced) -
+        Number(balanceRow.labor_cost) -
+        Number(balanceRow.expenses)
       : null,
   };
 }

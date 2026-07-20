@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.37.0 — balans miesiąca na Pulpicie (2026-07-20)
+
+- Kafelek „Koszty w tym mies." (liczył tylko paragony) zastąpiony „Balansem
+  miesiąca" dla admina/flagi finansów: przychody z godzin (projekty godzinowe,
+  na żywo) + faktury fastpris wystawione w miesiącu − koszty pracy (stawki
+  z narzutami) − paragony. Zielony plus / czerwony minus; tap → Finanse.
+- Użytkownicy z samą flagą kosztów dalej widzą kafelek paragonów.
+- RPC finance_month_balance (migracja 0047), miesiąc wg czasu szwedzkiego.
+
 ## 0.36.3 — avatary bez migotania (2026-07-20)
 
 - Avatary ładują się raz i siedzą w cache (cache-first w service workerze,
