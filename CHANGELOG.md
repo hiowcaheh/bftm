@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.37.1 — balans metodą kasową (2026-07-20)
+
+- Balans miesiąca liczy przychód dopiero z faktur OZNACZONYCH JAKO OPŁACONE
+  (jak likviditet w Fortnox) — żadnych „papierowych" zysków; koszty pracy
+  i paragony dalej na żywo (migracja 0048).
+- Rentowność projektów bez zmian — tam widać marżę w trakcie roboty.
+
 ## 0.37.0 — balans miesiąca na Pulpicie (2026-07-20)
 
 - Kafelek „Koszty w tym mies." (liczył tylko paragony) zastąpiony „Balansem

@@ -59,9 +59,9 @@ export async function fetchKpi(
     unpaidInvoices: canFinance
       ? (invoicesRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0)
       : null,
+    // metoda kasowa: liczą się tylko faktury oznaczone jako OPŁACONE
     monthBalance: balanceRow
-      ? Number(balanceRow.revenue_hours) +
-        Number(balanceRow.revenue_invoiced) -
+      ? Number(balanceRow.revenue_paid) -
         Number(balanceRow.labor_cost) -
         Number(balanceRow.expenses)
       : null,

@@ -417,7 +417,7 @@ export type Database = {
       finance_month_balance: {
         Args: Record<PropertyKey, never>;
         Returns: Array<{
-          revenue_hours: number;
+          revenue_paid: number;
           revenue_invoiced: number;
           labor_cost: number;
           expenses: number;
