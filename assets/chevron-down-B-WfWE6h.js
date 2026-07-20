@@ -1,1 +1,0 @@
-import{n as e}from"./queryKeys-BBkW0l-x.js";var t=e(`chevron-down`,[[`path`,{d:`m6 9 6 6 6-6`,key:`qrunsl`}]]);export{t};
