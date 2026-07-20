@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.36.3 — avatary bez migotania (2026-07-20)
+
+- Avatary ładują się raz i siedzą w cache (cache-first w service workerze,
+  60 dni) — nowe zdjęcie ma nowy adres, więc podmienia się samo.
+- Nowe uploady avatarów i zdjęć projektów z rocznym cache przeglądarki
+  (pliki niezmienne — timestamp w nazwie).
+- Backend: godziny wpisane wstecz liczą się po najstarszej stawce pracownika
+  zamiast 0 kr (migracja 0046).
+
 ## 0.36.2 — poprawka chipa „Zobacz szczegóły" (2026-07-17)
 
 - Mniejszy chip, w jednym wierszu z datą powiadomienia, wyrównany do prawej.

@@ -4,8 +4,9 @@
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
 import type { PrecacheEntry } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
-import { NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
+import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 
 declare const self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<PrecacheEntry | string>;
@@ -30,6 +31,22 @@ registerRoute(
     cacheName: 'supabase-rest',
     networkTimeoutSeconds: 5,
     plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 14 })],
+  }),
+);
+
+// Avatary — ścieżki są niezmienne (nowe zdjęcie = nowy plik), więc cache-first:
+// raz pobrane nie dotykają sieci; nowy URL po zmianie zdjęcia sam się dociąga
+registerRoute(
+  ({ url, request }) =>
+    url.hostname.endsWith('.supabase.co') &&
+    url.pathname.startsWith('/storage/v1/object/public/avatars/') &&
+    request.method === 'GET',
+  new CacheFirst({
+    cacheName: 'avatars',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 60 }),
+    ],
   }),
 );
 
