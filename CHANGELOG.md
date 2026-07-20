@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.37.3 — poprawka „NaN kr" na kafelkach (2026-07-20)
+
+- Stary cache Pulpitu (sprzed 0.37.2) nie ma nowych pól — kafelki pokazują
+  „—" do czasu pobrania świeżych danych zamiast „NaN kr".
+
 ## 0.37.2 — zysk miesiąca + „czeka na wpłatę" (2026-07-20)
 
 - Pulpit (finanse): kafelek „Zysk miesiąca" liczy jak zakładka Finanse
