@@ -1,0 +1,6 @@
+-- 0052 — POPRAWKA 0050: work_hours.invoice_batch_id ma FK do invoice_batches
+-- (stary flow specyfikacji), więc nie nadaje się do wiązania z project_invoices.
+-- Dodajemy osobną kolumnę work_hours.project_invoice_id → project_invoices(id)
+-- ON DELETE SET NULL + indeks; invoice_project_hours() i uninvoice_hours_on_delete()
+-- przepisane na project_invoice_id; grants jak w 0051.
+-- Zastosowane przez MCP apply_migration.

@@ -132,7 +132,7 @@ export async function fetchInvoiceSuggestions(): Promise<InvoiceSuggestion[]> {
       .from('work_hours')
       .select('date, hours, project:projects(id, name, color, status, billing_type, hourly_rate)')
       .eq('status', 'approved')
-      .is('invoice_batch_id', null),
+      .is('project_invoice_id', null),
     supabase
       .from('projects')
       .select('id, name, color, billing_type, fixed_value')
@@ -222,7 +222,7 @@ export async function fetchUninvoicedHours(
     .select('hours')
     .eq('project_id', projectId)
     .eq('status', 'approved')
-    .is('invoice_batch_id', null)
+    .is('project_invoice_id', null)
     .gte('date', from)
     .lte('date', to);
   if (error) throw error;

@@ -92,6 +92,7 @@ type WorkHoursRow = {
   description: string | null;
   status: WorkHoursStatus;
   invoice_batch_id: string | null;
+  project_invoice_id: string | null;
   created_by: string | null;
   created_at: string;
 }
