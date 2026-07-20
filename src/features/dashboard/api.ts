@@ -6,9 +6,10 @@ export interface DashboardKpi {
   activeProjects: number;
   hoursThisMonth: number;
   expensesThisMonth: number;
-  unpaidInvoices: number | null;
-  /** Balans miesiąca (przychody − koszty pracy − paragony), tylko finance_view. */
-  monthBalance: number | null;
+  /** Zysk miesiąca jak w Finansach (godziny×stawka − koszty pracy − paragony). */
+  monthProfit: number | null;
+  /** „Wisi": nieopłacone faktury + niezafakturowane fastpris aktywnych projektów. */
+  awaitingTotal: number | null;
 }
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
@@ -25,7 +26,7 @@ export async function fetchKpi(
   const now = new Date();
   const monthFrom = iso(startOfMonth(now));
   const monthTo = iso(endOfMonth(now));
-  const [projectsRes, hoursRes, expensesRes, invoicesRes, balanceRes] = await Promise.all([
+  const [projectsRes, hoursRes, expensesRes, balanceRes] = await Promise.all([
     canProjects
       ? supabase
           .from('projects')
@@ -43,9 +44,6 @@ export async function fetchKpi(
       .gte('date', monthFrom)
       .lte('date', monthTo),
     canFinance
-      ? supabase.from('project_invoices').select('amount').is('paid_at', null)
-      : Promise.resolve({ data: null, error: null }),
-    canFinance
       ? supabase.rpc('finance_month_balance')
       : Promise.resolve({ data: null, error: null }),
   ]);
@@ -56,14 +54,13 @@ export async function fetchKpi(
     activeProjects: projectsRes.count ?? 0,
     hoursThisMonth: (hoursRes.data ?? []).reduce((s, r) => s + r.hours, 0),
     expensesThisMonth: (expensesRes.data ?? []).reduce((s, r) => s + r.amount_gross, 0),
-    unpaidInvoices: canFinance
-      ? (invoicesRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0)
-      : null,
-    // metoda kasowa: liczą się tylko faktury oznaczone jako OPŁACONE
-    monthBalance: balanceRow
-      ? Number(balanceRow.revenue_paid) -
+    monthProfit: balanceRow
+      ? Number(balanceRow.revenue_hours) -
         Number(balanceRow.labor_cost) -
         Number(balanceRow.expenses)
+      : null,
+    awaitingTotal: balanceRow
+      ? Number(balanceRow.awaiting_invoiced) + Number(balanceRow.awaiting_fixed)
       : null,
   };
 }

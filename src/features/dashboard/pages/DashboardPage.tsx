@@ -72,22 +72,33 @@ export default function DashboardPage() {
       demo: false,
       onClick: () => navigate('/godziny'),
     },
-    // finance_view widzi balans miesiąca; pozostali z kosztami — paragony jak dotąd
+    // finance_view: zysk miesiąca (jak w Finansach) + „czeka na wpłatę";
+    // pozostali z flagą kosztów — paragony jak dotąd
     ...(can('finance_view')
       ? [
           {
-            label: t('dash.balanceMonth'),
+            label: t('dash.profitMonth'),
             value:
-              kpi.data && kpi.data.monthBalance !== null
-                ? `${kpi.data.monthBalance > 0 ? '+' : ''}${moneyWhole(kpi.data.monthBalance)}`
+              kpi.data && kpi.data.monthProfit !== null
+                ? `${kpi.data.monthProfit > 0 ? '+' : ''}${moneyWhole(kpi.data.monthProfit)}`
                 : '—',
             valueClass:
-              kpi.data && kpi.data.monthBalance !== null
-                ? kpi.data.monthBalance >= 0
+              kpi.data && kpi.data.monthProfit !== null
+                ? kpi.data.monthProfit >= 0
                   ? 'text-success'
                   : 'text-accent'
                 : undefined,
             icon: Scale,
+            demo: false,
+            onClick: () => navigate('/finanse'),
+          },
+          {
+            label: t('dash.awaiting'),
+            value:
+              kpi.data && kpi.data.awaitingTotal !== null
+                ? moneyWhole(kpi.data.awaitingTotal)
+                : '—',
+            icon: Banknote,
             demo: false,
             onClick: () => navigate('/finanse'),
           },
@@ -103,17 +114,6 @@ export default function DashboardPage() {
             },
           ]
         : []),
-    ...(can('finance_view')
-      ? [
-          {
-            label: t('dash.unpaidInvoices'),
-            value: kpi.data ? moneyWhole(kpi.data.unpaidInvoices ?? 0) : '—',
-            icon: Banknote,
-            demo: false,
-            onClick: () => navigate('/finanse'),
-          },
-        ]
-      : []),
   ];
 
   return (

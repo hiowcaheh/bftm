@@ -417,10 +417,11 @@ export type Database = {
       finance_month_balance: {
         Args: Record<PropertyKey, never>;
         Returns: Array<{
-          revenue_paid: number;
-          revenue_invoiced: number;
+          revenue_hours: number;
           labor_cost: number;
           expenses: number;
+          awaiting_invoiced: number;
+          awaiting_fixed: number;
         }>;
       };
       finance_project_summary: {

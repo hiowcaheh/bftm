@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.37.2 — zysk miesiąca + „czeka na wpłatę" (2026-07-20)
+
+- Pulpit (finanse): kafelek „Zysk miesiąca" liczy jak zakładka Finanse
+  (godziny × stawka na żywo − koszty pracy − paragony) — zielony/czerwony.
+- Drugi kafelek „Czeka na wpłatę": nieopłacone faktury + niezafakturowane
+  fastpris aktywnych projektów — cała kasa, która jeszcze wejdzie.
+- Migracja 0049 (finance_month_balance v3).
+
 ## 0.37.1 — balans metodą kasową (2026-07-20)
 
 - Balans miesiąca liczy przychód dopiero z faktur OZNACZONYCH JAKO OPŁACONE
