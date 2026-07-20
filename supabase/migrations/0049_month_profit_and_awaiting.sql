@@ -1,0 +1,5 @@
+-- 0049 — Pulpit: zysk miesiąca memoriałowo (godziny×stawka − koszty pracy
+-- − paragony, jak w Finansach) + „czeka na wpłatę" (nieopłacone faktury
+-- + niezafakturowana część fastpris aktywnych projektów).
+-- Zastosowane przez MCP apply_migration (drop + create finance_month_balance:
+-- revenue_hours, labor_cost, expenses, awaiting_invoiced, awaiting_fixed).
