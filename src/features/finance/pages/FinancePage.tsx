@@ -27,6 +27,7 @@ import { projectCost, projectValue } from '../api';
 import { useFinanceDaily, useFinanceSummary } from '../hooks';
 import { CostDonut, type DonutSlice } from '../components/CostDonut';
 import { FinanceBars, type BarGroup } from '../components/FinanceBars';
+import { InvoicesSection } from '../components/InvoicesSection';
 
 type Mode = 'week' | 'month';
 
@@ -305,6 +306,8 @@ function FinanceReport() {
               </Card>
             </section>
           )}
+
+          <InvoicesSection />
 
           <ListGroup>
             <ListRow

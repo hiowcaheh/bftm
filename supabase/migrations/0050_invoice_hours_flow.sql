@@ -1,0 +1,7 @@
+-- 0050 — fakturowanie godzin: RPC invoice_project_hours(project, from, to,
+-- sent, due, note) tworzy fakturę z zatwierdzonych, niezafakturowanych godzin
+-- okresu (kwota = suma h × stawka projektu) i oznacza wpisy jako 'invoiced'
+-- z invoice_batch_id = id faktury; trigger project_invoices_uninvoice przy
+-- kasowaniu faktury przywraca godziny do 'approved'.
+-- Zastosowane przez MCP apply_migration; revoke exec dla anon (RPC) i
+-- anon/authenticated (funkcja triggerowa).

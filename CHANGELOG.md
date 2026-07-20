@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.38.0 — Faktury projektów w Finansach (2026-07-20)
+
+- Nowa sekcja **Faktury projektów** w Finansach (nad paragonami): wszystkie
+  faktury w jednym miejscu — dodawanie, edycja, statusy (czeka / po terminie /
+  opłacona), oznaczanie wpłat, kasowanie.
+- **Podpowiedzi „do zafakturowania"**: projekty godzinowe z zatwierdzonymi,
+  niezafakturowanymi godzinami (suma h × stawka) oraz pozostała kwota fastpris.
+- **Faktura za godziny**: wybierasz okres z kalendarza, aplikacja liczy
+  zatwierdzone godziny i kwotę na żywo; po utworzeniu faktury godziny dostają
+  status „zafakturowane" (widać w dzienniku, nie zafakturujesz ich drugi raz).
+- Skasowanie faktury przywraca jej godziny do „zatwierdzone" (trigger w bazie).
+- Kafelek na Pulpicie przemianowany na „Nadchodzące wpłaty".
+- Migracja 0050 (RPC invoice_project_hours + trigger), i18n ×4.
+
 ## 0.37.3 — poprawka „NaN kr" na kafelkach (2026-07-20)
 
 - Stary cache Pulpitu (sprzed 0.37.2) nie ma nowych pól — kafelki pokazują

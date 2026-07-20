@@ -23,6 +23,10 @@ export const qk = {
     summary: (from: string, to: string) => ['finance', 'summary', from, to] as const,
     daily: (from: string, to: string) => ['finance', 'daily', from, to] as const,
     invoices: (projectId: string) => ['finance', 'invoices', projectId] as const,
+    invoicesAll: () => ['finance', 'invoices-all'] as const,
+    suggestions: () => ['finance', 'invoice-suggestions'] as const,
+    uninvoiced: (projectId: string, from: string, to: string) =>
+      ['finance', 'uninvoiced', projectId, from, to] as const,
   },
   notifications: {
     all: ['notifications'] as const,
