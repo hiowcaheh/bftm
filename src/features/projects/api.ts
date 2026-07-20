@@ -208,7 +208,8 @@ export async function uploadPhotos(
     const path = `${projectId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
     const { error: uploadError } = await supabase.storage
       .from('project-photos')
-      .upload(path, compressed, { contentType: 'image/jpeg' });
+      // ścieżka z timestampem = plik niezmienny → można cache'ować na rok
+      .upload(path, compressed, { contentType: 'image/jpeg', cacheControl: '31536000' });
     if (uploadError) throw new Error('Nie udało się przesłać zdjęcia');
     const { error } = await supabase.from('project_photos').insert({
       project_id: projectId,

@@ -1,0 +1,6 @@
+-- 0046 — godziny wpisane WSTECZ (sprzed pierwszej stawki pracownika) liczą się
+-- po jego najstarszej stawce zamiast po 0 kr.
+-- Zastosowane przez MCP apply_migration. Zawartość: helper
+-- employee_wage_at(profile, date) (stawka wg daty, fallback do najstarszej,
+-- revoke exec dla anon/authenticated) + finance_daily / finance_project_summary
+-- / report_hours przepisane na helper (reszta logiki bez zmian).

@@ -66,7 +66,8 @@ export async function uploadAvatar(userId: string, file: File): Promise<string> 
   const path = `${userId}/avatar-${Date.now()}.jpg`;
   const { error: uploadError } = await supabase.storage
     .from('avatars')
-    .upload(path, blob, { contentType: 'image/jpeg' });
+    // ścieżka z timestampem = plik niezmienny → można cache'ować na rok
+    .upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
   if (uploadError) throw new Error('Nie udało się przesłać zdjęcia');
   const { error } = await supabase
     .from('profiles')
