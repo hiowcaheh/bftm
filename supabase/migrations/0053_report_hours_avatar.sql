@@ -1,0 +1,4 @@
+-- 0053 — avatar_path w raporcie pracowników (report_hours) do wyświetlenia
+-- zdjęcia zamiast generycznej ikony. Zastosowane przez MCP apply_migration;
+-- pełna definicja report_hours jak w 0046 + 'avatar_path', pr.avatar_path
+-- w by_employee i group by pr.avatar_path.

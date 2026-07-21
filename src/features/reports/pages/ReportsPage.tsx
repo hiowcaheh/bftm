@@ -7,8 +7,8 @@ import {
   ChevronRight,
   Clock,
   Share2,
-  Users,
 } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -71,6 +71,7 @@ export default function ReportsPage() {
         rows.push({
           id,
           name: list[0]?.name ?? '?',
+          avatar_path: null,
           total: 0,
           approved: null,
           draft: null,
@@ -356,9 +357,8 @@ function EmployeeRow({
         className="press flex items-center gap-3 p-3 text-left"
         onClick={onToggle}
       >
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface">
-          <Users className="size-4.5 text-text-secondary" />
-        </div>
+        {/* avatar pracownika zamiast generycznej ikony ludzików */}
+        <Avatar name={e.name} path={e.avatar_path} size="sm" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{e.name}</p>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
