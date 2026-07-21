@@ -376,16 +376,16 @@ function EmployeeRow({
                 {t('rep.absenceDays', { n: absences.reduce((s, a) => s + a.days, 0) })}
               </Badge>
             )}
-            {finance && e.labor_cost != null && (
-              <span className="tabular-nums text-[11px] text-text-secondary">
-                {t('rep.costShort', { amount: moneyWhole(e.labor_cost) })}
-              </span>
-            )}
           </div>
         </div>
-        <span className="tabular-nums shrink-0 text-base font-semibold">
-          {num(e.total)} h
-        </span>
+        <div className="flex shrink-0 flex-col items-end">
+          <span className="tabular-nums text-base font-semibold">{num(e.total)} h</span>
+          {finance && e.labor_cost != null && (
+            <span className="tabular-nums text-[11px] text-text-secondary">
+              {t('rep.costShort', { amount: moneyWhole(e.labor_cost) })}
+            </span>
+          )}
+        </div>
         <ChevronDown
           className={cn(
             'size-4 shrink-0 text-text-secondary transition-transform',

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.38.6 — koszt pod sumą godzin w raporcie (2026-07-20)
+
+- „koszt XXX kr" przeniesiony spod imienia na prawą stronę, pod sumę godzin
+  (mały druczek) — czytelniejszy układ wiersza pracownika.
+
 ## 0.38.5 — avatary w raporcie pracowników (2026-07-20)
 
 - Raport → zakładka Pracownicy pokazuje zdjęcia profilowe (jak lista Zespołu)
