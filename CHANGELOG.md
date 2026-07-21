@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.38.2 — licznik dni do wypłaty (2026-07-20)
+
+- Przypomnienie o specyfikacjach liczy teraz realne dni do 25. („Do wypłaty
+  4 dni", „Dziś wypłata!", „Wypłata już minęła") zamiast sztywnego „5 dni".
+  Poprawna odmiana we wszystkich 4 językach.
+
 ## 0.38.1 — poprawka powiązania godzin z fakturą (2026-07-20)
 
 - Fakturowanie godzin używa teraz osobnej kolumny work_hours.project_invoice_id
