@@ -174,7 +174,16 @@ export default function DashboardPage() {
             <ReceiptText className="size-6 text-accent" strokeWidth={1.8} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">{t('dash.payslipReminderTitle')}</p>
+            <p className="text-sm font-semibold">
+              {payslipReminder.data.daysLeft > 0
+                ? t('dash.payslipDue', {
+                    n: payslipReminder.data.daysLeft,
+                    days: tp('dash.dayWord', payslipReminder.data.daysLeft),
+                  })
+                : payslipReminder.data.daysLeft === 0
+                  ? t('dash.payslipToday')
+                  : t('dash.payslipOverdue')}
+            </p>
             <p className="text-xs text-text-secondary">
               {t('dash.payslipReminderSub', {
                 month: cap(payslipReminder.data.monthLabel),

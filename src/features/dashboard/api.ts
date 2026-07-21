@@ -223,7 +223,11 @@ export interface PayslipReminder {
   show: boolean;
   monthLabel: string;
   missing: number;
+  /** Dni do wypłaty (25.): >0 odliczanie, 0 = dziś, <0 = po terminie. */
+  daysLeft: number;
 }
+
+const PAYDAY = 25; // wypłata zawsze 25. dnia miesiąca
 
 /** Przypomnienie o uzupełnieniu specyfikacji: od 20. dnia, gdy brakuje. */
 export async function fetchPayslipReminder(): Promise<PayslipReminder> {
@@ -246,6 +250,7 @@ export async function fetchPayslipReminder(): Promise<PayslipReminder> {
     show: now.getDate() >= 20 && employees > 0 && missing > 0,
     monthLabel: format(prev, 'LLLL yyyy', { locale: activeDateLocale() }),
     missing,
+    daysLeft: PAYDAY - now.getDate(),
   };
 }
 
