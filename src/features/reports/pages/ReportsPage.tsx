@@ -365,6 +365,9 @@ function EmployeeRow({
             {(e.approved ?? 0) > 0 && (
               <Badge tone="success">{t('rep.approvedShort', { n: num(e.approved!) })}</Badge>
             )}
+            {(e.invoiced ?? 0) > 0 && (
+              <Badge tone="info">{t('rep.invoicedShort', { n: num(e.invoiced!) })}</Badge>
+            )}
             {(e.draft ?? 0) > 0 && (
               <Badge tone="warning">{t('rep.draftBadge', { n: num(e.draft!) })}</Badge>
             )}

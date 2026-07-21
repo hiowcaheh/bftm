@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.38.4 — zafakturowane godziny w raporcie (2026-07-20)
+
+- Raport pracowników pokazuje teraz osobną etykietę „{n} h zafakturowane"
+  (niebieska). Wcześniej zafakturowane godziny wchodziły w sumę, ale nie miały
+  badge'a — wyglądało, jakby „znikały" (np. Petro: 16 h zatw. + 36 h zafakt. = 52 h).
+
 ## 0.38.3 — poprawka „wypłata już minęła" przy starym cache (2026-07-20)
 
 - Stary zapamiętany wynik (sprzed 0.38.2) nie miał pola daysLeft → tytuł
