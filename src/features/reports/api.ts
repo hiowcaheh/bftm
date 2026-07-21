@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 export interface ReportEmployee {
   id: string;
   name: string;
+  avatar_path: string | null;
   total: number;
   approved: number | null;
   draft: number | null;

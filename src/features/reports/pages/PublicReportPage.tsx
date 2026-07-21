@@ -56,6 +56,7 @@ export default function PublicReportPage() {
         rows.push({
           id: name,
           name,
+          avatar_path: null,
           total: 0,
           approved: null,
           draft: null,

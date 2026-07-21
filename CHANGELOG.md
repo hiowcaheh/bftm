@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.38.5 — avatary w raporcie pracowników (2026-07-20)
+
+- Raport → zakładka Pracownicy pokazuje zdjęcia profilowe (jak lista Zespołu)
+  zamiast generycznej ikony ludzików. report_hours zwraca avatar_path (migr. 0053).
+
 ## 0.38.4 — zafakturowane godziny w raporcie (2026-07-20)
 
 - Raport pracowników pokazuje teraz osobną etykietę „{n} h zafakturowane"
