@@ -175,14 +175,17 @@ export default function DashboardPage() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">
-              {payslipReminder.data.daysLeft > 0
-                ? t('dash.payslipDue', {
-                    n: payslipReminder.data.daysLeft,
-                    days: tp('dash.dayWord', payslipReminder.data.daysLeft),
-                  })
-                : payslipReminder.data.daysLeft === 0
-                  ? t('dash.payslipToday')
-                  : t('dash.payslipOverdue')}
+              {/* Number.isFinite — stary cache (persist) może nie mieć daysLeft */}
+              {!Number.isFinite(payslipReminder.data.daysLeft)
+                ? t('dash.payslipReminderTitle')
+                : payslipReminder.data.daysLeft > 0
+                  ? t('dash.payslipDue', {
+                      n: payslipReminder.data.daysLeft,
+                      days: tp('dash.dayWord', payslipReminder.data.daysLeft),
+                    })
+                  : payslipReminder.data.daysLeft === 0
+                    ? t('dash.payslipToday')
+                    : t('dash.payslipOverdue')}
             </p>
             <p className="text-xs text-text-secondary">
               {t('dash.payslipReminderSub', {

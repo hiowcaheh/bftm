@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.38.3 — poprawka „wypłata już minęła" przy starym cache (2026-07-20)
+
+- Stary zapamiętany wynik (sprzed 0.38.2) nie miał pola daysLeft → tytuł
+  błędnie pokazywał „Wypłata już minęła". Teraz przy braku daysLeft pokazuje
+  neutralny „Zbliża się wypłata", a po odświeżeniu poprawny licznik dni.
+
 ## 0.38.2 — licznik dni do wypłaty (2026-07-20)
 
 - Przypomnienie o specyfikacjach liczy teraz realne dni do 25. („Do wypłaty
