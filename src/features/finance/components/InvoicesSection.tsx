@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { addDays, format } from 'date-fns';
-import { CheckCircle2, FileText, Lightbulb, Plus, Trash2, Undo2 } from 'lucide-react';
+import { CheckCircle2, ChevronRight, FileText, Plus, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -9,6 +9,7 @@ import { DateField } from '@/components/ui/DateField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
+import { cn } from '@/lib/cn';
 import { date as fmtDate, hours as fmtHours, money, moneyWhole } from '@/lib/format';
 import { useT } from '@/lib/i18n/context';
 import type { AllInvoice, InvoiceSuggestion } from '../api';
@@ -129,14 +130,72 @@ export function InvoicesSection() {
     label: p.name,
   }));
 
-  const invoiceBadge = (inv: AllInvoice) =>
-    inv.paid_at ? (
-      <Badge tone="success">{t('fin.paidBadge')}</Badge>
-    ) : inv.due_at && inv.due_at < today ? (
-      <Badge tone="error">{t('fin.overdueBadge')}</Badge>
-    ) : (
-      <Badge tone="warning">{t('fin.waitingBadge')}</Badge>
-    );
+  // grupowanie faktur wg statusu — żeby od razu było widać które czekają
+  const groups: Array<{
+    key: string;
+    label: string;
+    dot: string;
+    items: AllInvoice[];
+  }> = [
+    {
+      key: 'overdue',
+      label: t('fin.grpOverdue'),
+      dot: 'bg-error',
+      items: list.filter((i) => !i.paid_at && i.due_at && i.due_at < today),
+    },
+    {
+      key: 'waiting',
+      label: t('fin.grpWaiting'),
+      dot: 'bg-warning',
+      items: list.filter((i) => !i.paid_at && !(i.due_at && i.due_at < today)),
+    },
+    {
+      key: 'paid',
+      label: t('fin.grpPaid'),
+      dot: 'bg-success',
+      items: list.filter((i) => i.paid_at),
+    },
+  ].filter((g) => g.items.length > 0);
+
+  const invoiceRow = (inv: AllInvoice) => (
+    <button
+      key={inv.id}
+      type="button"
+      className="press flex items-center gap-3 px-4 py-3 text-left"
+      onClick={() => openManual(inv)}
+    >
+      <span
+        className="size-2.5 shrink-0 rounded-full"
+        style={{ backgroundColor: inv.project?.color ?? 'var(--color-accent)' }}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">
+          {inv.project?.name ?? '—'}
+          <span className="tabular-nums font-semibold"> • {money(inv.amount)}</span>
+        </p>
+        <p className="mt-0.5 text-xs text-text-secondary">
+          {[
+            inv.note,
+            t('fin.sentAt', { date: fmtDate(inv.sent_at) }),
+            inv.paid_at
+              ? t('fin.paidAt', { date: fmtDate(inv.paid_at) })
+              : inv.due_at
+                ? t('fin.dueAt', { date: fmtDate(inv.due_at) })
+                : null,
+          ]
+            .filter(Boolean)
+            .join(' • ')}
+        </p>
+      </div>
+      {inv.paid_at ? (
+        <Badge tone="success">{t('fin.paidBadge')}</Badge>
+      ) : inv.due_at && inv.due_at < today ? (
+        <Badge tone="error">{t('fin.overdueBadge')}</Badge>
+      ) : (
+        <Badge tone="warning">{t('fin.waitingBadge')}</Badge>
+      )}
+    </button>
+  );
 
   return (
     <section className="flex flex-col gap-3">
@@ -152,84 +211,68 @@ export function InvoicesSection() {
         </Button>
       </div>
 
-      {/* Podpowiedzi: co można zafakturować */}
-      {sugg.length > 0 && (
-        <Card className="flex flex-col gap-2 border-l-4 border-warning p-4">
-          <p className="flex items-center gap-2 text-sm font-semibold">
-            <Lightbulb className="size-5 text-warning" strokeWidth={1.8} />
-            {t('fin.toInvoice')}
-          </p>
-          {sugg.map((s) => (
-            <button
-              key={`${s.projectId}-${s.kind}`}
-              type="button"
-              className="press flex items-center gap-3 rounded-xl bg-surface p-3 text-left"
-              onClick={() => (s.kind === 'hours' ? setHoursSheet(s) : openManual(null, s))}
-            >
-              <span
-                className="size-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: s.color ?? 'var(--color-accent)' }}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{s.name}</p>
-                <p className="tabular-nums text-xs text-text-secondary">
-                  {s.kind === 'hours'
-                    ? t('fin.suggHours', { h: fmtHours(s.hours), amount: moneyWhole(s.amount) })
-                    : t('fin.suggFixed', { amount: moneyWhole(s.amount) })}
-                </p>
-              </div>
-              <span className="shrink-0 rounded-full bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
-                {t('fin.invoiceNow')}
-              </span>
-            </button>
-          ))}
-        </Card>
-      )}
-
-      {/* Wszystkie faktury */}
       {list.length === 0 && sugg.length === 0 ? (
         <Card className="flex items-center gap-3 p-4 text-sm text-text-secondary">
           <FileText className="size-5 shrink-0" strokeWidth={1.8} />
           {t('fin.noInvoices')}
         </Card>
       ) : (
-        list.length > 0 && (
-          <Card className="flex flex-col gap-2 p-3">
-            {list.map((inv) => (
-              <button
-                key={inv.id}
-                type="button"
-                className="press flex items-center gap-3 rounded-xl bg-surface p-3 text-left"
-                onClick={() => openManual(inv)}
-              >
-                <span
-                  className="size-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: inv.project?.color ?? 'var(--color-accent)' }}
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
-                    {inv.project?.name ?? '—'}
-                    <span className="tabular-nums font-semibold"> • {money(inv.amount)}</span>
-                  </p>
-                  <p className="mt-0.5 text-xs text-text-secondary">
-                    {[
-                      inv.note,
-                      t('fin.sentAt', { date: fmtDate(inv.sent_at) }),
-                      inv.paid_at
-                        ? t('fin.paidAt', { date: fmtDate(inv.paid_at) })
-                        : inv.due_at
-                          ? t('fin.dueAt', { date: fmtDate(inv.due_at) })
-                          : null,
-                    ]
-                      .filter(Boolean)
-                      .join(' • ')}
-                  </p>
-                </div>
-                {invoiceBadge(inv)}
-              </button>
-            ))}
-          </Card>
-        )
+        <Card className="flex flex-col divide-y divide-line overflow-hidden p-0">
+          {/* Podpowiedzi AI: co można zafakturować */}
+          {sugg.length > 0 && (
+            <div className="flex flex-col gap-2 bg-gradient-to-b from-accent-soft/50 to-transparent p-4">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-accent to-[#ff6a3d] px-2 py-0.5 text-[11px] font-bold tracking-wide text-white shadow-sm">
+                  <Sparkles className="size-3" strokeWidth={2.4} /> AI
+                </span>
+                <p className="text-sm font-semibold">{t('fin.toInvoice')}</p>
+              </div>
+              {sugg.map((s) => (
+                <button
+                  key={`${s.projectId}-${s.kind}`}
+                  type="button"
+                  className="press flex items-center gap-3 rounded-xl bg-white/70 p-3 text-left shadow-(--shadow-card)"
+                  onClick={() => (s.kind === 'hours' ? setHoursSheet(s) : openManual(null, s))}
+                >
+                  <span
+                    className="size-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: s.color ?? 'var(--color-accent)' }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{s.name}</p>
+                    <p className="tabular-nums text-xs text-text-secondary">
+                      {s.kind === 'hours'
+                        ? t('fin.suggHours', { h: fmtHours(s.hours), amount: moneyWhole(s.amount) })
+                        : t('fin.suggFixed', { amount: moneyWhole(s.amount) })}
+                    </p>
+                  </div>
+                  <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-white">
+                    {t('fin.invoiceNow')}
+                    <ChevronRight className="size-3.5" strokeWidth={2.4} />
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Faktury pogrupowane statusem */}
+          {groups.map((g) => (
+            <div key={g.key} className="flex flex-col">
+              <div className="flex items-center gap-2 bg-surface/50 px-4 py-2">
+                <span className={cn('size-2 rounded-full', g.dot)} />
+                <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                  {g.label}
+                </span>
+                <span className="tabular-nums text-xs text-text-secondary/60">
+                  {g.items.length}
+                </span>
+              </div>
+              <div className="flex flex-col divide-y divide-line/60">
+                {g.items.map(invoiceRow)}
+              </div>
+            </div>
+          ))}
+        </Card>
       )}
 
       {/* Faktura z godzin — okres + podgląd na żywo */}
