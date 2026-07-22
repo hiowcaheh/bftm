@@ -420,6 +420,9 @@ const pl: Dict = {
   },
   fin: {
     invoicesSection: 'Faktury projektów',
+    grpOverdue: 'Po terminie',
+    grpWaiting: 'Czeka na płatność',
+    grpPaid: 'Opłacone',
     toInvoice: 'Do zafakturowania',
     invoiceNow: 'Zafakturuj',
     suggHours: '{h} zatwierdzonych • ≈ {amount}',
@@ -1322,6 +1325,9 @@ const sv: Dict = {
   },
   fin: {
     invoicesSection: 'Projektfakturor',
+    grpOverdue: 'Förfallna',
+    grpWaiting: 'Väntar på betalning',
+    grpPaid: 'Betalda',
     toInvoice: 'Att fakturera',
     invoiceNow: 'Fakturera',
     suggHours: '{h} godkända • ≈ {amount}',
@@ -2218,6 +2224,9 @@ const en: Dict = {
   },
   fin: {
     invoicesSection: 'Project invoices',
+    grpOverdue: 'Overdue',
+    grpWaiting: 'Awaiting payment',
+    grpPaid: 'Paid',
     toInvoice: 'To invoice',
     invoiceNow: 'Invoice',
     suggHours: '{h} approved • ≈ {amount}',
@@ -3120,6 +3129,9 @@ const uk: Dict = {
   },
   fin: {
     invoicesSection: 'Рахунки проєктів',
+    grpOverdue: 'Прострочені',
+    grpWaiting: 'Очікують оплати',
+    grpPaid: 'Оплачені',
     toInvoice: 'До фактурування',
     invoiceNow: 'Виставити',
     suggHours: '{h} підтверджених • ≈ {amount}',

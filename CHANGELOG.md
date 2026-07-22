@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.39.0 — świeży wygląd sekcji faktur (2026-07-20)
+
+- Sekcja Faktury projektów w jednej spójnej karcie: podpowiedzi „AI" u góry
+  (chip z gwiazdką zamiast lampki, delikatny gradient), pod nimi faktury
+  pogrupowane statusem — Po terminie / Czeka na płatność / Opłacone, każda
+  grupa z nagłówkiem i kolorową kropką. Od razu widać, które czekają.
+
 ## 0.38.6 — koszt pod sumą godzin w raporcie (2026-07-20)
 
 - „koszt XXX kr" przeniesiony spod imienia na prawą stronę, pod sumę godzin
