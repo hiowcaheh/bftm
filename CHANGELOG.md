@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.39.1 — poprawki UI + obecność online (2026-07-20)
+
+- Sekcja faktur: ikona faktury zamiast „AI", przycisk „Faktura ›".
+- Pulpit: ikona zegara zamiast wschodu słońca przy „nikt dziś nie wpisał".
+- Klienci: badge ROT/Omvänd moms w osobnej linii (nie ucinają się przy długiej
+  nazwie), z wielkiej litery.
+- Zespół: badge „Admin" tylko na własnym koncie (inni adminowie bez oznaczenia).
+- „Ostatnio online": dodanie godzin aktualizuje obecność autora niezależnie od
+  wersji PWA (trigger, migracja 0054) + backfill istniejących dat.
+
 ## 0.39.0 — świeży wygląd sekcji faktur (2026-07-20)
 
 - Sekcja Faktury projektów w jednej spójnej karcie: podpowiedzi „AI" u góry

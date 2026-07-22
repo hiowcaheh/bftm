@@ -9,7 +9,6 @@ import {
   ChevronRight,
   ReceiptText,
   Scale,
-  Sunrise,
 } from 'lucide-react';
 import { format, getISOWeek } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
@@ -252,7 +251,7 @@ export default function DashboardPage() {
               today.data.entries.length === 0 &&
               today.data.absences.length === 0 && (
                 <p className="flex items-center gap-2 text-sm text-text-secondary">
-                  <Sunrise className="size-5" /> {t('dash.nobodyToday')}
+                  <Clock className="size-5" /> {t('dash.nobodyToday')}
                 </p>
               )}
             {today.data?.entries.map((e, i) => (

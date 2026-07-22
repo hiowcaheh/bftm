@@ -80,7 +80,10 @@ export default function EmployeesPage() {
               title={
                 <span className="flex items-center gap-2">
                   {emp.full_name}
-                  {emp.role === 'admin' && <Badge tone="accent">Admin</Badge>}
+                  {/* badge Admin tylko na własnym wierszu — inni adminowie bez oznaczenia */}
+                  {emp.role === 'admin' && emp.id === user?.id && (
+                    <Badge tone="accent">Admin</Badge>
+                  )}
                   {!emp.active && <Badge tone="error">{t('emp.inactive')}</Badge>}
                 </span>
               }
