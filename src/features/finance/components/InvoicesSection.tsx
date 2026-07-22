@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { addDays, format } from 'date-fns';
-import { CheckCircle2, ChevronRight, FileText, Plus, Sparkles, Trash2, Undo2 } from 'lucide-react';
+import { CheckCircle2, ChevronRight, FileText, Plus, ReceiptText, Trash2, Undo2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -220,11 +220,9 @@ export function InvoicesSection() {
         <Card className="flex flex-col divide-y divide-line overflow-hidden p-0">
           {/* Podpowiedzi AI: co można zafakturować */}
           {sugg.length > 0 && (
-            <div className="flex flex-col gap-2 bg-gradient-to-b from-accent-soft/50 to-transparent p-4">
+            <div className="flex flex-col gap-2 bg-gradient-to-b from-accent-soft/40 to-transparent p-4">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-accent to-[#ff6a3d] px-2 py-0.5 text-[11px] font-bold tracking-wide text-white shadow-sm">
-                  <Sparkles className="size-3" strokeWidth={2.4} /> AI
-                </span>
+                <ReceiptText className="size-5 text-accent" strokeWidth={1.8} />
                 <p className="text-sm font-semibold">{t('fin.toInvoice')}</p>
               </div>
               {sugg.map((s) => (

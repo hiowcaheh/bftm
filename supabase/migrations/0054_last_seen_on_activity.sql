@@ -1,0 +1,4 @@
+-- 0054 — serwerowy bezpiecznik obecności: trigger work_hours_bump_last_seen
+-- (AFTER INSERT) aktualizuje profiles.last_seen_at autora wpisu, gdy starsze
+-- niż 5 min — niezależnie od wersji PWA. + backfill last_seen do daty ostatniego
+-- wpisu godzin. Zastosowane przez MCP apply_migration; revoke exec na funkcji.
