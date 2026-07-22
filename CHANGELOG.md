@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.39.2 — badge klientów (2026-07-20)
+
+- Usunięty badge „Omvänd moms" z listy klientów; został tylko ROT
+  (klienci prywatni), w tej samej linii co nazwa — jak wcześniej.
+
 ## 0.39.1 — poprawki UI + obecność online (2026-07-20)
 
 - Sekcja faktur: ikona faktury zamiast „AI", przycisk „Faktura ›".

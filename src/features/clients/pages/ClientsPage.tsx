@@ -70,15 +70,10 @@ export default function ClientsPage() {
                 </div>
               }
               title={
-                <div className="flex min-w-0 flex-col gap-1">
-                  <span className="truncate">{c.name}</span>
-                  {(c.reverse_vat || c.rot_eligible) && (
-                    <span className="flex flex-wrap gap-1.5">
-                      {c.reverse_vat && <Badge tone="info">Omvänd moms</Badge>}
-                      {c.rot_eligible && <Badge tone="success">ROT</Badge>}
-                    </span>
-                  )}
-                </div>
+                <span className="flex items-center gap-2">
+                  {c.name}
+                  {c.rot_eligible && <Badge tone="success">ROT</Badge>}
+                </span>
               }
               subtitle={c.phone || c.email || c.address || undefined}
               chevron
