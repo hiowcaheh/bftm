@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.40.0 — nowa strona logowania (2026-07-20)
+
+- Redesign ekranu logowania: watermark z małych logo w tle (jak w aplikacji),
+  slogan „Auktoriserad företagsapp" stampowany wielkimi literami, usunięta
+  zdublowana nazwa firmy (jest na logo). Formularz w karcie ze szkłem
+  (backdrop-blur), nowoczesny przycisk „Logga in →" z gradientem. Całość po
+  szwedzku (punkt wejścia do firmowej aplikacji).
+
 ## 0.39.2 — badge klientów (2026-07-20)
 
 - Usunięty badge „Omvänd moms" z listy klientów; został tylko ROT
