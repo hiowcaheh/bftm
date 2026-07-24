@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Lock, User } from 'lucide-react';
-import { Switch } from '@/components/ui/Switch';
+import { ArrowRight, Check, Lock, User } from 'lucide-react';
+import { cn } from '@/lib/cn';
 import { toast } from '@/components/ui/Toast';
 import { supabase, setRememberMe } from '@/lib/supabaseClient';
 import { usePublicBranding, useSignIn } from '../hooks';
@@ -74,7 +74,7 @@ export default function LoginPage() {
             <div className="h-28 w-40 animate-pulse rounded-3xl bg-surface" />
           ) : null}
           {/* slogan stampowany wielkimi literami, w czerwieni logo */}
-          <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-accent">
+          <p className="text-center text-[13px] font-bold uppercase tracking-[0.28em] text-accent">
             Auktoriserad företagsapp
           </p>
         </div>
@@ -117,10 +117,22 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* nowoczesny przełącznik zamiast checkboxa */}
-          <div className="rounded-(--radius-input) bg-surface px-3.5 py-2.5">
-            <Switch checked={remember} onChange={setRemember} label="Kom ihåg mig" />
-          </div>
+          {/* checkbox „zapamiętaj mnie" — etykieta z lewej, box z prawej */}
+          <button
+            type="button"
+            onClick={() => setRemember((v) => !v)}
+            className="flex w-full items-center justify-between gap-3 py-0.5 text-left"
+          >
+            <span className="text-sm font-medium">Kom ihåg mig</span>
+            <span
+              className={cn(
+                'flex size-6 shrink-0 items-center justify-center rounded-md border transition-colors',
+                remember ? 'border-accent bg-accent text-white' : 'border-line bg-white',
+              )}
+            >
+              {remember && <Check className="size-4" strokeWidth={3} />}
+            </span>
+          </button>
 
           <button
             type="submit"
