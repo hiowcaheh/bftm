@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.40.4 — logowanie: bez sloganu, większe logo (2026-07-20)
+
+- Usunięty napis „Auktoriserad företagsapp"; logo powiększone (max-h-64).
+
 ## 0.40.3 — logowanie: „Kom ihåg mig" do prawej (2026-07-20)
 
 - „Kom ihåg mig" wyrównane do prawej, mniejsza etykieta i checkbox.

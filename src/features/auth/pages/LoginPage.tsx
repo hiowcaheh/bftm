@@ -63,20 +63,16 @@ export default function LoginPage() {
           paddingBottom: 'env(safe-area-inset-bottom)',
         }}
       >
-        <div className="mb-8 flex flex-col items-center gap-4">
+        <div className="mb-8 flex flex-col items-center">
           {logoUrl ? (
             <img
               src={logoUrl}
               alt="BFTM"
-              className="max-h-52 w-full animate-fade-in object-contain drop-shadow-sm"
+              className="max-h-64 w-full animate-fade-in object-contain drop-shadow-sm"
             />
           ) : branding.isLoading ? (
-            <div className="h-28 w-40 animate-pulse rounded-3xl bg-surface" />
+            <div className="h-32 w-44 animate-pulse rounded-3xl bg-surface" />
           ) : null}
-          {/* slogan stampowany wielkimi literami, w czerwieni logo */}
-          <p className="text-center text-[13px] font-bold uppercase tracking-[0.28em] text-accent">
-            Auktoriserad företagsapp
-          </p>
         </div>
 
         <form
