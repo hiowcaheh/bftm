@@ -362,11 +362,11 @@ function EmployeeRow({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{e.name}</p>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-            {(e.approved ?? 0) > 0 && (
-              <Badge tone="success">{t('rep.approvedShort', { n: num(e.approved!) })}</Badge>
-            )}
-            {(e.invoiced ?? 0) > 0 && (
-              <Badge tone="info">{t('rep.invoicedShort', { n: num(e.invoiced!) })}</Badge>
+            {/* zafakturowane liczą się jako zatwierdzone — tu ważne tylko: zatw. vs nie */}
+            {(e.approved ?? 0) + (e.invoiced ?? 0) > 0 && (
+              <Badge tone="success">
+                {t('rep.approvedShort', { n: num((e.approved ?? 0) + (e.invoiced ?? 0)) })}
+              </Badge>
             )}
             {(e.draft ?? 0) > 0 && (
               <Badge tone="warning">{t('rep.draftBadge', { n: num(e.draft!) })}</Badge>
