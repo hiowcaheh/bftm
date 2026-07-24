@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.41.1 — raport: bez rozbicia na zafakturowane (2026-07-20)
+
+- W raporcie pracowników zafakturowane godziny wliczają się do „zatwierdzonych".
+  Podział tylko: zatwierdzone vs niezatwierdzone (usunięty badge „zafakturowane").
+
 ## 0.41.0 — mądrzejsze podpowiedzi fakturowania (2026-07-20)
 
 - Podpowiedź „do zafakturowania" liczy teraz POZOSTAŁO = wartość pracy − już
