@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.40.1 — dopieszczenie logowania (2026-07-20)
+
+- Slogan w czerwieni logo; ikony w polach login (User) i hasło (Lock);
+  „Kom ihåg mig" jako nowoczesny przełącznik (Switch) zamiast checkboxa;
+  lżejszy, zaokrąglony przycisk „Logga in" (pill) zamiast ciężkiego gradientu.
+
 ## 0.40.0 — nowa strona logowania (2026-07-20)
 
 - Redesign ekranu logowania: watermark z małych logo w tle (jak w aplikacji),
