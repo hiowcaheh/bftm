@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Check } from 'lucide-react';
-import { Input } from '@/components/ui/Input';
+import { ArrowRight, Lock, User } from 'lucide-react';
+import { Switch } from '@/components/ui/Switch';
 import { toast } from '@/components/ui/Toast';
-import { cn } from '@/lib/cn';
 import { supabase, setRememberMe } from '@/lib/supabaseClient';
 import { usePublicBranding, useSignIn } from '../hooks';
 
 /**
  * Ekran logowania — wizytówka firmy, celowo po SZWEDZKU (jak strony publiczne):
- * to punkt wejścia do autoryzowanej aplikacji BFTM. Logo + watermark z małych
- * logo w tle (jak w aplikacji), pole „login/e-mail" (literalne „admin" mapuje
- * się na e-mail administratora), bez rejestracji i resetu (robi to admin).
+ * punkt wejścia do autoryzowanej aplikacji BFTM. Logo + watermark z małych logo
+ * w tle (jak w aplikacji), pola z ikonami, „login/e-mail" (literalne „admin"
+ * mapuje się na e-mail administratora), bez rejestracji i resetu (robi to admin).
  */
 export default function LoginPage() {
   const [login, setLogin] = useState('');
@@ -33,11 +32,11 @@ export default function LoginPage() {
       return;
     }
     setRememberMe(remember);
-    signIn.mutate(
-      { login, password },
-      { onSuccess: () => navigate('/', { replace: true }) },
-    );
+    signIn.mutate({ login, password }, { onSuccess: () => navigate('/', { replace: true }) });
   };
+
+  const fieldClass =
+    'h-12 w-full rounded-(--radius-input) border border-line bg-white pl-11 pr-3.5 text-[1rem] text-text placeholder:text-text-secondary/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15';
 
   return (
     <div className="relative min-h-dvh overflow-hidden">
@@ -74,8 +73,8 @@ export default function LoginPage() {
           ) : branding.isLoading ? (
             <div className="h-28 w-40 animate-pulse rounded-3xl bg-surface" />
           ) : null}
-          {/* slogan stampowany wielkimi literami — jak druk na logo */}
-          <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-text-secondary">
+          {/* slogan stampowany wielkimi literami, w czerwieni logo */}
+          <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-accent">
             Auktoriserad företagsapp
           </p>
         </div>
@@ -84,40 +83,49 @@ export default function LoginPage() {
           onSubmit={onSubmit}
           className="flex flex-col gap-4 rounded-(--radius-card) border border-line/60 bg-white/80 p-5 shadow-(--shadow-card) backdrop-blur"
         >
-          <Input
-            label="Användarnamn eller e-post"
-            autoComplete="username"
-            autoCapitalize="none"
-            value={login}
-            onChange={(e) => setLogin(e.target.value)}
-          />
-          <Input
-            label="Lösenord"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="button"
-            onClick={() => setRemember((v) => !v)}
-            className="-my-1 flex items-center gap-2.5 self-start text-left"
-          >
-            <span
-              className={cn(
-                'flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors',
-                remember ? 'border-accent bg-accent text-white' : 'border-line bg-surface',
-              )}
-            >
-              {remember && <Check className="size-3.5" strokeWidth={3} />}
-            </span>
-            <span className="text-sm">Kom ihåg mig</span>
-          </button>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="login" className="text-xs font-medium text-text-secondary">
+              Användarnamn eller e-post
+            </label>
+            <div className="relative">
+              <User className="pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-text-secondary/60" strokeWidth={1.8} />
+              <input
+                id="login"
+                className={fieldClass}
+                autoComplete="username"
+                autoCapitalize="none"
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-xs font-medium text-text-secondary">
+              Lösenord
+            </label>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-text-secondary/60" strokeWidth={1.8} />
+              <input
+                id="password"
+                type="password"
+                className={fieldClass}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* nowoczesny przełącznik zamiast checkboxa */}
+          <div className="rounded-(--radius-input) bg-surface px-3.5 py-2.5">
+            <Switch checked={remember} onChange={setRemember} label="Kom ihåg mig" />
+          </div>
 
           <button
             type="submit"
             disabled={signIn.isPending}
-            className="press mt-1 flex h-13 w-full items-center justify-center gap-2 rounded-(--radius-input) bg-gradient-to-b from-accent to-[#a30000] text-base font-semibold text-white shadow-lg shadow-accent/25 transition-transform disabled:opacity-70"
+            className="press mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-accent text-base font-semibold text-white shadow-md shadow-accent/20 transition disabled:opacity-70"
           >
             {signIn.isPending ? (
               <span className="size-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
