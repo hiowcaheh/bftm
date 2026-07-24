@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.40.2 — logowanie: checkbox + większy slogan (2026-07-20)
+
+- „Kom ihåg mig" jako checkbox (etykieta z lewej, box z prawej), bez szarego
+  tła. Slogan odrobinę większy (13px).
+
 ## 0.40.1 — dopieszczenie logowania (2026-07-20)
 
 - Slogan w czerwieni logo; ikony w polach login (User) i hasło (Lock);
