@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { addDays, format } from 'date-fns';
 import { CheckCircle2, ChevronRight, FileText, Plus, ReceiptText, Trash2, Undo2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -17,11 +17,9 @@ import {
   useAllInvoices,
   useDeleteProjectInvoice,
   useFinanceSummary,
-  useInvoiceHours,
   useInvoiceSuggestions,
   useMarkInvoicePaid,
   useSaveProjectInvoice,
-  useUninvoicedHours,
 } from '../hooks';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
@@ -37,16 +35,11 @@ export function InvoicesSection() {
   const suggestions = useInvoiceSuggestions();
   const invoices = useAllInvoices();
   const summary = useFinanceSummary('2000-01-01', '2100-01-01');
-  const invoiceHours = useInvoiceHours();
   const save = useSaveProjectInvoice();
   const markPaid = useMarkInvoicePaid();
   const remove = useDeleteProjectInvoice();
 
-  // faktura z godzin (podpowiedź godzinowa)
-  const [hoursSheet, setHoursSheet] = useState<InvoiceSuggestion | null>(null);
-  const [periodFrom, setPeriodFrom] = useState('');
-  const [periodTo, setPeriodTo] = useState('');
-  // faktura ręczna / fastpris
+  // faktura ręczna / z podpowiedzi (edytowalna: kwota, data, notatka)
   const [manualOpen, setManualOpen] = useState(false);
   const [manualProject, setManualProject] = useState('');
   const [editing, setEditing] = useState<AllInvoice | null>(null);
@@ -57,22 +50,6 @@ export function InvoicesSection() {
   const [paidSheet, setPaidSheet] = useState<AllInvoice | null>(null);
   const [paidDate, setPaidDate] = useState(iso(new Date()));
   const [toDelete, setToDelete] = useState<AllInvoice | null>(null);
-
-  const previewHours = useUninvoicedHours(hoursSheet?.projectId ?? null, periodFrom, periodTo);
-  const previewAmount =
-    hoursSheet && hoursSheet.hours > 0
-      ? (previewHours.data ?? 0) * (hoursSheet.amount / hoursSheet.hours)
-      : 0;
-
-  useEffect(() => {
-    if (hoursSheet) {
-      setPeriodFrom(hoursSheet.from);
-      setPeriodTo(hoursSheet.to);
-      setNote('');
-      setSentDate(iso(new Date()));
-      setDueDate(iso(addDays(new Date(), 30)));
-    }
-  }, [hoursSheet]);
 
   const openManual = (inv: AllInvoice | null, suggestion?: InvoiceSuggestion) => {
     setEditing(inv);
@@ -104,21 +81,6 @@ export function InvoicesSection() {
           setEditing(null);
         },
       },
-    );
-  };
-
-  const submitHours = () => {
-    if (!hoursSheet || !periodFrom || !periodTo || (previewHours.data ?? 0) <= 0) return;
-    invoiceHours.mutate(
-      {
-        projectId: hoursSheet.projectId,
-        from: periodFrom,
-        to: periodTo,
-        sentAt: sentDate,
-        dueAt: dueDate || null,
-        note: note.trim() || null,
-      },
-      { onSuccess: () => setHoursSheet(null) },
     );
   };
 
@@ -230,7 +192,7 @@ export function InvoicesSection() {
                   key={`${s.projectId}-${s.kind}`}
                   type="button"
                   className="press flex items-center gap-3 rounded-xl bg-white/70 p-3 text-left shadow-(--shadow-card)"
-                  onClick={() => (s.kind === 'hours' ? setHoursSheet(s) : openManual(null, s))}
+                  onClick={() => openManual(null, s)}
                 >
                   <span
                     className="size-2.5 shrink-0 rounded-full"
@@ -273,72 +235,6 @@ export function InvoicesSection() {
         </Card>
       )}
 
-      {/* Faktura z godzin — okres + podgląd na żywo */}
-      <Sheet
-        open={hoursSheet !== null}
-        onClose={() => setHoursSheet(null)}
-        title={t('fin.invoiceFromHours')}
-      >
-        {hoursSheet && (
-          <div className="flex flex-col gap-4">
-            <p className="text-sm text-text-secondary">{hoursSheet.name}</p>
-            <div className="grid grid-cols-2 gap-3">
-              <DateField
-                label={t('fin.periodFrom')}
-                value={periodFrom}
-                onChange={(e) => setPeriodFrom(e.target.value)}
-              />
-              <DateField
-                label={t('fin.periodTo')}
-                value={periodTo}
-                onChange={(e) => setPeriodTo(e.target.value)}
-              />
-            </div>
-            <div className="tabular-nums rounded-xl bg-surface p-3 text-sm">
-              {(previewHours.data ?? 0) > 0 ? (
-                <span className="font-semibold">
-                  {t('fin.willInvoice', {
-                    h: fmtHours(previewHours.data ?? 0),
-                    amount: moneyWhole(previewAmount),
-                  })}
-                </span>
-              ) : (
-                <span className="text-text-secondary">{t('fin.noApprovedInPeriod')}</span>
-              )}
-            </div>
-            <Input
-              label={t('fin.noteField')}
-              placeholder={t('fin.notePh')}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <DateField
-                label={t('fin.sentDate')}
-                value={sentDate}
-                onChange={(e) => {
-                  setSentDate(e.target.value);
-                  if (e.target.value) setDueDate(iso(addDays(new Date(e.target.value), 30)));
-                }}
-              />
-              <DateField
-                label={t('fin.dueDate')}
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
-            </div>
-            <Button
-              size="lg"
-              fullWidth
-              loading={invoiceHours.isPending}
-              disabled={(previewHours.data ?? 0) <= 0}
-              onClick={submitHours}
-            >
-              {t('fin.addInvoice')}
-            </Button>
-          </div>
-        )}
-      </Sheet>
 
       {/* Faktura ręczna / edycja */}
       <Sheet

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.41.0 — mądrzejsze podpowiedzi fakturowania (2026-07-20)
+
+- Podpowiedź „do zafakturowania" liczy teraz POZOSTAŁO = wartość pracy − już
+  zafakturowane (faktury ręczne i opłacone też odejmują), zamiast zawsze
+  pokazywać całość zatwierdzonych godzin. Fastpris jak dotąd (kwota − zafakt.).
+- Klik w podpowiedź otwiera edytowalny formularz (kwota, data, notatka) —
+  zamiast sztywnego arkusza z okresem. Pełna kontrola nad każdą fakturą.
+
 ## 0.40.4 — logowanie: bez sloganu, większe logo (2026-07-20)
 
 - Usunięty napis „Auktoriserad företagsapp"; logo powiększone (max-h-64).

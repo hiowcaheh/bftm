@@ -128,11 +128,11 @@ export interface InvoiceSuggestion {
 
 export async function fetchInvoiceSuggestions(): Promise<InvoiceSuggestion[]> {
   const [hoursRes, projectsRes, invoicesRes] = await Promise.all([
+    // godziny rozliczalne = zatwierdzone + już zafakturowane (praca wykonana)
     supabase
       .from('work_hours')
-      .select('date, hours, project:projects(id, name, color, status, billing_type, hourly_rate)')
-      .eq('status', 'approved')
-      .is('project_invoice_id', null),
+      .select('hours, project:projects(id, name, color, status, billing_type, hourly_rate)')
+      .in('status', ['approved', 'invoiced']),
     supabase
       .from('projects')
       .select('id, name, color, billing_type, fixed_value')
@@ -144,12 +144,23 @@ export async function fetchInvoiceSuggestions(): Promise<InvoiceSuggestion[]> {
   if (projectsRes.error) throw projectsRes.error;
   if (invoicesRes.error) throw invoicesRes.error;
 
+  // suma już zafakturowanych kwot per projekt (faktury ręczne i z godzin)
+  const invoicedByProject = new Map<string, number>();
+  for (const inv of invoicesRes.data ?? []) {
+    invoicedByProject.set(
+      inv.project_id,
+      (invoicedByProject.get(inv.project_id) ?? 0) + Number(inv.amount),
+    );
+  }
+
   const suggestions: InvoiceSuggestion[] = [];
 
-  // godzinówka: zatwierdzone, niezafakturowane godziny aktywnych projektów
-  const byProject = new Map<string, InvoiceSuggestion>();
+  // godzinówka: cała wartość pracy − to, co już zafakturowane = pozostało
+  const hoursByProject = new Map<
+    string,
+    { name: string; color: string | null; rate: number; hours: number }
+  >();
   for (const row of (hoursRes.data ?? []) as unknown as Array<{
-    date: string;
     hours: number;
     project: {
       id: string;
@@ -161,40 +172,37 @@ export async function fetchInvoiceSuggestions(): Promise<InvoiceSuggestion[]> {
     } | null;
   }>) {
     const p = row.project;
-    if (!p || p.status !== 'active') continue;
-    if (p.billing_type !== 'hourly' && p.billing_type !== 'mixed') continue;
-    if (!p.hourly_rate) continue;
-    const s =
-      byProject.get(p.id) ??
-      ({
-        projectId: p.id,
-        name: p.name,
-        color: p.color,
-        kind: 'hours',
-        hours: 0,
-        amount: 0,
-        from: row.date,
-        to: row.date,
-      } satisfies InvoiceSuggestion);
-    s.hours += row.hours;
-    s.amount = Math.round(s.hours * p.hourly_rate * 100) / 100;
-    if (row.date < s.from) s.from = row.date;
-    if (row.date > s.to) s.to = row.date;
-    byProject.set(p.id, s);
+    if (!p || p.status !== 'active' || p.billing_type !== 'hourly' || !p.hourly_rate) continue;
+    const agg = hoursByProject.get(p.id) ?? {
+      name: p.name,
+      color: p.color,
+      rate: p.hourly_rate,
+      hours: 0,
+    };
+    agg.hours += row.hours;
+    hoursByProject.set(p.id, agg);
   }
-  suggestions.push(...byProject.values());
+  for (const [id, agg] of hoursByProject) {
+    const remaining =
+      Math.round((agg.hours * agg.rate - (invoicedByProject.get(id) ?? 0)) * 100) / 100;
+    if (remaining > 1) {
+      suggestions.push({
+        projectId: id,
+        name: agg.name,
+        color: agg.color,
+        kind: 'hours',
+        hours: Math.round((remaining / agg.rate) * 10) / 10,
+        amount: remaining,
+        from: '',
+        to: '',
+      });
+    }
+  }
 
   // fastpris: umówiona kwota minus wszystko, co już zafakturowane
-  const invoicedByProject = new Map<string, number>();
-  for (const inv of invoicesRes.data ?? []) {
-    invoicedByProject.set(
-      inv.project_id,
-      (invoicedByProject.get(inv.project_id) ?? 0) + Number(inv.amount),
-    );
-  }
   for (const p of projectsRes.data ?? []) {
     const remaining = (p.fixed_value ?? 0) - (invoicedByProject.get(p.id) ?? 0);
-    if (remaining > 0) {
+    if (remaining > 1) {
       suggestions.push({
         projectId: p.id,
         name: p.name,
