@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.40.3 — logowanie: „Kom ihåg mig" do prawej (2026-07-20)
+
+- „Kom ihåg mig" wyrównane do prawej, mniejsza etykieta i checkbox.
+
 ## 0.40.2 — logowanie: checkbox + większy slogan (2026-07-20)
 
 - „Kom ihåg mig" jako checkbox (etykieta z lewej, box z prawej), bez szarego

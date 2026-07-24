@@ -121,16 +121,16 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setRemember((v) => !v)}
-            className="flex w-full items-center justify-between gap-3 py-0.5 text-left"
+            className="flex w-full items-center justify-end gap-2 py-0.5"
           >
-            <span className="text-sm font-medium">Kom ihåg mig</span>
+            <span className="text-xs font-medium text-text-secondary">Kom ihåg mig</span>
             <span
               className={cn(
-                'flex size-6 shrink-0 items-center justify-center rounded-md border transition-colors',
+                'flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors',
                 remember ? 'border-accent bg-accent text-white' : 'border-line bg-white',
               )}
             >
-              {remember && <Check className="size-4" strokeWidth={3} />}
+              {remember && <Check className="size-3.5" strokeWidth={3} />}
             </span>
           </button>
 
