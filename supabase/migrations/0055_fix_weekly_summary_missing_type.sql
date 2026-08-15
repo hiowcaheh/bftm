@@ -1,0 +1,6 @@
+-- 0055 — POPRAWKA krytyczna: w migracji 0045 (numer tygodnia w tytule) z INSERT-a
+-- weekly_admin_summary() wypadła wartość kolumny `type` ('weekly_summary') — 4
+-- kolumny, 3 wartości → błąd „INSERT has more target columns than expressions".
+-- Efekt: niedzielne podsumowanie dla adminów failowało co tydzień od 26.07.
+-- Naprawa: przywrócono 'weekly_summary' jako drugą wartość SELECT-a.
+-- Zastosowane przez MCP apply_migration; revoke exec dla ról API.

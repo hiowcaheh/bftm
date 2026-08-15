@@ -1,5 +1,11 @@
 # Changelog
 
+## Fix (backend) — niedzielne podsumowanie (2026-08-15)
+
+- Tygodniowe podsumowanie dla adminów nie wychodziło: w 0045 z zapytania INSERT
+  wypadła kolumna `type`, przez co funkcja failowała co niedzielę. Przywrócono
+  (migracja 0055). Bez zmian w aplikacji — poprawka wyłącznie w bazie.
+
 ## 0.41.1 — raport: bez rozbicia na zafakturowane (2026-07-20)
 
 - W raporcie pracowników zafakturowane godziny wliczają się do „zatwierdzonych".
