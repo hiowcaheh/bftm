@@ -9,6 +9,8 @@ export interface VizMapPoint {
   latitude: number;
   longitude: number;
   status: 'todo' | 'done';
+  /** Wymaga skyliftu — na punkcie pokazujemy małą literkę „S". */
+  skylift?: boolean;
 }
 
 interface VizMapProps {
@@ -30,18 +32,27 @@ interface VizMapProps {
 
 const COLOR = { todo: '#cc0000', done: '#2e7d32' };
 
-/** Marker jako mały kolorowy punkt z białą obwódką (lekki, nie „ciężki pin"). */
-function makeMarkerEl(status: 'todo' | 'done', active: boolean): HTMLElement {
+/** Marker jako mały kolorowy punkt z białą obwódką (lekki, nie „ciężki pin").
+ *  Gdy punkt wymaga skyliftu — mała biała literka „S" w środku. */
+function makeMarkerEl(
+  status: 'todo' | 'done',
+  active: boolean,
+  skylift: boolean,
+): HTMLElement {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.style.cssText =
-    'width:26px;height:26px;display:flex;align-items:center;justify-content:center;' +
+    'width:28px;height:28px;display:flex;align-items:center;justify-content:center;' +
     'background:transparent;border:0;cursor:pointer;padding:0;';
+  const size = skylift ? 18 : active ? 16 : 13;
   const dot = document.createElement('span');
   dot.style.cssText =
-    `width:${active ? 16 : 13}px;height:${active ? 16 : 13}px;border-radius:9999px;` +
+    `width:${size}px;height:${size}px;border-radius:9999px;` +
     `background:${COLOR[status]};border:2px solid #fff;` +
-    `box-shadow:0 1px 3px rgba(0,0,0,.4);transition:all .15s;`;
+    `box-shadow:0 1px 3px rgba(0,0,0,.4);transition:all .15s;` +
+    'display:flex;align-items:center;justify-content:center;' +
+    'color:#fff;font-size:10px;font-weight:800;line-height:1;font-family:system-ui,sans-serif;';
+  if (skylift) dot.textContent = 'S';
   btn.appendChild(dot);
   return btn;
 }
@@ -166,7 +177,7 @@ export default function VizMap({
     for (const p of points) {
       seen.add(p.id);
       const active = p.id === activePointId;
-      const el = makeMarkerEl(p.status, active);
+      const el = makeMarkerEl(p.status, active, !!p.skylift);
       el.addEventListener('click', (ev) => {
         ev.stopPropagation();
         pointCbRef.current?.(p.id);
