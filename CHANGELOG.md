@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.43.0 — pogrubienie w komentarzach oferty (2026-08-15)
+
+- Komentarze i warunki oferty obsługują **pogrubienie** składnią `**tekst**`
+  (jak w Discordzie) — na stronie klienta i w podglądzie. W edytorze podpowiedź
+  składni + podgląd na żywo pod polem komentarza. Lekki formatter, bez bibliotek.
+
+
 ## 0.42.1 — czytelniejsze widełki na ofercie (2026-08-15)
 
 - Strona publiczna: przy pozycji z widełkami cena i suma są jedno pod drugim

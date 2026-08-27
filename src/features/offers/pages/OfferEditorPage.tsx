@@ -25,6 +25,7 @@ import { SkeletonList } from '@/components/ui/Skeleton';
 import { Switch } from '@/components/ui/Switch';
 import { toast } from '@/components/ui/Toast';
 import { date as fmtDate, money, num } from '@/lib/format';
+import { renderRichText } from '@/lib/richText';
 import type { Json } from '@/types/database';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
@@ -457,7 +458,16 @@ export default function OfferEditorPage() {
           value={notes}
           disabled={!canEdit}
           onChange={(e) => setNotes(e.target.value)}
+          hint={t('off.commentsFormat')}
         />
+        {notes.includes('**') && (
+          <div>
+            <p className="mb-1 text-xs font-medium text-text-secondary">{t('off.preview')}</p>
+            <p className="whitespace-pre-line rounded-xl bg-surface p-3 text-sm leading-relaxed text-text-secondary">
+              {renderRichText(notes)}
+            </p>
+          </div>
+        )}
       </Card>
 
       <Card className="tabular-nums flex flex-col gap-1 p-4 text-sm">
