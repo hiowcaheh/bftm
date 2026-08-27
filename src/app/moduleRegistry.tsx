@@ -85,15 +85,6 @@ export const modules: AppModule[] = [
     element: lazy(() => import('@/features/offers/pages/OffersPage')),
   },
   {
-    id: 'visualizations',
-    label: 'Wizualizacje',
-    icon: MapPin,
-    path: '/wizualizacje',
-    requiredPermission: ['visualizations_manage', 'visualizations_work'],
-    navPlacement: 'more',
-    element: lazy(() => import('@/features/visualizations/pages/VisualizationsPage')),
-  },
-  {
     id: 'clients',
     label: 'Klienci',
     icon: Contact,
@@ -147,6 +138,15 @@ export const modules: AppModule[] = [
     requiredPermission: 'invoices_manage',
     navPlacement: 'more',
     element: lazy(() => import('@/features/invoices/pages/InvoicesPage')),
+  },
+  {
+    id: 'visualizations',
+    label: 'Wizualizacje',
+    icon: MapPin,
+    path: '/wizualizacje',
+    requiredPermission: ['visualizations_manage', 'visualizations_work'],
+    navPlacement: 'more',
+    element: lazy(() => import('@/features/visualizations/pages/VisualizationsPage')),
   },
   {
     id: 'settings',

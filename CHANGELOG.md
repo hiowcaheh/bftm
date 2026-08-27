@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.45.5 — Wizualizacje: poprawki UX tworzenia (2026-08-27)
+
+- Przycisk zapisu wizualizacji przeniesiony do treści (był pod dolną nawigacją
+  i niewidoczny) — teraz da się zapisać nową wizualizację.
+- Przycisk cofania „← Wizualizacje" na górze edytora (jak w ofertach).
+- Klikane narożniki obszaru pokazują się od razu jako punkty na mapie —
+  łatwiej wyznaczyć obszar.
+- „Wizualizacje" w menu „Więcej" tuż nad „Ustawieniami".
+
+
 ## 0.45.4 — publikacja (2026-08-27)
 
 - Ponowna publikacja po ustąpieniu zawieszonego wdrożenia GitHub Pages.
