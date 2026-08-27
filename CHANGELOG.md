@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.42.1 — czytelniejsze widełki na ofercie (2026-08-15)
+
+- Strona publiczna: przy pozycji z widełkami cena i suma są jedno pod drugim
+  (długie liczby się nie ucinają). Niebieskie „Uppskattat pris" mniejszą
+  czcionką i wyrównane do prawej.
+
+
 ## 0.42.0 — widełki w ofertach (2026-08-15)
 
 - Pozycja oferty może być wyceną widełkową (od–do) zamiast stałej ceny — np.
