@@ -23,6 +23,7 @@ import { cn } from '@/lib/cn';
 import { format } from 'date-fns';
 import { logoPublicUrl } from '@/features/settings/api';
 import { iconByKey } from '@/lib/iconRegistry';
+import { renderRichText } from '@/lib/richText';
 import { usePublicOffer, useRespondToOffer } from '../hooks';
 import { computeOfferRange, itemHasRange } from '../types';
 
@@ -493,7 +494,7 @@ export default function PublicOfferPage() {
                     Kommentarer
                   </h2>
                   <p className="text-sm leading-relaxed whitespace-pre-line text-text-secondary">
-                    {data.notes}
+                    {renderRichText(data.notes)}
                   </p>
                 </div>
               )}
@@ -501,7 +502,7 @@ export default function PublicOfferPage() {
                 <div>
                   <h2 className="mb-1.5 text-lg font-bold">Villkor</h2>
                   <p className="text-sm leading-relaxed whitespace-pre-line text-text-secondary">
-                    {data.terms}
+                    {renderRichText(data.terms)}
                   </p>
                 </div>
               )}
