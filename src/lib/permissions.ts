@@ -25,6 +25,8 @@ export const PERMISSIONS = [
   'payslips_manage',
   'invoices_manage',
   'checklist_private',
+  'visualizations_manage',
+  'visualizations_work',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

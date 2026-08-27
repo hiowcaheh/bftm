@@ -50,6 +50,13 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
     ],
   },
   {
+    key: 'visualizations',
+    items: [
+      { flag: 'visualizations_manage' },
+      { flag: 'visualizations_work' },
+    ],
+  },
+  {
     key: 'other',
     items: [
       { flag: 'employees_view' },

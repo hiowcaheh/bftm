@@ -292,6 +292,46 @@ type ActivityLogRow = {
   created_at: string;
 }
 
+export type VisualizationStatus = 'draft' | 'sent';
+export type VisualizationPointStatus = 'todo' | 'done';
+
+type VisualizationRow = {
+  id: string;
+  client_id: string | null;
+  project_id: string | null;
+  title: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  bbox_north: number | null;
+  bbox_south: number | null;
+  bbox_east: number | null;
+  bbox_west: number | null;
+  status: VisualizationStatus;
+  public_token: string | null;
+  view_count: number;
+  viewed_at: string | null;
+  sent_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+type VisualizationPointRow = {
+  id: string;
+  visualization_id: string;
+  latitude: number;
+  longitude: number;
+  description: string;
+  requires_equipment: boolean;
+  status: VisualizationPointStatus;
+  before_path: string | null;
+  after_path: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 /** Insert = wymagane pola bez wartości domyślnych; Update = wszystko opcjonalne. */
 type TableDef<Row, Insert> = {
   Row: Row;
@@ -385,6 +425,12 @@ export type Database = {
       activity_log: TableDef<
         ActivityLogRow,
         Partial<ActivityLogRow> & Pick<ActivityLogRow, 'action' | 'entity'>
+      >;
+      visualizations: TableDef<VisualizationRow, Partial<VisualizationRow>>;
+      visualization_points: TableDef<
+        VisualizationPointRow,
+        Partial<VisualizationPointRow> &
+          Pick<VisualizationPointRow, 'visualization_id' | 'latitude' | 'longitude'>
       >;
     };
     Views: { [_ in never]: never };
@@ -503,6 +549,12 @@ export type Database = {
       offer_respond: {
         Args: { p_token: string; p_accept: boolean; p_comment?: string | null };
         Returns: undefined;
+      };
+      visualization_publish: { Args: { p_id: string }; Returns: string };
+      visualization_ensure_token: { Args: { p_id: string }; Returns: string };
+      visualization_public: {
+        Args: { p_token: string; p_track?: boolean; p_session?: string | null };
+        Returns: Json;
       };
       report_hours: { Args: { p_from: string; p_to: string }; Returns: Json };
       report_hours_total: { Args: { p_from: string; p_to: string }; Returns: number };
