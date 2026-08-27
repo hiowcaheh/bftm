@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.43.1 — komentarz oferty: większe pole + podgląd w modalu (2026-08-15)
+
+- Pole komentarza w edytorze oferty większe (7 wierszy) i rozciągane w pionie.
+- Usunięta podpowiedź o składni; podgląd formatowania przeniesiony do modalu
+  (przycisk pod polem → modal z przyciemnieniem i X do zamknięcia).
+
+
 ## 0.43.0 — pogrubienie w komentarzach oferty (2026-08-15)
 
 - Komentarze i warunki oferty obsługują **pogrubienie** składnią `**tekst**`

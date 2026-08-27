@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addDays, format } from 'date-fns';
 import {
@@ -12,6 +13,7 @@ import {
   Send,
   Share2,
   Trash2,
+  X,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -106,6 +108,7 @@ export default function OfferEditorPage() {
   const [draftItem, setDraftItem] = useState<DraftItem>(EMPTY_ITEM);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [notesPreview, setNotesPreview] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [emailPreview, setEmailPreview] = useState<{
     to: string;
@@ -458,15 +461,18 @@ export default function OfferEditorPage() {
           value={notes}
           disabled={!canEdit}
           onChange={(e) => setNotes(e.target.value)}
-          hint={t('off.commentsFormat')}
+          rows={7}
+          className="resize-y"
         />
-        {notes.includes('**') && (
-          <div>
-            <p className="mb-1 text-xs font-medium text-text-secondary">{t('off.preview')}</p>
-            <p className="whitespace-pre-line rounded-xl bg-surface p-3 text-sm leading-relaxed text-text-secondary">
-              {renderRichText(notes)}
-            </p>
-          </div>
+        {notes.trim().length > 0 && (
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={<Eye className="size-4" />}
+            onClick={() => setNotesPreview(true)}
+          >
+            {t('off.previewComment')}
+          </Button>
         )}
       </Card>
 
@@ -773,6 +779,42 @@ export default function OfferEditorPage() {
         }}
         onCancel={() => setConfirmDelete(false)}
       />
+
+      {/* Podgląd komentarza z formatowaniem (modal z przyciemnieniem + X) */}
+      {notesPreview &&
+        createPortal(
+          <div className="fixed inset-0 z-[90] flex items-center justify-center p-6">
+            <button
+              aria-label={t('common.close')}
+              className="animate-fade-in absolute inset-0 bg-black/40"
+              onClick={() => setNotesPreview(false)}
+              tabIndex={-1}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="animate-toast-in relative flex max-h-[80vh] w-full max-w-sm flex-col rounded-(--radius-card) bg-white shadow-(--shadow-card)"
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-line p-5 pb-4">
+                <h2 className="text-base font-semibold">{t('off.previewComment')}</h2>
+                <button
+                  type="button"
+                  aria-label={t('common.close')}
+                  onClick={() => setNotesPreview(false)}
+                  className="press flex size-8 items-center justify-center rounded-full bg-surface"
+                >
+                  <X className="size-4 text-text-secondary" />
+                </button>
+              </div>
+              <div className="overflow-y-auto p-5 pt-4">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-text-secondary">
+                  {renderRichText(notes)}
+                </p>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
