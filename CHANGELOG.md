@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.2 — wordmark BFTM jako lekki obrys (2026-08-27)
+
+- Znak „BFTM" w pasku to teraz minimalistyczny tag z obrysem w kolorze marki
+  (--color-accent), bez wypełnienia — lżejszy, spójny z resztą interfejsu.
+
+
 ## 0.44.1 — odświeżony wordmark BFTM w górnym pasku (2026-08-27)
 
 - Firmowy znak „BFTM" na pasku to teraz minimalistyczny tag: biały napis na
