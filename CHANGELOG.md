@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.45.1 — mapa poza precache (lżejsza aktualizacja PWA) (2026-08-27)
+
+- Ciężki chunk mapy (maplibre, ~1 MB) wyłączony z precache Service Workera —
+  ładuje się dopiero przy otwarciu wizualizacji. Instalacja i aktualizacja SW
+  są lżejsze i szybsze (precache 7,0 → 6,0 MB). Naprawia też przypadek, gdy
+  publikacja GitHub Pages przekraczała limit czasu przy większym precache.
+
+
 ## 0.45.0 — nowy moduł „Wizualizacje" (mapa z punktami pracy) (2026-08-27)
 
 - Nowy moduł Wizualizacje: mapa (MapLibre GL + MapTiler, satelita/hybryda) z
