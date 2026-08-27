@@ -41,7 +41,7 @@ import {
   useSaveOffer,
   useSendOfferEmail,
 } from '../hooks';
-import { computeOfferTotals, OFFER_STATUS_TONES, type OfferItem } from '../types';
+import { computeOfferRange, itemHasRange, OFFER_STATUS_TONES, type OfferItem } from '../types';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 const VAT_RATES = [25, 12, 6, 0];
@@ -51,6 +51,7 @@ interface DraftItem {
   description: string;
   unit: string | null;
   quantity: number;
+  quantity_max: number | null;
   unit_price: number;
   vat_rate: number;
   is_labor: boolean;
@@ -60,6 +61,7 @@ const EMPTY_ITEM: DraftItem = {
   description: '',
   unit: 'tim',
   quantity: 1,
+  quantity_max: null,
   unit_price: 0,
   vat_rate: 25,
   is_labor: false,
@@ -129,6 +131,7 @@ export default function OfferEditorPage() {
           description: r.description,
           unit: r.unit,
           quantity: r.quantity,
+          quantity_max: r.quantity_max,
           unit_price: r.unit_price,
           vat_rate: r.vat_rate,
           is_labor: r.is_labor,
@@ -152,9 +155,9 @@ export default function OfferEditorPage() {
     }
   };
 
-  const totals = useMemo(
+  const range = useMemo(
     () =>
-      computeOfferTotals(items, {
+      computeOfferRange(items, {
         reverseVat,
         rotEnabled,
         rotPersons: Number(rotPersons) || 1,
@@ -163,6 +166,7 @@ export default function OfferEditorPage() {
       }),
     [items, reverseVat, rotEnabled, rotPersons, finance.data],
   );
+  const totals = range.min;
 
   const snapshot = (): Json | null =>
     client
@@ -368,12 +372,17 @@ export default function OfferEditorPage() {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">{item.description}</p>
               <p className="tabular-nums mt-0.5 text-xs text-text-secondary">
-                {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)} • moms{' '}
-                {num(item.vat_rate)}%{item.is_labor ? ` • ${t('off.laborRot')}` : ''}
+                {itemHasRange(item)
+                  ? `${num(item.quantity)}–${num(item.quantity_max!)}`
+                  : num(item.quantity)}{' '}
+                {item.unit ?? ''} × {money(item.unit_price)} • moms {num(item.vat_rate)}%
+                {item.is_labor ? ` • ${t('off.laborRot')}` : ''}
               </p>
             </div>
             <span className="tabular-nums shrink-0 text-sm font-semibold">
-              {money(item.quantity * item.unit_price)}
+              {itemHasRange(item)
+                ? `${money(item.quantity * item.unit_price)}–${money(item.quantity_max! * item.unit_price)}`
+                : money(item.quantity * item.unit_price)}
             </span>
             {canEdit && <Pencil className="size-4 shrink-0 text-text-secondary" />}
           </button>
@@ -476,8 +485,15 @@ export default function OfferEditorPage() {
         )}
         <div className="mt-1 flex justify-between border-t border-line pt-1 text-base font-semibold">
           <span>{t('off.toPay')}</span>
-          <span>{money(totals.toPay)}</span>
+          <span>
+            {range.isEstimate
+              ? `${money(range.min.toPay)} – ${money(range.max.toPay)}`
+              : money(totals.toPay)}
+          </span>
         </div>
+        {range.isEstimate && (
+          <p className="mt-1 text-xs text-text-secondary">{t('off.estimateNote')}</p>
+        )}
       </Card>
 
       {canEdit && (
@@ -552,7 +568,7 @@ export default function OfferEditorPage() {
           />
           <div className="grid grid-cols-3 gap-3">
             <Input
-              label={t('off.qty')}
+              label={draftItem.quantity_max != null ? t('off.qtyFrom') : t('off.qty')}
               inputMode="decimal"
               value={String(draftItem.quantity)}
               onChange={(e) =>
@@ -580,6 +596,29 @@ export default function OfferEditorPage() {
               }
             />
           </div>
+          {/* Widełki: szacunek od–do (np. robocizna 10–50 tim) zamiast fast pris */}
+          <Switch
+            checked={draftItem.quantity_max != null}
+            onChange={(v) =>
+              setDraftItem({ ...draftItem, quantity_max: v ? draftItem.quantity : null })
+            }
+            label={t('off.rangeToggle')}
+            description={t('off.rangeToggleDesc')}
+          />
+          {draftItem.quantity_max != null && (
+            <Input
+              label={t('off.qtyTo')}
+              inputMode="decimal"
+              value={String(draftItem.quantity_max)}
+              onChange={(e) =>
+                setDraftItem({
+                  ...draftItem,
+                  quantity_max: Number(e.target.value.replace(',', '.')) || 0,
+                })
+              }
+              hint={t('off.qtyToHint')}
+            />
+          )}
           <Select
             label={t('off.vatRate')}
             value={String(draftItem.vat_rate)}
@@ -598,6 +637,10 @@ export default function OfferEditorPage() {
             onClick={() => {
               if (draftItem.description.trim().length < 2) {
                 toast.error(t('off.errItemDesc'));
+                return;
+              }
+              if (draftItem.quantity_max != null && draftItem.quantity_max <= draftItem.quantity) {
+                toast.error(t('off.errRange'));
                 return;
               }
               setItems((prev) => {

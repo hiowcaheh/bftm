@@ -24,7 +24,7 @@ import { format } from 'date-fns';
 import { logoPublicUrl } from '@/features/settings/api';
 import { iconByKey } from '@/lib/iconRegistry';
 import { usePublicOffer, useRespondToOffer } from '../hooks';
-import { computeOfferTotals } from '../types';
+import { computeOfferRange, itemHasRange } from '../types';
 
 const NAVY = '#1E2A44';
 /** Właściciel wpisał samą liczbę? Dopisz naturalne szwedzkie zdanie. */
@@ -127,10 +127,10 @@ export default function PublicOfferPage() {
 
   const data = offer.data;
 
-  const totals = useMemo(
+  const range = useMemo(
     () =>
       data
-        ? computeOfferTotals(data.items, {
+        ? computeOfferRange(data.items, {
             reverseVat: data.reverse_vat,
             rotEnabled: data.rot_enabled,
             rotPersons: data.rot_persons,
@@ -149,7 +149,7 @@ export default function PublicOfferPage() {
     );
   }
 
-  if (!data || !totals) {
+  if (!data || !range) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-3 bg-[#F5F5F7] p-6 text-center">
         <FileQuestion className="size-10 text-text-secondary" />
@@ -166,6 +166,10 @@ export default function PublicOfferPage() {
     data.valid_until &&
     data.valid_until < format(new Date(), 'yyyy-MM-dd');
   const canRespond = data.status === 'sent';
+  const totals = range.min;
+  // kwota jako pojedyncza wartość albo widełki „X – Y" (wycena szacunkowa)
+  const rng = (a: number, b: number) => (a === b ? money(a) : `${money(a)} – ${money(b)}`);
+  const estimate = range.isEstimate;
 
   const doRespond = (accept: boolean) => {
     setError('');
@@ -322,11 +326,16 @@ export default function PublicOfferPage() {
                   </p>
                   <div className="flex items-baseline justify-between gap-3">
                     <p className="tabular-nums text-xs text-text-secondary">
-                      {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)}
+                      {itemHasRange(item)
+                        ? `${num(item.quantity)}–${num(item.quantity_max!)}`
+                        : num(item.quantity)}{' '}
+                      {item.unit ?? ''} × {money(item.unit_price)}
                       {!data.reverse_vat ? `  ·  moms ${num(item.vat_rate)}%` : ''}
                     </p>
                     <span className="tabular-nums shrink-0 text-base font-bold">
-                      {money(item.quantity * item.unit_price)}
+                      {itemHasRange(item)
+                        ? `${money(item.quantity * item.unit_price)}–${money(item.quantity_max! * item.unit_price)}`
+                        : money(item.quantity * item.unit_price)}
                     </span>
                   </div>
                 </div>
@@ -338,15 +347,27 @@ export default function PublicOfferPage() {
         {/* Sumy — z dużą kwotą */}
         <Reveal delay={120}>
           <div className="overflow-hidden rounded-2xl bg-white shadow-(--shadow-card)">
+            {estimate && (
+              <div className="flex items-start gap-2.5 border-b border-line px-6 pt-6 pb-4">
+                <FileQuestion className="mt-0.5 size-5 shrink-0" style={{ color: '#CC0000' }} />
+                <p className="text-xs leading-relaxed text-text-secondary">
+                  <span className="font-semibold text-text">Uppskattat pris – ej fast pris.</span>{' '}
+                  Arbetet utförs på löpande räkning. Slutbeloppet beror på faktisk tids- och
+                  materialåtgång inom angivet intervall (se timmar ovan).
+                </p>
+              </div>
+            )}
             <div className="tabular-nums flex flex-col gap-1.5 p-6 text-sm">
               <div className="flex justify-between">
                 <span className="text-text-secondary">Netto</span>
-                <span>{money(totals.net)}</span>
+                <span>{rng(range.min.net, range.max.net)}</span>
               </div>
               {totals.vatByRate.map((v) => (
                 <div key={v.rate} className="flex justify-between">
                   <span className="text-text-secondary">Moms {num(v.rate)}%</span>
-                  <span>{money(v.amount)}</span>
+                  <span>
+                    {rng(v.amount, range.max.vatByRate.find((x) => x.rate === v.rate)?.amount ?? v.amount)}
+                  </span>
                 </div>
               ))}
               {data.reverse_vat && (
@@ -355,10 +376,10 @@ export default function PublicOfferPage() {
                   <span>Omvänd skattskyldighet</span>
                 </div>
               )}
-              {totals.rotDeduction > 0 && (
+              {(totals.rotDeduction > 0 || range.max.rotDeduction > 0) && (
                 <div className="flex justify-between font-medium text-success">
                   <span>ROT-avdrag ({num(data.rot.pct ?? 30)}% på arbetskostnad)</span>
-                  <span>−{money(totals.rotDeduction)}</span>
+                  <span>−{rng(range.min.rotDeduction, range.max.rotDeduction)}</span>
                 </div>
               )}
             </div>
@@ -366,14 +387,16 @@ export default function PublicOfferPage() {
               className="flex items-baseline justify-between px-6 py-5 text-white"
               style={{ backgroundColor: NAVY }}
             >
-              <span className="text-sm font-medium text-white/80">Att betala</span>
+              <span className="text-sm font-medium text-white/80">
+                {estimate ? 'Uppskattat pris' : 'Att betala'}
+              </span>
               <span className="tabular-nums text-3xl font-bold tracking-tight">
-                <CountUp value={totals.toPay} />
+                {estimate ? rng(range.min.toPay, range.max.toPay) : <CountUp value={totals.toPay} />}
               </span>
             </div>
-            {(totals.rotDeduction > 0 || data.reverse_vat) && (
+            {(totals.rotDeduction > 0 || range.max.rotDeduction > 0 || data.reverse_vat) && (
               <p className="px-6 py-3 text-[11px] leading-relaxed text-text-secondary">
-                {totals.rotDeduction > 0 &&
+                {(totals.rotDeduction > 0 || range.max.rotDeduction > 0) &&
                   `ROT-avdraget förutsätter tillräckligt avdragsutrymme hos Skatteverket (${data.rot_persons} ${data.rot_persons === 1 ? 'person' : 'personer'}). `}
                 {data.reverse_vat && 'Omvänd byggmoms tillämpas. Köparen redovisar momsen.'}
               </p>
@@ -630,7 +653,7 @@ export default function PublicOfferPage() {
               Du bekräftar att du vill anlita {companyName} enligt offert {data.number}.
             </p>
             <p className="tabular-nums mt-3 rounded-xl bg-[#F5F5F7] py-2.5 text-center text-base font-bold">
-              Att betala: {money(totals.toPay)}
+              {estimate ? 'Uppskattat pris' : 'Att betala'}: {rng(range.min.toPay, range.max.toPay)}
             </p>
             {error && <p className="mt-2 text-center text-xs text-error">{error}</p>}
             <div className="mt-5 grid grid-cols-2 gap-3">
