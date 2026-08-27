@@ -15,7 +15,9 @@
   `visualization_views`; RPC `visualization_publish`/`_public`/`_ensure_token`;
   bucket `visualization-photos`). Reużyte: klienci, projekty, storage zdjęć,
   wysyłka e-mail (RPC send_offer_email), wzorzec publicznego linku.
-- Mapa wymaga klucza `VITE_MAPTILER_KEY` (darmowy, ograniczony do domeny).
+- Punkt: przełącznik „Skylift" (Tak/Nie) zamiast ogólnego „wymaga sprzętu".
+- Klucz MapTiler wkompilowany (publiczny, domenowy) — override przez
+  `VITE_MAPTILER_KEY`, deploy nie wymaga sekretu (jak anon key Supabase).
 
 
 ## 0.44.2 — wordmark BFTM jako lekki obrys (2026-08-27)

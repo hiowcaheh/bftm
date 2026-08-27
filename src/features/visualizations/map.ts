@@ -13,7 +13,11 @@ type NullableBbox = {
   west: number | null;
 };
 
-const KEY = import.meta.env.VITE_MAPTILER_KEY as string | undefined;
+// Klucz publiczny MapTiler (client-side, ograniczony do domeny) — wzorzec jak
+// z anon key Supabase: wartość domyślna w kodzie, VITE_MAPTILER_KEY nadpisuje.
+const DEFAULT_MAPTILER_KEY = 'TECp2ak2FW6L2tzfSoYu';
+const KEY =
+  (import.meta.env.VITE_MAPTILER_KEY as string | undefined) || DEFAULT_MAPTILER_KEY;
 
 export function hasMapKey(): boolean {
   return typeof KEY === 'string' && KEY.length > 0;

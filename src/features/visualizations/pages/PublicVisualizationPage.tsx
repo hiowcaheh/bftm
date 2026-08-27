@@ -164,7 +164,7 @@ export default function PublicVisualizationPage() {
 
             {active.requires_equipment && (
               <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 text-sm text-amber-700">
-                <Wrench className="size-4" /> Kräver utrustning
+                <Wrench className="size-4" /> Skylift
               </div>
             )}
 
