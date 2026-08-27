@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.4 — publikacja (2026-08-27)
+
+- Ponowna publikacja po ustąpieniu zawieszonego wdrożenia GitHub Pages.
+  Dowozi moduł Wizualizacje na żywo. Bez zmian funkcjonalnych.
+
+
 ## 0.45.3 — publikacja po odblokowaniu Pages (2026-08-27)
 
 - Ponowny deploy po ręcznym zwolnieniu zawieszonego wdrożenia GitHub Pages.
