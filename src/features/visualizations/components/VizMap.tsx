@@ -1,0 +1,191 @@
+import { useEffect, useRef } from 'react';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import type { Bbox } from '../types';
+import { bboxPolygon, bboxToLngLatBounds, hasBbox } from '../map';
+
+export interface VizMapPoint {
+  id: string;
+  latitude: number;
+  longitude: number;
+  status: 'todo' | 'done';
+}
+
+interface VizMapProps {
+  styleUrl: string;
+  center?: { lat: number; lng: number };
+  zoom?: number;
+  /** Dopasuj widok do tego obszaru (i narysuj prostokąt). */
+  bbox?: Bbox | null;
+  /** Ograniczenie przesuwania mapy (klient / widok obszaru). */
+  maxBounds?: [[number, number], [number, number]] | null;
+  points?: VizMapPoint[];
+  activePointId?: string | null;
+  onMapClick?: (lng: number, lat: number) => void;
+  onPointClick?: (id: string) => void;
+  /** Kursor krzyżyka — tryb dodawania punktu / narożnika. */
+  crosshair?: boolean;
+  className?: string;
+}
+
+const COLOR = { todo: '#cc0000', done: '#2e7d32' };
+
+/** Marker jako mały kolorowy punkt z białą obwódką (lekki, nie „ciężki pin"). */
+function makeMarkerEl(status: 'todo' | 'done', active: boolean): HTMLElement {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.style.cssText =
+    'width:26px;height:26px;display:flex;align-items:center;justify-content:center;' +
+    'background:transparent;border:0;cursor:pointer;padding:0;';
+  const dot = document.createElement('span');
+  dot.style.cssText =
+    `width:${active ? 16 : 13}px;height:${active ? 16 : 13}px;border-radius:9999px;` +
+    `background:${COLOR[status]};border:2px solid #fff;` +
+    `box-shadow:0 1px 3px rgba(0,0,0,.4);transition:all .15s;`;
+  btn.appendChild(dot);
+  return btn;
+}
+
+export default function VizMap({
+  styleUrl,
+  center,
+  zoom,
+  bbox,
+  maxBounds,
+  points = [],
+  activePointId,
+  onMapClick,
+  onPointClick,
+  crosshair,
+  className,
+}: VizMapProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
+  const clickCbRef = useRef(onMapClick);
+  const pointCbRef = useRef(onPointClick);
+  clickCbRef.current = onMapClick;
+  pointCbRef.current = onPointClick;
+
+  // Inicjalizacja mapy raz.
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: styleUrl,
+      center: center ? [center.lng, center.lat] : [15.5, 62],
+      zoom: zoom ?? (center ? 16 : 4),
+      attributionControl: { compact: true },
+      maxBounds: maxBounds ?? undefined,
+    });
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.on('click', (e) => clickCbRef.current?.(e.lngLat.lng, e.lngLat.lat));
+
+    map.on('load', () => {
+      if (hasBbox(bbox)) {
+        map.addSource('viz-bbox', { type: 'geojson', data: bboxPolygon(bbox) });
+        map.addLayer({
+          id: 'viz-bbox-fill',
+          type: 'fill',
+          source: 'viz-bbox',
+          paint: { 'fill-color': '#cc0000', 'fill-opacity': 0.08 },
+        });
+        map.addLayer({
+          id: 'viz-bbox-line',
+          type: 'line',
+          source: 'viz-bbox',
+          paint: { 'line-color': '#cc0000', 'line-width': 2, 'line-opacity': 0.7 },
+        });
+        map.fitBounds(bboxToLngLatBounds(bbox), { padding: 40, animate: false });
+      }
+    });
+    mapRef.current = map;
+    const markers = markersRef.current;
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markers.clear();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [styleUrl]);
+
+  // Kursor krzyżyka w trybie dodawania.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const canvas = map.getCanvas();
+    canvas.style.cursor = crosshair ? 'crosshair' : '';
+  }, [crosshair]);
+
+  // maxBounds po zmianie.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setMaxBounds(maxBounds ?? null);
+  }, [maxBounds]);
+
+  // Aktualizacja obszaru (bbox) — źródło + dopasowanie.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      const src = map.getSource('viz-bbox') as maplibregl.GeoJSONSource | undefined;
+      if (hasBbox(bbox)) {
+        const poly = bboxPolygon(bbox);
+        if (src) {
+          src.setData(poly);
+        } else {
+          map.addSource('viz-bbox', { type: 'geojson', data: poly });
+          map.addLayer({
+            id: 'viz-bbox-fill',
+            type: 'fill',
+            source: 'viz-bbox',
+            paint: { 'fill-color': '#cc0000', 'fill-opacity': 0.08 },
+          });
+          map.addLayer({
+            id: 'viz-bbox-line',
+            type: 'line',
+            source: 'viz-bbox',
+            paint: { 'line-color': '#cc0000', 'line-width': 2, 'line-opacity': 0.7 },
+          });
+        }
+        map.fitBounds(bboxToLngLatBounds(bbox), { padding: 40, animate: true });
+      }
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once('load', apply);
+  }, [bbox]);
+
+  // Diff markerów punktów.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const existing = markersRef.current;
+    const seen = new Set<string>();
+
+    for (const p of points) {
+      seen.add(p.id);
+      const active = p.id === activePointId;
+      const el = makeMarkerEl(p.status, active);
+      el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        pointCbRef.current?.(p.id);
+      });
+      const prev = existing.get(p.id);
+      if (prev) prev.remove();
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([p.longitude, p.latitude])
+        .addTo(map);
+      existing.set(p.id, marker);
+    }
+    // usuń markery nieobecne w danych
+    for (const [id, marker] of existing) {
+      if (!seen.has(id)) {
+        marker.remove();
+        existing.delete(id);
+      }
+    }
+  }, [points, activePointId]);
+
+  return <div ref={containerRef} className={className} />;
+}

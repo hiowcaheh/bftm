@@ -89,6 +89,12 @@ export const qk = {
     list: (status?: string) => ['offers', 'list', status ?? 'all'] as const,
     detail: (id: string) => ['offers', 'detail', id] as const,
   },
+  visualizations: {
+    all: ['visualizations'] as const,
+    list: () => ['visualizations', 'list'] as const,
+    detail: (id: string) => ['visualizations', 'detail', id] as const,
+    points: (id: string) => ['visualizations', 'points', id] as const,
+  },
   reports: {
     all: ['reports'] as const,
     hours: (from: string, to: string) => ['reports', 'hours', from, to] as const,

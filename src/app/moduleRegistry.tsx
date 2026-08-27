@@ -11,6 +11,7 @@ import {
   BarChart3,
   ReceiptText,
   FileSpreadsheet,
+  MapPin,
   Settings,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
@@ -82,6 +83,15 @@ export const modules: AppModule[] = [
     requiredPermission: 'offers_view',
     navPlacement: 'bottom',
     element: lazy(() => import('@/features/offers/pages/OffersPage')),
+  },
+  {
+    id: 'visualizations',
+    label: 'Wizualizacje',
+    icon: MapPin,
+    path: '/wizualizacje',
+    requiredPermission: ['visualizations_manage', 'visualizations_work'],
+    navPlacement: 'more',
+    element: lazy(() => import('@/features/visualizations/pages/VisualizationsPage')),
   },
   {
     id: 'clients',

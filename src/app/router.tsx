@@ -19,6 +19,15 @@ const ExpensesPage = lazy(() => import('@/features/expenses/pages/ExpensesPage')
 const OfferEditorPage = lazy(() => import('@/features/offers/pages/OfferEditorPage'));
 const PublicOfferPage = lazy(() => import('@/features/offers/pages/PublicOfferPage'));
 const PublicReportPage = lazy(() => import('@/features/reports/pages/PublicReportPage'));
+const VisualizationEditorPage = lazy(
+  () => import('@/features/visualizations/pages/VisualizationEditorPage'),
+);
+const VisualizationDetailPage = lazy(
+  () => import('@/features/visualizations/pages/VisualizationDetailPage'),
+);
+const PublicVisualizationPage = lazy(
+  () => import('@/features/visualizations/pages/PublicVisualizationPage'),
+);
 
 function FullScreenLoader() {
   return (
@@ -81,6 +90,8 @@ export function AppRouter() {
             <Route path="/oferta/:token" element={<PublicOfferPage />} />
             {/* Publiczny raport godzin pod linkiem — bez logowania */}
             <Route path="/raport/:token" element={<PublicReportPage />} />
+            {/* Publiczna wizualizacja dla klienta — bez logowania, po szwedzku */}
+            <Route path="/wizualizacja/:token" element={<PublicVisualizationPage />} />
             <Route
               element={
                 <RequireAuth>
@@ -125,6 +136,30 @@ export function AppRouter() {
                 }
               />
               <Route path="/profil" element={<MyProfilePage />} />
+              <Route
+                path="/wizualizacje/nowa"
+                element={
+                  <RequirePerm permission="visualizations_manage">
+                    <VisualizationEditorPage />
+                  </RequirePerm>
+                }
+              />
+              <Route
+                path="/wizualizacje/:id/edytuj"
+                element={
+                  <RequirePerm permission="visualizations_manage">
+                    <VisualizationEditorPage />
+                  </RequirePerm>
+                }
+              />
+              <Route
+                path="/wizualizacje/:id"
+                element={
+                  <RequirePerm permission={['visualizations_manage', 'visualizations_work']}>
+                    <VisualizationDetailPage />
+                  </RequirePerm>
+                }
+              />
               <Route
                 path="/oferty/:id"
                 element={

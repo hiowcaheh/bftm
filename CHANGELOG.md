@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.45.0 — nowy moduł „Wizualizacje" (mapa z punktami pracy) (2026-08-27)
+
+- Nowy moduł Wizualizacje: mapa (MapLibre GL + MapTiler, satelita/hybryda) z
+  obszarem (bounding box), punktami pracy (opis, „wymaga sprzętu", status
+  Niezrobione/Gotowe, zdjęcie przed/po), wysyłką do klienta e-mailem i publicznym
+  linkiem (bez logowania, po szwedzku).
+- Dwa nowe uprawnienia: `visualizations_manage` (pełny CRUD + wysyłka) oraz
+  `visualizations_work` (praca na mapie; usuwa tylko własne punkty — egzekwowane
+  w RLS, nie tylko w UI).
+- Licznik wyświetleń liczy tylko wejścia klienta przez publiczny link, z
+  deduplikacją per sesja (odświeżenie nie nabija). Podgląd wewnętrzny nie liczy.
+- Baza: migracja 0057 (tabele `visualizations`, `visualization_points`,
+  `visualization_views`; RPC `visualization_publish`/`_public`/`_ensure_token`;
+  bucket `visualization-photos`). Reużyte: klienci, projekty, storage zdjęć,
+  wysyłka e-mail (RPC send_offer_email), wzorzec publicznego linku.
+- Mapa wymaga klucza `VITE_MAPTILER_KEY` (darmowy, ograniczony do domeny).
+
+
 ## 0.44.2 — wordmark BFTM jako lekki obrys (2026-08-27)
 
 - Znak „BFTM" w pasku to teraz minimalistyczny tag z obrysem w kolorze marki
