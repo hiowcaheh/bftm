@@ -324,20 +324,30 @@ export default function PublicOfferPage() {
                   <p className="text-[15px] leading-relaxed font-semibold">
                     {item.description}
                   </p>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <p className="tabular-nums text-xs text-text-secondary">
-                      {itemHasRange(item)
-                        ? `${num(item.quantity)}–${num(item.quantity_max!)}`
-                        : num(item.quantity)}{' '}
-                      {item.unit ?? ''} × {money(item.unit_price)}
-                      {!data.reverse_vat ? `  ·  moms ${num(item.vat_rate)}%` : ''}
-                    </p>
-                    <span className="tabular-nums shrink-0 text-base font-bold">
-                      {itemHasRange(item)
-                        ? `${money(item.quantity * item.unit_price)}–${money(item.quantity_max! * item.unit_price)}`
-                        : money(item.quantity * item.unit_price)}
-                    </span>
-                  </div>
+                  {itemHasRange(item) ? (
+                    // widełki: cena i suma jedno pod drugim (długie liczby)
+                    <div className="flex flex-col gap-1">
+                      <p className="tabular-nums text-xs text-text-secondary">
+                        {num(item.quantity)}–{num(item.quantity_max!)} {item.unit ?? ''} ×{' '}
+                        {money(item.unit_price)}
+                        {!data.reverse_vat ? `  ·  moms ${num(item.vat_rate)}%` : ''}
+                      </p>
+                      <p className="tabular-nums text-base font-bold">
+                        {money(item.quantity * item.unit_price)} –{' '}
+                        {money(item.quantity_max! * item.unit_price)}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="tabular-nums text-xs text-text-secondary">
+                        {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)}
+                        {!data.reverse_vat ? `  ·  moms ${num(item.vat_rate)}%` : ''}
+                      </p>
+                      <span className="tabular-nums shrink-0 text-base font-bold">
+                        {money(item.quantity * item.unit_price)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -384,13 +394,18 @@ export default function PublicOfferPage() {
               )}
             </div>
             <div
-              className="flex items-baseline justify-between px-6 py-5 text-white"
+              className="flex items-baseline justify-between gap-3 px-6 py-5 text-white"
               style={{ backgroundColor: NAVY }}
             >
-              <span className="text-sm font-medium text-white/80">
+              <span className="shrink-0 text-sm font-medium text-white/80">
                 {estimate ? 'Uppskattat pris' : 'Att betala'}
               </span>
-              <span className="tabular-nums text-3xl font-bold tracking-tight">
+              <span
+                className={cn(
+                  'tabular-nums text-right leading-tight font-bold tracking-tight',
+                  estimate ? 'text-lg' : 'text-3xl',
+                )}
+              >
                 {estimate ? rng(range.min.toPay, range.max.toPay) : <CountUp value={totals.toPay} />}
               </span>
             </div>
