@@ -314,43 +314,49 @@ export default function PublicOfferPage() {
           <div className="rounded-2xl bg-white p-6 shadow-(--shadow-card)">
             <h2 className="mb-4 text-lg font-bold">Specifikation</h2>
             <div className="flex flex-col divide-y divide-line">
-              {data.items.map((item, i) => (
-                <div key={i} className="flex flex-col gap-1.5 py-5 first:pt-0 last:pb-0">
-                  <p
-                    className="text-[10px] font-bold tracking-[0.18em] uppercase"
-                    style={{ color: item.is_labor ? '#CC0000' : '#8E8E93' }}
-                  >
-                    {item.is_labor ? 'Arbete' : 'Material'}
-                  </p>
-                  <p className="text-[15px] leading-relaxed font-semibold">
-                    {item.description}
-                  </p>
-                  {itemHasRange(item) ? (
-                    // widełki: cena i suma jedno pod drugim (długie liczby)
-                    <div className="flex flex-col gap-1">
-                      <p className="tabular-nums text-xs text-text-secondary">
-                        {num(item.quantity)}–{num(item.quantity_max!)} {item.unit ?? ''} ×{' '}
-                        {money(item.unit_price)}
-                        {!data.reverse_vat ? `  ·  moms ${num(item.vat_rate)}%` : ''}
-                      </p>
-                      <p className="tabular-nums text-base font-bold">
-                        {money(item.quantity * item.unit_price)} –{' '}
-                        {money(item.quantity_max! * item.unit_price)}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="tabular-nums text-xs text-text-secondary">
-                        {num(item.quantity)} {item.unit ?? ''} × {money(item.unit_price)}
-                        {!data.reverse_vat ? `  ·  moms ${num(item.vat_rate)}%` : ''}
-                      </p>
-                      <span className="tabular-nums shrink-0 text-base font-bold">
-                        {money(item.quantity * item.unit_price)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))}
+              {data.items.map((item, i) => {
+                const isKr = item.unit === 'kr'; // kwota wprost — bez „× cena"
+                const hasRange = itemHasRange(item);
+                const lineMin = item.quantity * item.unit_price;
+                const lineMax = (item.quantity_max ?? item.quantity) * item.unit_price;
+                const descParts = [
+                  isKr
+                    ? null
+                    : `${hasRange ? `${num(item.quantity)}–${num(item.quantity_max!)}` : num(item.quantity)} ${item.unit ?? ''} × ${money(item.unit_price)}`,
+                  !data.reverse_vat ? `moms ${num(item.vat_rate)}%` : null,
+                ]
+                  .filter(Boolean)
+                  .join('  ·  ');
+                return (
+                  <div key={i} className="flex flex-col gap-1.5 py-5 first:pt-0 last:pb-0">
+                    <p
+                      className="text-[10px] font-bold tracking-[0.18em] uppercase"
+                      style={{ color: item.is_labor ? '#CC0000' : '#8E8E93' }}
+                    >
+                      {item.is_labor ? 'Arbete' : 'Material'}
+                    </p>
+                    <p className="text-[15px] leading-relaxed font-semibold">{item.description}</p>
+                    {hasRange ? (
+                      // widełki: opis i suma jedno pod drugim (długie liczby)
+                      <div className="flex flex-col gap-1">
+                        {descParts && (
+                          <p className="tabular-nums text-xs text-text-secondary">{descParts}</p>
+                        )}
+                        <p className="tabular-nums text-base font-bold">
+                          {money(lineMin)} – {money(lineMax)}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <p className="tabular-nums text-xs text-text-secondary">{descParts}</p>
+                        <span className="tabular-nums shrink-0 text-base font-bold">
+                          {money(lineMin)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </Reveal>
@@ -364,7 +370,7 @@ export default function PublicOfferPage() {
                 <p className="text-xs leading-relaxed text-text-secondary">
                   <span className="font-semibold text-text">Uppskattat pris – ej fast pris.</span>{' '}
                   Arbetet utförs på löpande räkning. Slutbeloppet beror på faktisk tids- och
-                  materialåtgång inom angivet intervall (se timmar ovan).
+                  materialåtgång inom angivet intervall (se specifikationen ovan).
                 </p>
               </div>
             )}
