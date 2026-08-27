@@ -178,6 +178,8 @@ type OfferItemRow = {
   description: string;
   unit: string | null;
   quantity: number;
+  /** Górna granica ilości dla wyceny widełkowej (od–do); null = stała cena. */
+  quantity_max: number | null;
   unit_price: number;
   vat_rate: number;
   is_labor: boolean;

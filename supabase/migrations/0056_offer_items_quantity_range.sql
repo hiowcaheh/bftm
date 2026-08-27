@@ -1,0 +1,5 @@
+-- 0056 — widełki w pozycjach oferty: opcjonalna górna granica ilości.
+-- offer_items.quantity_max (nullable): quantity = od, quantity_max = do.
+-- NULL = stała cena (fast pris), zachowanie bez zmian dla istniejących ofert.
+-- offer_public rozszerzone o quantity_max w zwracanych pozycjach (przyrostowo).
+-- Zastosowane przez MCP apply_migration. Dotyczy materiału i robocizny.

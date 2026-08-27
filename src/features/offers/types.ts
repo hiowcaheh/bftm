@@ -29,9 +29,16 @@ export const OFFER_STATUS_TONES: Record<
 /** Pozycja do kalkulacji — wspólny kształt dla edytora i strony publicznej. */
 export interface CalcItem {
   quantity: number;
+  /** Górna granica ilości (widełki od–do); null/undefined = stała cena. */
+  quantity_max?: number | null;
   unit_price: number;
   vat_rate: number;
   is_labor: boolean;
+}
+
+/** Czy pozycja ma realne widełki (górna granica > dolnej). */
+export function itemHasRange(i: { quantity: number; quantity_max?: number | null }): boolean {
+  return i.quantity_max != null && i.quantity_max > i.quantity;
 }
 
 export interface OfferTotals {
@@ -89,6 +96,33 @@ export function computeOfferTotals(
   return { net, vatByRate, vatTotal, gross, rotBase, rotDeduction, toPay: gross - rotDeduction };
 }
 
+/** Sumy jako widełki: min (dolne ilości) i max (górne). isEstimate = są widełki. */
+export interface OfferTotalsRange {
+  min: OfferTotals;
+  max: OfferTotals;
+  isEstimate: boolean;
+}
+
+export function computeOfferRange(
+  items: CalcItem[],
+  opts: {
+    reverseVat: boolean;
+    rotEnabled: boolean;
+    rotPersons: number;
+    rotPct: number;
+    rotCap: number;
+  },
+): OfferTotalsRange {
+  const isEstimate = items.some(itemHasRange);
+  // min = quantity (od); max = quantity_max tam, gdzie są widełki
+  const maxItems = items.map((i) => ({ ...i, quantity: itemHasRange(i) ? i.quantity_max! : i.quantity }));
+  return {
+    min: computeOfferTotals(items, opts),
+    max: computeOfferTotals(maxItems, opts),
+    isEstimate,
+  };
+}
+
 /** Dane oferty zwracane klientowi przez offer_public (jsonb z RPC). */
 export interface PublicOffer {
   number: string;
@@ -111,6 +145,7 @@ export interface PublicOffer {
     description: string;
     unit: string | null;
     quantity: number;
+    quantity_max: number | null;
     unit_price: number;
     vat_rate: number;
     is_labor: boolean;

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.42.0 — widełki w ofertach (2026-08-15)
+
+- Pozycja oferty może być wyceną widełkową (od–do) zamiast stałej ceny — np.
+  robocizna 10–50 tim. Przełącznik w formularzu pozycji + pole „Ilość do".
+  Dotyczy materiału i robocizny (nowa kolumna offer_items.quantity_max, migr. 0056).
+- Strona publiczna: pozycje i suma pokazują przedział (X – Y), a przy wycenie
+  szacunkowej wyraźny komunikat po szwedzku „Uppskattat pris – ej fast pris"
+  (löpande räkning, zależne od faktycznej liczby godzin). Oferty bez widełek
+  wyświetlają się dokładnie jak dotąd.
+
+
 ## Fix (backend) — niedzielne podsumowanie (2026-08-15)
 
 - Tygodniowe podsumowanie dla adminów nie wychodziło: w 0045 z zapytania INSERT
