@@ -18,6 +18,10 @@ export default defineConfig({
       filename: 'sw.ts',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+        // Ciężki chunk mapy (maplibre, ~1 MB) ładujemy dopiero przy otwarciu
+        // wizualizacji — poza precache, żeby instalacja SW była lekka i szybka.
+        globIgnores: ['**/VizMap-*.js'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
       includeAssets: ['icons/apple-touch-icon.png'],
       manifest: {
