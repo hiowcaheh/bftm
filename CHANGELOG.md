@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.3 — publikacja po odblokowaniu Pages (2026-08-27)
+
+- Ponowny deploy po ręcznym zwolnieniu zawieszonego wdrożenia GitHub Pages.
+  Dowozi 0.45.x (moduł Wizualizacje) na żywo. Bez zmian funkcjonalnych.
+
+
 ## 0.45.2 — ponowna publikacja (2026-08-27)
 
 - Ponowny deploy po tym, jak publikacja GitHub Pages zawiesiła się na etapie
