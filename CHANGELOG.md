@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.45.2 — ponowna publikacja (2026-08-27)
+
+- Ponowny deploy po tym, jak publikacja GitHub Pages zawiesiła się na etapie
+  „updating_pages" (timeout infrastruktury GitHub) i blokowała kolejne
+  publikacje. Bez zmian funkcjonalnych — dowozi 0.45.x na żywo.
+
+
 ## 0.45.1 — mapa poza precache (lżejsza aktualizacja PWA) (2026-08-27)
 
 - Ciężki chunk mapy (maplibre, ~1 MB) wyłączony z precache Service Workera —
