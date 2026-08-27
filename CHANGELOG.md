@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.44.1 — odświeżony wordmark BFTM w górnym pasku (2026-08-27)
+
+- Firmowy znak „BFTM" na pasku to teraz minimalistyczny tag: biały napis na
+  czerwieni marki (--color-accent), zaokrąglony, delikatny cień. Nieco większy
+  i lepiej wyważony względem tytułu zakładki (np. „Pulpit").
+
+
 ## 0.44.0 — cena od–do dla materiału (jednostka „kr") (2026-08-15)
 
 - Nowa jednostka pozycji oferty „kr": pole staje się kwotą wpisywaną wprost
