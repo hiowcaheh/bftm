@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MapPin, Search } from 'lucide-react';
+import { ArrowLeft, MapPin, Search } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -14,6 +14,7 @@ import { useClientProjects } from '@/features/projects/hooks';
 import { useCreateVisualization, useUpdateVisualization, useVisualization } from '../hooks';
 import { bboxFromCorners, bboxFromViz, geocode, hasMapKey, mapStyleUrl } from '../map';
 import type { Bbox } from '../types';
+import type { VizMapPoint } from '../components/VizMap';
 
 const VizMap = lazy(() => import('../components/VizMap'));
 
@@ -70,6 +71,18 @@ export default function VisualizationEditorPage() {
     if (!a || !b) return null;
     return bboxFromCorners(a, b);
   }, [corners]);
+
+  // Klikane narożniki jako widoczne punkty na mapie — łatwiej wybrać obszar.
+  const cornerPoints: VizMapPoint[] = useMemo(
+    () =>
+      corners.map((c, i) => ({
+        id: `corner-${i}`,
+        latitude: c.lat,
+        longitude: c.lng,
+        status: 'todo' as const,
+      })),
+    [corners],
+  );
 
   const handleGeocode = async () => {
     if (!address.trim()) return;
@@ -147,7 +160,15 @@ export default function VisualizationEditorPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-4 pb-24">
+    <div className="flex flex-col gap-4">
+      <button
+        type="button"
+        onClick={() => navigate('/wizualizacje')}
+        className="press flex items-center gap-1 text-sm font-medium text-text-secondary"
+      >
+        <ArrowLeft className="size-4" /> {t('nav.visualizations')}
+      </button>
+
       <Card className="flex flex-col gap-3 p-4">
         <Select
           label={t('viz.clientLabel')}
@@ -210,6 +231,7 @@ export default function VisualizationEditorPage() {
                 center={center}
                 zoom={17}
                 bbox={bbox}
+                points={cornerPoints}
                 crosshair
                 onMapClick={handleMapClick}
                 className="h-72 w-full"
@@ -233,20 +255,16 @@ export default function VisualizationEditorPage() {
         </Card>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-bg/95 p-4 backdrop-blur">
-        <div className="mx-auto max-w-3xl">
-          <Button
-            fullWidth
-            size="lg"
-            icon={<MapPin className="size-5" />}
-            disabled={!canSave}
-            loading={createMut.isPending || updateMut.isPending}
-            onClick={handleSave}
-          >
-            {t('viz.save')}
-          </Button>
-        </div>
-      </div>
+      <Button
+        fullWidth
+        size="lg"
+        icon={<MapPin className="size-5" />}
+        disabled={!canSave}
+        loading={createMut.isPending || updateMut.isPending}
+        onClick={handleSave}
+      >
+        {t('viz.save')}
+      </Button>
     </div>
   );
 }
