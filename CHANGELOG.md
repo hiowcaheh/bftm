@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.44.0 — cena od–do dla materiału (jednostka „kr") (2026-08-15)
+
+- Nowa jednostka pozycji oferty „kr": pole staje się kwotą wpisywaną wprost
+  (cena netto ukryta, = 1), więc materiał można wycenić widełkowo jako kwota
+  od–do (np. 10 000–15 000 kr). Wyświetlanie w edytorze i u klienta pomija
+  „× cena", pokazuje samą kwotę / przedział. Bez zmian w bazie.
+
+
 ## 0.43.1 — komentarz oferty: większe pole + podgląd w modalu (2026-08-15)
 
 - Pole komentarza w edytorze oferty większe (7 wierszy) i rozciągane w pionie.

@@ -48,7 +48,8 @@ import { computeOfferRange, itemHasRange, OFFER_STATUS_TONES, type OfferItem } f
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 const VAT_RATES = [25, 12, 6, 0];
-const UNITS = ['tim', 'st', 'm²', 'm', 'lpm', 'kpl'];
+// „kr" = kwota bezpośrednio (cena od–do dla materiału); wtedy cena jedn. = 1
+const UNITS = ['tim', 'st', 'm²', 'm', 'lpm', 'kpl', 'kr'];
 
 interface DraftItem {
   description: string;
@@ -376,11 +377,15 @@ export default function OfferEditorPage() {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">{item.description}</p>
               <p className="tabular-nums mt-0.5 text-xs text-text-secondary">
-                {itemHasRange(item)
-                  ? `${num(item.quantity)}–${num(item.quantity_max!)}`
-                  : num(item.quantity)}{' '}
-                {item.unit ?? ''} × {money(item.unit_price)} • moms {num(item.vat_rate)}%
-                {item.is_labor ? ` • ${t('off.laborRot')}` : ''}
+                {item.unit !== 'kr' && (
+                  <>
+                    {itemHasRange(item)
+                      ? `${num(item.quantity)}–${num(item.quantity_max!)}`
+                      : num(item.quantity)}{' '}
+                    {item.unit ?? ''} × {money(item.unit_price)} •{' '}
+                  </>
+                )}
+                moms {num(item.vat_rate)}%{item.is_labor ? ` • ${t('off.laborRot')}` : ''}
               </p>
             </div>
             <span className="tabular-nums shrink-0 text-sm font-semibold">
@@ -582,9 +587,19 @@ export default function OfferEditorPage() {
             value={draftItem.description}
             onChange={(e) => setDraftItem({ ...draftItem, description: e.target.value })}
           />
-          <div className="grid grid-cols-3 gap-3">
+          <div
+            className={`grid gap-3 ${draftItem.unit === 'kr' ? 'grid-cols-2' : 'grid-cols-3'}`}
+          >
             <Input
-              label={draftItem.quantity_max != null ? t('off.qtyFrom') : t('off.qty')}
+              label={
+                draftItem.unit === 'kr'
+                  ? draftItem.quantity_max != null
+                    ? t('off.amountFrom')
+                    : t('off.amount')
+                  : draftItem.quantity_max != null
+                    ? t('off.qtyFrom')
+                    : t('off.qty')
+              }
               inputMode="decimal"
               value={String(draftItem.quantity)}
               onChange={(e) =>
@@ -598,19 +613,28 @@ export default function OfferEditorPage() {
               label={t('off.unit')}
               value={draftItem.unit ?? ''}
               options={UNITS.map((u) => ({ value: u, label: u }))}
-              onChange={(e) => setDraftItem({ ...draftItem, unit: e.target.value })}
-            />
-            <Input
-              label={t('off.netPrice')}
-              inputMode="decimal"
-              value={String(draftItem.unit_price)}
               onChange={(e) =>
                 setDraftItem({
                   ...draftItem,
-                  unit_price: Number(e.target.value.replace(',', '.')) || 0,
+                  unit: e.target.value,
+                  // „kr" = kwota wpisywana wprost, cena jedn. = 1
+                  unit_price: e.target.value === 'kr' ? 1 : draftItem.unit_price,
                 })
               }
             />
+            {draftItem.unit !== 'kr' && (
+              <Input
+                label={t('off.netPrice')}
+                inputMode="decimal"
+                value={String(draftItem.unit_price)}
+                onChange={(e) =>
+                  setDraftItem({
+                    ...draftItem,
+                    unit_price: Number(e.target.value.replace(',', '.')) || 0,
+                  })
+                }
+              />
+            )}
           </div>
           {/* Widełki: szacunek od–do (np. robocizna 10–50 tim) zamiast fast pris */}
           <Switch
@@ -623,7 +647,7 @@ export default function OfferEditorPage() {
           />
           {draftItem.quantity_max != null && (
             <Input
-              label={t('off.qtyTo')}
+              label={draftItem.unit === 'kr' ? t('off.amountTo') : t('off.qtyTo')}
               inputMode="decimal"
               value={String(draftItem.quantity_max)}
               onChange={(e) =>
