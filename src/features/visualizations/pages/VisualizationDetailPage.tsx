@@ -1,5 +1,7 @@
-import { Suspense, lazy, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queryKeys';
 import {
   Check,
   Copy,
@@ -86,11 +88,25 @@ export default function VisualizationDetailPage() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const photoSlot = useRef<'before' | 'after'>('before');
 
+  const queryClient = useQueryClient();
   const isManager = can('visualizations_manage');
   const isWorker = can('visualizations_work');
 
   const viz = query.data?.visualization ?? null;
   const points = useMemo(() => query.data?.points ?? [], [query.data]);
+
+  // Token nadajemy z góry (po cichu), żeby „Podgląd" i „Kopiuj link" działały
+  // synchronicznie w geście użytkownika (iOS blokuje async window.open/clipboard).
+  const ensuredRef = useRef(false);
+  useEffect(() => {
+    if (!isManager || !viz || viz.public_token || ensuredRef.current) return;
+    ensuredRef.current = true;
+    ensureVizToken(id)
+      .then(() => queryClient.invalidateQueries({ queryKey: qk.visualizations.detail(id) }))
+      .catch(() => {
+        ensuredRef.current = false;
+      });
+  }, [isManager, viz, id, queryClient]);
 
   const bbox: Bbox | null = useMemo(() => (viz ? bboxFromViz(viz) : null), [viz]);
 
@@ -101,20 +117,35 @@ export default function VisualizationDetailPage() {
 
   // Punkty na mapie (+ ewentualny szkic nowego punktu).
   const mapPoints: VizMapPoint[] = useMemo(() => {
-    const base = points.map((p) => ({
+    const base: VizMapPoint[] = points.map((p) => ({
       id: p.id,
       latitude: p.latitude,
       longitude: p.longitude,
       status: p.status,
+      skylift: p.requires_equipment,
     }));
     if (draft && draft.id === null) {
-      base.push({ id: 'draft', latitude: draft.latitude, longitude: draft.longitude, status: draft.status });
+      base.push({
+        id: 'draft',
+        latitude: draft.latitude,
+        longitude: draft.longitude,
+        status: draft.status,
+        skylift: draft.requires_equipment,
+      });
     }
     return base;
   }, [points, draft]);
 
   const handleMapClick = (lng: number, lat: number) => {
     if (!addMode) return;
+    // Punkty tylko w wyznaczonym obszarze wizualizacji.
+    if (
+      bbox &&
+      (lat > bbox.north || lat < bbox.south || lng > bbox.east || lng < bbox.west)
+    ) {
+      toast.error(t('viz.outsideArea'));
+      return;
+    }
     setAddMode(false);
     setDraft({
       id: null,
@@ -208,19 +239,22 @@ export default function VisualizationDetailPage() {
     closeSheet();
   };
 
-  const handleCopyLink = async () => {
-    try {
-      const token = viz?.public_token ?? (await ensureVizToken(id));
-      await navigator.clipboard.writeText(vizPublicUrl(token));
-      toast.success(t('viz.linkCopied'));
-    } catch {
-      toast.error(t('viz.errSend'));
-    }
+  // Token jest już nadany z góry (useEffect), więc oba działania są synchroniczne
+  // w geście użytkownika — clipboard i nawigacja nie są blokowane na iOS.
+  const handleCopyLink = () => {
+    const token = viz?.public_token;
+    if (!token) return;
+    navigator.clipboard
+      .writeText(vizPublicUrl(token))
+      .then(() => toast.success(t('viz.linkCopied')))
+      .catch(() => toast.error(t('viz.errSend')));
   };
 
-  const handlePreview = async () => {
-    const token = viz?.public_token ?? (await ensureVizToken(id));
-    window.open(vizPublicUrl(token, true), '_blank');
+  const handlePreview = () => {
+    const token = viz?.public_token;
+    if (!token) return;
+    // Pełnoekranowy podgląd wewnątrz aplikacji (jak zobaczy klient).
+    navigate(`/wizualizacja/${token}?podglad=1`);
   };
 
   const handleSend = async () => {
@@ -327,10 +361,20 @@ export default function VisualizationDetailPage() {
           <Button icon={<Send className="size-4" />} onClick={() => setSendOpen(true)}>
             {viz.status === 'sent' ? t('viz.resend') : t('viz.send')}
           </Button>
-          <Button variant="secondary" icon={<Copy className="size-4" />} onClick={handleCopyLink}>
+          <Button
+            variant="secondary"
+            icon={<Copy className="size-4" />}
+            disabled={!viz.public_token}
+            onClick={handleCopyLink}
+          >
             {t('viz.copyLink')}
           </Button>
-          <Button variant="secondary" icon={<Eye className="size-4" />} onClick={handlePreview}>
+          <Button
+            variant="secondary"
+            icon={<Eye className="size-4" />}
+            disabled={!viz.public_token}
+            onClick={handlePreview}
+          >
             {t('viz.openPreview')}
           </Button>
           <Button
@@ -381,6 +425,10 @@ export default function VisualizationDetailPage() {
                 <Button
                   size="sm"
                   variant={draft.status === 'done' ? 'secondary' : 'primary'}
+                  // „Oznacz jako gotowe" w kolorze sukcesu (zielony)
+                  style={
+                    draft.status === 'done' ? undefined : { backgroundColor: '#2e7d32' }
+                  }
                   icon={<Check className="size-4" />}
                   onClick={() =>
                     setDraft((d) => (d ? { ...d, status: d.status === 'done' ? 'todo' : 'done' } : d))

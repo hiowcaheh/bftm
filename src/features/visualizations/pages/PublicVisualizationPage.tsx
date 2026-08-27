@@ -1,7 +1,6 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { MapPinned, Wrench, X } from 'lucide-react';
-import { logoPublicUrl } from '@/features/settings/api';
 import { usePublicVisualization } from '../hooks';
 import { hasBbox, hasMapKey, mapStyleUrl, paddedMaxBounds } from '../map';
 import { vizPhotoUrl } from '../api';
@@ -9,7 +8,6 @@ import type { Bbox, PublicVizPoint } from '../types';
 import type { VizMapPoint } from '../components/VizMap';
 
 const VizMap = lazy(() => import('../components/VizMap'));
-const NAVY = '#1E2A44';
 
 /** Trwały identyfikator sesji publicznej — deduplikacja licznika (odświeżenie nie nabija). */
 function getSessionId(): string {
@@ -17,7 +15,7 @@ function getSessionId(): string {
   try {
     let s = localStorage.getItem(KEY);
     if (!s) {
-      s = (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2) + Date.now().toString(36));
+      s = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2) + Date.now().toString(36);
       localStorage.setItem(KEY, s);
     }
     return s;
@@ -27,12 +25,13 @@ function getSessionId(): string {
 }
 
 /**
- * Publiczny widok wizualizacji (link z tokenem) — po SZWEDZKU, bez logowania.
- * Mobile-first: logo → spinner → mapa (lazy). Klient tylko czyta.
+ * Publiczny widok wizualizacji (link z tokenem) — pełny ekran mapy, bez logo
+ * ani nagłówka. Klient tylko czyta; kliknięcie punktu otwiera panel ze szczegółami.
  */
 export default function PublicVisualizationPage() {
   const { token = '' } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const isPreview = searchParams.get('podglad') === '1';
   const [session] = useState(getSessionId);
   const query = usePublicVisualization(token, !isPreview, session);
@@ -63,13 +62,14 @@ export default function PublicVisualizationPage() {
         latitude: p.latitude,
         longitude: p.longitude,
         status: p.status,
+        skylift: p.requires_equipment,
       })),
     [data],
   );
 
   if (query.isLoading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center" style={{ backgroundColor: NAVY }}>
+      <div className="flex h-dvh items-center justify-center bg-neutral-900">
         <div className="size-10 animate-spin rounded-full border-3 border-white/25 border-t-white" />
       </div>
     );
@@ -77,7 +77,7 @@ export default function PublicVisualizationPage() {
 
   if (!data) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-3 bg-[#F5F5F7] p-6 text-center">
+      <div className="flex h-dvh flex-col items-center justify-center gap-3 bg-neutral-100 p-6 text-center">
         <MapPinned className="size-10 text-neutral-400" />
         <p className="text-sm text-neutral-500">
           Visualiseringen hittades inte eller är inte längre tillgänglig.
@@ -86,54 +86,48 @@ export default function PublicVisualizationPage() {
     );
   }
 
-  const companyName = data.branding.name || 'BFTM Fasad & Bygg AB';
   const openPoint = (pointId: string) => {
     const p = data.points.find((x) => x.id === pointId);
     if (p) setActive(p);
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#F5F5F7]">
-      {/* Hero: logo na granacie */}
-      <header className="px-6 pt-8 pb-6 text-center" style={{ backgroundColor: NAVY }}>
-        {data.branding.logo_path ? (
-          <img
-            src={logoPublicUrl(data.branding.logo_path)}
-            alt={companyName}
-            className="mx-auto max-w-[220px]"
+    <div className="relative h-dvh w-full overflow-hidden bg-neutral-900">
+      {/* Mapa na pełnym ekranie */}
+      {hasMapKey() ? (
+        <Suspense
+          fallback={
+            <div className="flex h-full items-center justify-center bg-neutral-800">
+              <div className="size-8 animate-spin rounded-full border-3 border-white/25 border-t-white" />
+            </div>
+          }
+        >
+          <VizMap
+            styleUrl={mapStyleUrl()}
+            bbox={bbox}
+            maxBounds={maxBounds}
+            points={mapPoints}
+            onPointClick={openPoint}
+            className="h-full w-full"
           />
-        ) : (
-          <div className="text-xl font-bold tracking-wide text-white">{companyName}</div>
-        )}
-        {data.title && <p className="mt-3 text-sm text-white/80">{data.title}</p>}
-        {data.address && <p className="mt-1 text-xs text-white/60">{data.address}</p>}
-      </header>
+        </Suspense>
+      ) : (
+        <div className="flex h-full items-center justify-center p-6 text-center text-sm text-neutral-300">
+          Kartan är inte tillgänglig.
+        </div>
+      )}
 
-      {/* Mapa */}
-      <div className="relative flex-1">
-        {hasMapKey() ? (
-          <Suspense
-            fallback={
-              <div className="flex h-[70vh] items-center justify-center bg-neutral-200">
-                <div className="size-8 animate-spin rounded-full border-3 border-neutral-400 border-t-neutral-600" />
-              </div>
-            }
-          >
-            <VizMap
-              styleUrl={mapStyleUrl()}
-              bbox={bbox}
-              maxBounds={maxBounds}
-              points={mapPoints}
-              onPointClick={openPoint}
-              className="h-[70vh] w-full"
-            />
-          </Suspense>
-        ) : (
-          <div className="flex h-[70vh] items-center justify-center p-6 text-center text-sm text-neutral-500">
-            Kartan är inte tillgänglig.
-          </div>
-        )}
-      </div>
+      {/* Podgląd z aplikacji: dyskretny przycisk zamknięcia (klient go nie widzi) */}
+      {isPreview && (
+        <button
+          aria-label="Stäng"
+          onClick={() => navigate(-1)}
+          className="press absolute top-4 left-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur"
+          style={{ top: 'calc(env(safe-area-inset-top) + 1rem)' }}
+        >
+          <X className="size-5" />
+        </button>
+      )}
 
       {/* Panel punktu (bottom sheet, tylko odczyt) */}
       {active && (
@@ -151,7 +145,11 @@ export default function PublicVisualizationPage() {
               >
                 {active.status === 'done' ? 'Klart' : 'Ej klart'}
               </span>
-              <button aria-label="Stäng" onClick={() => setActive(null)} className="p-1 text-neutral-500">
+              <button
+                aria-label="Stäng"
+                onClick={() => setActive(null)}
+                className="p-1 text-neutral-500"
+              >
                 <X className="size-5" />
               </button>
             </div>
@@ -171,22 +169,26 @@ export default function PublicVisualizationPage() {
             {active.before_path && (
               <figure className="mb-3">
                 <figcaption className="mb-1 text-xs font-medium text-neutral-500">Före</figcaption>
-                <img src={vizPhotoUrl(active.before_path)} alt="Före" className="w-full rounded-xl object-cover" />
+                <img
+                  src={vizPhotoUrl(active.before_path)}
+                  alt="Före"
+                  className="w-full rounded-xl object-cover"
+                />
               </figure>
             )}
             {active.after_path && (
               <figure>
                 <figcaption className="mb-1 text-xs font-medium text-neutral-500">Efter</figcaption>
-                <img src={vizPhotoUrl(active.after_path)} alt="Efter" className="w-full rounded-xl object-cover" />
+                <img
+                  src={vizPhotoUrl(active.after_path)}
+                  alt="Efter"
+                  className="w-full rounded-xl object-cover"
+                />
               </figure>
             )}
           </div>
         </div>
       )}
-
-      <footer className="px-6 py-4 text-center text-xs text-neutral-400">
-        © {new Date().getFullYear()} {companyName}
-      </footer>
     </div>
   );
 }

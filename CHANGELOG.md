@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.45.6 — Wizualizacje: naprawa tokenu, podgląd, punkty (2026-08-27)
+
+- Naprawiony błąd generowania tokenu (gen_random_bytes / schemat extensions) —
+  teraz działają: wysyłka do klienta, kopiowanie linku i podgląd (migracja 0058).
+- „Podgląd" otwiera pełnoekranową mapę wewnątrz aplikacji (jak widzi klient),
+  bez logo i nagłówka — cała wizualizacja na mapie.
+- Podgląd działa też dla szkicu (przed wysłaniem).
+- Punkty można dodawać tylko w zaznaczonym obszarze wizualizacji.
+- „Oznacz jako gotowe" w kolorze zielonym.
+- Punkt wymagający skyliftu ma białą literkę „S" w kropce na mapie.
+- „Kopiuj link" i „Podgląd" działają niezawodnie na iPhonie (token nadawany
+  z góry, akcja w geście użytkownika — bez blokad Safari).
+
+
 ## 0.45.5 — Wizualizacje: poprawki UX tworzenia (2026-08-27)
 
 - Przycisk zapisu wizualizacji przeniesiony do treści (był pod dolną nawigacją
