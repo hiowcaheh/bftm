@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.48.2 — Oferty: lista w nowym stylu (jak wizualizacje) (2026-08-28)
+
+- Lista ofert: ten sam nowoczesny układ karty co wizualizacje — kafelek z
+  ikoną modułu, numer, status i wyświetlenia (bez paska postępu).
+
+
 ## 0.48.1 — Wizualizacje: mocniejszy przycisk + lista bez daty dla szkicu (2026-08-28)
 
 - Przycisk „Wizualizacja" na detalach: nieco mocniejsza czerwień.
