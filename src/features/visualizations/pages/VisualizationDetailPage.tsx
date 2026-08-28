@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Copy, Eye, MapPin, Pencil, Send, Trash2 } from 'lucide-react';
 import { qk } from '@/lib/queryKeys';
+import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -21,6 +22,7 @@ import { logoPublicUrl } from '@/features/settings/api';
 import { ensureVizToken, vizPublicUrl } from '../api';
 import {
   useDeleteVisualization,
+  usePointCreators,
   usePublishVisualization,
   useSendVisualizationEmail,
   useVisualization,
@@ -49,6 +51,8 @@ export default function VisualizationDetailPage() {
   const isWorker = can('visualizations_work');
   const viz = query.data?.visualization ?? null;
   const pointCount = query.data?.points.length ?? 0;
+  const creators = usePointCreators(viz?.created_by ? [viz.created_by] : []);
+  const author = viz?.created_by ? creators.data?.[viz.created_by] : undefined;
 
   // Token z góry, aby „Podgląd"/„Kopiuj link" działały w geście (iOS).
   const ensuredRef = useRef(false);
@@ -119,6 +123,21 @@ export default function VisualizationDetailPage() {
     ),
   });
   info.push({ label: t('viz.createdAtLabel'), value: fmtDate(viz.created_at) });
+  if (viz.created_by)
+    info.push({
+      label: t('viz.author'),
+      value: (
+        <span className="inline-flex items-center gap-2">
+          <Avatar
+            name={author?.name ?? '—'}
+            path={author?.avatar_path ?? null}
+            size="sm"
+            className="size-6 text-[10px]"
+          />
+          {author?.name ?? '—'}
+        </span>
+      ),
+    });
 
   return (
     <div className="flex flex-col gap-4">
