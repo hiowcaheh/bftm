@@ -191,7 +191,7 @@ export default function VisualizationDetailPage() {
           size="lg"
           variant="ghost"
           className="text-error"
-          style={{ backgroundColor: 'var(--color-error-soft)' }}
+          style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent) 15%, white)' }}
           icon={<MapPin className="size-5" />}
           onClick={() => navigate(`/wizualizacje/${id}/punkty`)}
         >

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.48.1 — Wizualizacje: mocniejszy przycisk + lista bez daty dla szkicu (2026-08-28)
+
+- Przycisk „Wizualizacja" na detalach: nieco mocniejsza czerwień.
+- Lista: dla wizualizacji ze statusem „Szkic" (bez punktów) nie pokazujemy daty.
+
+
 ## 0.48.0 — Wizualizacje: numeracja, nowa lista, drobne poprawki (2026-08-28)
 
 - Numer wizualizacji (VIZ-2026-001) nadawany automatycznie triggerem
