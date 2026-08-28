@@ -72,33 +72,38 @@ export default function VisualizationsPage() {
               </div>
             </div>
 
-            {/* Stopka: postęp punktów (czerwony→zielony) + data + wyświetlenia */}
-            <div className="flex items-center gap-3">
-              {pct !== null ? (
-                <div className="flex flex-1 items-center gap-2.5">
-                  <div className="h-1.5 flex-1 rounded-full bg-black/[0.06]">
-                    <div
-                      className="h-full min-w-[0.375rem] rounded-full transition-[width,background-color] duration-300"
-                      style={{ width: `${pct}%`, backgroundColor: progressColor(pct) }}
-                    />
+            {/* Stopka: postęp punktów (czerwony→zielony) + wyświetlenia.
+                Dla szkicu bez punktów nie pokazujemy daty — jest zbędna. */}
+            {(pct !== null || v.status === 'sent') && (
+              <div className="flex items-center gap-3">
+                {pct !== null ? (
+                  <div className="flex flex-1 items-center gap-2.5">
+                    <div className="h-1.5 flex-1 rounded-full bg-black/[0.06]">
+                      <div
+                        className="h-full min-w-[0.375rem] rounded-full transition-[width,background-color] duration-300"
+                        style={{ width: `${pct}%`, backgroundColor: progressColor(pct) }}
+                      />
+                    </div>
+                    <span
+                      className="tabular-nums min-w-[2.25rem] text-right text-xs font-bold"
+                      style={{ color: progressColor(pct) }}
+                    >
+                      {pct}
+                      <span className="text-[9px] font-semibold">%</span>
+                    </span>
                   </div>
-                  <span
-                    className="tabular-nums min-w-[2.25rem] text-right text-xs font-bold"
-                    style={{ color: progressColor(pct) }}
-                  >
-                    {pct}
-                    <span className="text-[9px] font-semibold">%</span>
+                ) : (
+                  <span className="flex-1 text-xs text-text-secondary">
+                    {fmtDate(v.created_at)}
                   </span>
-                </div>
-              ) : (
-                <span className="flex-1 text-xs text-text-secondary">{fmtDate(v.created_at)}</span>
-              )}
-              {v.status === 'sent' && (
-                <span className="tabular-nums flex shrink-0 items-center gap-1 text-xs text-text-secondary">
-                  <Eye className="size-3.5" /> {v.view_count}
-                </span>
-              )}
-            </div>
+                )}
+                {v.status === 'sent' && (
+                  <span className="tabular-nums flex shrink-0 items-center gap-1 text-xs text-text-secondary">
+                    <Eye className="size-3.5" /> {v.view_count}
+                  </span>
+                )}
+              </div>
+            )}
           </Card>
         );
       })}
