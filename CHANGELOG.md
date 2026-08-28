@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.47.10 — Wizualizacje: avatar autora 20px (2026-08-28)
+
+- Wiersz „Autor": avatar ustawiony na 20px.
+
+
 ## 0.47.9 — Wizualizacje: białe tło kafelków punktów (2026-08-28)
 
 - Kafelki rozbicia punktów (niezrobione/gotowe/skylift): tło z szarego na białe.
