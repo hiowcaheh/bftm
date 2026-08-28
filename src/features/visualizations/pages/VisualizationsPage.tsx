@@ -11,6 +11,12 @@ import { useSession } from '@/features/auth/SessionProvider';
 import { useVisualizations } from '../hooks';
 import { VIZ_STATUS_TONES } from '../types';
 
+/** Kolor postępu: 0% czerwony → 100% zielony (interpolacja odcienia HSL). */
+function progressColor(pct: number): string {
+  const hue = Math.round((pct / 100) * 130); // 0 = czerwony, 130 = zielony
+  return `hsl(${hue} 70% 42%)`;
+}
+
 export default function VisualizationsPage() {
   const navigate = useNavigate();
   const { can } = useSession();
@@ -18,7 +24,7 @@ export default function VisualizationsPage() {
   const list = useVisualizations();
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {list.isLoading && <SkeletonList rows={4} />}
 
       {!list.isLoading && (list.data ?? []).length === 0 && (
@@ -29,65 +35,70 @@ export default function VisualizationsPage() {
         const subtitle = [v.client?.name ?? null, v.address ?? null]
           .filter(Boolean)
           .join(' • ');
+        const pct =
+          v.pointsTotal > 0 ? Math.round((v.pointsDone / v.pointsTotal) * 100) : null;
         return (
           <Card
             key={v.id}
             interactive
-            className="flex flex-col gap-2 p-4"
+            className="flex flex-col gap-3 p-4"
             onClick={() => navigate(`/wizualizacje/${v.id}`)}
           >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">
+            <div className="flex items-start gap-3">
+              {/* Kafelek z ikoną modułu */}
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                <MapPin className="size-5" strokeWidth={1.9} />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  {v.number ? (
+                    <span className="tabular-nums text-[11px] font-semibold tracking-wide text-text-secondary">
+                      {v.number}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
+                  <Badge tone={VIZ_STATUS_TONES[v.status]}>
+                    {v.status === 'sent' ? t('viz.statusSent') : t('viz.statusDraft')}
+                  </Badge>
+                </div>
+                <p className="mt-0.5 truncate text-sm font-semibold">
                   {v.title || t('viz.untitled')}
                 </p>
                 {subtitle && (
                   <p className="mt-0.5 truncate text-xs text-text-secondary">{subtitle}</p>
                 )}
-                <p className="mt-0.5 text-[11px] text-text-secondary">
-                  {fmtDate(v.created_at)}
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-1.5">
-                <Badge tone={VIZ_STATUS_TONES[v.status]}>
-                  {v.status === 'sent' ? t('viz.statusSent') : t('viz.statusDraft')}
-                </Badge>
-                {v.status === 'sent' && (
-                  <span className="tabular-nums flex items-center gap-1 text-xs text-text-secondary">
-                    <Eye className="size-3.5" /> {v.view_count}
-                  </span>
-                )}
               </div>
             </div>
 
-            {/* Pasek postępu: gotowe punkty / wszystkie — minimalny */}
-            {v.pointsTotal > 0 &&
-              (() => {
-                const pct = Math.round((v.pointsDone / v.pointsTotal) * 100);
-                const full = pct === 100;
-                return (
-                  <div className="mt-0.5 flex items-center gap-2.5">
-                    <div className="h-1.5 flex-1 rounded-full bg-black/[0.06]">
-                      <div
-                        className="h-full min-w-[0.375rem] rounded-full transition-[width] duration-300"
-                        style={{
-                          width: `${pct}%`,
-                          background: full
-                            ? '#2e7d32'
-                            : 'linear-gradient(90deg, #34a853, #2e7d32)',
-                        }}
-                      />
-                    </div>
-                    <span
-                      className="tabular-nums min-w-[2.25rem] text-right text-xs font-bold"
-                      style={{ color: full ? '#2e7d32' : 'var(--color-text-secondary)' }}
-                    >
-                      {pct}
-                      <span className="text-[9px] font-semibold">%</span>
-                    </span>
+            {/* Stopka: postęp punktów (czerwony→zielony) + data + wyświetlenia */}
+            <div className="flex items-center gap-3">
+              {pct !== null ? (
+                <div className="flex flex-1 items-center gap-2.5">
+                  <div className="h-1.5 flex-1 rounded-full bg-black/[0.06]">
+                    <div
+                      className="h-full min-w-[0.375rem] rounded-full transition-[width,background-color] duration-300"
+                      style={{ width: `${pct}%`, backgroundColor: progressColor(pct) }}
+                    />
                   </div>
-                );
-              })()}
+                  <span
+                    className="tabular-nums min-w-[2.25rem] text-right text-xs font-bold"
+                    style={{ color: progressColor(pct) }}
+                  >
+                    {pct}
+                    <span className="text-[9px] font-semibold">%</span>
+                  </span>
+                </div>
+              ) : (
+                <span className="flex-1 text-xs text-text-secondary">{fmtDate(v.created_at)}</span>
+              )}
+              {v.status === 'sent' && (
+                <span className="tabular-nums flex shrink-0 items-center gap-1 text-xs text-text-secondary">
+                  <Eye className="size-3.5" /> {v.view_count}
+                </span>
+              )}
+            </div>
           </Card>
         );
       })}

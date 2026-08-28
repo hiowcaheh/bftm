@@ -297,6 +297,7 @@ export type VisualizationPointStatus = 'todo' | 'done';
 
 type VisualizationRow = {
   id: string;
+  number: string | null;
   client_id: string | null;
   project_id: string | null;
   title: string | null;

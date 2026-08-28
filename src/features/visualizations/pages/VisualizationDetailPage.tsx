@@ -145,22 +145,26 @@ export default function VisualizationDetailPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <button
-        type="button"
-        onClick={() => navigate('/wizualizacje')}
-        className="press flex items-center gap-1 text-sm font-medium text-text-secondary"
-      >
-        <ArrowLeft className="size-4" /> {t('nav.visualizations')}
-      </button>
-
-      {/* Karta informacyjna */}
-      <Card className="flex flex-col gap-3 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <h2 className="text-base font-semibold">{viz.title || t('viz.untitled')}</h2>
+      {/* Górny pasek jak w ofertach: cofnij + numer + status */}
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => navigate('/wizualizacje')}
+          className="press flex items-center gap-1 text-sm font-medium text-text-secondary"
+        >
+          <ArrowLeft className="size-4" /> {t('nav.visualizations')}
+        </button>
+        <div className="flex items-center gap-2">
+          {viz.number && <span className="text-xs text-text-secondary">{viz.number}</span>}
           <Badge tone={viz.status === 'sent' ? 'success' : 'neutral'}>
             {viz.status === 'sent' ? t('viz.statusSent') : t('viz.statusDraft')}
           </Badge>
         </div>
+      </div>
+
+      {/* Karta informacyjna */}
+      <Card className="flex flex-col gap-3 p-4">
+        <h2 className="text-base font-semibold">{viz.title || t('viz.untitled')}</h2>
         <dl className="flex flex-col gap-1.5 text-sm">
           {info.map((row) => (
             <div key={row.label} className="flex justify-between gap-3">
@@ -185,6 +189,9 @@ export default function VisualizationDetailPage() {
         <Button
           fullWidth
           size="lg"
+          variant="ghost"
+          className="text-error"
+          style={{ backgroundColor: 'var(--color-error-soft)' }}
           icon={<MapPin className="size-5" />}
           onClick={() => navigate(`/wizualizacje/${id}/punkty`)}
         >
@@ -222,9 +229,7 @@ export default function VisualizationDetailPage() {
             {t('viz.openPreview')}
           </Button>
           <Button
-            variant="ghost"
-            className="col-span-2 text-error"
-            style={{ backgroundColor: 'var(--color-error-soft)' }}
+            className="col-span-2"
             icon={<Trash2 className="size-4" />}
             onClick={() => setConfirmDelViz(true)}
           >
