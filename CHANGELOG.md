@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.46.3 — Wizualizacje: audyt statusu, spójne zdjęcia, czystszy panel (2026-08-27)
+
+- Audyt punktu: zamiast „Zrobił" pokazuje „Zmienił status na gotowe/niezrobione"
+  z kolorem (zielony/czerwony) i ikoną. Znacznik zmiany statusu w obie strony
+  (migracja 0061).
+- Podgląd/klient: sekcje zdjęć „Före/Efter" w tym samym nowoczesnym stylu co
+  w edytorze punktów (pasek z ikoną, jasne tło).
+- Panel punktu (klient/podgląd): czytelniejszy nagłówek — X w kółku po prawej,
+  status i skylift po lewej, „Klart {data}" w osobnej, wyraźnej linii z ikoną.
+
+
 ## 0.46.2 — Wizualizacje: legenda skyliftu, ładowanie, panel punktu (2026-08-27)
 
 - Legenda: skylift nie jest już czerwony (to atrybut, nie status) — pokazuje

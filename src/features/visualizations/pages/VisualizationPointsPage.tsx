@@ -1,6 +1,16 @@
 import { Suspense, lazy, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Image as ImageIcon, ImagePlus, Plus, Trash2, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Image as ImageIcon,
+  ImagePlus,
+  Plus,
+  RotateCcw,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/Dialog';
@@ -379,7 +389,19 @@ export default function VisualizationPointsPage() {
                 )}
                 {draft.done_at && (
                   <AuditRow
-                    label={t('viz.doneBy')}
+                    label={
+                      draft.status === 'done'
+                        ? t('viz.changedToDone')
+                        : t('viz.changedToTodo')
+                    }
+                    labelColor={draft.status === 'done' ? '#2e7d32' : '#cc0000'}
+                    icon={
+                      draft.status === 'done' ? (
+                        <CheckCircle2 className="size-3.5" style={{ color: '#2e7d32' }} />
+                      ) : (
+                        <RotateCcw className="size-3.5" style={{ color: '#cc0000' }} />
+                      )
+                    }
                     name={doneUser?.name ?? '—'}
                     avatar={doneUser?.avatar_path ?? null}
                     when={dateTime(draft.done_at)}
@@ -424,19 +446,27 @@ function AuditRow({
   name,
   avatar,
   when,
+  icon,
+  labelColor,
 }: {
   label: string;
   name: string;
   avatar: string | null;
   when: string;
+  icon?: ReactNode;
+  labelColor?: string;
 }) {
   return (
     <div className="flex items-center gap-2">
       <Avatar name={name} path={avatar} size="sm" className="size-6 text-[10px]" />
       <div className="min-w-0 flex-1 leading-tight">
         <p className="truncate text-xs font-medium">{name}</p>
-        <p className="text-[10px] text-text-secondary">
-          {label} • {when}
+        <p className="flex items-center gap-1 text-[10px] text-text-secondary">
+          {icon}
+          <span style={labelColor ? { color: labelColor, fontWeight: 600 } : undefined}>
+            {label}
+          </span>
+          <span>• {when}</span>
         </p>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { MapPinned, Truck, X } from 'lucide-react';
+import { CheckCircle2, Image as ImageIcon, MapPinned, Truck, X } from 'lucide-react';
 import { dateTime } from '@/lib/format';
 import { logoPublicUrl } from '@/features/settings/api';
 import { usePublicBranding } from '@/features/auth/hooks';
@@ -35,6 +35,22 @@ function LoadingScreen({ logo, name, ready }: { logo: string | null; name: strin
         <p className="text-sm text-white/70">Laddar visualisering…</p>
       </div>
     </div>
+  );
+}
+
+/** Sekcja zdjęcia (klient) — ten sam styl co edytor punktów (pasek + ikona). */
+function PublicPhoto({ label, accent, url }: { label: string; accent: string; url: string }) {
+  return (
+    <figure className="mb-3 overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50">
+      <figcaption
+        className="flex items-center gap-2 px-3 py-2"
+        style={{ borderLeft: `4px solid ${accent}` }}
+      >
+        <ImageIcon className="size-4" style={{ color: accent }} />
+        <span className="text-sm font-semibold text-neutral-800">{label}</span>
+      </figcaption>
+      <img src={url} alt={label} className="max-h-72 w-full object-cover" />
+    </figure>
   );
 }
 
@@ -200,35 +216,36 @@ export default function PublicVisualizationPage() {
             onClick={() => setActive(null)}
           />
           <div className="relative z-10 max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 pb-8">
-            <div className="mb-3 flex items-start justify-between gap-3">
-              {/* Status + skylift w jednym rzędzie */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white"
-                  style={{ backgroundColor: active.status === 'done' ? '#2e7d32' : '#cc0000' }}
-                >
-                  {active.status === 'done' ? 'Klart' : 'Ej klart'}
-                </span>
-                {active.requires_equipment && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                    <Truck className="size-3.5" /> Skylift
+            {/* Nagłówek: status + skylift po lewej, X po prawej */}
+            <div className="mb-4">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white"
+                    style={{ backgroundColor: active.status === 'done' ? '#2e7d32' : '#cc0000' }}
+                  >
+                    {active.status === 'done' ? 'Klart' : 'Ej klart'}
                   </span>
-                )}
-              </div>
-              <div className="flex flex-col items-end gap-1">
+                  {active.requires_equipment && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                      <Truck className="size-3.5" /> Skylift
+                    </span>
+                  )}
+                </div>
                 <button
                   aria-label="Stäng"
                   onClick={() => setActive(null)}
-                  className="p-1 text-neutral-500"
+                  className="press flex size-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-500"
                 >
                   <X className="size-5" />
                 </button>
-                {active.status === 'done' && active.done_at && (
-                  <span className="text-[11px] whitespace-nowrap text-neutral-500">
-                    Klart {dateTime(active.done_at)}
-                  </span>
-                )}
               </div>
+              {active.status === 'done' && active.done_at && (
+                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                  <CheckCircle2 className="size-4" style={{ color: '#2e7d32' }} />
+                  Klart {dateTime(active.done_at)}
+                </div>
+              )}
             </div>
 
             {active.description && (
@@ -238,26 +255,10 @@ export default function PublicVisualizationPage() {
             )}
 
             {active.before_path && (
-              <figure className="mb-3 overflow-hidden rounded-xl border border-neutral-200">
-                <figcaption
-                  className="px-3 py-2 text-xs font-semibold text-white"
-                  style={{ backgroundColor: '#cc0000' }}
-                >
-                  Före
-                </figcaption>
-                <img src={vizPhotoUrl(active.before_path)} alt="Före" className="w-full object-cover" />
-              </figure>
+              <PublicPhoto label="Före" accent="#cc0000" url={vizPhotoUrl(active.before_path)} />
             )}
             {active.after_path && (
-              <figure className="overflow-hidden rounded-xl border border-neutral-200">
-                <figcaption
-                  className="px-3 py-2 text-xs font-semibold text-white"
-                  style={{ backgroundColor: '#2e7d32' }}
-                >
-                  Efter
-                </figcaption>
-                <img src={vizPhotoUrl(active.after_path)} alt="Efter" className="w-full object-cover" />
-              </figure>
+              <PublicPhoto label="Efter" accent="#2e7d32" url={vizPhotoUrl(active.after_path)} />
             )}
           </div>
         </div>
