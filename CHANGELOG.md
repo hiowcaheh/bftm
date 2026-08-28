@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.47.4 — Wizualizacje: avatar autora 12px (2026-08-28)
+
+- Wiersz „Autor" na karcie wizualizacji: avatar zmniejszony do 12px (size-3).
+
+
 ## 0.47.3 — Wizualizacje: jeszcze mniejszy avatar autora (2026-08-28)
 
 - Wiersz „Autor" na karcie wizualizacji: avatar zmniejszony (size-4).
