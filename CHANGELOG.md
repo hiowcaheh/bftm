@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.46.9 — Wizualizacje: odświeżony pasek postępu (2026-08-27)
+
+- Pasek postępu na liście: sleeker, minimalistyczny — zaokrąglony tor, miękki
+  zielony gradient, sam procent (zielony przy 100%).
+
+
 ## 0.46.8 — Wizualizacje: mapa odświeża się po ponownym adresie (2026-08-27)
 
 - Naprawiony błąd: przy tworzeniu wizualizacji ponowne wpisanie adresu
