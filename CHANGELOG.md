@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.46.4 — Wizualizacje: autor na karcie (2026-08-27)
+
+- Karta wizualizacji: pod datą utworzenia wiersz „Autor" z avatarem i imieniem
+  i nazwiskiem twórcy (jak avatary w projektach).
+
+
 ## 0.46.3 — Wizualizacje: audyt statusu, spójne zdjęcia, czystszy panel (2026-08-27)
 
 - Audyt punktu: zamiast „Zrobił" pokazuje „Zmienił status na gotowe/niezrobione"
