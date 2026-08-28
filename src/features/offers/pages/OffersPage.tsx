@@ -45,42 +45,55 @@ export default function OffersPage() {
         />
       )}
 
-      {list.map((o) => (
-        <Card
-          key={o.id}
-          interactive
-          className="flex flex-col gap-2 p-4"
-          onClick={() => navigate(`/oferty/${o.id}`)}
-        >
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold">
-                {o.number}
-                {o.title ? ` — ${o.title}` : ''}
-              </p>
-              <p className="mt-0.5 truncate text-xs text-text-secondary">
-                {[
-                  o.client?.name ??
-                    ((o.client_snapshot as { name?: string } | null)?.name || null),
-                  o.valid_until ? t('off.validUntilLc', { date: fmtDate(o.valid_until) }) : null,
-                ]
-                  .filter(Boolean)
-                  .join(' • ')}
-              </p>
+      {list.map((o) => {
+        const clientName =
+          o.client?.name ?? ((o.client_snapshot as { name?: string } | null)?.name || null);
+        const validUntil = o.valid_until
+          ? t('off.validUntilLc', { date: fmtDate(o.valid_until) })
+          : null;
+        return (
+          <Card
+            key={o.id}
+            interactive
+            className="flex flex-col gap-3 p-4"
+            onClick={() => navigate(`/oferty/${o.id}`)}
+          >
+            <div className="flex items-start gap-3">
+              {/* Kafelek z ikoną modułu */}
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                <FileText className="size-5" strokeWidth={1.9} />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="tabular-nums text-[11px] font-semibold tracking-wide text-text-secondary">
+                    {o.number}
+                  </span>
+                  <Badge tone={OFFER_STATUS_TONES[o.status]}>{t(`ostatus.${o.status}`)}</Badge>
+                </div>
+                <p className="mt-0.5 truncate text-sm font-semibold">
+                  {o.title?.trim() || clientName || t('off.untitled')}
+                </p>
+                {(clientName || validUntil) && (
+                  <p className="mt-0.5 truncate text-xs text-text-secondary">
+                    {[o.title?.trim() ? clientName : null, validUntil]
+                      .filter(Boolean)
+                      .join(' • ')}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="flex shrink-0 flex-col items-end gap-1.5">
-              <Badge tone={OFFER_STATUS_TONES[o.status]}>
-                {t(`ostatus.${o.status}`)}
-              </Badge>
-              {o.viewed_at && (
+
+            {o.viewed_at && (
+              <div className="flex items-center justify-end">
                 <span className="tabular-nums flex items-center gap-1 text-xs text-text-secondary">
                   <Eye className="size-3.5" /> {o.view_count}
                 </span>
-              )}
-            </div>
-          </div>
-        </Card>
-      ))}
+              </div>
+            )}
+          </Card>
+        );
+      })}
 
       {can('offers_edit') && (
         <FAB
