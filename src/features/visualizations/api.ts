@@ -4,6 +4,7 @@ import type { TablesInsert } from '@/types/database';
 import type {
   PublicVisualization,
   Visualization,
+  VisualizationListItem,
   VisualizationPoint,
   VisualizationWithClient,
 } from './types';
@@ -13,13 +14,28 @@ const LIST_COLUMNS = '*, client:clients(id, name)';
 
 // ── Lista / szczegóły ────────────────────────────────────────────────────────
 
-export async function fetchVisualizations(): Promise<VisualizationWithClient[]> {
-  const { data, error } = await supabase
-    .from('visualizations')
-    .select(LIST_COLUMNS)
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return data as unknown as VisualizationWithClient[];
+export async function fetchVisualizations(): Promise<VisualizationListItem[]> {
+  // Lista + lekki agregat punktów (id, status) → postęp na karcie.
+  const [listRes, pointsRes] = await Promise.all([
+    supabase.from('visualizations').select(LIST_COLUMNS).order('created_at', { ascending: false }),
+    supabase.from('visualization_points').select('visualization_id, status'),
+  ]);
+  if (listRes.error) throw listRes.error;
+  if (pointsRes.error) throw pointsRes.error;
+
+  const stats = new Map<string, { total: number; done: number }>();
+  for (const p of pointsRes.data ?? []) {
+    const s = stats.get(p.visualization_id) ?? { total: 0, done: 0 };
+    s.total += 1;
+    if (p.status === 'done') s.done += 1;
+    stats.set(p.visualization_id, s);
+  }
+
+  return (listRes.data as unknown as VisualizationWithClient[]).map((v) => ({
+    ...v,
+    pointsTotal: stats.get(v.id)?.total ?? 0,
+    pointsDone: stats.get(v.id)?.done ?? 0,
+  }));
 }
 
 export async function fetchVisualization(
