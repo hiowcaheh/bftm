@@ -143,6 +143,14 @@ export default function VizMap({
     map.setMaxBounds(maxBounds ?? null);
   }, [maxBounds]);
 
+  // Przeskocz do nowego środka (np. ponownie wpisany adres), gdy nie rządzi bbox.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !center || hasBbox(bbox)) return;
+    map.jumpTo({ center: [center.lng, center.lat], zoom: zoom ?? 16 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center?.lat, center?.lng]);
+
   // Aktualizacja obszaru (bbox) — źródło + dopasowanie.
   useEffect(() => {
     const map = mapRef.current;
