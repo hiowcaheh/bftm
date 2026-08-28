@@ -59,6 +59,25 @@ export default function VisualizationsPage() {
                 )}
               </div>
             </div>
+
+            {/* Pasek postępu: gotowe punkty / wszystkie */}
+            {v.pointsTotal > 0 &&
+              (() => {
+                const pct = Math.round((v.pointsDone / v.pointsTotal) * 100);
+                return (
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, backgroundColor: '#2e7d32' }}
+                      />
+                    </div>
+                    <span className="tabular-nums text-[11px] font-semibold text-text-secondary">
+                      {v.pointsDone}/{v.pointsTotal} · {pct}%
+                    </span>
+                  </div>
+                );
+              })()}
           </Card>
         );
       })}

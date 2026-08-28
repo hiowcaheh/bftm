@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.46.7 — Wizualizacje: pasek postępu na liście (2026-08-27)
+
+- Na liście wizualizacji minimalny pasek postępu: gotowe punkty / wszystkie
+  z procentem (np. 3/4 · 75%).
+
+
 ## 0.46.6 — Wizualizacje: kafelki, badge skyliftu, logo (2026-08-27)
 
 - Karta: dodana łączna liczba punktów pod „Wyświetlenia".

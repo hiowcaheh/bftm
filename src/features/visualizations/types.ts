@@ -7,6 +7,12 @@ export interface VisualizationWithClient extends Visualization {
   client: { id: string; name: string } | null;
 }
 
+/** Element listy — z agregatem postępu punktów (gotowe / wszystkie). */
+export interface VisualizationListItem extends VisualizationWithClient {
+  pointsTotal: number;
+  pointsDone: number;
+}
+
 /** Prosty bounding box (WGS84). */
 export interface Bbox {
   north: number;
