@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.47.2 — Wizualizacje: powiadomienie też dla zmieniającego status (2026-08-28)
+
+- Powiadomienie o zmianie statusu punktu trafia teraz również do osoby, która
+  sama zmieniła status (wcześniej autor zmiany był pomijany). Migracja 0063.
+
+
 ## 0.47.1 — Wizualizacje: mniejszy autor + backfill (2026-08-27)
 
 - Wiersz „Autor": mniejsza czcionka i mniejszy avatar.
