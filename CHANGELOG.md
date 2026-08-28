@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.47.0 — Wizualizacje: autor, powiadomienia o statusie punktu (2026-08-27)
+
+- Powiadomienia (i push) o zmianie statusu punktu — dla admina oraz osób z
+  flagą zarządzania lub pracy na wizualizacjach (poza tym, kto zmienił status).
+  Migracja 0062 (trigger + powiadomienie w języku odbiorcy).
+- Autor wizualizacji: created_by ustawiane automatycznie przy tworzeniu
+  (trigger) + backfill istniejących z logu; karta pokazuje autora z avatarem.
+- Kafelek „Skylift" w kolorze neutralnym (szary) zamiast pomarańczowego.
+
+
 ## 0.46.9 — Wizualizacje: odświeżony pasek postępu (2026-08-27)
 
 - Pasek postępu na liście: sleeker, minimalistyczny — zaokrąglony tor, miękki
