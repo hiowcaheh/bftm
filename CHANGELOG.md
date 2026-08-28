@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.46.2 — Wizualizacje: legenda skyliftu, ładowanie, panel punktu (2026-08-27)
+
+- Legenda: skylift nie jest już czerwony (to atrybut, nie status) — pokazuje
+  podział na niezrobione/gotowe (czerwona/zielona liczba). Marker „S" neutralny.
+- Ekran ładowania klienta: bez mignięcia nazwy firmy — od razu logo (nazwa tylko
+  gdy firma nie ma logo).
+- Panel punktu (klient/podgląd): „Klart {data}" przeniesione na górę po prawej,
+  przy statusie i skylifcie.
+
+
 ## 0.46.1 — Wizualizacje: dopieszczenie punktów i podglądu (2026-08-27)
 
 - Detale: ikonka oka przy liczbie wyświetleń; „Usuń wizualizację" z delikatnym

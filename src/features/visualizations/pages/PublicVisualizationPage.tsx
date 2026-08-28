@@ -14,18 +14,22 @@ import type { VizMapPoint } from '../components/VizMap';
 const VizMap = lazy(() => import('../components/VizMap'));
 const NAVY = '#1E2A44';
 
-/** Ekran ładowania w szacie maila: granat + logo + szwedzki tekst. */
-function LoadingScreen({ logo, name }: { logo: string | null; name: string }) {
+/** Ekran ładowania w szacie maila: granat + logo + szwedzki tekst.
+ *  Dopóki branding się ładuje — zamiast tekstu nazwy pokazujemy pustą przestrzeń
+ *  (żeby nie mignął napis przed logo). Nazwa tylko gdy firma nie ma logo. */
+function LoadingScreen({ logo, name, ready }: { logo: string | null; name: string; ready: boolean }) {
   return (
     <div
       className="flex h-dvh flex-col items-center justify-center gap-6 px-8 text-center"
       style={{ backgroundColor: NAVY }}
     >
-      {logo ? (
-        <img src={logo} alt={name} className="max-w-[240px]" />
-      ) : (
-        <div className="text-2xl font-bold tracking-wide text-white">{name}</div>
-      )}
+      <div className="flex h-16 items-center justify-center">
+        {logo ? (
+          <img src={logo} alt={name} className="max-h-16 max-w-[240px]" />
+        ) : ready ? (
+          <div className="text-2xl font-bold tracking-wide text-white">{name}</div>
+        ) : null}
+      </div>
       <div className="flex flex-col items-center gap-3">
         <div className="size-9 animate-spin rounded-full border-3 border-white/25 border-t-[#cc0000]" />
         <p className="text-sm text-white/70">Laddar visualisering…</p>
@@ -104,7 +108,7 @@ export default function PublicVisualizationPage() {
   const brandLogo = branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null;
 
   if (query.isLoading || !minElapsed) {
-    return <LoadingScreen logo={brandLogo} name={brandName} />;
+    return <LoadingScreen logo={brandLogo} name={brandName} ready={!branding.isLoading} />;
   }
 
   if (!data) {
@@ -123,7 +127,8 @@ export default function PublicVisualizationPage() {
     if (p) setActive(p);
   };
   const doneCount = data.points.filter((p) => p.status === 'done').length;
-  const skyliftCount = data.points.filter((p) => p.requires_equipment).length;
+  const skyliftDone = data.points.filter((p) => p.requires_equipment && p.status === 'done').length;
+  const skyliftTodo = data.points.filter((p) => p.requires_equipment && p.status === 'todo').length;
   const title = data.title || brandName;
 
   return (
@@ -180,7 +185,8 @@ export default function PublicVisualizationPage() {
         totalLabel="Punkter"
         todoCount={data.points.length - doneCount}
         doneCount={doneCount}
-        skyliftCount={skyliftCount}
+        skyliftTodo={skyliftTodo}
+        skyliftDone={skyliftDone}
         total={data.points.length}
         style={{ top: 'calc(env(safe-area-inset-top) + 3.75rem)' }}
       />
@@ -209,18 +215,21 @@ export default function PublicVisualizationPage() {
                   </span>
                 )}
               </div>
-              <button
-                aria-label="Stäng"
-                onClick={() => setActive(null)}
-                className="p-1 text-neutral-500"
-              >
-                <X className="size-5" />
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <button
+                  aria-label="Stäng"
+                  onClick={() => setActive(null)}
+                  className="p-1 text-neutral-500"
+                >
+                  <X className="size-5" />
+                </button>
+                {active.status === 'done' && active.done_at && (
+                  <span className="text-[11px] whitespace-nowrap text-neutral-500">
+                    Klart {dateTime(active.done_at)}
+                  </span>
+                )}
+              </div>
             </div>
-
-            {active.status === 'done' && active.done_at && (
-              <p className="mb-3 text-xs text-neutral-500">Klart {dateTime(active.done_at)}</p>
-            )}
 
             {active.description && (
               <p className="mb-4 text-[15px] leading-relaxed whitespace-pre-line text-neutral-800">

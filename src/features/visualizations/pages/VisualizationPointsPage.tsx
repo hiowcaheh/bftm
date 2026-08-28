@@ -71,7 +71,8 @@ export default function VisualizationPointsPage() {
   ]);
 
   const doneCount = points.filter((p) => p.status === 'done').length;
-  const skyliftCount = points.filter((p) => p.requires_equipment).length;
+  const skyliftDone = points.filter((p) => p.requires_equipment && p.status === 'done').length;
+  const skyliftTodo = points.filter((p) => p.requires_equipment && p.status === 'todo').length;
 
   const bbox: Bbox | null = useMemo(() => (viz ? bboxFromViz(viz) : null), [viz]);
   const maxBounds = useMemo(() => (bbox ? paddedMaxBounds(bbox, 0.2) : null), [bbox]);
@@ -263,7 +264,8 @@ export default function VisualizationPointsPage() {
         totalLabel={t('viz.pointsTotal')}
         todoCount={points.length - doneCount}
         doneCount={doneCount}
-        skyliftCount={skyliftCount}
+        skyliftTodo={skyliftTodo}
+        skyliftDone={skyliftDone}
         total={points.length}
         style={{ top: 'calc(env(safe-area-inset-top) + 3.75rem)' }}
       />
