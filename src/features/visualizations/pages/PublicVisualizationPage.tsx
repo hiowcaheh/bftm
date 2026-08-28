@@ -23,9 +23,9 @@ function LoadingScreen({ logo, name, ready }: { logo: string | null; name: strin
       className="flex h-dvh flex-col items-center justify-center gap-6 px-8 text-center"
       style={{ backgroundColor: NAVY }}
     >
-      <div className="flex h-40 items-center justify-center">
+      <div className="flex h-56 items-center justify-center">
         {logo ? (
-          <img src={logo} alt={name} className="max-h-40 w-auto max-w-[80vw]" />
+          <img src={logo} alt={name} className="max-h-56 w-auto max-w-[88vw]" />
         ) : ready ? (
           <div className="text-3xl font-bold tracking-wide text-white">{name}</div>
         ) : null}
@@ -226,7 +226,10 @@ export default function PublicVisualizationPage() {
                   {active.status === 'done' ? 'Klart' : 'Ej klart'}
                 </span>
                 {active.requires_equipment && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold text-white uppercase"
+                    style={{ backgroundColor: '#d97706', letterSpacing: '0.03em' }}
+                  >
                     <Truck className="size-3" /> Kräver skylift
                   </span>
                 )}
