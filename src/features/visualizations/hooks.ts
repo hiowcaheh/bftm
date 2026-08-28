@@ -127,6 +127,8 @@ export function useUpdatePoint(vizId: string) {
       updatePoint(id, patch),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.visualizations.detail(vizId) });
+      // zmiana statusu punktu tworzy powiadomienie (trigger) — odśwież dzwoneczek od razu
+      void queryClient.invalidateQueries({ queryKey: qk.notifications.all });
     },
     onError: () => toast.error(translate('viz.errSave')),
   });

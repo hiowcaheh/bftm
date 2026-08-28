@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.47.5 — Wizualizacje: dzwoneczek odświeża się od razu po zmianie statusu (2026-08-28)
+
+- Po zmianie statusu punktu powiadomienie (tworzone triggerem) pojawia się w
+  dzwoneczku od razu — odświeżamy listę powiadomień zaraz po zapisie, bez
+  czekania na cykliczne odpytanie co minutę.
+
+
 ## 0.47.4 — Wizualizacje: avatar autora 12px (2026-08-28)
 
 - Wiersz „Autor" na karcie wizualizacji: avatar zmniejszony do 12px (size-3).
