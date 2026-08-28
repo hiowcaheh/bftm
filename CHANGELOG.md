@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.47.1 — Wizualizacje: mniejszy autor + backfill (2026-08-27)
+
+- Wiersz „Autor": mniejsza czcionka i mniejszy avatar.
+- Uzupełniony autor także dla wizualizacji bez logu publikacji.
+
+
 ## 0.47.0 — Wizualizacje: autor, powiadomienia o statusie punktu (2026-08-27)
 
 - Powiadomienia (i push) o zmianie statusu punktu — dla admina oraz osób z

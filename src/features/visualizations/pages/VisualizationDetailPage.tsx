@@ -131,12 +131,12 @@ export default function VisualizationDetailPage() {
     info.push({
       label: t('viz.author'),
       value: (
-        <span className="inline-flex items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 text-xs">
           <Avatar
             name={author?.name ?? '—'}
             path={author?.avatar_path ?? null}
             size="sm"
-            className="size-6 text-[10px]"
+            className="size-5 text-[8px]"
           />
           {author?.name ?? '—'}
         </span>
