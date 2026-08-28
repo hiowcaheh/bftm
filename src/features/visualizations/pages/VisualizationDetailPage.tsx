@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Copy, Eye, MapPin, Pencil, Send, Trash2 } from 'lucide-react';
@@ -104,12 +105,20 @@ export default function VisualizationDetailPage() {
   if (query.isLoading) return <SkeletonList rows={5} />;
   if (!viz) return <Card className="p-4 text-sm text-text-secondary">{t('viz.empty')}</Card>;
 
-  const info: Array<[string, string]> = [];
-  if (viz.client?.name) info.push([t('viz.clientLabel').replace(/\s*\(.*\)/, ''), viz.client.name]);
-  if (viz.address) info.push([t('viz.addressLabel'), viz.address]);
-  info.push([t('viz.pointsTotal'), String(pointCount)]);
-  info.push([t('viz.views'), String(viz.view_count)]);
-  info.push([t('viz.createdAtLabel'), fmtDate(viz.created_at)]);
+  const info: Array<{ label: string; value: ReactNode }> = [];
+  if (viz.client?.name)
+    info.push({ label: t('viz.clientLabel').replace(/\s*\(.*\)/, ''), value: viz.client.name });
+  if (viz.address) info.push({ label: t('viz.addressLabel'), value: viz.address });
+  info.push({ label: t('viz.pointsTotal'), value: String(pointCount) });
+  info.push({
+    label: t('viz.views'),
+    value: (
+      <span className="inline-flex items-center gap-1.5">
+        <Eye className="size-4 text-text-secondary" /> {viz.view_count}
+      </span>
+    ),
+  });
+  info.push({ label: t('viz.createdAtLabel'), value: fmtDate(viz.created_at) });
 
   return (
     <div className="flex flex-col gap-4">
@@ -130,10 +139,10 @@ export default function VisualizationDetailPage() {
           </Badge>
         </div>
         <dl className="flex flex-col gap-1.5 text-sm">
-          {info.map(([k, v]) => (
-            <div key={k} className="flex justify-between gap-3">
-              <dt className="text-text-secondary">{k}</dt>
-              <dd className="text-right font-medium">{v}</dd>
+          {info.map((row) => (
+            <div key={row.label} className="flex justify-between gap-3">
+              <dt className="text-text-secondary">{row.label}</dt>
+              <dd className="text-right font-medium">{row.value}</dd>
             </div>
           ))}
         </dl>
@@ -183,6 +192,7 @@ export default function VisualizationDetailPage() {
           <Button
             variant="ghost"
             className="col-span-2 text-error"
+            style={{ backgroundColor: 'var(--color-error-soft)' }}
             icon={<Trash2 className="size-4" />}
             onClick={() => setConfirmDelViz(true)}
           >

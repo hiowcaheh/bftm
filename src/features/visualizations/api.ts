@@ -81,16 +81,23 @@ export async function deleteVisualization(id: string): Promise<void> {
   if (error) throw error;
 }
 
-/** Mapa id→imię twórców punktów (audyt „kto dodał"). Profile są czytelne dla aktywnych. */
-export async function fetchCreators(ids: string[]): Promise<Record<string, string>> {
+export interface CreatorInfo {
+  name: string;
+  avatar_path: string | null;
+}
+
+/** Mapa id→{imię, avatar} (audyt „kto dodał/zrobił"). Profile czytelne dla aktywnych. */
+export async function fetchCreators(ids: string[]): Promise<Record<string, CreatorInfo>> {
   const uniq = [...new Set(ids.filter(Boolean))];
   if (uniq.length === 0) return {};
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name')
+    .select('id, full_name, avatar_path')
     .in('id', uniq);
   if (error) throw error;
-  return Object.fromEntries((data ?? []).map((p) => [p.id, p.full_name]));
+  return Object.fromEntries(
+    (data ?? []).map((p) => [p.id, { name: p.full_name, avatar_path: p.avatar_path }]),
+  );
 }
 
 // ── Punkty ───────────────────────────────────────────────────────────────────

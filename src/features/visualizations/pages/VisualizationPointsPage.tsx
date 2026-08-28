@@ -1,6 +1,7 @@
 import { Suspense, lazy, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ImagePlus, Plus, Trash2, X } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, ImagePlus, Plus, Trash2, X } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { Textarea } from '@/components/ui/Input';
@@ -37,6 +38,8 @@ type PointDraft = {
   after_path: string | null;
   created_by: string | null;
   created_at?: string;
+  done_at?: string | null;
+  done_by?: string | null;
 };
 
 export default function VisualizationPointsPage() {
@@ -62,7 +65,13 @@ export default function VisualizationPointsPage() {
 
   const viz = query.data?.visualization ?? null;
   const points = useMemo(() => query.data?.points ?? [], [query.data]);
-  const creators = usePointCreators(points.map((p) => p.created_by ?? ''));
+  const creators = usePointCreators([
+    ...points.map((p) => p.created_by ?? ''),
+    ...points.map((p) => p.done_by ?? ''),
+  ]);
+
+  const doneCount = points.filter((p) => p.status === 'done').length;
+  const skyliftCount = points.filter((p) => p.requires_equipment).length;
 
   const bbox: Bbox | null = useMemo(() => (viz ? bboxFromViz(viz) : null), [viz]);
   const maxBounds = useMemo(() => (bbox ? paddedMaxBounds(bbox, 0.2) : null), [bbox]);
@@ -194,8 +203,8 @@ export default function VisualizationPointsPage() {
   };
 
   const draftEditable = draft ? canEditPoint() : false;
-  const creatorName =
-    draft?.created_by ? (creators.data?.[draft.created_by] ?? null) : null;
+  const creator = draft?.created_by ? creators.data?.[draft.created_by] : undefined;
+  const doneUser = draft?.done_by ? creators.data?.[draft.done_by] : undefined;
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-neutral-900">
@@ -246,13 +255,17 @@ export default function VisualizationPointsPage() {
         </div>
       )}
 
-      {/* Legenda punktów */}
+      {/* Legenda punktów — poniżej paska nawigacji */}
       <VizLegend
         todoLabel={t('viz.statusTodo')}
         doneLabel={t('viz.statusDone')}
         skyliftLabel={t('viz.requiresEquipment')}
         totalLabel={t('viz.pointsTotal')}
+        todoCount={points.length - doneCount}
+        doneCount={doneCount}
+        skyliftCount={skyliftCount}
         total={points.length}
+        style={{ top: 'calc(env(safe-area-inset-top) + 3.75rem)' }}
       />
 
       {/* Pasek trybu dodawania */}
@@ -310,6 +323,7 @@ export default function VisualizationPointsPage() {
             />
 
             <PhotoField
+              tone="before"
               label={t('viz.beforePhoto')}
               path={draft.before_path}
               editable={draftEditable}
@@ -322,6 +336,7 @@ export default function VisualizationPointsPage() {
               t={t}
             />
             <PhotoField
+              tone="after"
               label={t('viz.afterPhoto')}
               path={draft.after_path}
               editable={draftEditable}
@@ -349,11 +364,26 @@ export default function VisualizationPointsPage() {
               </p>
             )}
 
-            {/* Audyt: kto dodał i kiedy */}
-            {draft.id !== null && draft.created_at && (
-              <p className="text-center text-[11px] text-text-secondary">
-                {t('viz.createdBy')}: {creatorName ?? '—'} • {dateTime(draft.created_at)}
-              </p>
+            {/* Audyt: kto dodał / kto zmienił status na gotowe */}
+            {draft.id !== null && (draft.created_at || draft.done_at) && (
+              <div className="flex flex-col gap-1.5 rounded-xl bg-surface px-3 py-2.5">
+                {draft.created_at && (
+                  <AuditRow
+                    label={t('viz.createdBy')}
+                    name={creator?.name ?? '—'}
+                    avatar={creator?.avatar_path ?? null}
+                    when={dateTime(draft.created_at)}
+                  />
+                )}
+                {draft.done_at && (
+                  <AuditRow
+                    label={t('viz.doneBy')}
+                    name={doneUser?.name ?? '—'}
+                    avatar={doneUser?.avatar_path ?? null}
+                    when={dateTime(draft.done_at)}
+                  />
+                )}
+              </div>
             )}
 
             {draft.id !== null && canDeletePoint(draft) && (
@@ -387,7 +417,32 @@ export default function VisualizationPointsPage() {
   );
 }
 
+function AuditRow({
+  label,
+  name,
+  avatar,
+  when,
+}: {
+  label: string;
+  name: string;
+  avatar: string | null;
+  when: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Avatar name={name} path={avatar} size="sm" className="size-6 text-[10px]" />
+      <div className="min-w-0 flex-1 leading-tight">
+        <p className="truncate text-xs font-medium">{name}</p>
+        <p className="text-[10px] text-text-secondary">
+          {label} • {when}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 interface PhotoFieldProps {
+  tone: 'before' | 'after';
   label: string;
   path: string | null;
   editable: boolean;
@@ -397,14 +452,25 @@ interface PhotoFieldProps {
   t: (key: string) => string;
 }
 
-function PhotoField({ label, path, editable, uploading, onPick, onRemove, t }: PhotoFieldProps) {
+function PhotoField({ tone, label, path, editable, uploading, onPick, onRemove, t }: PhotoFieldProps) {
   const url = path ? vizPhotoUrl(path) : null;
+  const accent = tone === 'before' ? '#cc0000' : '#2e7d32';
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium">{label}</span>
-      {url && <img src={url} alt={label} className="max-h-56 w-full rounded-xl object-cover" />}
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface/40">
+      {/* Nagłówek sekcji zdjęcia — kolorowy pasek + tytuł */}
+      <div className="flex items-center gap-2 px-3 py-2" style={{ borderLeft: `4px solid ${accent}` }}>
+        <ImageIcon className="size-4" style={{ color: accent }} />
+        <span className="text-sm font-semibold">{label}</span>
+      </div>
+      {url ? (
+        <img src={url} alt={label} className="max-h-60 w-full object-cover" />
+      ) : (
+        <div className="flex h-24 items-center justify-center text-xs text-text-secondary">
+          {editable ? t('viz.addPhoto') : '—'}
+        </div>
+      )}
       {editable && (
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2 p-3">
           <Button
             variant="secondary"
             size="sm"
@@ -414,10 +480,18 @@ function PhotoField({ label, path, editable, uploading, onPick, onRemove, t }: P
           >
             {uploading ? t('viz.uploading') : url ? t('viz.changePhoto') : t('viz.addPhoto')}
           </Button>
-          {url && (
-            <Button variant="ghost" size="sm" className="text-error" onClick={onRemove}>
+          {url ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-error"
+              icon={<Trash2 className="size-4" />}
+              onClick={onRemove}
+            >
               {t('viz.removePhoto')}
             </Button>
+          ) : (
+            <span />
           )}
         </div>
       )}

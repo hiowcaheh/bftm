@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.46.1 — Wizualizacje: dopieszczenie punktów i podglądu (2026-08-27)
+
+- Detale: ikonka oka przy liczbie wyświetleń; „Usuń wizualizację" z delikatnym
+  czerwonym tłem.
+- Edytor punktów: legenda przeniesiona pod pasek (nie jest już ucięta) i z
+  licznikami per status (niezrobione/gotowe/skylift) + suma. Zoom mapy po lewej,
+  żeby nie zasłaniała go legenda.
+- Sekcje zdjęć (przed/po) z czytelnym nagłówkiem i kolorowym paskiem; przyciski
+  zmiany/usuń w równym układzie.
+- Audyt punktu: kto utworzył i kto oznaczył jako gotowe — z avatarami (jak w
+  projektach) i datą + godziną. Znacznik wykonania ustawiany triggerem (0060).
+- Podgląd/klient: belka u góry z nazwą wizualizacji; „skylift" pokazany obok
+  statusu z ikoną pojazdu; informacja „Klart {data}" gdy punkt zrobiony.
+- Publiczny widok: dłuższy ekran ładowania (logo + spinner widoczne).
+
+
 ## 0.46.0 — Wizualizacje: nowy układ, edytor punktów, podgląd (2026-08-27)
 
 - Widok wizualizacji to teraz karta z informacjami + przyciski (bez mapy).
