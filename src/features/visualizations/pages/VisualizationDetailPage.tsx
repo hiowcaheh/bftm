@@ -50,7 +50,11 @@ export default function VisualizationDetailPage() {
   const isManager = can('visualizations_manage');
   const isWorker = can('visualizations_work');
   const viz = query.data?.visualization ?? null;
-  const pointCount = query.data?.points.length ?? 0;
+  const pts = query.data?.points ?? [];
+  const pointCount = pts.length;
+  const doneCount = pts.filter((p) => p.status === 'done').length;
+  const todoCount = pointCount - doneCount;
+  const skyliftCount = pts.filter((p) => p.requires_equipment).length;
   const creators = usePointCreators(viz?.created_by ? [viz.created_by] : []);
   const author = viz?.created_by ? creators.data?.[viz.created_by] : undefined;
 
@@ -113,7 +117,6 @@ export default function VisualizationDetailPage() {
   if (viz.client?.name)
     info.push({ label: t('viz.clientLabel').replace(/\s*\(.*\)/, ''), value: viz.client.name });
   if (viz.address) info.push({ label: t('viz.addressLabel'), value: viz.address });
-  info.push({ label: t('viz.pointsTotal'), value: String(pointCount) });
   info.push({
     label: t('viz.views'),
     value: (
@@ -166,6 +169,33 @@ export default function VisualizationDetailPage() {
           ))}
         </dl>
       </Card>
+
+      {/* Rozbicie punktów — niezrobione / gotowe / skylift */}
+      {pointCount > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          <StatTile
+            marker={<span className="size-2.5 rounded-full" style={{ backgroundColor: '#cc0000' }} />}
+            count={todoCount}
+            label={t('viz.statusTodo')}
+          />
+          <StatTile
+            marker={<span className="size-2.5 rounded-full" style={{ backgroundColor: '#2e7d32' }} />}
+            count={doneCount}
+            label={t('viz.statusDone')}
+          />
+          <StatTile
+            marker={
+              <span
+                className="flex size-3.5 items-center justify-center rounded-full bg-neutral-500 text-[7px] font-extrabold text-white"
+              >
+                S
+              </span>
+            }
+            count={skyliftCount}
+            label={t('viz.requiresEquipment')}
+          />
+        </div>
+      )}
 
       {/* Dodawanie / praca na punktach — dla managera i pracownika */}
       {(isManager || isWorker) && (
@@ -256,6 +286,26 @@ export default function VisualizationDetailPage() {
         }}
         onCancel={() => setConfirmDelViz(false)}
       />
+    </div>
+  );
+}
+
+function StatTile({
+  marker,
+  count,
+  label,
+}: {
+  marker: ReactNode;
+  count: number;
+  label: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1 rounded-2xl bg-surface px-2 py-3">
+      <div className="flex items-center gap-1.5">
+        {marker}
+        <span className="tabular-nums text-xl font-bold">{count}</span>
+      </div>
+      <span className="text-[11px] text-text-secondary">{label}</span>
     </div>
   );
 }

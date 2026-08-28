@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.46.5 — Wizualizacje: rozbicie punktów, podgląd, auto-update (2026-08-27)
+
+- Przycisk „Dodaj punkty" na karcie nazywa się teraz „Wizualizacja".
+- Karta wizualizacji: rozbicie punktów (niezrobione / gotowe / skylift) w
+  ładnych kafelkach z kolorami i licznikami.
+- Podgląd/klient: „Klart {data}" w jednym rzędzie ze statusem, po prawej przed X.
+- Klient na publicznym linku nie widzi już komunikatu o aktualizacji aplikacji —
+  aktualizuje się automatycznie w tle.
+- Ekran ładowania: znacznie większe logo.
+- Badge skyliftu na punkcie: mniejszy tekst „Kräver skylift".
+
+
 ## 0.46.4 — Wizualizacje: autor na karcie (2026-08-27)
 
 - Karta wizualizacji: pod datą utworzenia wiersz „Autor" z avatarem i imieniem
