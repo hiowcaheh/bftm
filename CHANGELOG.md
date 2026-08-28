@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.48.0 — Wizualizacje: numeracja, nowa lista, drobne poprawki (2026-08-28)
+
+- Numer wizualizacji (VIZ-2026-001) nadawany automatycznie triggerem
+  (migracja 0064, licznik w settings jak przy ofertach) + backfill istniejących.
+- Detale: numer i status przeniesione na górny pasek (jak w ofertach).
+- Zamienione kolory przycisków: „Wizualizacja" jaśniejszy, „Usuń" pełny czerwony.
+- Lista wizualizacji: nowocześniejszy układ karty z ikoną modułu, numerem
+  i statusem; pasek postępu przechodzi od czerwonego (0%) do zielonego (100%).
+
+
 ## 0.47.10 — Wizualizacje: avatar autora 20px (2026-08-28)
 
 - Wiersz „Autor": avatar ustawiony na 20px.
