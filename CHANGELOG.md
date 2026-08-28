@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.47.8 — Wizualizacje: avatar autora 14px (2026-08-28)
+
+- Wiersz „Autor": avatar ustawiony na 14px (8px było za małe).
+
+
 ## 0.47.7 — Fix: rozmiar avatara autora naprawdę się zmienia (2026-08-28)
 
 - Avatar wspiera `style` inline — rozmiar ustawiany przez klasę Tailwind nie
