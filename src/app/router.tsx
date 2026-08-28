@@ -25,6 +25,9 @@ const VisualizationEditorPage = lazy(
 const VisualizationDetailPage = lazy(
   () => import('@/features/visualizations/pages/VisualizationDetailPage'),
 );
+const VisualizationPointsPage = lazy(
+  () => import('@/features/visualizations/pages/VisualizationPointsPage'),
+);
 const PublicVisualizationPage = lazy(
   () => import('@/features/visualizations/pages/PublicVisualizationPage'),
 );
@@ -90,8 +93,21 @@ export function AppRouter() {
             <Route path="/oferta/:token" element={<PublicOfferPage />} />
             {/* Publiczny raport godzin pod linkiem — bez logowania */}
             <Route path="/raport/:token" element={<PublicReportPage />} />
-            {/* Publiczna wizualizacja dla klienta — bez logowania, po szwedzku */}
+            {/* Publiczna wizualizacja dla klienta — bez logowania, po szwedzku.
+                Ścieżka „visualisering"; „wizualizacja" zostaje jako alias starych linków. */}
+            <Route path="/visualisering/:token" element={<PublicVisualizationPage />} />
             <Route path="/wizualizacja/:token" element={<PublicVisualizationPage />} />
+            {/* Pełnoekranowy edytor punktów — zalogowany, ale bez AppLayout */}
+            <Route
+              path="/wizualizacje/:id/punkty"
+              element={
+                <RequireAuth>
+                  <RequirePerm permission={['visualizations_manage', 'visualizations_work']}>
+                    <VisualizationPointsPage />
+                  </RequirePerm>
+                </RequireAuth>
+              }
+            />
             <Route
               element={
                 <RequireAuth>

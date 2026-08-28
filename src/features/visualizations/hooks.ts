@@ -7,6 +7,7 @@ import {
   createPoint,
   createVisualization,
   deletePoint,
+  fetchCreators,
   deleteVisualization,
   fetchPublicVisualization,
   fetchVisualization,
@@ -25,6 +26,9 @@ export function useVisualizations() {
     queryKey: qk.visualizations.list(),
     queryFn: fetchVisualizations,
     enabled: can('visualizations_manage') || can('visualizations_work'),
+    // licznik wyświetleń zmienia się serwerowo — świeże dane przy każdym wejściu
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 
@@ -33,6 +37,18 @@ export function useVisualization(id: string | null) {
     queryKey: qk.visualizations.detail(id ?? 'new'),
     queryFn: () => fetchVisualization(id!),
     enabled: !!id,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+}
+
+/** Imiona twórców punktów (audyt „kto dodał"). */
+export function usePointCreators(ids: string[]) {
+  const key = [...new Set(ids.filter(Boolean))].sort().join(',');
+  return useQuery({
+    queryKey: ['visualizations', 'creators', key],
+    queryFn: () => fetchCreators(ids),
+    enabled: ids.length > 0,
   });
 }
 
