@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.47.6 — Wizualizacje: avatar autora 8px (2026-08-28)
+
+- Wiersz „Autor" na karcie wizualizacji: avatar zmniejszony do 8px (size-2).
+
+
 ## 0.47.5 — Wizualizacje: dzwoneczek odświeża się od razu po zmianie statusu (2026-08-28)
 
 - Po zmianie statusu punktu powiadomienie (tworzone triggerem) pojawia się w
