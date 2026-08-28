@@ -286,7 +286,7 @@ function StatTile({
 }) {
   return (
     <div
-      className="flex flex-col items-center gap-1 rounded-2xl bg-surface px-2 py-3.5"
+      className="flex flex-col items-center gap-1 rounded-2xl bg-white px-2 py-3.5"
       style={{ borderTop: `3px solid ${color}` }}
     >
       <div className="flex items-baseline gap-1">
