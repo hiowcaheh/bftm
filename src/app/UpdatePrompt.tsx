@@ -12,7 +12,8 @@ const UPDATE_CHECK_INTERVAL = 60_000;
  * Strony publiczne (oferta/raport pod tokenem) ogląda klient końcowy —
  * nie pokazujemy mu toastu o aktualizacji aplikacji.
  */
-const isPublicPage = () => /^#\/(oferta|raport)\//.test(window.location.hash);
+const isPublicPage = () =>
+  /^#\/(oferta|raport|visualisering|wizualizacja)\//.test(window.location.hash);
 
 /**
  * Rejestruje service workera, publikuje stan aktualizacji do store'a
@@ -55,13 +56,17 @@ export function UpdatePrompt() {
 
   useEffect(() => {
     setNeedRefresh(needRefresh);
-    if (needRefresh && !isPublicPage()) {
-      toast.info(translate('ui.newVersion'), {
-        label: translate('ui.refresh'),
-        icon: <RotateCw className="size-4" />,
-        onClick: () => void updateServiceWorker(true),
-      });
+    if (!needRefresh) return;
+    // Strony publiczne (klient) aktualizują się same, bez pytania.
+    if (isPublicPage()) {
+      void updateServiceWorker(true);
+      return;
     }
+    toast.info(translate('ui.newVersion'), {
+      label: translate('ui.refresh'),
+      icon: <RotateCw className="size-4" />,
+      onClick: () => void updateServiceWorker(true),
+    });
   }, [needRefresh, updateServiceWorker, setNeedRefresh]);
 
   return null;

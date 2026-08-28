@@ -23,11 +23,11 @@ function LoadingScreen({ logo, name, ready }: { logo: string | null; name: strin
       className="flex h-dvh flex-col items-center justify-center gap-6 px-8 text-center"
       style={{ backgroundColor: NAVY }}
     >
-      <div className="flex h-16 items-center justify-center">
+      <div className="flex h-40 items-center justify-center">
         {logo ? (
-          <img src={logo} alt={name} className="max-h-16 max-w-[240px]" />
+          <img src={logo} alt={name} className="max-h-40 w-auto max-w-[80vw]" />
         ) : ready ? (
-          <div className="text-2xl font-bold tracking-wide text-white">{name}</div>
+          <div className="text-3xl font-bold tracking-wide text-white">{name}</div>
         ) : null}
       </div>
       <div className="flex flex-col items-center gap-3">
@@ -216,36 +216,36 @@ export default function PublicVisualizationPage() {
             onClick={() => setActive(null)}
           />
           <div className="relative z-10 max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 pb-8">
-            {/* Nagłówek: status + skylift po lewej, X po prawej */}
-            <div className="mb-4">
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white"
-                    style={{ backgroundColor: active.status === 'done' ? '#2e7d32' : '#cc0000' }}
-                  >
-                    {active.status === 'done' ? 'Klart' : 'Ej klart'}
+            {/* Nagłówek: status + skylift po lewej; data „Klart" i X po prawej */}
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white"
+                  style={{ backgroundColor: active.status === 'done' ? '#2e7d32' : '#cc0000' }}
+                >
+                  {active.status === 'done' ? 'Klart' : 'Ej klart'}
+                </span>
+                {active.requires_equipment && (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                    <Truck className="size-3" /> Kräver skylift
                   </span>
-                  {active.requires_equipment && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                      <Truck className="size-3.5" /> Skylift
-                    </span>
-                  )}
-                </div>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {active.status === 'done' && active.done_at && (
+                  <span className="flex items-center gap-1 text-[11px] whitespace-nowrap text-neutral-500">
+                    <CheckCircle2 className="size-3.5" style={{ color: '#2e7d32' }} />
+                    {dateTime(active.done_at)}
+                  </span>
+                )}
                 <button
                   aria-label="Stäng"
                   onClick={() => setActive(null)}
-                  className="press flex size-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-500"
+                  className="press flex size-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-500"
                 >
                   <X className="size-5" />
                 </button>
               </div>
-              {active.status === 'done' && active.done_at && (
-                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                  <CheckCircle2 className="size-4" style={{ color: '#2e7d32' }} />
-                  Klart {dateTime(active.done_at)}
-                </div>
-              )}
             </div>
 
             {active.description && (
