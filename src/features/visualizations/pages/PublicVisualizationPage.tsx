@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { MapPinned, Wrench, X } from 'lucide-react';
+import { MapPinned, Truck, X } from 'lucide-react';
+import { dateTime } from '@/lib/format';
 import { logoPublicUrl } from '@/features/settings/api';
 import { usePublicBranding } from '@/features/auth/hooks';
 import { usePublicVisualization } from '../hooks';
@@ -33,7 +34,7 @@ function LoadingScreen({ logo, name }: { logo: string | null; name: string }) {
   );
 }
 
-/** Trwały identyfikator sesji publicznej — deduplikacja licznika (odświeżenie nie nabija). */
+/** Trwały identyfikator sesji publicznej — deduplikacja licznika. */
 function getSessionId(): string {
   const KEY = 'viz_session';
   try {
@@ -49,8 +50,8 @@ function getSessionId(): string {
 }
 
 /**
- * Publiczny widok wizualizacji (link z tokenem) — pełny ekran mapy, bez logo
- * ani nagłówka. Klient tylko czyta; kliknięcie punktu otwiera panel ze szczegółami.
+ * Publiczny widok wizualizacji (link z tokenem) — pełny ekran mapy z cienką
+ * belką (nazwa) na górze. Klient tylko czyta; kliknięcie punktu = panel.
  */
 export default function PublicVisualizationPage() {
   const { token = '' } = useParams();
@@ -61,6 +62,13 @@ export default function PublicVisualizationPage() {
   const query = usePublicVisualization(token, !isPreview, session);
   const branding = usePublicBranding();
   const [active, setActive] = useState<PublicVizPoint | null>(null);
+
+  // Minimalny czas trwania ekranu ładowania — żeby logo zdążyło się pokazać.
+  const [minElapsed, setMinElapsed] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMinElapsed(true), 1400);
+    return () => clearTimeout(t);
+  }, []);
 
   // noindex — wizualizacje klientów nie mają trafiać do wyszukiwarek.
   useEffect(() => {
@@ -95,7 +103,7 @@ export default function PublicVisualizationPage() {
   const brandName = branding.data?.companyName?.trim() || 'BFTM Fasad & Bygg AB';
   const brandLogo = branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null;
 
-  if (query.isLoading) {
+  if (query.isLoading || !minElapsed) {
     return <LoadingScreen logo={brandLogo} name={brandName} />;
   }
 
@@ -114,9 +122,31 @@ export default function PublicVisualizationPage() {
     const p = data.points.find((x) => x.id === pointId);
     if (p) setActive(p);
   };
+  const doneCount = data.points.filter((p) => p.status === 'done').length;
+  const skyliftCount = data.points.filter((p) => p.requires_equipment).length;
+  const title = data.title || brandName;
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-neutral-900">
+      {/* Belka górna: nazwa wizualizacji (+ zamknięcie w podglądzie) */}
+      <div
+        className="absolute inset-x-0 top-0 z-20 flex items-center gap-2 bg-black/55 px-3 text-white backdrop-blur"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
+        <div className="flex h-12 w-full items-center gap-2">
+          {isPreview && (
+            <button
+              aria-label="Stäng"
+              onClick={() => navigate(-1)}
+              className="press flex size-8 items-center justify-center rounded-full bg-white/15"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+          <span className="truncate text-sm font-semibold">{title}</span>
+        </div>
+      </div>
+
       {/* Mapa na pełnym ekranie */}
       {hasMapKey() ? (
         <Suspense
@@ -142,26 +172,18 @@ export default function PublicVisualizationPage() {
         </div>
       )}
 
-      {/* Legenda (po szwedzku) */}
+      {/* Legenda (po szwedzku) — poniżej belki */}
       <VizLegend
         todoLabel="Ej klart"
         doneLabel="Klart"
         skyliftLabel="Skylift"
         totalLabel="Punkter"
+        todoCount={data.points.length - doneCount}
+        doneCount={doneCount}
+        skyliftCount={skyliftCount}
         total={data.points.length}
+        style={{ top: 'calc(env(safe-area-inset-top) + 3.75rem)' }}
       />
-
-      {/* Podgląd z aplikacji: dyskretny przycisk zamknięcia (klient go nie widzi) */}
-      {isPreview && (
-        <button
-          aria-label="Stäng"
-          onClick={() => navigate(-1)}
-          className="press absolute top-4 left-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur"
-          style={{ top: 'calc(env(safe-area-inset-top) + 1rem)' }}
-        >
-          <X className="size-5" />
-        </button>
-      )}
 
       {/* Panel punktu (bottom sheet, tylko odczyt) */}
       {active && (
@@ -173,12 +195,20 @@ export default function PublicVisualizationPage() {
           />
           <div className="relative z-10 max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 pb-8">
             <div className="mb-3 flex items-start justify-between gap-3">
-              <span
-                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-white"
-                style={{ backgroundColor: active.status === 'done' ? '#2e7d32' : '#cc0000' }}
-              >
-                {active.status === 'done' ? 'Klart' : 'Ej klart'}
-              </span>
+              {/* Status + skylift w jednym rzędzie */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white"
+                  style={{ backgroundColor: active.status === 'done' ? '#2e7d32' : '#cc0000' }}
+                >
+                  {active.status === 'done' ? 'Klart' : 'Ej klart'}
+                </span>
+                {active.requires_equipment && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                    <Truck className="size-3.5" /> Skylift
+                  </span>
+                )}
+              </div>
               <button
                 aria-label="Stäng"
                 onClick={() => setActive(null)}
@@ -188,36 +218,36 @@ export default function PublicVisualizationPage() {
               </button>
             </div>
 
+            {active.status === 'done' && active.done_at && (
+              <p className="mb-3 text-xs text-neutral-500">Klart {dateTime(active.done_at)}</p>
+            )}
+
             {active.description && (
               <p className="mb-4 text-[15px] leading-relaxed whitespace-pre-line text-neutral-800">
                 {active.description}
               </p>
             )}
 
-            {active.requires_equipment && (
-              <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 text-sm text-amber-700">
-                <Wrench className="size-4" /> Skylift
-              </div>
-            )}
-
             {active.before_path && (
-              <figure className="mb-3">
-                <figcaption className="mb-1 text-xs font-medium text-neutral-500">Före</figcaption>
-                <img
-                  src={vizPhotoUrl(active.before_path)}
-                  alt="Före"
-                  className="w-full rounded-xl object-cover"
-                />
+              <figure className="mb-3 overflow-hidden rounded-xl border border-neutral-200">
+                <figcaption
+                  className="px-3 py-2 text-xs font-semibold text-white"
+                  style={{ backgroundColor: '#cc0000' }}
+                >
+                  Före
+                </figcaption>
+                <img src={vizPhotoUrl(active.before_path)} alt="Före" className="w-full object-cover" />
               </figure>
             )}
             {active.after_path && (
-              <figure>
-                <figcaption className="mb-1 text-xs font-medium text-neutral-500">Efter</figcaption>
-                <img
-                  src={vizPhotoUrl(active.after_path)}
-                  alt="Efter"
-                  className="w-full rounded-xl object-cover"
-                />
+              <figure className="overflow-hidden rounded-xl border border-neutral-200">
+                <figcaption
+                  className="px-3 py-2 text-xs font-semibold text-white"
+                  style={{ backgroundColor: '#2e7d32' }}
+                >
+                  Efter
+                </figcaption>
+                <img src={vizPhotoUrl(active.after_path)} alt="Efter" className="w-full object-cover" />
               </figure>
             )}
           </div>

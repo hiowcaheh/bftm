@@ -327,6 +327,8 @@ type VisualizationPointRow = {
   status: VisualizationPointStatus;
   before_path: string | null;
   after_path: string | null;
+  done_at: string | null;
+  done_by: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

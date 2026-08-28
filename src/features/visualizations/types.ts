@@ -25,6 +25,7 @@ export interface PublicVizPoint {
   status: VisualizationPointStatus;
   before_path: string | null;
   after_path: string | null;
+  done_at: string | null;
 }
 
 /** Dane wizualizacji zwracane klientowi przez visualization_public (jsonb). */

@@ -94,7 +94,8 @@ export default function VizMap({
       attributionControl: { compact: true },
       maxBounds: maxBounds ?? undefined,
     });
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    // Zoom po lewej na dole — prawy górny róg zajmuje legenda, prawy dolny „+".
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-left');
     map.on('click', (e) => clickCbRef.current?.(e.lngLat.lng, e.lngLat.lat));
 
     map.on('load', () => {
