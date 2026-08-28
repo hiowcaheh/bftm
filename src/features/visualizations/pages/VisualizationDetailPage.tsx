@@ -125,6 +125,7 @@ export default function VisualizationDetailPage() {
       </span>
     ),
   });
+  info.push({ label: t('viz.pointsTotal'), value: String(pointCount) });
   info.push({ label: t('viz.createdAtLabel'), value: fmtDate(viz.created_at) });
   if (viz.created_by)
     info.push({
@@ -173,27 +174,9 @@ export default function VisualizationDetailPage() {
       {/* Rozbicie punktów — niezrobione / gotowe / skylift */}
       {pointCount > 0 && (
         <div className="grid grid-cols-3 gap-2">
-          <StatTile
-            marker={<span className="size-2.5 rounded-full" style={{ backgroundColor: '#cc0000' }} />}
-            count={todoCount}
-            label={t('viz.statusTodo')}
-          />
-          <StatTile
-            marker={<span className="size-2.5 rounded-full" style={{ backgroundColor: '#2e7d32' }} />}
-            count={doneCount}
-            label={t('viz.statusDone')}
-          />
-          <StatTile
-            marker={
-              <span
-                className="flex size-3.5 items-center justify-center rounded-full bg-neutral-500 text-[7px] font-extrabold text-white"
-              >
-                S
-              </span>
-            }
-            count={skyliftCount}
-            label={t('viz.requiresEquipment')}
-          />
+          <StatTile color="#cc0000" count={todoCount} label={t('viz.statusTodo')} />
+          <StatTile color="#2e7d32" count={doneCount} label={t('viz.statusDone')} />
+          <StatTile color="#b45309" skylift count={skyliftCount} label={t('viz.requiresEquipment')} />
         </div>
       )}
 
@@ -291,21 +274,32 @@ export default function VisualizationDetailPage() {
 }
 
 function StatTile({
-  marker,
+  color,
   count,
   label,
+  skylift,
 }: {
-  marker: ReactNode;
+  color: string;
   count: number;
   label: string;
+  skylift?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-2xl bg-surface px-2 py-3">
-      <div className="flex items-center gap-1.5">
-        {marker}
-        <span className="tabular-nums text-xl font-bold">{count}</span>
+    <div
+      className="flex flex-col items-center gap-1 rounded-2xl bg-surface px-2 py-3.5"
+      style={{ borderTop: `3px solid ${color}` }}
+    >
+      <div className="flex items-baseline gap-1">
+        {skylift && (
+          <span className="text-sm font-extrabold" style={{ color }}>
+            S
+          </span>
+        )}
+        <span className="tabular-nums text-2xl font-bold" style={{ color }}>
+          {count}
+        </span>
       </div>
-      <span className="text-[11px] text-text-secondary">{label}</span>
+      <span className="text-[11px] font-medium text-text-secondary">{label}</span>
     </div>
   );
 }

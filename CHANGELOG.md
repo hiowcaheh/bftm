@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.46.6 — Wizualizacje: kafelki, badge skyliftu, logo (2026-08-27)
+
+- Karta: dodana łączna liczba punktów pod „Wyświetlenia".
+- Kafelki niezrobione/gotowe/skylift: czytelniejsze — kolorowa liczba i górna
+  belka w kolorze (bez dziwnej kropki); przy skylifcie wyraźne „S".
+- Badge „Kräver skylift" na punkcie: pełny kolorowy badge (pomarańczowy).
+- Przycisk „Edytuj wizualizację" → „Edytuj".
+- Ekran ładowania: jeszcze większe logo.
+
+
 ## 0.46.5 — Wizualizacje: rozbicie punktów, podgląd, auto-update (2026-08-27)
 
 - Przycisk „Dodaj punkty" na karcie nazywa się teraz „Wizualizacja".
