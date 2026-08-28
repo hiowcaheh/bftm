@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.49.1 — Zespół: podgląd godzin też liczy się jako aktywność (2026-08-28)
+
+- „Ostatnio aktywny" odświeżany również przy podglądzie godzin (nie tylko przy
+  ich dodawaniu). Wcześniej osoby z zapisaną sesją, które tylko przeglądały
+  godziny, miały datę zatrzymaną na ostatnim logowaniu/wpisie.
+- Obecność wyniesiona do wspólnego helpera `pingPresence` (jeden throttling).
+
+
 ## 0.49.0 — Specyfikacje faktur: wyszukiwarka klient/projekt (2026-08-28)
 
 - Nad listą specyfikacji doszła dynamiczna wyszukiwarka — filtruje na żywo

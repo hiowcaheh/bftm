@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
+import { pingPresence } from '@/lib/presence';
 import { qk } from '@/lib/queryKeys';
 import { can as canBase, type Permission } from '@/lib/permissions';
 import { fetchMyProfile, signOut } from './api';
@@ -89,14 +90,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // do apki — a NIE na podstawie logowania (auto-login z zapisanym hasłem nie
   // zawyża daty). Throttling 60 s, żeby nie zasypywać bazy. Bezczynność zostawia
   // datę na ostatnim ruchu, więc „ostatnio aktywny" jest zgodne z prawdą.
-  const lastPingRef = useRef(0);
   const ping = useCallback(
     (force = false) => {
       if (!userId) return;
-      const now = Date.now();
-      if (!force && now - lastPingRef.current < 60_000) return;
-      lastPingRef.current = now;
-      void supabase.rpc('touch_last_seen');
+      pingPresence(force);
     },
     [userId],
   );

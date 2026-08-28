@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { pingPresence } from '@/lib/presence';
 import type { HoursFilters, WorkHoursEntry, WorkHoursInsert } from './types';
 
 // profiles!employee_id — work_hours ma DWA odwołania do profiles
@@ -7,6 +8,8 @@ const COLUMNS =
   '*, project:projects(id, name, color), employee:profiles!employee_id(id, full_name, avatar_path), activity:project_activities(id, name)';
 
 export async function fetchEntries(filters: HoursFilters): Promise<WorkHoursEntry[]> {
+  // Podgląd godzin liczy się jako aktywność (serwerowo, niezależnie od pingów UI).
+  pingPresence();
   let query = supabase
     .from('work_hours')
     .select(COLUMNS)
