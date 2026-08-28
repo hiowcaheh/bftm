@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.48.3 — Zespół: „ostatnio aktywny" odświeżany przy zmianie strony (2026-08-28)
+
+- Obecność liczona z realnego ruchu w aplikacji: dodany ping przy każdej
+  zmianie strony (obok kliknięć/dotyku/powrotu do apki i wejścia do apki).
+  Data nadal nie zależy od samego (auto)logowania.
+
+
 ## 0.48.2 — Oferty: lista w nowym stylu (jak wizualizacje) (2026-08-28)
 
 - Lista ofert: ten sam nowoczesny układ karty co wizualizacje — kafelek z

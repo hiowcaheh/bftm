@@ -1,11 +1,13 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
   type ReactNode,
 } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
@@ -82,20 +84,26 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, [profile]);
 
-  // Obecność „ostatnio online": zapisujemy nową datę przy logowaniu i przy
-  // realnej aktywności (klik / dotyk / klawisz / powrót do apki), z throttlingiem
-  // co 60 s, żeby nie zasypywać bazy. Gdy ktoś jest bezczynny — data zostaje na
-  // ostatnim ruchu (czyli „ostatnio online" jest zgodne z prawdą).
+  // Obecność „ostatnio online": zapisujemy nową datę przy realnej aktywności
+  // (klik / dotyk / klawisz / zmiana strony / powrót do apki) oraz przy wejściu
+  // do apki — a NIE na podstawie logowania (auto-login z zapisanym hasłem nie
+  // zawyża daty). Throttling 60 s, żeby nie zasypywać bazy. Bezczynność zostawia
+  // datę na ostatnim ruchu, więc „ostatnio aktywny" jest zgodne z prawdą.
+  const lastPingRef = useRef(0);
+  const ping = useCallback(
+    (force = false) => {
+      if (!userId) return;
+      const now = Date.now();
+      if (!force && now - lastPingRef.current < 60_000) return;
+      lastPingRef.current = now;
+      void supabase.rpc('touch_last_seen');
+    },
+    [userId],
+  );
+
   useEffect(() => {
     if (!userId) return;
-    let lastPing = 0;
-    const ping = (force = false) => {
-      const now = Date.now();
-      if (!force && now - lastPing < 60_000) return;
-      lastPing = now;
-      void supabase.rpc('touch_last_seen');
-    };
-    ping(true); // logowanie / wejście do apki
+    ping(true); // wejście do apki (także auto-login)
     const onActivity = () => ping();
     const onVisible = () => {
       if (document.visibilityState === 'visible') ping(true);
@@ -108,7 +116,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('keydown', onActivity);
       document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [userId]);
+  }, [userId, ping]);
+
+  // Ruch po aplikacji: każda zmiana strony odświeża „ostatnio aktywny".
+  const { pathname } = useLocation();
+  useEffect(() => {
+    ping();
+  }, [pathname, ping]);
 
   const loading =
     session === undefined || (!!session && profileQuery.isLoading);
