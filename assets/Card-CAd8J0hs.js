@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-CIxEorsV.js";import{nt as t}from"./index-CtfmM9_c.js";var n=e();function r({interactive:e,className:r,...i}){return(0,n.jsx)(`div`,{className:t(`rounded-(--radius-card) bg-white shadow-(--shadow-card)`,e&&`press cursor-pointer`,r),...i})}export{r as t};
