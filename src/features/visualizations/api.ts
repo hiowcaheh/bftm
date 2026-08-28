@@ -81,6 +81,18 @@ export async function deleteVisualization(id: string): Promise<void> {
   if (error) throw error;
 }
 
+/** Mapa id→imię twórców punktów (audyt „kto dodał"). Profile są czytelne dla aktywnych. */
+export async function fetchCreators(ids: string[]): Promise<Record<string, string>> {
+  const uniq = [...new Set(ids.filter(Boolean))];
+  if (uniq.length === 0) return {};
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .in('id', uniq);
+  if (error) throw error;
+  return Object.fromEntries((data ?? []).map((p) => [p.id, p.full_name]));
+}
+
 // ── Punkty ───────────────────────────────────────────────────────────────────
 
 export async function createPoint(
@@ -170,9 +182,9 @@ export async function fetchPublicVisualization(
   return (data as unknown as PublicVisualization | null) ?? null;
 }
 
-/** Publiczny adres wizualizacji w tej aplikacji (HashRouter). */
+/** Publiczny adres wizualizacji (HashRouter). Ścieżka po szwedzku dla klienta. */
 export function vizPublicUrl(token: string, preview = false): string {
-  return `${window.location.origin}${window.location.pathname}#/wizualizacja/${token}${preview ? '?podglad=1' : ''}`;
+  return `${window.location.origin}${window.location.pathname}#/visualisering/${token}${preview ? '?podglad=1' : ''}`;
 }
 
 // ── E-mail (reużycie RPC send_offer_email) ───────────────────────────────────

@@ -46,6 +46,12 @@ export function date(value: Date | string): string {
   return formatDate(d, 'dd.MM.yyyy', { locale: activeDateLocale() });
 }
 
+/** „07.01.2026 14:32" — data z godziną (audyt) */
+export function dateTime(value: Date | string): string {
+  const d = typeof value === 'string' ? new Date(value) : value;
+  return formatDate(d, 'dd.MM.yyyy HH:mm', { locale: activeDateLocale() });
+}
+
 /** „wtorek, 7 stycznia" */
 export function dateLong(value: Date | string): string {
   const d = typeof value === 'string' ? new Date(value) : value;

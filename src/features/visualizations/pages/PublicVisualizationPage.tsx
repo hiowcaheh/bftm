@@ -1,13 +1,37 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { MapPinned, Wrench, X } from 'lucide-react';
+import { logoPublicUrl } from '@/features/settings/api';
+import { usePublicBranding } from '@/features/auth/hooks';
 import { usePublicVisualization } from '../hooks';
 import { hasBbox, hasMapKey, mapStyleUrl, paddedMaxBounds } from '../map';
 import { vizPhotoUrl } from '../api';
+import { VizLegend } from '../components/VizLegend';
 import type { Bbox, PublicVizPoint } from '../types';
 import type { VizMapPoint } from '../components/VizMap';
 
 const VizMap = lazy(() => import('../components/VizMap'));
+const NAVY = '#1E2A44';
+
+/** Ekran ładowania w szacie maila: granat + logo + szwedzki tekst. */
+function LoadingScreen({ logo, name }: { logo: string | null; name: string }) {
+  return (
+    <div
+      className="flex h-dvh flex-col items-center justify-center gap-6 px-8 text-center"
+      style={{ backgroundColor: NAVY }}
+    >
+      {logo ? (
+        <img src={logo} alt={name} className="max-w-[240px]" />
+      ) : (
+        <div className="text-2xl font-bold tracking-wide text-white">{name}</div>
+      )}
+      <div className="flex flex-col items-center gap-3">
+        <div className="size-9 animate-spin rounded-full border-3 border-white/25 border-t-[#cc0000]" />
+        <p className="text-sm text-white/70">Laddar visualisering…</p>
+      </div>
+    </div>
+  );
+}
 
 /** Trwały identyfikator sesji publicznej — deduplikacja licznika (odświeżenie nie nabija). */
 function getSessionId(): string {
@@ -35,6 +59,7 @@ export default function PublicVisualizationPage() {
   const isPreview = searchParams.get('podglad') === '1';
   const [session] = useState(getSessionId);
   const query = usePublicVisualization(token, !isPreview, session);
+  const branding = usePublicBranding();
   const [active, setActive] = useState<PublicVizPoint | null>(null);
 
   // noindex — wizualizacje klientów nie mają trafiać do wyszukiwarek.
@@ -67,12 +92,11 @@ export default function PublicVisualizationPage() {
     [data],
   );
 
+  const brandName = branding.data?.companyName?.trim() || 'BFTM Fasad & Bygg AB';
+  const brandLogo = branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null;
+
   if (query.isLoading) {
-    return (
-      <div className="flex h-dvh items-center justify-center bg-neutral-900">
-        <div className="size-10 animate-spin rounded-full border-3 border-white/25 border-t-white" />
-      </div>
-    );
+    return <LoadingScreen logo={brandLogo} name={brandName} />;
   }
 
   if (!data) {
@@ -105,6 +129,7 @@ export default function PublicVisualizationPage() {
           <VizMap
             styleUrl={mapStyleUrl()}
             bbox={bbox}
+            drawArea={false}
             maxBounds={maxBounds}
             points={mapPoints}
             onPointClick={openPoint}
@@ -116,6 +141,15 @@ export default function PublicVisualizationPage() {
           Kartan är inte tillgänglig.
         </div>
       )}
+
+      {/* Legenda (po szwedzku) */}
+      <VizLegend
+        todoLabel="Ej klart"
+        doneLabel="Klart"
+        skyliftLabel="Skylift"
+        totalLabel="Punkter"
+        total={data.points.length}
+      />
 
       {/* Podgląd z aplikacji: dyskretny przycisk zamknięcia (klient go nie widzi) */}
       {isPreview && (

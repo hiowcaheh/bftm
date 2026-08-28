@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.46.0 — Wizualizacje: nowy układ, edytor punktów, podgląd (2026-08-27)
+
+- Widok wizualizacji to teraz karta z informacjami + przyciski (bez mapy).
+  Nowy przycisk „Dodaj punkty" otwiera pełnoekranowy edytor punktów.
+- Edytor punktów (pełny ekran): pasek u góry z nazwą i cofaniem, legenda
+  punktów w rogu (czerwony/zielony/skylift + suma), obszar (czerwony prostokąt)
+  widoczny tylko tutaj. Przy punkcie audyt: kto i kiedy go dodał.
+- Status punktu: nowoczesny suwak „Niezrobione ↔ Gotowe".
+- Punkty na mapie: jednakowy rozmiar, literka „S" dla skyliftu, ładniejszy design.
+- Podgląd/widok klienta: pełny ekran mapy bez logo i ramki; ekran ładowania w
+  szacie maila (granat + logo + szwedzki tekst); bez czerwonego kwadratu obszaru.
+- Publiczny link po szwedzku: /visualisering/ (stary /wizualizacja/ nadal działa).
+- Strzałka „← Wizualizacje" na widoku wizualizacji.
+- Uprawnienia: pracownik może edytować każdy punkt, ale usuwać tylko własne
+  (egzekwowane w RLS — migracja 0059).
+- Licznik wyświetleń odświeża się w panelu; powtórne wejście klienta liczy się
+  po 30 min (samo odświeżenie w krótkim czasie nie nabija).
+
+
 ## 0.45.6 — Wizualizacje: naprawa tokenu, podgląd, punkty (2026-08-27)
 
 - Naprawiony błąd generowania tokenu (gen_random_bytes / schemat extensions) —

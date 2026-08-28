@@ -17,8 +17,10 @@ interface VizMapProps {
   styleUrl: string;
   center?: { lat: number; lng: number };
   zoom?: number;
-  /** Dopasuj widok do tego obszaru (i narysuj prostokąt). */
+  /** Dopasuj widok do tego obszaru. */
   bbox?: Bbox | null;
+  /** Rysuj czerwony prostokąt obszaru (tylko edycja/dodawanie punktów). */
+  drawArea?: boolean;
   /** Ograniczenie przesuwania mapy (klient / widok obszaru). */
   maxBounds?: [[number, number], [number, number]] | null;
   points?: VizMapPoint[];
@@ -33,7 +35,7 @@ interface VizMapProps {
 const COLOR = { todo: '#cc0000', done: '#2e7d32' };
 
 /** Marker jako mały kolorowy punkt z białą obwódką (lekki, nie „ciężki pin").
- *  Gdy punkt wymaga skyliftu — mała biała literka „S" w środku. */
+ *  Wszystkie punkty tego samego rozmiaru; skylift ma białą literkę „S". */
 function makeMarkerEl(
   status: 'todo' | 'done',
   active: boolean,
@@ -42,16 +44,18 @@ function makeMarkerEl(
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.style.cssText =
-    'width:28px;height:28px;display:flex;align-items:center;justify-content:center;' +
+    'width:30px;height:30px;display:flex;align-items:center;justify-content:center;' +
     'background:transparent;border:0;cursor:pointer;padding:0;';
-  const size = skylift ? 18 : active ? 16 : 13;
+  const size = 16; // jednakowy rozmiar dla wszystkich punktów
   const dot = document.createElement('span');
   dot.style.cssText =
     `width:${size}px;height:${size}px;border-radius:9999px;` +
-    `background:${COLOR[status]};border:2px solid #fff;` +
-    `box-shadow:0 1px 3px rgba(0,0,0,.4);transition:all .15s;` +
+    `background:${COLOR[status]};` +
+    'border:2.5px solid #fff;' +
+    `box-shadow:0 1px 4px rgba(0,0,0,.45)${active ? ',0 0 0 3px rgba(255,255,255,.6)' : ''};` +
+    'transition:box-shadow .15s;' +
     'display:flex;align-items:center;justify-content:center;' +
-    'color:#fff;font-size:10px;font-weight:800;line-height:1;font-family:system-ui,sans-serif;';
+    'color:#fff;font-size:9px;font-weight:800;line-height:1;font-family:system-ui,sans-serif;';
   if (skylift) dot.textContent = 'S';
   btn.appendChild(dot);
   return btn;
@@ -62,6 +66,7 @@ export default function VizMap({
   center,
   zoom,
   bbox,
+  drawArea = true,
   maxBounds,
   points = [],
   activePointId,
@@ -94,19 +99,21 @@ export default function VizMap({
 
     map.on('load', () => {
       if (hasBbox(bbox)) {
-        map.addSource('viz-bbox', { type: 'geojson', data: bboxPolygon(bbox) });
-        map.addLayer({
-          id: 'viz-bbox-fill',
-          type: 'fill',
-          source: 'viz-bbox',
-          paint: { 'fill-color': '#cc0000', 'fill-opacity': 0.08 },
-        });
-        map.addLayer({
-          id: 'viz-bbox-line',
-          type: 'line',
-          source: 'viz-bbox',
-          paint: { 'line-color': '#cc0000', 'line-width': 2, 'line-opacity': 0.7 },
-        });
+        if (drawArea) {
+          map.addSource('viz-bbox', { type: 'geojson', data: bboxPolygon(bbox) });
+          map.addLayer({
+            id: 'viz-bbox-fill',
+            type: 'fill',
+            source: 'viz-bbox',
+            paint: { 'fill-color': '#cc0000', 'fill-opacity': 0.08 },
+          });
+          map.addLayer({
+            id: 'viz-bbox-line',
+            type: 'line',
+            source: 'viz-bbox',
+            paint: { 'line-color': '#cc0000', 'line-width': 2, 'line-opacity': 0.7 },
+          });
+        }
         map.fitBounds(bboxToLngLatBounds(bbox), { padding: 40, animate: false });
       }
     });
@@ -142,30 +149,37 @@ export default function VizMap({
     const apply = () => {
       const src = map.getSource('viz-bbox') as maplibregl.GeoJSONSource | undefined;
       if (hasBbox(bbox)) {
-        const poly = bboxPolygon(bbox);
-        if (src) {
-          src.setData(poly);
-        } else {
-          map.addSource('viz-bbox', { type: 'geojson', data: poly });
-          map.addLayer({
-            id: 'viz-bbox-fill',
-            type: 'fill',
-            source: 'viz-bbox',
-            paint: { 'fill-color': '#cc0000', 'fill-opacity': 0.08 },
-          });
-          map.addLayer({
-            id: 'viz-bbox-line',
-            type: 'line',
-            source: 'viz-bbox',
-            paint: { 'line-color': '#cc0000', 'line-width': 2, 'line-opacity': 0.7 },
-          });
+        if (drawArea) {
+          const poly = bboxPolygon(bbox);
+          if (src) {
+            src.setData(poly);
+          } else {
+            map.addSource('viz-bbox', { type: 'geojson', data: poly });
+            map.addLayer({
+              id: 'viz-bbox-fill',
+              type: 'fill',
+              source: 'viz-bbox',
+              paint: { 'fill-color': '#cc0000', 'fill-opacity': 0.08 },
+            });
+            map.addLayer({
+              id: 'viz-bbox-line',
+              type: 'line',
+              source: 'viz-bbox',
+              paint: { 'line-color': '#cc0000', 'line-width': 2, 'line-opacity': 0.7 },
+            });
+          }
+        } else if (src) {
+          // tryb podglądu klienta — usuń prostokąt, zostaw samo dopasowanie
+          if (map.getLayer('viz-bbox-fill')) map.removeLayer('viz-bbox-fill');
+          if (map.getLayer('viz-bbox-line')) map.removeLayer('viz-bbox-line');
+          map.removeSource('viz-bbox');
         }
         map.fitBounds(bboxToLngLatBounds(bbox), { padding: 40, animate: true });
       }
     };
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
-  }, [bbox]);
+  }, [bbox, drawArea]);
 
   // Diff markerów punktów.
   useEffect(() => {
