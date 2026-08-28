@@ -13,6 +13,7 @@ import {
   FileText,
   Info,
   ListChecks,
+  MapPin,
   Megaphone,
   ReceiptText,
   X,
@@ -41,6 +42,7 @@ const TYPE_STYLES: Record<
   checklist: { icon: ListChecks, className: 'bg-accent-soft text-accent' },
   weekly_summary: { icon: BarChart3, className: 'bg-accent-soft text-accent' },
   hours_reminder: { icon: AlarmClock, className: 'bg-warning-soft text-warning' },
+  viz_point_status: { icon: MapPin, className: 'bg-accent-soft text-accent' },
   info: { icon: Info, className: 'bg-info-soft text-info' },
 };
 
@@ -57,6 +59,7 @@ const TYPE_ROUTES: Record<string, string> = {
   absence: '/godziny',
   hours_reminder: '/godziny',
   checklist: '/',
+  viz_point_status: '/wizualizacje',
 };
 
 export function NotificationBell() {

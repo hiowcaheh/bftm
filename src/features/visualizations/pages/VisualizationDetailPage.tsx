@@ -176,7 +176,7 @@ export default function VisualizationDetailPage() {
         <div className="grid grid-cols-3 gap-2">
           <StatTile color="#cc0000" count={todoCount} label={t('viz.statusTodo')} />
           <StatTile color="#2e7d32" count={doneCount} label={t('viz.statusDone')} />
-          <StatTile color="#b45309" skylift count={skyliftCount} label={t('viz.requiresEquipment')} />
+          <StatTile color="#64748b" skylift count={skyliftCount} label={t('viz.requiresEquipment')} />
         </div>
       )}
 
