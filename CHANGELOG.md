@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.46.8 — Wizualizacje: mapa odświeża się po ponownym adresie (2026-08-27)
+
+- Naprawiony błąd: przy tworzeniu wizualizacji ponowne wpisanie adresu
+  („Znajdź na mapie") przenosi mapę na nową lokalizację (wcześniej zostawała
+  na pierwszym adresie).
+
+
 ## 0.46.7 — Wizualizacje: pasek postępu na liście (2026-08-27)
 
 - Na liście wizualizacji minimalny pasek postępu: gotowe punkty / wszystkie
