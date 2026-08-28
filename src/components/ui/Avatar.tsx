@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { cn } from '@/lib/cn';
 import { initials } from '@/lib/format';
 import { supabase } from '@/lib/supabaseClient';
@@ -8,6 +9,8 @@ interface AvatarProps {
   path?: string | null;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  /** Styl inline — nadpisuje rozmiar z klas (Tailwind nie da się nadpisać samą klasą). */
+  style?: CSSProperties;
 }
 
 const sizeClasses = {
@@ -21,12 +24,13 @@ export function avatarUrl(path: string): string {
   return supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
 }
 
-export function Avatar({ name, path, size = 'md', className }: AvatarProps) {
+export function Avatar({ name, path, size = 'md', className, style }: AvatarProps) {
   if (path) {
     return (
       <img
         src={avatarUrl(path)}
         alt={name}
+        style={style}
         className={cn('shrink-0 rounded-full object-cover', sizeClasses[size], className)}
       />
     );
@@ -34,6 +38,7 @@ export function Avatar({ name, path, size = 'md', className }: AvatarProps) {
   return (
     <div
       aria-hidden
+      style={style}
       className={cn(
         'flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent',
         sizeClasses[size],

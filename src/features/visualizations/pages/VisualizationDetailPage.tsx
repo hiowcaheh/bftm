@@ -136,7 +136,7 @@ export default function VisualizationDetailPage() {
             name={author?.name ?? '—'}
             path={author?.avatar_path ?? null}
             size="sm"
-            className="size-2 text-[5px]"
+            style={{ width: 8, height: 8, fontSize: 5 }}
           />
           {author?.name ?? '—'}
         </span>
