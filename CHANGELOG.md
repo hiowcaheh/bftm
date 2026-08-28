@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.49.0 — Specyfikacje faktur: wyszukiwarka klient/projekt (2026-08-28)
+
+- Nad listą specyfikacji doszła dynamiczna wyszukiwarka — filtruje na żywo
+  po nazwie klienta, projektu lub tytule. Widoczna, gdy są jakieś specyfikacje.
+
+
 ## 0.48.3 — Zespół: „ostatnio aktywny" odświeżany przy zmianie strony (2026-08-28)
 
 - Obecność liczona z realnego ruchu w aplikacji: dodany ping przy każdej

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { FileText, Loader2, Plus, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FAB } from '@/components/ui/FAB';
+import { SearchBar } from '@/components/ui/SearchBar';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { toast } from '@/components/ui/Toast';
 import { useI18n } from '@/lib/i18n/context';
@@ -41,6 +42,7 @@ export default function InvoicesPage() {
   const deleteSpec = useDeleteInvoiceSpec();
 
   const [newOpen, setNewOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<InvoiceSpec | null>(null);
   const [preview, setPreview] = useState<{ blob: Blob; filename: string; title: string } | null>(
@@ -83,8 +85,23 @@ export default function InvoicesPage() {
 
   const list = specs.data ?? [];
 
+  // Dynamiczne wyszukiwanie po nazwie klienta / projektu / tytule.
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((s) =>
+      [s.project?.name, s.client?.name, s.title]
+        .filter(Boolean)
+        .some((v) => v!.toLowerCase().includes(q)),
+    );
+  }, [list, search]);
+
   return (
     <div className="flex flex-col gap-4">
+      {list.length > 0 && (
+        <SearchBar value={search} onChange={setSearch} placeholder={t('inv.search')} />
+      )}
+
       {specs.isLoading && <SkeletonList rows={4} />}
 
       {!specs.isLoading && list.length === 0 && (
@@ -94,9 +111,13 @@ export default function InvoicesPage() {
         />
       )}
 
-      {list.length > 0 && (
+      {!specs.isLoading && list.length > 0 && filtered.length === 0 && (
+        <EmptyState icon={FileText} message={t('inv.noneMatch')} />
+      )}
+
+      {filtered.length > 0 && (
         <Card className="flex flex-col divide-y divide-line">
-          {list.map((s) => {
+          {filtered.map((s) => {
             const busy = generatingId === s.id;
             return (
               <div key={s.id} className="flex items-center gap-1">
