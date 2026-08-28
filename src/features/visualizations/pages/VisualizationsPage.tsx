@@ -60,20 +60,30 @@ export default function VisualizationsPage() {
               </div>
             </div>
 
-            {/* Pasek postępu: gotowe punkty / wszystkie */}
+            {/* Pasek postępu: gotowe punkty / wszystkie — minimalny */}
             {v.pointsTotal > 0 &&
               (() => {
                 const pct = Math.round((v.pointsDone / v.pointsTotal) * 100);
+                const full = pct === 100;
                 return (
-                  <div className="flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+                  <div className="mt-0.5 flex items-center gap-2.5">
+                    <div className="h-1.5 flex-1 rounded-full bg-black/[0.06]">
                       <div
-                        className="h-full rounded-full transition-all"
-                        style={{ width: `${pct}%`, backgroundColor: '#2e7d32' }}
+                        className="h-full min-w-[0.375rem] rounded-full transition-[width] duration-300"
+                        style={{
+                          width: `${pct}%`,
+                          background: full
+                            ? '#2e7d32'
+                            : 'linear-gradient(90deg, #34a853, #2e7d32)',
+                        }}
                       />
                     </div>
-                    <span className="tabular-nums text-[11px] font-semibold text-text-secondary">
-                      {v.pointsDone}/{v.pointsTotal} · {pct}%
+                    <span
+                      className="tabular-nums min-w-[2.25rem] text-right text-xs font-bold"
+                      style={{ color: full ? '#2e7d32' : 'var(--color-text-secondary)' }}
+                    >
+                      {pct}
+                      <span className="text-[9px] font-semibold">%</span>
                     </span>
                   </div>
                 );
