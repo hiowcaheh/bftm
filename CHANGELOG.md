@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.47.3 — Wizualizacje: jeszcze mniejszy avatar autora (2026-08-28)
+
+- Wiersz „Autor" na karcie wizualizacji: avatar zmniejszony (size-4).
+
+
 ## 0.47.2 — Wizualizacje: powiadomienie też dla zmieniającego status (2026-08-28)
 
 - Powiadomienie o zmianie statusu punktu trafia teraz również do osoby, która
