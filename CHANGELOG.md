@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.50.0 — Stawka godzinowa także dla adminów (2026-08-28)
+
+- Kartę „Stawka godzinowa" widać teraz również na profilu admina (dostępna
+  wyłącznie dla adminów). Pozwala rzetelnie liczyć koszty projektów z godzin
+  właścicieli — semesterersättning / skatt / narzut liczą się jak u pracowników
+  (kalkulacja kosztu jest niezależna od roli). Stawki (pracowników i własne)
+  widzą tylko admini — bez zmian w uprawnieniach.
+- Domyślnie Mateusz i Tomek: 300 kr/h (od 2026-07-13).
+
+
 ## 0.49.2 — Godziny: „Tydzień N" nad datą w nagłówku (2026-08-28)
 
 - Nawigator tygodnia: „Tydzień 35" w pierwszej linii, a zakres dat od–do
