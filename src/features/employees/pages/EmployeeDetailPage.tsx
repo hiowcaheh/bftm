@@ -304,7 +304,12 @@ export default function EmployeeDetailPage() {
               </div>
             ))}
           </Card>
+        </>
+      )}
 
+      {/* Stawka godzinowa — także dla adminów (Mateusz/Tomek); widzą ją TYLKO admini. */}
+      {isAdmin && (
+        <>
           <Card className="flex flex-col gap-3 p-4">
             <div className="flex items-center gap-2">
               <Banknote className="size-5 text-accent" strokeWidth={1.8} />
@@ -355,7 +360,11 @@ export default function EmployeeDetailPage() {
               </div>
             )}
           </Card>
+        </>
+      )}
 
+      {isAdmin && emp.role !== 'admin' && (
+        <>
           <Card className="flex flex-col gap-2 p-4">
             <div className="flex items-center gap-2">
               <Clock3 className="size-5 text-accent" strokeWidth={1.8} />
