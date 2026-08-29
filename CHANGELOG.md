@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.49.2 — Godziny: „Tydzień N" nad datą w nagłówku (2026-08-28)
+
+- Nawigator tygodnia: „Tydzień 35" w pierwszej linii, a zakres dat od–do
+  pod spodem (zamiast jednej długiej linii).
+
+
 ## 0.49.1 — Zespół: podgląd godzin też liczy się jako aktywność (2026-08-28)
 
 - „Ostatnio aktywny" odświeżany również przy podglądzie godzin (nie tylko przy

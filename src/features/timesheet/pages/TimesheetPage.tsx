@@ -100,6 +100,9 @@ export default function TimesheetPage() {
     range === 'week'
       ? `${t('ts.weekLabel', { n: getISOWeek(anchor) })} • ${fmtDate(from)} – ${fmtDate(to)}`
       : monthYear(anchor);
+  // Nagłówek nawigatora: dla tygodnia „Tydzień N" u góry, a data od–do pod spodem.
+  const periodTitle = range === 'week' ? t('ts.weekLabel', { n: getISOWeek(anchor) }) : monthYear(anchor);
+  const periodSub = range === 'week' ? `${fmtDate(from)} – ${fmtDate(to)}` : null;
 
   const activeEmployees = (employees.data ?? []).filter((e) => e.active);
   const draftEntries = (entries.data ?? []).filter((e) => e.status === 'draft');
@@ -182,7 +185,10 @@ export default function TimesheetPage() {
           <ChevronLeft className="size-5" />
         </button>
         <div className="text-center">
-          <p className="tabular-nums text-sm font-semibold capitalize">{periodLabel}</p>
+          <p className="text-sm font-semibold capitalize">{periodTitle}</p>
+          {periodSub && (
+            <p className="tabular-nums text-xs font-medium text-text-secondary">{periodSub}</p>
+          )}
           <p className="tabular-nums text-xs text-text-secondary">{fmtHours(totalHours)}</p>
         </div>
         <button
