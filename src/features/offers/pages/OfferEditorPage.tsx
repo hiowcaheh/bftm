@@ -531,7 +531,10 @@ export default function OfferEditorPage() {
               icon={<Send className="size-5" />}
               loading={publish.isPending}
               onClick={() => {
-                if (offer?.public_token) {
+                // Szkic (nawet z tokenem z podglądu) MUSI przejść przez publikację,
+                // która ustawia status „wysłana". Tylko już wysłaną ofertę
+                // udostępniamy ponownie bez zmiany statusu.
+                if (offer?.public_token && status !== 'draft') {
                   setShareUrl(offerPublicUrl(offer.public_token));
                   setShareOpen(true);
                 } else {

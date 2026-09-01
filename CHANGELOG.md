@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.50.1 — Oferty: wysyłka szkicu z tokenem podglądu zmienia status (2026-09-01)
+
+- Poprawka: gdy szkic oferty miał już token (np. z podglądu), przycisk „Wyślij"
+  otwierał tylko udostępnianie i pomijał publikację — status zostawał „Szkic"
+  mimo wysłania. Teraz szkic zawsze przechodzi przez publikację (status
+  „Wysłana"); ponowne udostępnienie dotyczy tylko ofert już wysłanych.
+
+
 ## 0.50.0 — Stawka godzinowa także dla adminów (2026-08-28)
 
 - Kartę „Stawka godzinowa" widać teraz również na profilu admina (dostępna
