@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FAB } from '@/components/ui/FAB';
 import { SkeletonList } from '@/components/ui/Skeleton';
-import { date as fmtDate } from '@/lib/format';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useVisualizations } from '../hooks';
@@ -45,9 +44,16 @@ export default function VisualizationsPage() {
             onClick={() => navigate(`/wizualizacje/${v.id}`)}
           >
             <div className="flex items-start gap-3">
-              {/* Kafelek z ikoną modułu */}
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-                <MapPin className="size-5" strokeWidth={1.9} />
+              {/* Kafelek z ikoną modułu + licznik wyświetleń pod spodem */}
+              <div className="flex shrink-0 flex-col items-center gap-1.5">
+                <div className="flex size-11 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                  <MapPin className="size-5" strokeWidth={1.9} />
+                </div>
+                {v.status === 'sent' && (
+                  <span className="tabular-nums flex items-center gap-1 rounded-full bg-info-soft px-2 py-0.5 text-[11px] font-semibold text-info shadow-(--shadow-card)">
+                    <Eye className="size-3" strokeWidth={2.2} /> {v.view_count}
+                  </span>
+                )}
               </div>
 
               <div className="min-w-0 flex-1">
@@ -72,36 +78,23 @@ export default function VisualizationsPage() {
               </div>
             </div>
 
-            {/* Stopka: postęp punktów (czerwony→zielony) + wyświetlenia.
-                Dla szkicu bez punktów nie pokazujemy daty — jest zbędna. */}
-            {(pct !== null || v.status === 'sent') && (
-              <div className="flex items-center gap-3">
-                {pct !== null ? (
-                  <div className="flex flex-1 items-center gap-2.5">
-                    <div className="h-1.5 flex-1 rounded-full bg-black/[0.06]">
-                      <div
-                        className="h-full min-w-[0.375rem] rounded-full transition-[width,background-color] duration-300"
-                        style={{ width: `${pct}%`, backgroundColor: progressColor(pct) }}
-                      />
-                    </div>
-                    <span
-                      className="tabular-nums min-w-[2.25rem] text-right text-xs font-bold"
-                      style={{ color: progressColor(pct) }}
-                    >
-                      {pct}
-                      <span className="text-[9px] font-semibold">%</span>
-                    </span>
-                  </div>
-                ) : (
-                  <span className="flex-1 text-xs text-text-secondary">
-                    {fmtDate(v.created_at)}
-                  </span>
-                )}
-                {v.status === 'sent' && (
-                  <span className="tabular-nums flex shrink-0 items-center gap-1 text-xs text-text-secondary">
-                    <Eye className="size-3.5" /> {v.view_count}
-                  </span>
-                )}
+            {/* Stopka: pasek postępu (czerwony→zielony) na całą szerokość,
+                a % na samym końcu. */}
+            {pct !== null && (
+              <div className="flex items-center gap-2.5">
+                <div className="h-1.5 flex-1 rounded-full bg-black/[0.06]">
+                  <div
+                    className="h-full min-w-[0.375rem] rounded-full transition-[width,background-color] duration-300"
+                    style={{ width: `${pct}%`, backgroundColor: progressColor(pct) }}
+                  />
+                </div>
+                <span
+                  className="tabular-nums min-w-[2.25rem] text-right text-xs font-bold"
+                  style={{ color: progressColor(pct) }}
+                >
+                  {pct}
+                  <span className="text-[9px] font-semibold">%</span>
+                </span>
               </div>
             )}
           </Card>
