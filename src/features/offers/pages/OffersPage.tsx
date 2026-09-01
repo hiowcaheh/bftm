@@ -59,9 +59,16 @@ export default function OffersPage() {
             onClick={() => navigate(`/oferty/${o.id}`)}
           >
             <div className="flex items-start gap-3">
-              {/* Kafelek z ikoną modułu */}
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
-                <FileText className="size-5" strokeWidth={1.9} />
+              {/* Kafelek z ikoną modułu + licznik wyświetleń pod spodem */}
+              <div className="flex shrink-0 flex-col items-center gap-1.5">
+                <div className="flex size-11 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                  <FileText className="size-5" strokeWidth={1.9} />
+                </div>
+                {o.viewed_at && (
+                  <span className="tabular-nums flex items-center gap-1 rounded-full bg-info-soft px-2 py-0.5 text-[11px] font-semibold text-info shadow-(--shadow-card)">
+                    <Eye className="size-3" strokeWidth={2.2} /> {o.view_count}
+                  </span>
+                )}
               </div>
 
               <div className="min-w-0 flex-1">
@@ -69,14 +76,7 @@ export default function OffersPage() {
                   <span className="tabular-nums text-[11px] font-semibold tracking-wide text-text-secondary">
                     {o.number}
                   </span>
-                  <div className="flex shrink-0 items-center gap-2">
-                    {o.viewed_at && (
-                      <span className="tabular-nums flex items-center gap-1 text-xs text-text-secondary">
-                        <Eye className="size-3.5" /> {o.view_count}
-                      </span>
-                    )}
-                    <Badge tone={OFFER_STATUS_TONES[o.status]}>{t(`ostatus.${o.status}`)}</Badge>
-                  </div>
+                  <Badge tone={OFFER_STATUS_TONES[o.status]}>{t(`ostatus.${o.status}`)}</Badge>
                 </div>
                 <p className="mt-0.5 truncate text-sm font-semibold">
                   {o.title?.trim() || clientName || t('off.untitled')}

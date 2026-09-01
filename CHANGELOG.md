@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.50.4 — Oferty: licznik wyświetleń jako pill pod ikoną (2026-09-01)
+
+- Lista ofert: licznik wyświetleń przeniesiony pod kafelek z ikoną (lewa
+  kolumna) i przerobiony na kolorowy „pill" z oczkiem.
+
+
 ## 0.50.3 — Powiadomienia: poprawne pogrubienie pierwszej linii (2026-09-01)
 
 - Dzwoneczek: pogrubiamy pierwszą logiczną linię treści (do znaku nowej linii),
