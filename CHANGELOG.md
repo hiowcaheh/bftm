@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.50.2 — Oferty: licznik wyświetleń obok statusu (2026-09-01)
+
+- Lista ofert: oczko z liczbą wyświetleń przeniesione na górę, obok statusu.
+
+
 ## 0.50.1 — Oferty: wysyłka szkicu z tokenem podglądu zmienia status (2026-09-01)
 
 - Poprawka: gdy szkic oferty miał już token (np. z podglądu), przycisk „Wyślij"
