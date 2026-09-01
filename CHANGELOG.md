@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.50.5 — Wizualizacje: licznik pod ikoną, pasek na całą szerokość (2026-09-01)
+
+- Lista wizualizacji: licznik wyświetleń jako pill pod ikoną (jak w ofertach),
+  a pasek postępu na całą szerokość z % na samym końcu.
+
+
 ## 0.50.4 — Oferty: licznik wyświetleń jako pill pod ikoną (2026-09-01)
 
 - Lista ofert: licznik wyświetleń przeniesiony pod kafelek z ikoną (lewa
