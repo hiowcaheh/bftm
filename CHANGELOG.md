@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.50.3 — Powiadomienia: poprawne pogrubienie pierwszej linii (2026-09-01)
+
+- Dzwoneczek: pogrubiamy pierwszą logiczną linię treści (do znaku nowej linii),
+  a nie pierwszą zawiniętą. Wcześniej długie jednolinijkowe powiadomienia (np.
+  „Klient otworzył ofertę") rozjeżdżały się — pogrubiał się losowy fragment.
+
+
 ## 0.50.2 — Oferty: licznik wyświetleń obok statusu (2026-09-01)
 
 - Lista ofert: oczko z liczbą wyświetleń przeniesione na górę, obok statusu.
