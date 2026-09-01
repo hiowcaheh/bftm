@@ -152,16 +152,25 @@ export function NotificationBell() {
                         <span className="mt-1 size-2 shrink-0 rounded-full bg-accent" />
                       )}
                     </div>
-                    {n.body && (
-                      <p
-                        className={cn(
-                          'mt-0.5 whitespace-pre-line text-xs leading-relaxed text-text-secondary first-line:font-semibold first-line:text-text',
-                          isSummary && 'line-clamp-3',
-                        )}
-                      >
-                        {n.body}
-                      </p>
-                    )}
+                    {n.body &&
+                      (() => {
+                        // Pogrubiamy pierwszą LOGICZNĄ linię (do \n), a nie pierwszą
+                        // zawiniętą — inaczej długie jednolinijkowe treści rozjeżdżają się.
+                        const nl = n.body.indexOf('\n');
+                        const head = nl === -1 ? n.body : n.body.slice(0, nl);
+                        const rest = nl === -1 ? '' : n.body.slice(nl);
+                        return (
+                          <p
+                            className={cn(
+                              'mt-0.5 whitespace-pre-line text-xs leading-relaxed text-text-secondary',
+                              isSummary && 'line-clamp-3',
+                            )}
+                          >
+                            <span className="font-semibold text-text">{head}</span>
+                            {rest}
+                          </p>
+                        );
+                      })()}
                     <div className="mt-1 flex items-center justify-between gap-2">
                       <p className="text-[11px] text-text-secondary/70">
                         {formatDistanceToNow(new Date(n.created_at), {
