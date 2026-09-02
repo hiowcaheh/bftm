@@ -38,7 +38,7 @@ const TYPE_STYLES: Record<
   offer_viewed: { icon: Eye, className: 'bg-info-soft text-info' },
   payslip: { icon: ReceiptText, className: 'bg-accent-soft text-accent' },
   absence: { icon: CalendarOff, className: 'bg-warning-soft text-warning' },
-  announcement: { icon: Megaphone, className: 'bg-accent-soft text-accent' },
+  announcement: { icon: Megaphone, className: 'bg-accent text-white' },
   checklist: { icon: ListChecks, className: 'bg-accent-soft text-accent' },
   weekly_summary: { icon: BarChart3, className: 'bg-accent-soft text-accent' },
   hours_reminder: { icon: AlarmClock, className: 'bg-warning-soft text-warning' },
@@ -117,6 +117,7 @@ export function NotificationBell() {
               const style = TYPE_STYLES[n.type] ?? TYPE_STYLES.info!;
               const Icon = style.icon;
               const isSummary = n.type === 'weekly_summary';
+              const isAnnouncement = n.type === 'announcement';
               const route = TYPE_ROUTES[n.type];
               return (
                 <button
@@ -124,7 +125,9 @@ export function NotificationBell() {
                   type="button"
                   disabled={!route && !isSummary}
                   className={cn(
-                    'press flex gap-3 rounded-xl bg-white p-3 text-left shadow-(--shadow-card)',
+                    'press flex gap-3 rounded-xl p-3 text-left shadow-(--shadow-card)',
+                    // ogłoszenie ma lekko czerwone tło, żeby wyróżniało się także po odczytaniu
+                    isAnnouncement ? 'bg-accent-soft' : 'bg-white',
                     !n.read_at && 'ring-1 ring-accent/30',
                     !route && !isSummary && 'cursor-default',
                   )}

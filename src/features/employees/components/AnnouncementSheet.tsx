@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Drawer } from '@/components/ui/Drawer';
 import { Textarea } from '@/components/ui/Input';
 import { toast } from '@/components/ui/Toast';
+import { qk } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { sendAnnouncement } from '../api';
@@ -15,6 +17,7 @@ import { sendAnnouncement } from '../api';
 export function AnnouncementSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const t = useT();
   const { user } = useSession();
+  const queryClient = useQueryClient();
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -22,7 +25,9 @@ export function AnnouncementSheet({ open, onClose }: { open: boolean; onClose: (
     if (!user || !text.trim() || sending) return;
     setSending(true);
     try {
-      await sendAnnouncement(user.id, text.trim());
+      await sendAnnouncement(text.trim());
+      // nadawca też dostaje ogłoszenie — odśwież dzwoneczek od razu
+      void queryClient.invalidateQueries({ queryKey: qk.notifications.all });
       toast.success(t('emp.announceSent'));
       setText('');
       onClose();

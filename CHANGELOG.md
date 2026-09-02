@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.50.6 — Ogłoszenia: nadawca też je dostaje + wyróżniony wygląd (2026-09-02)
+
+- Ogłoszenie (megafon) trafia teraz także do nadawcy — powiadomienie w
+  dzwoneczku i push. Dzwoneczek nadawcy odświeża się od razu po wysłaniu.
+- Ogłoszenie w dzwoneczku ma wyróżniony wygląd: lekko czerwone tło (także po
+  odczytaniu) i pełny czerwony kafelek ikony megafonu.
+
+
 ## 0.50.5 — Wizualizacje: licznik pod ikoną, pasek na całą szerokość (2026-09-01)
 
 - Lista wizualizacji: licznik wyświetleń jako pill pod ikoną (jak w ofertach),
