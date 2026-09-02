@@ -164,15 +164,15 @@ function rpcMessage(message: string): string {
 }
 
 /**
- * Ogłoszenie od admina do całego aktywnego zespołu (poza nadawcą).
+ * Ogłoszenie od admina do całego aktywnego zespołu — RAZEM z nadawcą
+ * (nadawca też ma widzieć swoje ogłoszenie w dzwoneczku i dostać push).
  * Tytuł w języku odbiorcy; treść bez tłumaczenia (pisana ręcznie).
  */
-export async function sendAnnouncement(senderId: string, text: string): Promise<void> {
+export async function sendAnnouncement(text: string): Promise<void> {
   const { data, error } = await supabase
     .from('profiles')
     .select('id, lang')
-    .eq('active', true)
-    .neq('id', senderId);
+    .eq('active', true);
   if (error) throw error;
   if (!data || data.length === 0) return;
   const { error: insertError } = await supabase.from('notifications').insert(
