@@ -27,10 +27,11 @@ export function useEntries(filters: HoursFilters) {
   });
 }
 
-export function useProjectEntries(projectId: string) {
+export function useProjectEntries(projectId: string, enabled = true) {
   return useQuery({
     queryKey: qk.workHours.byProject(projectId),
     queryFn: () => fetchProjectEntries(projectId),
+    enabled,
   });
 }
 

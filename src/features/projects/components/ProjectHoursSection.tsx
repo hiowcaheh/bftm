@@ -7,20 +7,28 @@ import { hours as fmtHours, num } from '@/lib/format';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useProjectEntries } from '@/features/timesheet/hooks';
+import { useProjectStats } from '../hooks';
 import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
 import type { ProjectWithClient } from '../types';
 
-/** Sekcja Godziny na karcie projektu: suma, postęp vs budżet, podział na osoby. */
+/**
+ * Sekcja Godziny na karcie projektu: suma + postęp vs budżet (godzinowy).
+ * Sumę wszystkich godzin (project_stats) widzi każdy — także pracownik.
+ * Podział na osoby (kto ile) tylko dla `hours_view_all`/admina.
+ * Pieniądze/budżet w kr NIE są tu pokazywane (osobno, finance_view).
+ */
 export function ProjectHoursSection({ project }: { project: ProjectWithClient }) {
-  const entries = useProjectEntries(project.id);
   const { can } = useSession();
   const t = useT();
   const [formOpen, setFormOpen] = useState(false);
 
-  const total = useMemo(
-    () => (entries.data ?? []).reduce((s, e) => s + e.hours, 0),
-    [entries.data],
-  );
+  // Podział na osoby (i wpisy) tylko dla uprawnionych — pracownik go nie pobiera.
+  const canViewAll = can('hours_view_all');
+  const entries = useProjectEntries(project.id, canViewAll);
+
+  // Łączna suma godzin projektu (wszyscy) — z RPC widocznego dla każdego.
+  const stats = useProjectStats();
+  const total = stats.data?.[project.id]?.totalHours ?? 0;
 
   const byEmployee = useMemo(() => {
     const map = new Map<string, { name: string; avatar_path: string | null; hours: number }>();
@@ -79,7 +87,7 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
         </div>
       )}
 
-      {byEmployee.length > 0 && (
+      {canViewAll && byEmployee.length > 0 && (
         <div className="flex flex-col gap-2 border-t border-line pt-2.5">
           {byEmployee.map((emp) => (
             <div key={emp.name} className="flex items-center justify-between gap-2">
