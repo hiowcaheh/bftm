@@ -58,7 +58,10 @@ export function ProjectActivitiesSection({ projectId }: { projectId: string }) {
       </div>
 
       {list.length === 0 && (
-        <p className="text-sm text-text-secondary">{t('proj.activitiesEmpty')}</p>
+        <p className="text-sm text-text-secondary">
+          {/* Instrukcja dodawania — tylko dla edytujących; pracownik widzi neutralny komunikat */}
+          {canEdit ? t('proj.activitiesEmpty') : t('proj.activitiesNone')}
+        </p>
       )}
 
       {list.map((activity) => {

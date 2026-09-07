@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.50.8 — Projekty: neutralny komunikat aktywności dla pracownika (2026-09-07)
+
+- Pusta sekcja „Aktywności": instrukcję dodawania widzi tylko edytujący/admin;
+  pracownik widzi neutralny komunikat „Brak aktywności na tym projekcie".
+
+
 ## 0.50.7 — Projekty: pracownik widzi łączne godziny w szczegółach (2026-09-07)
 
 - Szczegóły projektu: sekcja „Godziny" pokazuje łączną sumę godzin (wszyscy)

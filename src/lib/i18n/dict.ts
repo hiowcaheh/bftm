@@ -279,6 +279,7 @@ const pl: Dict = {
     activities: 'Aktywności',
     activitiesEmpty:
       'Dodaj aktywności (np. „Malowanie", „Montaż fasady", „Prace dodatkowe") — pracownicy będą je wybierać przy wpisywaniu godzin i zobaczysz, kto co robił.',
+    activitiesNone: 'Brak aktywności na tym projekcie.',
     newActivityPh: 'Nowa aktywność, np. Malowanie',
     addActivity: 'Dodaj aktywność',
     deleteActivityAria: 'Usuń aktywność {name}',
@@ -1295,6 +1296,7 @@ const sv: Dict = {
     activities: 'Aktiviteter',
     activitiesEmpty:
       'Lägg till aktiviteter (t.ex. „Målning", „Fasadmontage", „Tilläggsarbeten") — de anställda väljer dem när de registrerar timmar och du ser vem som gjorde vad.',
+    activitiesNone: 'Inga aktiviteter i detta projekt.',
     newActivityPh: 'Ny aktivitet, t.ex. Målning',
     addActivity: 'Lägg till aktivitet',
     deleteActivityAria: 'Ta bort aktivitet {name}',
@@ -2300,6 +2302,7 @@ const en: Dict = {
     activities: 'Activities',
     activitiesEmpty:
       'Add activities (e.g. "Painting", "Facade assembly", "Additional works") — employees will pick them when logging hours and you\'ll see who did what.',
+    activitiesNone: 'No activities in this project.',
     newActivityPh: 'New activity, e.g. Painting',
     addActivity: 'Add activity',
     deleteActivityAria: 'Delete activity {name}',
@@ -3311,6 +3314,7 @@ const uk: Dict = {
     activities: 'Активності',
     activitiesEmpty:
       'Додайте активності (напр. «Фарбування», «Монтаж фасаду», «Додаткові роботи») — працівники вибиратимуть їх під час внесення годин, і ви бачитимете, хто що робив.',
+    activitiesNone: 'У цьому проєкті немає активностей.',
     newActivityPh: 'Нова активність, напр. Фарбування',
     addActivity: 'Додати активність',
     deleteActivityAria: 'Видалити активність {name}',
