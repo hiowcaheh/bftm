@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.50.7 — Projekty: pracownik widzi łączne godziny w szczegółach (2026-09-07)
+
+- Szczegóły projektu: sekcja „Godziny" pokazuje łączną sumę godzin (wszyscy)
+  i pasek postępu vs budżet godzinowy — także dla pracownika bez uprawnień
+  (wcześniej widział 0 h, bo liczyło tylko jego własne wpisy).
+- Podział na osoby (kto ile godzin) nadal tylko dla `hours_view_all`/admina.
+- Pieniądze i budżet w kr bez zmian — widoczne wyłącznie z `finance_view`.
+
+
 ## 0.50.6 — Ogłoszenia: nadawca też je dostaje + wyróżniony wygląd (2026-09-02)
 
 - Ogłoszenie (megafon) trafia teraz także do nadawcy — powiadomienie w
