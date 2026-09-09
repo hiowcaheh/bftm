@@ -46,7 +46,10 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
   }, [entries.data]);
 
   const budget = project.estimated_hours;
-  const progress = budget && budget > 0 ? Math.min(100, (total / budget) * 100) : null;
+  const hasBudget = !!budget && budget > 0;
+  const progress = hasBudget ? Math.min(100, (total / budget!) * 100) : null;
+  // Sumę godzin widać przy budżecie godzin (postęp do limitu) albo dla uprawnionych.
+  const showTotal = canViewAll || hasBudget;
 
   return (
     <Card className="flex flex-col gap-3 p-4">
@@ -67,7 +70,7 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
         )}
       </div>
 
-      {canViewAll && (
+      {showTotal && (
         <p className="tabular-nums text-lg font-semibold">
           {fmtHours(total)}
           {budget != null && (
@@ -78,7 +81,7 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
         </p>
       )}
 
-      {canViewAll && progress !== null && (
+      {progress !== null && (
         <div className="h-2 overflow-hidden rounded-full bg-surface">
           <div
             className="h-full rounded-full transition-all duration-300"

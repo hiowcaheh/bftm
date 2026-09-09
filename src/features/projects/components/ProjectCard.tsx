@@ -112,8 +112,9 @@ export function ProjectCard({
             </div>
           )}
 
-          {/* Postęp godzin: przepracowane / limit — tylko uprawniony (nie pracownik) */}
-          {!isInternal && canViewAll && pct !== null && (
+          {/* Postęp godzin: przepracowane / limit — pokazujemy przy budżecie godzin
+              (pct != null). Bez budżetu suma jest ukryta (dane z project_stats = 0). */}
+          {!isInternal && pct !== null && (
             <div className="mt-1.5">
               <div className="h-1.5 overflow-hidden rounded-full bg-line">
                 <div
