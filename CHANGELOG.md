@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.51.4 — Godziny: suma widoczna dla pracownika przy budżecie godzin (2026-09-09)
+
+- Pracownik widzi łączną sumę godzin i pasek postępu, ale TYLKO gdy projekt ma
+  budżet godzin (np. 25/110 h) — wtedy pasek ma sens. Bez budżetu suma dalej
+  ukryta (tylko admin/hours_view_all). Migracja 0066 (project_stats zwraca sumę
+  przy budżecie lub uprawnionym).
+- Kto pisał godziny (podział na osoby) nadal tylko dla admina/hours_view_all.
+
+
 ## 0.51.3 — Godziny: pracownik nie widzi łącznej sumy na projektach (2026-09-09)
 
 - Łączną sumę godzin na projekcie (wszyscy) widzi tylko admin / osoba z flagą
