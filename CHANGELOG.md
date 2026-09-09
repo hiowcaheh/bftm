@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.51.1 — Projekt firmowy: uproszczony widok + opis (2026-09-09)
+
+- Projekt firmowy dostaje u góry opis „Tutaj piszemy godziny związane z pracą
+  i organizacją firmy." (i18n, 4 języki) i nie pokazuje daty realizacji.
+- Pracownik: na liście nie widzi sumy godzin firmowych (tylko admin); w
+  szczegółach ukryte aktywności, prace dodatkowe i suma godzin — zostaje samo
+  dodawanie godzin i zdjęcia.
+- Admin: pełny widok (aktywności, godziny z sumą, prace dodatkowe, zdjęcia),
+  bez daty realizacji.
+
+
 ## 0.51.0 — Projekty: wyróżniony projekt firmowy („bank godzin") (2026-09-09)
 
 - Projekt, którego klientem jest nasza własna firma, na liście projektów

@@ -19,9 +19,10 @@ export function ProjectCard({
   stat?: ProjectStat | null;
 }) {
   const navigate = useNavigate();
-  const { can } = useSession();
+  const { can, user } = useSession();
   const t = useT();
   const branding = usePublicBranding();
+  const isAdmin = user?.role === 'admin';
   const color = project.color ?? '#CC0000';
   const value =
     project.billing_type === 'fixed' || project.billing_type === 'mixed'
@@ -100,8 +101,8 @@ export function ProjectCard({
             </p>
           )}
 
-          {/* Projekt firmowy: łączna suma godzin firmowych (bez budżetu/statusu) */}
-          {isInternal && (
+          {/* Projekt firmowy: łączna suma godzin firmowych — TYLKO admin */}
+          {isInternal && isAdmin && (
             <div className="mt-1.5 flex items-baseline justify-between gap-2">
               <span className="text-[11px] font-medium text-text-secondary">
                 {t('proj.companyHours')}
