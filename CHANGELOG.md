@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.51.3 — Godziny: pracownik nie widzi łącznej sumy na projektach (2026-09-09)
+
+- Łączną sumę godzin na projekcie (wszyscy) widzi tylko admin / osoba z flagą
+  „podgląd wszystkich godzin" — zarówno na liście projektów, jak i w szczegółach.
+  Pracownik ma na projekcie tylko „+ Dodaj"; swoje godziny widzi w zakładce
+  Godziny. Wymuszone też po stronie bazy (migracja 0065 — project_stats zwraca
+  sumę tylko uprawnionym).
+
+
 ## 0.51.2 — Projekt firmowy: belka szczegółów jak na liście (2026-09-09)
 
 - Górna belka w szczegółach projektu firmowego ma teraz ten sam wygląd co na

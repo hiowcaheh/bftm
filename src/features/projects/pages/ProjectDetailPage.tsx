@@ -176,7 +176,7 @@ export default function ProjectDetailPage() {
       {/* Projekt firmowy: dla pracownika chowamy aktywności i prace dodatkowe
           oraz sumę godzin — zostaje dodawanie godzin i zdjęcia. Admin ma wszystko. */}
       {(!isInternal || isAdmin) && <ProjectActivitiesSection projectId={p.id} />}
-      <ProjectHoursSection project={p} hideTotal={isInternal && !isAdmin} />
+      <ProjectHoursSection project={p} />
       {can('expenses_add') || can('expenses_view_all') ? (
         <ProjectExpensesSection projectId={p.id} />
       ) : null}

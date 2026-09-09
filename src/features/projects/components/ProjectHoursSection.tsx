@@ -13,18 +13,12 @@ import type { ProjectWithClient } from '../types';
 
 /**
  * Sekcja Godziny na karcie projektu: suma + postęp vs budżet (godzinowy).
- * Sumę wszystkich godzin (project_stats) widzi każdy — także pracownik.
- * Podział na osoby (kto ile) tylko dla `hours_view_all`/admina.
+ * Łączną sumę godzin (project_stats) widzi TYLKO uprawniony (`hours_view_all`
+ * / admin). Pracownik ma tu jedynie „+ Dodaj" — swoje godziny ogląda w zakładce
+ * Godziny. Podział na osoby (kto ile) też tylko dla uprawnionych.
  * Pieniądze/budżet w kr NIE są tu pokazywane (osobno, finance_view).
  */
-export function ProjectHoursSection({
-  project,
-  hideTotal = false,
-}: {
-  project: ProjectWithClient;
-  /** Ukryj sumę godzin (np. projekt firmowy dla pracownika) — zostaje samo „+ Dodaj". */
-  hideTotal?: boolean;
-}) {
+export function ProjectHoursSection({ project }: { project: ProjectWithClient }) {
   const { can } = useSession();
   const t = useT();
   const [formOpen, setFormOpen] = useState(false);
@@ -73,7 +67,7 @@ export function ProjectHoursSection({
         )}
       </div>
 
-      {!hideTotal && (
+      {canViewAll && (
         <p className="tabular-nums text-lg font-semibold">
           {fmtHours(total)}
           {budget != null && (
@@ -84,7 +78,7 @@ export function ProjectHoursSection({
         </p>
       )}
 
-      {!hideTotal && progress !== null && (
+      {canViewAll && progress !== null && (
         <div className="h-2 overflow-hidden rounded-full bg-surface">
           <div
             className="h-full rounded-full transition-all duration-300"
