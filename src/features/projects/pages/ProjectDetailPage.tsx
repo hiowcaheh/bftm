@@ -22,6 +22,7 @@ import { date, moneyWhole, num } from '@/lib/format';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { usePublicBranding } from '@/features/auth/hooks';
+import { logoPublicUrl } from '@/features/settings/api';
 import type { ProjectStatus } from '@/types/database';
 import { useDeleteProject, useProject, useProjectStats, useUpdateProject } from '../hooks';
 import { PROJECT_STATUS_TONES } from '../types';
@@ -67,6 +68,8 @@ export default function ProjectDetailPage() {
     !!clientName &&
     !!companyName &&
     clientName.trim().toLowerCase() === companyName.trim().toLowerCase();
+  const logoUrl =
+    isInternal && branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null;
 
   // Wiersze karty info: dla projektu firmowego bez daty realizacji.
   const showTermRow = !isInternal && (p.start_date || p.end_date);
@@ -82,14 +85,32 @@ export default function ProjectDetailPage() {
         <ArrowLeft className="size-4" /> {t('nav.projects')}
       </button>
 
-      <Card className="overflow-hidden">
+      <Card
+        className="relative overflow-hidden"
+        style={
+          isInternal
+            ? { backgroundImage: 'linear-gradient(180deg, var(--color-accent-soft), transparent 62%)' }
+            : undefined
+        }
+      >
         <div className="h-1.5" style={{ backgroundColor: p.color ?? '#CC0000' }} />
-        <div className="flex flex-col gap-2 p-4">
+        {logoUrl && (
+          <img
+            aria-hidden
+            alt=""
+            src={logoUrl}
+            className="pointer-events-none absolute -right-4 top-1/2 size-28 -translate-y-1/2 object-contain"
+            style={{ opacity: 0.13 }}
+          />
+        )}
+        <div className="relative flex flex-col gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
             <h1 className="text-lg font-semibold">{p.name}</h1>
-            <Badge tone={PROJECT_STATUS_TONES[p.status]}>
-              {t(`pstatus.${p.status}`)}
-            </Badge>
+            {!isInternal && (
+              <Badge tone={PROJECT_STATUS_TONES[p.status]}>
+                {t(`pstatus.${p.status}`)}
+              </Badge>
+            )}
           </div>
           {p.description && <p className="text-sm text-text-secondary">{p.description}</p>}
         </div>
