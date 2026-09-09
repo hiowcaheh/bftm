@@ -21,8 +21,9 @@ import { SkeletonList } from '@/components/ui/Skeleton';
 import { date, moneyWhole, num } from '@/lib/format';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
+import { usePublicBranding } from '@/features/auth/hooks';
 import type { ProjectStatus } from '@/types/database';
-import { useDeleteProject, useProject, useUpdateProject } from '../hooks';
+import { useDeleteProject, useProject, useProjectStats, useUpdateProject } from '../hooks';
 import { PROJECT_STATUS_TONES } from '../types';
 import { ProjectInvoiceSection } from '@/features/finance/components/ProjectInvoiceSection';
 import { ProjectFormSheet } from '../components/ProjectFormSheet';
@@ -41,6 +42,8 @@ export default function ProjectDetailPage() {
   const { can } = useSession();
   const t = useT();
   const project = useProject(id);
+  const branding = usePublicBranding();
+  const stats = useProjectStats();
   const update = useUpdateProject(id);
   const deleteProject = useDeleteProject();
   const [editOpen, setEditOpen] = useState(false);
@@ -55,6 +58,19 @@ export default function ProjectDetailPage() {
     return <p className="py-16 text-center text-sm text-text-secondary">{t('proj.notFound')}</p>;
   }
   const p = project.data;
+
+  // Projekt firmowy („bank godzin"): klientem jest nasza własna firma.
+  // clientName z projektu (admin) albo z project_stats (pracownik — RLS ukrywa klienta).
+  const clientName = p.client?.name ?? stats.data?.[p.id]?.clientName ?? null;
+  const companyName = branding.data?.companyName ?? null;
+  const isInternal =
+    !!clientName &&
+    !!companyName &&
+    clientName.trim().toLowerCase() === companyName.trim().toLowerCase();
+
+  // Wiersze karty info: dla projektu firmowego bez daty realizacji.
+  const showTermRow = !isInternal && (p.start_date || p.end_date);
+  const showInfoGroup = !!p.client || !!p.address || showTermRow || canFinance;
 
   return (
     <div className="flex flex-col gap-4">
@@ -79,8 +95,16 @@ export default function ProjectDetailPage() {
         </div>
       </Card>
 
+      {/* Projekt firmowy: krótki opis, do czego służy „bank godzin" */}
+      {isInternal && (
+        <p className="rounded-(--radius-card) bg-accent-soft px-4 py-3 text-sm font-medium text-accent">
+          {t('proj.companyHint')}
+        </p>
+      )}
+
       {p.address && <ProjectMap address={p.address} />}
 
+      {showInfoGroup && (
       <ListGroup>
         {p.client && (
           <ListRow
@@ -99,7 +123,7 @@ export default function ProjectDetailPage() {
             trailing={<CopyButton value={p.address} label={t('proj.addressCopy')} />}
           />
         )}
-        {(p.start_date || p.end_date) && (
+        {showTermRow && (
           <ListRow
             leading={<CalendarDays className="size-5 text-text-secondary" />}
             title={`${p.start_date ? date(p.start_date) : '…'} – ${p.end_date ? date(p.end_date) : '…'}`}
@@ -124,15 +148,18 @@ export default function ProjectDetailPage() {
           />
         )}
       </ListGroup>
+      )}
 
       {canFinance && <ProjectInvoiceSection projectId={p.id} />}
 
-      <ProjectActivitiesSection projectId={p.id} />
-      <ProjectHoursSection project={p} />
+      {/* Projekt firmowy: dla pracownika chowamy aktywności i prace dodatkowe
+          oraz sumę godzin — zostaje dodawanie godzin i zdjęcia. Admin ma wszystko. */}
+      {(!isInternal || isAdmin) && <ProjectActivitiesSection projectId={p.id} />}
+      <ProjectHoursSection project={p} hideTotal={isInternal && !isAdmin} />
       {can('expenses_add') || can('expenses_view_all') ? (
         <ProjectExpensesSection projectId={p.id} />
       ) : null}
-      <AdditionalWorksSection projectId={p.id} />
+      {(!isInternal || isAdmin) && <AdditionalWorksSection projectId={p.id} />}
       <ProjectPhotosSection projectId={p.id} />
 
       {canEdit && (

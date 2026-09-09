@@ -17,7 +17,14 @@ import type { ProjectWithClient } from '../types';
  * Podział na osoby (kto ile) tylko dla `hours_view_all`/admina.
  * Pieniądze/budżet w kr NIE są tu pokazywane (osobno, finance_view).
  */
-export function ProjectHoursSection({ project }: { project: ProjectWithClient }) {
+export function ProjectHoursSection({
+  project,
+  hideTotal = false,
+}: {
+  project: ProjectWithClient;
+  /** Ukryj sumę godzin (np. projekt firmowy dla pracownika) — zostaje samo „+ Dodaj". */
+  hideTotal?: boolean;
+}) {
   const { can } = useSession();
   const t = useT();
   const [formOpen, setFormOpen] = useState(false);
@@ -66,16 +73,18 @@ export function ProjectHoursSection({ project }: { project: ProjectWithClient })
         )}
       </div>
 
-      <p className="tabular-nums text-lg font-semibold">
-        {fmtHours(total)}
-        {budget != null && (
-          <span className="ml-1 text-sm font-normal text-text-secondary">
-            {t('proj.budgetSuffix', { n: num(budget) })}
-          </span>
-        )}
-      </p>
+      {!hideTotal && (
+        <p className="tabular-nums text-lg font-semibold">
+          {fmtHours(total)}
+          {budget != null && (
+            <span className="ml-1 text-sm font-normal text-text-secondary">
+              {t('proj.budgetSuffix', { n: num(budget) })}
+            </span>
+          )}
+        </p>
+      )}
 
-      {progress !== null && (
+      {!hideTotal && progress !== null && (
         <div className="h-2 overflow-hidden rounded-full bg-surface">
           <div
             className="h-full rounded-full transition-all duration-300"
