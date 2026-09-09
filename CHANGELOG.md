@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.51.2 — Projekt firmowy: belka szczegółów jak na liście (2026-09-09)
+
+- Górna belka w szczegółach projektu firmowego ma teraz ten sam wygląd co na
+  liście: delikatny czerwony gradient + logo firmy, bez znaczka „Aktywny".
+
+
 ## 0.51.1 — Projekt firmowy: uproszczony widok + opis (2026-09-09)
 
 - Projekt firmowy dostaje u góry opis „Tutaj piszemy godziny związane z pracą
