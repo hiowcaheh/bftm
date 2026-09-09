@@ -19,10 +19,11 @@ export function ProjectCard({
   stat?: ProjectStat | null;
 }) {
   const navigate = useNavigate();
-  const { can, user } = useSession();
+  const { can } = useSession();
   const t = useT();
   const branding = usePublicBranding();
-  const isAdmin = user?.role === 'admin';
+  // Łączną sumę godzin projektu widzi tylko uprawniony (admin/hours_view_all).
+  const canViewAll = can('hours_view_all');
   const color = project.color ?? '#CC0000';
   const value =
     project.billing_type === 'fixed' || project.billing_type === 'mixed'
@@ -101,8 +102,8 @@ export function ProjectCard({
             </p>
           )}
 
-          {/* Projekt firmowy: łączna suma godzin firmowych — TYLKO admin */}
-          {isInternal && isAdmin && (
+          {/* Projekt firmowy: łączna suma godzin firmowych — tylko uprawniony */}
+          {isInternal && canViewAll && (
             <div className="mt-1.5 flex items-baseline justify-between gap-2">
               <span className="text-[11px] font-medium text-text-secondary">
                 {t('proj.companyHours')}
@@ -111,8 +112,8 @@ export function ProjectCard({
             </div>
           )}
 
-          {/* Postęp godzin: przepracowane / limit (szacowane) */}
-          {!isInternal && pct !== null && (
+          {/* Postęp godzin: przepracowane / limit — tylko uprawniony (nie pracownik) */}
+          {!isInternal && canViewAll && pct !== null && (
             <div className="mt-1.5">
               <div className="h-1.5 overflow-hidden rounded-full bg-line">
                 <div
