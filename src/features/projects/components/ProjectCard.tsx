@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/Card';
 import { moneyWhole, num } from '@/lib/format';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
+import { usePublicBranding } from '@/features/auth/hooks';
+import { logoPublicUrl } from '@/features/settings/api';
 import type { ProjectStat } from '../api';
 import { PROJECT_STATUS_TONES, type ProjectWithClient } from '../types';
 
@@ -19,6 +21,7 @@ export function ProjectCard({
   const navigate = useNavigate();
   const { can } = useSession();
   const t = useT();
+  const branding = usePublicBranding();
   const color = project.color ?? '#CC0000';
   const value =
     project.billing_type === 'fixed' || project.billing_type === 'mixed'
@@ -35,28 +38,55 @@ export function ProjectCard({
   // Firma → budynek, klient prywatny (ROT) → dom
   const BgIcon = clientType === 'company' ? Building2 : House;
 
+  // Projekt firmowy („bank godzin"): klientem jest nasza własna firma.
+  // Wyróżniamy go — delikatny czerwony tint + logo zamiast ikony, bez statusu.
+  const companyName = branding.data?.companyName ?? null;
+  const isInternal =
+    !!clientName &&
+    !!companyName &&
+    clientName.trim().toLowerCase() === companyName.trim().toLowerCase();
+  const logoUrl =
+    isInternal && branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null;
+
   return (
     <Card
       interactive
       className="relative overflow-hidden"
+      style={
+        isInternal
+          ? { backgroundImage: 'linear-gradient(180deg, var(--color-accent-soft), transparent 62%)' }
+          : undefined
+      }
       onClick={() => navigate(`/projekty/${project.id}`)}
     >
-      {/* Duża ikona w kolorze projektu — półprzezroczyste tło po prawej (jak na Pulpicie) */}
-      <BgIcon
-        aria-hidden
-        className="pointer-events-none absolute -right-5 top-1/2 size-32 -translate-y-1/2"
-        strokeWidth={1.3}
-        style={{ color, opacity: 0.09 }}
-      />
+      {/* Tło po prawej: logo firmy (projekt firmowy) albo ikona budynku/domu */}
+      {logoUrl ? (
+        <img
+          aria-hidden
+          alt=""
+          src={logoUrl}
+          className="pointer-events-none absolute -right-4 top-1/2 size-32 -translate-y-1/2 object-contain"
+          style={{ opacity: 0.13 }}
+        />
+      ) : (
+        <BgIcon
+          aria-hidden
+          className="pointer-events-none absolute -right-5 top-1/2 size-32 -translate-y-1/2"
+          strokeWidth={1.3}
+          style={{ color, opacity: 0.09 }}
+        />
+      )}
       <div className="flex">
         {/* Kolorowanie karty wg koloru projektu */}
         <div className="w-1.5 shrink-0" style={{ backgroundColor: color }} />
         <div className="relative flex min-w-0 flex-1 flex-col gap-1 p-4">
           <div className="flex items-start justify-between gap-2">
             <h3 className="min-w-0 truncate text-[15px] font-semibold">{project.name}</h3>
-            <Badge tone={PROJECT_STATUS_TONES[project.status]}>
-              {t(`pstatus.${project.status}`)}
-            </Badge>
+            {!isInternal && (
+              <Badge tone={PROJECT_STATUS_TONES[project.status]}>
+                {t(`pstatus.${project.status}`)}
+              </Badge>
+            )}
           </div>
 
           {clientName && (
@@ -70,8 +100,18 @@ export function ProjectCard({
             </p>
           )}
 
+          {/* Projekt firmowy: łączna suma godzin firmowych (bez budżetu/statusu) */}
+          {isInternal && (
+            <div className="mt-1.5 flex items-baseline justify-between gap-2">
+              <span className="text-[11px] font-medium text-text-secondary">
+                {t('proj.companyHours')}
+              </span>
+              <span className="tabular-nums text-sm font-semibold">{num(logged)} h</span>
+            </div>
+          )}
+
           {/* Postęp godzin: przepracowane / limit (szacowane) */}
-          {pct !== null && (
+          {!isInternal && pct !== null && (
             <div className="mt-1.5">
               <div className="h-1.5 overflow-hidden rounded-full bg-line">
                 <div
@@ -89,7 +129,7 @@ export function ProjectCard({
           )}
 
           {/* Pracownicy + wartość */}
-          {showFooter && (
+          {!isInternal && showFooter && (
             <div className="mt-1.5 flex items-center justify-between gap-2">
               {workers.length > 0 ? (
                 <div className="flex min-w-0 items-center gap-2">

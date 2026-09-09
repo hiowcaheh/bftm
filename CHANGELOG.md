@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.51.0 — Projekty: wyróżniony projekt firmowy („bank godzin") (2026-09-09)
+
+- Projekt, którego klientem jest nasza własna firma, na liście projektów
+  wyróżnia się: delikatny czerwony gradient tła + logo firmy zamiast ikony
+  budynku, bez znaczka statusu. Zamiast paska budżetu pokazuje „Godziny firmowe:
+  N h" (nowy klucz i18n we wszystkich językach).
+
+
 ## 0.50.8 — Projekty: neutralny komunikat aktywności dla pracownika (2026-09-07)
 
 - Pusta sekcja „Aktywności": instrukcję dodawania widzi tylko edytujący/admin;
