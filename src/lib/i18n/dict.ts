@@ -278,6 +278,7 @@ const pl: Dict = {
     endDate: 'Data zakończenia',
     colorLabel: 'Kolor projektu',
     colorAria: 'Kolor {color}',
+    colorCustom: 'Własny kolor',
     activities: 'Aktywności',
     activitiesEmpty:
       'Dodaj aktywności (np. „Malowanie", „Montaż fasady", „Prace dodatkowe") — pracownicy będą je wybierać przy wpisywaniu godzin i zobaczysz, kto co robił.',
@@ -1297,6 +1298,7 @@ const sv: Dict = {
     endDate: 'Slutdatum',
     colorLabel: 'Projektfärg',
     colorAria: 'Färg {color}',
+    colorCustom: 'Egen färg',
     activities: 'Aktiviteter',
     activitiesEmpty:
       'Lägg till aktiviteter (t.ex. „Målning", „Fasadmontage", „Tilläggsarbeten") — de anställda väljer dem när de registrerar timmar och du ser vem som gjorde vad.',
@@ -2305,6 +2307,7 @@ const en: Dict = {
     endDate: 'End date',
     colorLabel: 'Project colour',
     colorAria: 'Colour {color}',
+    colorCustom: 'Custom colour',
     activities: 'Activities',
     activitiesEmpty:
       'Add activities (e.g. "Painting", "Facade assembly", "Additional works") — employees will pick them when logging hours and you\'ll see who did what.',
@@ -3319,6 +3322,7 @@ const uk: Dict = {
     endDate: 'Дата завершення',
     colorLabel: 'Колір проєкту',
     colorAria: 'Колір {color}',
+    colorCustom: 'Власний колір',
     activities: 'Активності',
     activitiesEmpty:
       'Додайте активності (напр. «Фарбування», «Монтаж фасаду», «Додаткові роботи») — працівники вибиратимуть їх під час внесення годин, і ви бачитимете, хто що робив.',

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.52.0 — Projekty: własny kolor projektu (paleta + picker) (2026-09-23)
+
+- Do palety kolorów projektu doszedł „własny kolor" — natywny picker pozwala
+  wybrać dowolny odcień (koniec z powtarzającymi się kolorami). Gotowe swatche
+  zostają dla szybkiego wyboru; kolor spoza palety jest podświetlany jako aktywny.
+
+
 ## 0.51.4 — Godziny: suma widoczna dla pracownika przy budżecie godzin (2026-09-09)
 
 - Pracownik widzi łączną sumę godzin i pasek postępu, ale TYLKO gdy projekt ma
