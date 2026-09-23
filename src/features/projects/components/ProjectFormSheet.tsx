@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
+import { Pipette } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { DateField } from '@/components/ui/DateField';
 import { Input, Textarea } from '@/components/ui/Input';
@@ -76,6 +77,8 @@ export function ProjectFormSheet({
   }, [open, project, presetClientId]);
 
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
+  // Kolor spoza gotowej palety → wybrany własnym pickerem.
+  const isCustomColor = !PROJECT_COLORS.includes(form.color);
 
   const num = (value: string): number | null => {
     const trimmed = value.trim().replace(',', '.');
@@ -213,6 +216,34 @@ export function ProjectFormSheet({
                 style={{ backgroundColor: color }}
               />
             ))}
+
+            {/* Własny kolor — natywny picker; podświetlony, gdy kolor spoza palety */}
+            <label
+              aria-label={t('proj.colorCustom')}
+              className={cn(
+                'press relative flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2',
+                isCustomColor ? 'border-text' : 'border-transparent',
+              )}
+              style={
+                isCustomColor
+                  ? { backgroundColor: form.color }
+                  : {
+                      background:
+                        'conic-gradient(#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)',
+                    }
+              }
+            >
+              <Pipette
+                className="size-4 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]"
+                strokeWidth={2.2}
+              />
+              <input
+                type="color"
+                value={form.color}
+                onChange={(e) => set({ color: e.target.value.toUpperCase() })}
+                className="absolute inset-0 size-full cursor-pointer opacity-0"
+              />
+            </label>
           </div>
         </div>
 
