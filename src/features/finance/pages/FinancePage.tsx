@@ -253,6 +253,9 @@ function FinanceReport() {
             </Card>
           )}
 
+          {/* Faktury nad rentownością — najczęściej używane, bez długiego przewijania */}
+          <InvoicesSection />
+
           {projectRows.length > 0 && (
             <section className="flex flex-col gap-3">
               <h2 className="text-base font-semibold">{t('fin.profitability')}</h2>
@@ -306,8 +309,6 @@ function FinanceReport() {
               </Card>
             </section>
           )}
-
-          <InvoicesSection />
 
           <ListGroup>
             <ListRow

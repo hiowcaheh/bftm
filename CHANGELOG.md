@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.53.1 — Finanse: faktury nad rentownością projektów (2026-10-12)
+
+- Sekcja „Faktury" przeniesiona nad „Rentowność projektów" — nie trzeba
+  przewijać na sam dół, żeby do niej dotrzeć.
+
+
 ## 0.53.0 — Finanse: kalendarzyk i licznik dni przy fakturach (2026-10-12)
 
 - Każda faktura ma po lewej kalendarzyk z dniem i miesiącem wpływu (nieopłacona
