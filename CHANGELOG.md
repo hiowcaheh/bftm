@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.53.0 — Finanse: kalendarzyk i licznik dni przy fakturach (2026-10-12)
+
+- Każda faktura ma po lewej kalendarzyk z dniem i miesiącem wpływu (nieopłacona
+  → termin płatności, opłacona → dzień wpłaty); kolor paska = status.
+- Kolejność chronologiczna: najbliższy wpływ na górze, opłacone — najnowsze na górze.
+- Po prawej zamiast plakietki statusu licznik dni: „za 6 dni", „jutro", „dziś",
+  „−10 dni" (po terminie), „7 dni temu" (opłacona) — z odmianą w 4 językach.
+- Kwota przeniesiona do drugiej linii (pogrubiona) — nie jest już ucinana.
+
+
 ## 0.52.0 — Projekty: własny kolor projektu (paleta + picker) (2026-09-23)
 
 - Do palety kolorów projektu doszedł „własny kolor" — natywny picker pozwala

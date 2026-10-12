@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { addDays, format } from 'date-fns';
+import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { CheckCircle2, ChevronRight, FileText, Plus, ReceiptText, Trash2, Undo2 } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
@@ -11,7 +10,7 @@ import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/cn';
 import { date as fmtDate, hours as fmtHours, money, moneyWhole } from '@/lib/format';
-import { useT } from '@/lib/i18n/context';
+import { useI18n } from '@/lib/i18n/context';
 import type { AllInvoice, InvoiceSuggestion } from '../api';
 import {
   useAllInvoices,
@@ -31,7 +30,7 @@ const iso = (d: Date) => format(d, 'yyyy-MM-dd');
  * skasowanie faktury przywraca je (trigger w bazie).
  */
 export function InvoicesSection() {
-  const t = useT();
+  const { t, tp, dateLocale } = useI18n();
   const suggestions = useInvoiceSuggestions();
   const invoices = useAllInvoices();
   const summary = useFinanceSummary('2000-01-01', '2100-01-01');
@@ -92,6 +91,13 @@ export function InvoicesSection() {
     label: p.name,
   }));
 
+  // Chronologia wpływów: najbliższy termin na górze (bez terminu — na końcu),
+  // opłacone — najnowsza wpłata na górze.
+  const byDueAsc = (a: AllInvoice, b: AllInvoice) =>
+    (a.due_at ?? '9999-12-31').localeCompare(b.due_at ?? '9999-12-31');
+  const byPaidDesc = (a: AllInvoice, b: AllInvoice) =>
+    (b.paid_at ?? '').localeCompare(a.paid_at ?? '');
+
   // grupowanie faktur wg statusu — żeby od razu było widać które czekają
   const groups: Array<{
     key: string;
@@ -103,61 +109,104 @@ export function InvoicesSection() {
       key: 'overdue',
       label: t('fin.grpOverdue'),
       dot: 'bg-error',
-      items: list.filter((i) => !i.paid_at && i.due_at && i.due_at < today),
+      items: list.filter((i) => !i.paid_at && i.due_at && i.due_at < today).sort(byDueAsc),
     },
     {
       key: 'waiting',
       label: t('fin.grpWaiting'),
       dot: 'bg-warning',
-      items: list.filter((i) => !i.paid_at && !(i.due_at && i.due_at < today)),
+      items: list.filter((i) => !i.paid_at && !(i.due_at && i.due_at < today)).sort(byDueAsc),
     },
     {
       key: 'paid',
       label: t('fin.grpPaid'),
       dot: 'bg-success',
-      items: list.filter((i) => i.paid_at),
+      items: list.filter((i) => i.paid_at).sort(byPaidDesc),
     },
   ].filter((g) => g.items.length > 0);
 
-  const invoiceRow = (inv: AllInvoice) => (
-    <button
-      key={inv.id}
-      type="button"
-      className="press flex items-center gap-3 px-4 py-3 text-left"
-      onClick={() => openManual(inv)}
-    >
-      <span
-        className="size-2.5 shrink-0 rounded-full"
-        style={{ backgroundColor: inv.project?.color ?? 'var(--color-accent)' }}
-      />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">
-          {inv.project?.name ?? '—'}
-          <span className="tabular-nums font-semibold"> • {money(inv.amount)}</span>
-        </p>
-        <p className="mt-0.5 text-xs text-text-secondary">
-          {[
-            inv.note,
-            t('fin.sentAt', { date: fmtDate(inv.sent_at) }),
-            inv.paid_at
-              ? t('fin.paidAt', { date: fmtDate(inv.paid_at) })
-              : inv.due_at
-                ? t('fin.dueAt', { date: fmtDate(inv.due_at) })
-                : null,
-          ]
-            .filter(Boolean)
-            .join(' • ')}
-        </p>
-      </div>
-      {inv.paid_at ? (
-        <Badge tone="success">{t('fin.paidBadge')}</Badge>
-      ) : inv.due_at && inv.due_at < today ? (
-        <Badge tone="error">{t('fin.overdueBadge')}</Badge>
-      ) : (
-        <Badge tone="warning">{t('fin.waitingBadge')}</Badge>
-      )}
-    </button>
-  );
+  // Licznik dni po prawej: ile do terminu / ile po terminie / ile od wpłaty.
+  const daysChip = (inv: AllInvoice): { text: string; className: string } | null => {
+    const now = new Date();
+    const word = (n: number) => tp('ts.day', n);
+    if (inv.paid_at) {
+      const n = differenceInCalendarDays(now, parseISO(inv.paid_at));
+      return {
+        text: n <= 0 ? t('fin.today') : t('fin.daysAgo', { n, d: word(n) }),
+        className: 'bg-success-soft text-success',
+      };
+    }
+    if (!inv.due_at) return null;
+    const n = differenceInCalendarDays(parseISO(inv.due_at), now);
+    if (n < 0) {
+      return {
+        text: t('fin.overdueDays', { n: -n, d: word(-n) }),
+        className: 'bg-error-soft text-error',
+      };
+    }
+    if (n <= 1) {
+      return { text: n === 0 ? t('fin.today') : t('fin.tomorrow'), className: 'bg-warning text-white' };
+    }
+    return { text: t('fin.inDays', { n, d: word(n) }), className: 'bg-warning-soft text-warning' };
+  };
+
+  const invoiceRow = (inv: AllInvoice) => {
+    // Kalendarzyk: nieopłacona → termin płatności, opłacona → dzień wpłaty.
+    const day = parseISO(inv.paid_at ?? inv.due_at ?? inv.sent_at);
+    const band = inv.paid_at
+      ? 'bg-success'
+      : inv.due_at && inv.due_at < today
+        ? 'bg-error'
+        : 'bg-warning';
+    const chip = daysChip(inv);
+    return (
+      <button
+        key={inv.id}
+        type="button"
+        className="press flex items-center gap-3 px-4 py-3 text-left"
+        onClick={() => openManual(inv)}
+      >
+        <div className="w-11 shrink-0 overflow-hidden rounded-[10px] bg-white text-center shadow-[0_0_0_1px_var(--color-line),0_1px_2px_rgba(0,0,0,0.06)]">
+          <div
+            className={cn(
+              'pt-0.5 pb-px text-[9.5px] font-extrabold tracking-[0.08em] text-white uppercase',
+              band,
+            )}
+          >
+            {format(day, 'LLL', { locale: dateLocale }).replace('.', '')}
+          </div>
+          <div className="tabular-nums pt-1 pb-1.5 text-[19px] leading-none font-bold">
+            {format(day, 'd')}
+          </div>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="flex min-w-0 items-center gap-1.5 text-sm font-medium">
+            <span
+              className="size-2 shrink-0 rounded-full"
+              style={{ backgroundColor: inv.project?.color ?? 'var(--color-accent)' }}
+            />
+            <span className="truncate">{inv.project?.name ?? '—'}</span>
+          </p>
+          {/* Kwota w drugiej linii — przy długiej nazwie projektu nie jest ucinana */}
+          <p className="mt-0.5 truncate text-xs text-text-secondary">
+            <span className="tabular-nums text-[13px] font-bold text-text">{money(inv.amount)}</span>
+            {' • '}
+            {[t('fin.sentAt', { date: fmtDate(inv.sent_at) }), inv.note].filter(Boolean).join(' • ')}
+          </p>
+        </div>
+        {chip && (
+          <span
+            className={cn(
+              'tabular-nums shrink-0 rounded-full px-2.5 py-1 text-[13px] font-bold whitespace-nowrap',
+              chip.className,
+            )}
+          >
+            {chip.text}
+          </span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <section className="flex flex-col gap-3">
