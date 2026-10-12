@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.54.0 — Godziny: niższe pole daty z kalendarzem (2026-10-12)
+
+- Pole „Data" w formularzu godzin ma wysokość przycisków „Dziś"/„Wczoraj"
+  i pokazuje dzień tygodnia (np. „pon. 12 paź 2026").
+- Klik w pole rozwija kalendarz w stylu nieobecności (wybór jednego dnia);
+  wybór dnia albo „Dziś"/„Wczoraj" zwija go z powrotem.
+- Działa przy dodawaniu i edycji (również przez admina).
+
+
 ## 0.53.1 — Finanse: faktury nad rentownością projektów (2026-10-12)
 
 - Sekcja „Faktury" przeniesiona nad „Rentowność projektów" — nie trzeba

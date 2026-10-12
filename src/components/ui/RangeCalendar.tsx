@@ -25,14 +25,22 @@ interface RangeCalendarProps {
   onChange: (from: Date | null, to: Date | null) => void;
   /** Kolumna z numerem tygodnia ISO po lewej stronie każdego wiersza. */
   showWeekNumbers?: boolean;
+  /** Wybór jednego dnia: każdy tap zwraca (dzień, dzień). */
+  single?: boolean;
 }
 
 /**
  * Kalendarz zakresu (styl Booking): pierwszy tap ustawia „od", drugi „do"
  * i zakres rysuje się na kalendarzu; tap wcześniejszej daty zaczyna od nowa.
- * Jeden dzień = tap dwa razy w tę samą datę.
+ * Jeden dzień = tap dwa razy w tę samą datę (albo tryb `single`).
  */
-export function RangeCalendar({ from, to, onChange, showWeekNumbers }: RangeCalendarProps) {
+export function RangeCalendar({
+  from,
+  to,
+  onChange,
+  showWeekNumbers,
+  single,
+}: RangeCalendarProps) {
   const { t, dateLocale } = useI18n();
   const [month, setMonth] = useState(() => from ?? new Date());
 
@@ -46,7 +54,9 @@ export function RangeCalendar({ from, to, onChange, showWeekNumbers }: RangeCale
   for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
 
   const pick = (day: Date) => {
-    if (!from || (from && to)) {
+    if (single) {
+      onChange(day, day);
+    } else if (!from || (from && to)) {
       onChange(day, null); // start nowego wyboru
     } else if (day < from) {
       onChange(day, null); // wcześniejsza data → zaczynamy od nowa

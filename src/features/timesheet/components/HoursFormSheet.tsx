@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
-import { format, subDays } from 'date-fns';
+import { useEffect, useId, useMemo, useState } from 'react';
+import { format, parseISO, subDays } from 'date-fns';
+import { CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { DateField } from '@/components/ui/DateField';
 import { Input } from '@/components/ui/Input';
 import { NumberStepper } from '@/components/ui/NumberStepper';
+import { RangeCalendar } from '@/components/ui/RangeCalendar';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
-import { useT } from '@/lib/i18n/context';
+import { cn } from '@/lib/cn';
+import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
 import { useActivities, useProjects } from '@/features/projects/hooks';
@@ -51,7 +53,8 @@ export function HoursFormSheet({
   presetDate,
 }: HoursFormSheetProps) {
   const { user, can } = useSession();
-  const t = useT();
+  const { t, dateLocale } = useI18n();
+  const dateId = useId();
   const canPickEmployee = can('hours_edit_all');
   const employees = useEmployees();
   const projects = useProjects();
@@ -64,6 +67,7 @@ export function HoursFormSheet({
   const [date, setDate] = useState(today());
   const [hoursValue, setHoursValue] = useState(8);
   const [description, setDescription] = useState('');
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const activities = useActivities(projectId, open && !!projectId);
 
@@ -77,6 +81,7 @@ export function HoursFormSheet({
       setDate(entry?.date ?? presetDate ?? today());
       setHoursValue(source?.hours ?? 8);
       setDescription(source?.description ?? '');
+      setCalendarOpen(false);
     }
   }, [open, entry, template, presetProjectId, presetEmployeeId, presetDate, user?.id]);
 
@@ -175,26 +180,58 @@ export function HoursFormSheet({
             onChange={(e) => setActivityId(e.target.value)}
           />
         )}
-        <div className="flex items-end gap-2">
-          <div className="flex-1">
-            <DateField label={t('ts.date')} value={date} onChange={(e) => setDate(e.target.value)} />
+        <div className="flex flex-col gap-2">
+          <div className="flex items-end gap-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <label htmlFor={dateId} className="text-xs font-medium text-text-secondary">
+                {t('ts.date')}
+              </label>
+              {/* Niski przycisk (wysokość jak Dziś/Wczoraj) rozwija kalendarz jak przy nieobecności */}
+              <button
+                id={dateId}
+                type="button"
+                aria-expanded={calendarOpen}
+                className={cn(
+                  'press flex h-9 w-full items-center justify-between gap-2 rounded-lg border bg-white pl-3 pr-2.5 text-left text-[1rem]',
+                  calendarOpen ? 'border-accent' : 'border-line',
+                )}
+                onClick={() => setCalendarOpen((o) => !o)}
+              >
+                <span className="truncate">
+                  {format(parseISO(date), 'EEE d MMM yyyy', { locale: dateLocale })}
+                </span>
+                <CalendarDays
+                  className={cn('size-4.5 shrink-0', calendarOpen ? 'text-accent' : 'text-text-secondary')}
+                  strokeWidth={1.8}
+                />
+              </button>
+            </div>
+            <Button
+              variant={date === today() ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => (setDate(today()), setCalendarOpen(false))}
+            >
+              {t('ts.todayBtn')}
+            </Button>
+            <Button
+              variant={date === yesterday() ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => (setDate(yesterday()), setCalendarOpen(false))}
+            >
+              {t('ts.yesterdayBtn')}
+            </Button>
           </div>
-          <Button
-            variant={date === today() ? 'primary' : 'secondary'}
-            size="sm"
-            className="mb-0.5"
-            onClick={() => setDate(today())}
-          >
-            {t('ts.todayBtn')}
-          </Button>
-          <Button
-            variant={date === yesterday() ? 'primary' : 'secondary'}
-            size="sm"
-            className="mb-0.5"
-            onClick={() => setDate(yesterday())}
-          >
-            {t('ts.yesterdayBtn')}
-          </Button>
+          {calendarOpen && (
+            <RangeCalendar
+              single
+              from={parseISO(date)}
+              to={parseISO(date)}
+              onChange={(day) => {
+                if (day) setDate(format(day, 'yyyy-MM-dd'));
+                setCalendarOpen(false);
+              }}
+            />
+          )}
         </div>
         <NumberStepper
           label={t('ts.hoursField')}
