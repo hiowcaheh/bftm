@@ -18,7 +18,11 @@ npx tsc --noEmit   # szybki typecheck
 1. Commit na branch `claude/construction-pwa-sweden-wa6yqd`, push z `-u origin`.
 2. PR do `main` → merge → workflow `.github/workflows/deploy.yml` (peaceiris,
    `cname: app.bftm.se`) publikuje `dist/` na gh-pages.
-3. Weryfikacja: `mcp__github__actions_list` aż run „deploy" będzie zielony.
+3. Weryfikacja: run „deploy" musi być zielony, np.
+   `gh api "repos/hiowcaheh/bftm/actions/workflows/deploy.yml/runs?per_page=1"`.
+   Po merge: `git checkout -B <branch> origin/main` + push `--force-with-lease`
+   (branch startuje od świeżego main). Gdy GitHub Pages zawiśnie na
+   „updating_pages", pomaga ponowny deploy (patrz 0.45.2–0.45.4 w CHANGELOG).
 4. Sekrety repo: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 5. Wersję (`APP_VERSION` w `src/features/settings/pages/SettingsPage.tsx`) podbijamy
    przy każdej zmianie + wpis w `CHANGELOG.md`. Użytkownik sprawdza wersję w Ustawieniach.
@@ -54,7 +58,9 @@ npx tsc --noEmit   # szybki typecheck
 - **Każdy nowy string UI musi iść przez słownik we wszystkich 4 językach.**
 - Wyjątki celowo NIE tłumaczone (klient końcowy widzi szwedzki):
   `features/offers/pages/PublicOfferPage.tsx`, `features/offers/emailTemplate.ts`,
-  `features/reports/pages/PublicReportPage.tsx`, PDF-y (`features/invoices/pdf.ts`).
+  `features/reports/pages/PublicReportPage.tsx`, PDF-y (`features/invoices/pdf.ts`),
+  `features/visualizations/pages/PublicVisualizationPage.tsx`,
+  `features/visualizations/emailTemplate.ts`.
 
 ## Supabase (projekt: BFTM / ixositdqghamqeproryp, eu-central-1)
 
@@ -75,14 +81,29 @@ npx tsc --noEmit   # szybki typecheck
   → pg_net POST → Edge Function `push` (supabase/functions/push; czyta sekrety
   VAPID z `app_secrets`, autoryzacja nagłówkiem x-push-secret).
 - Funkcje publiczne (anon): tylko `offer_public`, `offer_respond`,
-  `report_share_public`. Reszta ma revoke dla anon (migracja 0035).
+  `report_share_public`, `visualization_public` (0057) i `unread_count_for_endpoint`
+  (SW, 0040). Reszta ma revoke dla anon (migracja 0035).
 - RLS: wszystkie polityki używają `(select auth.uid())` (migracja 0036) — nowe
   polityki pisać tak samo.
-- Storage buckets: `logos` (public), `avatars` (public), `receipts`, `payslips`,
+- Storage buckets: `logos`, `avatars`, `visualization-photos` (public), `receipts`, `payslips`,
   `project-photos` (prywatne, signed URLs). Bezpośredni DELETE na storage.objects
   z SQL jest zablokowany — used Storage API/dashboard.
 - Do PDF logo pobieramy przez `supabase.storage.from('logos').download()`
   (fetch na public URL bywa blokowany).
+
+## Ważne reguły domenowe (łatwo zepsuć)
+
+- Godziny na projekcie: pracownik widzi łączną sumę i pasek TYLKO gdy projekt ma
+  budżet godzin; podział na osoby tylko admin / `hours_view_all`. Wymuszone też
+  w RPC `project_stats` (migracje 0065–0066), nie tylko w UI.
+- Projekt firmowy („bank godzin") = projekt, którego klient ma nazwę równą nazwie
+  naszej firmy (`ProjectCard` → `isInternal`): czerwony tint + logo, uproszczony
+  widok dla pracownika.
+- Wizualizacje (0.45+): MapLibre + MapTiler (klucz publiczny w `map.ts`,
+  override `VITE_MAPTILER_KEY`); chunk mapy poza precache SW (`globIgnores`
+  w vite.config). Flagi `visualizations_manage` / `visualizations_work`.
+- Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz
+  godzin = prop `single`). Nowe wybieranie dat robić na nim, nie na natywnym inpucie.
 
 ## PWA / domena
 
@@ -105,5 +126,10 @@ npx tsc --noEmit   # szybki typecheck
 ## Proces pracy z użytkownikiem
 
 - Mateusz pisze po polsku, iteruje szybko, testuje na iPhonie po każdym deployu.
+- **Przed każdą zmianą wyglądu (UI) najpierw pokaż podgląd** — artefakt HTML
+  odwzorowujący aplikację (tokeny z `index.css`, układ iOS), często 2–3 warianty.
+  Kod zmieniamy dopiero po akceptacji („ok wprowadź"). Zmiany czysto logiczne
+  / poprawki błędów — bez podglądu.
+- Rób dokładnie to, o co prosi — bez dodatkowych zmian „przy okazji".
 - Wersjonowanie: minor przy nowej funkcji, patch przy poprawce; CHANGELOG po polsku.
 - Nie łączyć wielu funkcji w jeden commit — małe, opisowe commity.
