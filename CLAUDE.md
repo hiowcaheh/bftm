@@ -131,5 +131,9 @@ npx tsc --noEmit   # szybki typecheck
   Kod zmieniamy dopiero po akceptacji („ok wprowadź"). Zmiany czysto logiczne
   / poprawki błędów — bez podglądu.
 - Rób dokładnie to, o co prosi — bez dodatkowych zmian „przy okazji".
+- **Stała zgoda (od 0.58.2):** po akceptacji funkcji/podglądu nie pytaj ponownie
+  o pozwolenie na kroki wykonawcze — commit, PR, merge, deploy, migracje
+  przyrostowe, zapytania do bazy. Nadal pytaj przed: zmianą wyglądu bez podglądu,
+  trwałym kasowaniem danych w bazie/storage i wszystkim, czego nie da się cofnąć.
 - Wersjonowanie: minor przy nowej funkcji, patch przy poprawce; CHANGELOG po polsku.
 - Nie łączyć wielu funkcji w jeden commit — małe, opisowe commity.
