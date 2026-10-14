@@ -7,10 +7,11 @@ import {
   Banknote,
   ClockAlert,
   ChevronRight,
+  FileWarning,
   ReceiptText,
   Scale,
 } from 'lucide-react';
-import { format, getISOWeek } from 'date-fns';
+import { differenceInCalendarDays, format, getISOWeek, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/cn';
@@ -20,6 +21,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
 import { ChecklistSection } from '@/features/checklist/components/ChecklistSection';
 import { WavyDivider } from '@/components/ui/WavyDivider';
+import { useAllInvoices } from '@/features/finance/hooks';
 import { ABSENCE_TYPE_TONES } from '@/features/absences/types';
 import type { AbsenceType } from '@/types/database';
 import {
@@ -47,6 +49,16 @@ export default function DashboardPage() {
   const pending = usePendingApprovals();
   const payslipReminder = usePayslipReminder(canManagePayslips);
   const [hoursFormOpen, setHoursFormOpen] = useState(false);
+  // Faktury po terminie (tylko finance_view — hook sam się wyłącza bez flagi)
+  const invoices = useAllInvoices();
+  const todayIso = format(new Date(), 'yyyy-MM-dd');
+  const overdue = (invoices.data ?? [])
+    .filter((i) => !i.paid_at && i.due_at && i.due_at < todayIso)
+    .sort((a, b) => a.due_at!.localeCompare(b.due_at!));
+  const overdueTotal = overdue.reduce((s, i) => s + Number(i.amount), 0);
+  const oldestDays = overdue[0]
+    ? differenceInCalendarDays(new Date(), parseISO(overdue[0].due_at!))
+    : 0;
 
   const now = new Date();
   const todayLabel = format(now, 'EEEE d/MM', { locale: dateLocale });
@@ -192,6 +204,38 @@ export default function DashboardPage() {
                 n: payslipReminder.data.missing,
                 worker: tp('dash.worker', payslipReminder.data.missing),
               })}
+            </p>
+          </div>
+          <ChevronRight className="size-5 shrink-0 text-text-secondary" />
+        </Card>
+      )}
+
+      {can('finance_view') && overdue.length > 0 && (
+        <Card
+          interactive
+          className="flex items-center gap-3 border-l-4 border-error p-4"
+          onClick={() => navigate('/finanse')}
+        >
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-error-soft">
+            <FileWarning className="size-6 text-error" strokeWidth={1.8} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">
+              {tp('dash.overdueTitle', overdue.length).replace('{n}', String(overdue.length))}
+            </p>
+            <p className="tabular-nums truncate text-xs text-text-secondary">
+              {overdue.length === 1
+                ? t('dash.overdueOne', {
+                    amount: moneyWhole(overdueTotal),
+                    project: overdue[0]!.project?.name ?? '—',
+                    n: oldestDays,
+                    d: tp('ts.day', oldestDays),
+                  })
+                : t('dash.overdueMany', {
+                    amount: moneyWhole(overdueTotal),
+                    n: oldestDays,
+                    d: tp('ts.day', oldestDays),
+                  })}
             </p>
           </div>
           <ChevronRight className="size-5 shrink-0 text-text-secondary" />

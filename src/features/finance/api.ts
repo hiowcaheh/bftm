@@ -102,13 +102,18 @@ export async function deleteProjectInvoice(id: string): Promise<void> {
 
 /** Wszystkie faktury projektów (sekcja w Finansach). */
 export interface AllInvoice extends ProjectInvoice {
-  project: { name: string; color: string | null } | null;
+  project: {
+    name: string;
+    color: string | null;
+    /** kontakt do klienta — przyciski „Zadzwoń"/„E-mail" przy fakturze po terminie */
+    client: { name: string; phone: string | null; email: string | null } | null;
+  } | null;
 }
 
 export async function fetchAllInvoices(): Promise<AllInvoice[]> {
   const { data, error } = await supabase
     .from('project_invoices')
-    .select('*, project:projects(name, color)')
+    .select('*, project:projects(name, color, client:clients(name, phone, email))')
     .order('sent_at', { ascending: false });
   if (error) throw error;
   return data as unknown as AllInvoice[];

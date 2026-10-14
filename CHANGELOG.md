@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.56.0 — Faktury po terminie: karta na Pulpicie, push, kontakt z klientem (2026-10-14)
+
+- Pulpit (admin / `finance_view`): karta „1 faktura po terminie" z kwotą,
+  projektem i liczbą dni; tap → Finanse.
+- Push + powiadomienie o 8:00: dzień po terminie, potem co 7 dni, aż faktura
+  będzie opłacona (migracja 0067, cron `overdue-invoice-reminder`, treść w języku
+  odbiorcy). Tap w powiadomienie → Finanse.
+- Okno faktury po terminie: czerwony pasek „N dni po terminie" + klient oraz
+  przyciski „Zadzwoń" / „E-mail" (tel:/mailto: z karty klienta — nic nie
+  wysyłamy z aplikacji). Przyciski widać tylko, gdy klient ma telefon/e-mail.
+
+
 ## 0.55.0 — Finanse: niezatwierdzone godziny przy „Do zafakturowania" (2026-10-14)
 
 - Pod projektem godzinowym widać pasek: gotowe do faktury (czerwony) i czekające
