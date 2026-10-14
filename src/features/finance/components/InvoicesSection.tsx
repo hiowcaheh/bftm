@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns';
-import { CheckCircle2, ChevronRight, FileText, Plus, ReceiptText, Trash2, Undo2 } from 'lucide-react';
+import {
+  CheckCheck,
+  CheckCircle2,
+  ChevronRight,
+  FileText,
+  Plus,
+  ReceiptText,
+  Trash2,
+  Undo2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
@@ -11,7 +20,9 @@ import { Sheet } from '@/components/ui/Sheet';
 import { cn } from '@/lib/cn';
 import { date as fmtDate, hours as fmtHours, money, moneyWhole } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
-import type { AllInvoice, InvoiceSuggestion } from '../api';
+import { useSession } from '@/features/auth/SessionProvider';
+import { useApproveEntries } from '@/features/timesheet/hooks';
+import type { AllInvoice, InvoiceSuggestion, PendingHours } from '../api';
 import {
   useAllInvoices,
   useDeleteProjectInvoice,
@@ -22,6 +33,10 @@ import {
 } from '../hooks';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
+
+/** „12.10.2026" albo „12.10.2026 – 13.10.2026" — zakres dat niezatwierdzonych wpisów. */
+const pendingRange = (p: PendingHours) =>
+  p.from === p.to ? fmtDate(p.from) : `${fmtDate(p.from)} – ${fmtDate(p.to)}`;
 
 /**
  * Finanse → Faktury projektów: wszystkie faktury w jednym miejscu
@@ -37,6 +52,10 @@ export function InvoicesSection() {
   const save = useSaveProjectInvoice();
   const markPaid = useMarkInvoicePaid();
   const remove = useDeleteProjectInvoice();
+  const { can } = useSession();
+  const canApprove = can('hours_approve');
+  const approve = useApproveEntries();
+  const [toApprove, setToApprove] = useState<InvoiceSuggestion | null>(null);
 
   // faktura ręczna / z podpowiedzi (edytowalna: kwota, data, notatka)
   const [manualOpen, setManualOpen] = useState(false);
@@ -236,31 +255,82 @@ export function InvoicesSection() {
                 <ReceiptText className="size-5 text-accent" strokeWidth={1.8} />
                 <p className="text-sm font-semibold">{t('fin.toInvoice')}</p>
               </div>
-              {sugg.map((s) => (
-                <button
-                  key={`${s.projectId}-${s.kind}`}
-                  type="button"
-                  className="press flex items-center gap-3 rounded-xl bg-white/70 p-3 text-left shadow-(--shadow-card)"
-                  onClick={() => openManual(null, s)}
-                >
-                  <span
-                    className="size-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: s.color ?? 'var(--color-accent)' }}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{s.name}</p>
-                    <p className="tabular-nums text-xs text-text-secondary">
-                      {s.kind === 'hours'
-                        ? t('fin.suggHours', { h: fmtHours(s.hours), amount: moneyWhole(s.amount) })
-                        : t('fin.suggFixed', { amount: moneyWhole(s.amount) })}
-                    </p>
+              {sugg.map((s) => {
+                const ready = s.amount > 0;
+                const pending = s.pending;
+                const top = (
+                  <>
+                    <span
+                      className="size-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: s.color ?? 'var(--color-accent)' }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{s.name}</p>
+                      <p className="tabular-nums text-xs text-text-secondary">
+                        {!ready
+                          ? t('fin.suggNoApproved')
+                          : s.kind === 'hours'
+                            ? t('fin.suggHours', { h: fmtHours(s.hours), amount: moneyWhole(s.amount) })
+                            : t('fin.suggFixed', { amount: moneyWhole(s.amount) })}
+                      </p>
+                    </div>
+                    {ready && (
+                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-white">
+                        {t('fin.invoiceNow')}
+                        <ChevronRight className="size-3.5" strokeWidth={2.4} />
+                      </span>
+                    )}
+                  </>
+                );
+                // udział gotowych godzin w pasku (reszta = czekające na zatwierdzenie)
+                const readyPct = pending ? (s.hours / (s.hours + pending.hours)) * 100 : 100;
+                return (
+                  <div
+                    key={`${s.projectId}-${s.kind}`}
+                    className="overflow-hidden rounded-xl bg-white/70 shadow-(--shadow-card)"
+                  >
+                    {ready ? (
+                      <button
+                        type="button"
+                        className="press flex w-full items-center gap-3 p-3 text-left"
+                        onClick={() => openManual(null, s)}
+                      >
+                        {top}
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-3 p-3">{top}</div>
+                    )}
+                    {/* Niezatwierdzone godziny — widać, że do faktury dojdzie więcej */}
+                    {pending && (
+                      <div className="flex flex-col gap-2 border-t border-dashed border-warning/30 px-3 pt-2.5 pb-3">
+                        <div className="flex h-1.5 overflow-hidden rounded-full bg-surface">
+                          <span className="bg-accent" style={{ width: `${readyPct}%` }} />
+                          <span
+                            className="bg-[repeating-linear-gradient(-45deg,var(--color-warning)_0_4px,color-mix(in_srgb,var(--color-warning)_55%,transparent)_4px_8px)]"
+                            style={{ width: `${100 - readyPct}%` }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p className="tabular-nums min-w-0 flex-1 text-xs text-text-secondary">
+                            <span className="font-bold text-warning">+{fmtHours(pending.hours)}</span>{' '}
+                            {t('fin.pendingWait')} • ≈ {moneyWhole(pending.amount)}
+                          </p>
+                          {canApprove && (
+                            <button
+                              type="button"
+                              className="press flex h-7.5 shrink-0 items-center gap-1 rounded-full bg-warning-soft px-3 text-xs font-bold text-warning"
+                              onClick={() => setToApprove(s)}
+                            >
+                              <CheckCheck className="size-3.5" strokeWidth={2.4} />
+                              {t('ts.approve')}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-white">
-                    {t('fin.invoiceNow')}
-                    <ChevronRight className="size-3.5" strokeWidth={2.4} />
-                  </span>
-                </button>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -416,6 +486,44 @@ export function InvoicesSection() {
           </Button>
         </div>
       </Sheet>
+
+      {/* Zatwierdzenie niezatwierdzonych godzin projektu prosto z Finansów */}
+      <ConfirmDialog
+        open={toApprove !== null}
+        title={t('fin.approveTitle', { h: toApprove?.pending ? fmtHours(toApprove.pending.hours) : '' })}
+        description={
+          toApprove?.pending && (
+            <div className="flex flex-col gap-2 text-left">
+              <p className="tabular-nums">
+                {toApprove.name} • {pendingRange(toApprove.pending)}
+              </p>
+              <div className="flex flex-col divide-y divide-line rounded-xl bg-surface px-3">
+                {toApprove.pending.byEmployee.map((e) => (
+                  <div key={e.name} className="flex justify-between gap-2 py-2 text-sm">
+                    <span className="min-w-0 truncate text-text">{e.name}</span>
+                    <span className="tabular-nums shrink-0 font-semibold text-text">
+                      {fmtHours(e.hours)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        }
+        confirmLabel={t('ts.approve')}
+        loading={approve.isPending}
+        onConfirm={() => {
+          if (!toApprove?.pending) return;
+          approve.mutate(
+            {
+              ids: toApprove.pending.ids,
+              periodLabel: `${toApprove.name} • ${pendingRange(toApprove.pending)}`,
+            },
+            { onSettled: () => setToApprove(null) },
+          );
+        }}
+        onCancel={() => setToApprove(null)}
+      />
 
       <ConfirmDialog
         open={toDelete !== null}
