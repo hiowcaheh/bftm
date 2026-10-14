@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, House, MapPin } from 'lucide-react';
+import { differenceInCalendarDays, parseISO } from 'date-fns';
+import { Building2, Clock, House, MapPin } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
+import { ConfirmDialog } from '@/components/ui/Dialog';
 import { moneyWhole, num } from '@/lib/format';
-import { useT } from '@/lib/i18n/context';
+import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { usePublicBranding } from '@/features/auth/hooks';
 import { logoPublicUrl } from '@/features/settings/api';
 import type { ProjectStat } from '../api';
+import { useProjectLastHours, useUpdateProject } from '../hooks';
 import { PROJECT_STATUS_TONES, type ProjectWithClient } from '../types';
 
 export function ProjectCard({
@@ -20,7 +24,7 @@ export function ProjectCard({
 }) {
   const navigate = useNavigate();
   const { can } = useSession();
-  const t = useT();
+  const { t, tp } = useI18n();
   const branding = usePublicBranding();
   // Łączną sumę godzin projektu widzi tylko uprawniony (admin/hours_view_all).
   const canViewAll = can('hours_view_all');
@@ -50,124 +54,170 @@ export function ProjectCard({
   const logoUrl =
     isInternal && branding.data?.logoPath ? logoPublicUrl(branding.data.logoPath) : null;
 
+  // Aktywny projekt bez godzin od 21+ dni → podpowiedź „Zakończ" (tylko edytujący).
+  // Bez żadnych wpisów liczymy od utworzenia projektu.
+  const canEdit = can('projects_edit');
+  const lastHours = useProjectLastHours(canEdit);
+  const finish = useUpdateProject(project.id);
+  const [confirmFinish, setConfirmFinish] = useState(false);
+  const lastDate = lastHours.data?.[project.id] ?? project.created_at.slice(0, 10);
+  const idleDays = differenceInCalendarDays(new Date(), parseISO(lastDate));
+  const showIdle =
+    canEdit && !!lastHours.data && project.status === 'active' && !isInternal && idleDays >= 21;
+
   return (
-    <Card
-      interactive
-      className="relative overflow-hidden"
-      style={
-        isInternal
-          ? { backgroundImage: 'linear-gradient(180deg, var(--color-accent-soft), transparent 62%)' }
-          : undefined
-      }
-      onClick={() => navigate(`/projekty/${project.id}`)}
-    >
-      {/* Tło po prawej: logo firmy (projekt firmowy) albo ikona budynku/domu */}
-      {logoUrl ? (
-        <img
-          aria-hidden
-          alt=""
-          src={logoUrl}
-          className="pointer-events-none absolute -right-4 top-1/2 size-32 -translate-y-1/2 object-contain"
-          style={{ opacity: 0.13 }}
-        />
-      ) : (
-        <BgIcon
-          aria-hidden
-          className="pointer-events-none absolute -right-5 top-1/2 size-32 -translate-y-1/2"
-          strokeWidth={1.3}
-          style={{ color, opacity: 0.09 }}
-        />
-      )}
-      <div className="flex">
-        {/* Kolorowanie karty wg koloru projektu */}
-        <div className="w-1.5 shrink-0" style={{ backgroundColor: color }} />
-        <div className="relative flex min-w-0 flex-1 flex-col gap-1 p-4">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="min-w-0 truncate text-[15px] font-semibold">{project.name}</h3>
-            {!isInternal && (
-              <Badge tone={PROJECT_STATUS_TONES[project.status]}>
-                {t(`pstatus.${project.status}`)}
-              </Badge>
+    <>
+      <Card
+        interactive
+        className="relative overflow-hidden"
+        style={
+          isInternal
+            ? {
+                backgroundImage:
+                  'linear-gradient(180deg, var(--color-accent-soft), transparent 62%)',
+              }
+            : undefined
+        }
+        onClick={() => navigate(`/projekty/${project.id}`)}
+      >
+        {/* Tło po prawej: logo firmy (projekt firmowy) albo ikona budynku/domu */}
+        {logoUrl ? (
+          <img
+            aria-hidden
+            alt=""
+            src={logoUrl}
+            className="pointer-events-none absolute -right-4 top-1/2 size-32 -translate-y-1/2 object-contain"
+            style={{ opacity: 0.13 }}
+          />
+        ) : (
+          <BgIcon
+            aria-hidden
+            className="pointer-events-none absolute -right-5 top-1/2 size-32 -translate-y-1/2"
+            strokeWidth={1.3}
+            style={{ color, opacity: 0.09 }}
+          />
+        )}
+        <div className="flex">
+          {/* Kolorowanie karty wg koloru projektu */}
+          <div className="w-1.5 shrink-0" style={{ backgroundColor: color }} />
+          <div className="relative flex min-w-0 flex-1 flex-col gap-1 p-4">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="min-w-0 truncate text-[15px] font-semibold">{project.name}</h3>
+              {!isInternal && (
+                <Badge tone={PROJECT_STATUS_TONES[project.status]}>
+                  {t(`pstatus.${project.status}`)}
+                </Badge>
+              )}
+            </div>
+
+            {clientName && <p className="truncate text-xs text-text-secondary">{clientName}</p>}
+
+            {project.address && (
+              <p className="flex min-w-0 items-center gap-1 truncate text-xs text-text-secondary">
+                <MapPin className="size-3.5 shrink-0" />
+                <span className="truncate">{project.address}</span>
+              </p>
+            )}
+
+            {showIdle && (
+              <div className="mt-1.5 flex items-center gap-2 rounded-[10px] bg-surface py-1.5 pr-1.5 pl-2.5 text-xs text-text-secondary">
+                <Clock className="size-4 shrink-0" strokeWidth={2} />
+                <span className="min-w-0 flex-1 truncate">
+                  {t('proj.idleNoHours', { n: idleDays, d: tp('ts.day', idleDays) })}
+                </span>
+                <button
+                  type="button"
+                  className="press h-7.5 shrink-0 rounded-full bg-white px-3 text-xs font-bold text-text shadow-[0_0_0_1px_var(--color-line)]"
+                  onClick={(e) => {
+                    // karta sama nawiguje do szczegółów — tu tylko otwieramy potwierdzenie
+                    e.stopPropagation();
+                    setConfirmFinish(true);
+                  }}
+                >
+                  {t('proj.finish')}
+                </button>
+              </div>
+            )}
+
+            {/* Projekt firmowy: łączna suma godzin firmowych — tylko uprawniony */}
+            {isInternal && canViewAll && (
+              <div className="mt-1.5 flex items-baseline justify-between gap-2">
+                <span className="text-[11px] font-medium text-text-secondary">
+                  {t('proj.companyHours')}
+                </span>
+                <span className="tabular-nums text-sm font-semibold">{num(logged)} h</span>
+              </div>
+            )}
+
+            {/* Postęp godzin: przepracowane / limit — pokazujemy przy budżecie godzin
+              (pct != null). Bez budżetu suma jest ukryta (dane z project_stats = 0). */}
+            {!isInternal && pct !== null && (
+              <div className="mt-1.5">
+                <div className="h-1.5 overflow-hidden rounded-full bg-line">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${pct}%`, backgroundColor: color }}
+                  />
+                </div>
+                <div className="mt-1 flex justify-between text-[11px] text-text-secondary">
+                  <span>{t('proj.hoursLabel')}</span>
+                  <span className="tabular-nums font-medium text-text">
+                    {num(logged)} / {num(est)} h
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Pracownicy + wartość */}
+            {!isInternal && showFooter && (
+              <div className="mt-1.5 flex items-center justify-between gap-2">
+                {workers.length > 0 ? (
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="shrink-0 text-[11px] font-medium text-text-secondary">
+                      {t('ts.todayBtn')}
+                    </span>
+                    <div className="flex items-center">
+                      {workers.slice(0, 4).map((w, i) => (
+                        <Avatar
+                          key={i}
+                          name={w.name}
+                          path={w.avatar_path}
+                          size="sm"
+                          className="-ml-2 border-2 border-white first:ml-0"
+                        />
+                      ))}
+                      {workers.length > 4 && (
+                        <span className="ml-1 text-[11px] text-text-secondary">
+                          +{workers.length - 4}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <span />
+                )}
+                {can('finance_view') && value !== null && (
+                  <span className="tabular-nums shrink-0 text-sm font-semibold">
+                    {moneyWhole(value)}
+                  </span>
+                )}
+              </div>
             )}
           </div>
-
-          {clientName && (
-            <p className="truncate text-xs text-text-secondary">{clientName}</p>
-          )}
-
-          {project.address && (
-            <p className="flex min-w-0 items-center gap-1 truncate text-xs text-text-secondary">
-              <MapPin className="size-3.5 shrink-0" />
-              <span className="truncate">{project.address}</span>
-            </p>
-          )}
-
-          {/* Projekt firmowy: łączna suma godzin firmowych — tylko uprawniony */}
-          {isInternal && canViewAll && (
-            <div className="mt-1.5 flex items-baseline justify-between gap-2">
-              <span className="text-[11px] font-medium text-text-secondary">
-                {t('proj.companyHours')}
-              </span>
-              <span className="tabular-nums text-sm font-semibold">{num(logged)} h</span>
-            </div>
-          )}
-
-          {/* Postęp godzin: przepracowane / limit — pokazujemy przy budżecie godzin
-              (pct != null). Bez budżetu suma jest ukryta (dane z project_stats = 0). */}
-          {!isInternal && pct !== null && (
-            <div className="mt-1.5">
-              <div className="h-1.5 overflow-hidden rounded-full bg-line">
-                <div
-                  className="h-full rounded-full"
-                  style={{ width: `${pct}%`, backgroundColor: color }}
-                />
-              </div>
-              <div className="mt-1 flex justify-between text-[11px] text-text-secondary">
-                <span>{t('proj.hoursLabel')}</span>
-                <span className="tabular-nums font-medium text-text">
-                  {num(logged)} / {num(est)} h
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Pracownicy + wartość */}
-          {!isInternal && showFooter && (
-            <div className="mt-1.5 flex items-center justify-between gap-2">
-              {workers.length > 0 ? (
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="shrink-0 text-[11px] font-medium text-text-secondary">
-                    {t('ts.todayBtn')}
-                  </span>
-                  <div className="flex items-center">
-                    {workers.slice(0, 4).map((w, i) => (
-                      <Avatar
-                        key={i}
-                        name={w.name}
-                        path={w.avatar_path}
-                        size="sm"
-                        className="-ml-2 border-2 border-white first:ml-0"
-                      />
-                    ))}
-                    {workers.length > 4 && (
-                      <span className="ml-1 text-[11px] text-text-secondary">
-                        +{workers.length - 4}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <span />
-              )}
-              {can('finance_view') && value !== null && (
-                <span className="tabular-nums shrink-0 text-sm font-semibold">
-                  {moneyWhole(value)}
-                </span>
-              )}
-            </div>
-          )}
         </div>
-      </div>
-    </Card>
+      </Card>
+      {/* Poza kartą: zdarzenia z portalu dialogu nie mogą trafić w onClick karty */}
+      <ConfirmDialog
+        open={confirmFinish}
+        title={t('proj.finishTitle', { name: project.name })}
+        description={t('proj.finishDesc')}
+        confirmLabel={t('proj.finish')}
+        loading={finish.isPending}
+        onConfirm={() =>
+          finish.mutate({ status: 'completed' }, { onSettled: () => setConfirmFinish(false) })
+        }
+        onCancel={() => setConfirmFinish(false)}
+      />
+    </>
   );
 }

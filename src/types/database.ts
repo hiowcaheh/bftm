@@ -527,6 +527,10 @@ export type Database = {
           client_type: string | null;
         }>;
       };
+      project_last_hours: {
+        Args: Record<PropertyKey, never>;
+        Returns: Array<{ project_id: string; last_date: string }>;
+      };
       report_absences: {
         Args: { p_from: string; p_to: string };
         Returns: Array<{ employee_id: string; name: string; type: string; days: number }>;
