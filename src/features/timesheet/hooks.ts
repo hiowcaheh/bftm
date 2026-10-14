@@ -7,6 +7,7 @@ import {
   createEntry,
   deleteEntry,
   fetchEntries,
+  fetchLastOwnEntry,
   fetchProjectEntries,
   updateEntry,
 } from './api';
@@ -20,6 +21,15 @@ function invalidateHours(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: qk.reports.all });
   // podpowiedzi „do zafakturowania" zależą od statusu godzin
   void queryClient.invalidateQueries({ queryKey: qk.finance.all });
+}
+
+/** Ostatni własny wpis sprzed dziś (szablon „Jak wczoraj"). */
+export function useLastOwnEntry(employeeId: string | undefined, today: string, enabled: boolean) {
+  return useQuery({
+    queryKey: qk.workHours.lastOwn(employeeId ?? '', today),
+    queryFn: () => fetchLastOwnEntry(employeeId!, today),
+    enabled: enabled && !!employeeId,
+  });
 }
 
 export function useEntries(filters: HoursFilters) {

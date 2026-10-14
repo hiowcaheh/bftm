@@ -58,6 +58,8 @@ export const qk = {
       ['workHours', 'project', projectId] as const,
     byEmployee: (employeeId: string) =>
       ['workHours', 'employee', employeeId] as const,
+    lastOwn: (employeeId: string, today: string) =>
+      ['workHours', 'last-own', employeeId, today] as const,
     journal: (from: string, to: string) =>
       ['workHours', 'journal', from, to] as const,
   },
