@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.57.0 — Pulpit: „Jak wczoraj" — godziny wypełnione ostatnim wpisem (2026-10-14)
+
+- Czerwona karta „Dzień dobry!" (pracownik bez godzin na dziś) ma pod białym
+  przyciskiem drugi, półprzezroczysty: „Jak wczoraj · projekt • 10,5 h"
+  („Jak w piątek" do 6 dni wstecz, starsze — „Jak ostatnio").
+- Klik NIE zapisuje — otwiera zwykły formularz godzin wypełniony ostatnim
+  wpisem (projekt, aktywność, godziny, opis) z datą dziś i banerem „Uzupełnione
+  jak wczoraj (…). Sprawdź i zmień, jeśli trzeba."; zmiana godzin pokazuje
+  przy etykiecie, ile było wczoraj. Zapis dopiero po „Zapisz".
+- Bez wcześniejszych wpisów przycisk się nie pokazuje.
+
+
 ## 0.56.0 — Faktury po terminie: karta na Pulpicie, push, kontakt z klientem (2026-10-14)
 
 - Pulpit (admin / `finance_view`): karta „1 faktura po terminie" z kwotą,

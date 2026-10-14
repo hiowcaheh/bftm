@@ -36,6 +36,24 @@ export async function fetchProjectEntries(projectId: string): Promise<WorkHoursE
   return data as unknown as WorkHoursEntry[];
 }
 
+/** Ostatni własny wpis sprzed dzisiaj — szablon dla „Jak wczoraj" na Pulpicie. */
+export async function fetchLastOwnEntry(
+  employeeId: string,
+  beforeDate: string,
+): Promise<WorkHoursEntry | null> {
+  const { data, error } = await supabase
+    .from('work_hours')
+    .select(COLUMNS)
+    .eq('employee_id', employeeId)
+    .lt('date', beforeDate)
+    .order('date', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data as unknown as WorkHoursEntry | null;
+}
+
 export async function createEntry(payload: WorkHoursInsert): Promise<void> {
   const { error } = await supabase.from('work_hours').insert(payload);
   if (error) {

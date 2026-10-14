@@ -8,10 +8,11 @@ import {
   ClockAlert,
   ChevronRight,
   FileWarning,
+  Repeat,
   ReceiptText,
   Scale,
 } from 'lucide-react';
-import { differenceInCalendarDays, format, getISOWeek, parseISO } from 'date-fns';
+import { differenceInCalendarDays, format, getISODay, getISOWeek, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/cn';
@@ -19,6 +20,7 @@ import { hours, moneyWhole, num } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useI18n } from '@/lib/i18n/context';
 import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
+import { useLastOwnEntry } from '@/features/timesheet/hooks';
 import { ChecklistSection } from '@/features/checklist/components/ChecklistSection';
 import { WavyDivider } from '@/components/ui/WavyDivider';
 import { useAllInvoices } from '@/features/finance/hooks';
@@ -49,6 +51,8 @@ export default function DashboardPage() {
   const pending = usePendingApprovals();
   const payslipReminder = usePayslipReminder(canManagePayslips);
   const [hoursFormOpen, setHoursFormOpen] = useState(false);
+  // „Jak wczoraj": formularz wypełniony ostatnim własnym wpisem (zapis dopiero po „Zapisz")
+  const [repeatMode, setRepeatMode] = useState(false);
   // Faktury po terminie (tylko finance_view — hook sam się wyłącza bez flagi)
   const invoices = useAllInvoices();
   const todayIso = format(new Date(), 'yyyy-MM-dd');
@@ -56,6 +60,16 @@ export default function DashboardPage() {
     .filter((i) => !i.paid_at && i.due_at && i.due_at < todayIso)
     .sort((a, b) => a.due_at!.localeCompare(b.due_at!));
   const overdueTotal = overdue.reduce((s, i) => s + Number(i.amount), 0);
+  const lastEntry = useLastOwnEntry(user?.id, todayIso, !seesAll);
+  const last = lastEntry.data ?? null;
+  // „wczoraj" / „w piątek" (do 6 dni wstecz) / „ostatnio"
+  const repeatWhen = (() => {
+    if (!last) return '';
+    const days = differenceInCalendarDays(new Date(), parseISO(last.date));
+    if (days === 1) return t('dash.whenYesterday');
+    if (days <= 6) return t('dash.whenDays').split('|')[getISODay(parseISO(last.date)) - 1] ?? '';
+    return t('dash.whenLast');
+  })();
   const oldestDays = overdue[0]
     ? differenceInCalendarDays(new Date(), parseISO(overdue[0].due_at!))
     : 0;
@@ -280,13 +294,39 @@ export default function DashboardPage() {
               <p className="text-base font-semibold">{t('dash.goodMorning')}</p>
               <p className="mt-0.5 text-sm text-white/80">{t('dash.noEntryToday')}</p>
             </div>
-            <button
-              type="button"
-              className="press h-12 w-full rounded-(--radius-input) bg-white text-sm font-semibold text-accent"
-              onClick={() => setHoursFormOpen(true)}
-            >
-              {t('dash.addTodayHours')}
-            </button>
+            <div className="flex w-full flex-col gap-2">
+              <button
+                type="button"
+                className="press h-12 w-full rounded-(--radius-input) bg-white text-sm font-semibold text-accent"
+                onClick={() => {
+                  setRepeatMode(false);
+                  setHoursFormOpen(true);
+                }}
+              >
+                {t('dash.addTodayHours')}
+              </button>
+              {last && (
+                <button
+                  type="button"
+                  className="press flex h-14 w-full items-center gap-2.5 rounded-(--radius-input) bg-white/15 px-3.5 text-left"
+                  onClick={() => {
+                    setRepeatMode(true);
+                    setHoursFormOpen(true);
+                  }}
+                >
+                  <Repeat className="size-5 shrink-0" strokeWidth={2} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold first-letter:uppercase">
+                      {t('dash.repeatBtn', { when: repeatWhen })}
+                    </span>
+                    <span className="tabular-nums block truncate text-xs text-white/80">
+                      {last.project?.name ?? '—'} • {num(last.hours)} h
+                    </span>
+                  </span>
+                  <ChevronRight className="size-5 shrink-0 opacity-70" />
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <Card className="flex flex-col gap-2 p-4">
@@ -374,6 +414,8 @@ export default function DashboardPage() {
         open={hoursFormOpen}
         onClose={() => setHoursFormOpen(false)}
         entry={null}
+        template={repeatMode ? last : null}
+        templateWhen={repeatMode ? repeatWhen : undefined}
       />
     </div>
   );

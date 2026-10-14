@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { format, parseISO, subDays } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Repeat } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { NumberStepper } from '@/components/ui/NumberStepper';
@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
 import { cn } from '@/lib/cn';
+import { num } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
@@ -41,6 +42,8 @@ interface HoursFormSheetProps {
   presetEmployeeId?: string;
   /** Nowy wpis z ustawioną datą (klik w pustą komórkę dziennika). */
   presetDate?: string;
+  /** „Jak wczoraj" z Pulpitu: opis skąd szablon („wczoraj", „w piątek") — pokazuje baner. */
+  templateWhen?: string;
 }
 
 export function HoursFormSheet({
@@ -51,6 +54,7 @@ export function HoursFormSheet({
   presetProjectId,
   presetEmployeeId,
   presetDate,
+  templateWhen,
 }: HoursFormSheetProps) {
   const { user, can } = useSession();
   const { t, dateLocale } = useI18n();
@@ -149,6 +153,18 @@ export function HoursFormSheet({
   return (
     <Sheet open={open} onClose={onClose} title={entry ? t('ts.editEntry') : t('ts.addHours')}>
       <div className="flex flex-col gap-4">
+        {/* „Jak wczoraj": wszystko wypełnione, ale nic nie zapisuje się bez „Zapisz" */}
+        {template && templateWhen && !entry && (
+          <div className="flex items-center gap-3 rounded-xl bg-accent-soft px-3 py-2.5 text-[13px] leading-snug">
+            <Repeat className="size-5 shrink-0 text-accent" strokeWidth={2} />
+            <span>
+              {t('ts.prefilledFrom', {
+                when: templateWhen,
+                date: format(parseISO(template.date), 'EEE dd.MM', { locale: dateLocale }),
+              })}
+            </span>
+          </div>
+        )}
         {canPickEmployee && (
           <Select
             label={t('ts.employee')}
@@ -234,7 +250,15 @@ export function HoursFormSheet({
           )}
         </div>
         <NumberStepper
-          label={t('ts.hoursField')}
+          label={
+            template && templateWhen && !entry && hoursValue !== template.hours
+              ? t('ts.hoursWas', {
+                  label: t('ts.hoursField'),
+                  when: templateWhen,
+                  h: `${num(template.hours)} h`,
+                })
+              : t('ts.hoursField')
+          }
           value={hoursValue}
           onChange={setHoursValue}
           step={0.5}
