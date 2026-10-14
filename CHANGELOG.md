@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.58.0 — Projekty: podpowiedź „Brak godzin od N dni" + porządki bezpieczeństwa (2026-10-14)
+
+- Karta aktywnego projektu (tylko z `projects_edit`): gdy od 21+ dni nie ma
+  godzin (albo nigdy nie było — liczone od utworzenia), pokazuje „Brak godzin od
+  N dni" z przyciskiem „Zakończ". Potwierdzenie → status „Zakończony"; projekt
+  znika z listy przy dodawaniu godzin, godziny i faktury bez zmian. Projekt
+  firmowy pomijany. Dane: RPC `project_last_hours` (migracja 0069).
+- Bezpieczeństwo: `daily_hours_reminder()` nie jest już wywoływalna przez
+  RPC (anon/authenticated) — wcześniej dało się nią wysłać pracownikom
+  powtórzone pushe (migracja 0068). Cron działa bez zmian.
+
+
 ## 0.57.0 — Pulpit: „Jak wczoraj" — godziny wypełnione ostatnim wpisem (2026-10-14)
 
 - Czerwona karta „Dzień dobry!" (pracownik bez godzin na dziś) ma pod białym

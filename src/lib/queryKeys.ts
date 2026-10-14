@@ -49,6 +49,7 @@ export const qk = {
     detail: (id: string) => ['projects', 'detail', id] as const,
     photos: (id: string) => ['projects', 'photos', id] as const,
     activities: (id: string) => ['projects', 'activities', id] as const,
+    lastHours: () => ['projects', 'last-hours'] as const,
   },
   workHours: {
     all: ['workHours'] as const,

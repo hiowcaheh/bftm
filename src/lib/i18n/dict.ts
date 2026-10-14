@@ -288,6 +288,10 @@ const pl: Dict = {
     colorLabel: 'Kolor projektu',
     colorAria: 'Kolor {color}',
     colorCustom: 'Własny kolor',
+    idleNoHours: 'Brak godzin od {n} {d}',
+    finish: 'Zakończ',
+    finishTitle: 'Zakończyć „{name}”?',
+    finishDesc: 'Projekt zniknie z listy przy dodawaniu godzin. Godziny i faktury zostają bez zmian, a status możesz przywrócić w edycji projektu.',
     activities: 'Aktywności',
     activitiesEmpty:
       'Dodaj aktywności (np. „Malowanie", „Montaż fasady", „Prace dodatkowe") — pracownicy będą je wybierać przy wpisywaniu godzin i zobaczysz, kto co robił.',
@@ -1329,6 +1333,10 @@ const sv: Dict = {
     colorLabel: 'Projektfärg',
     colorAria: 'Färg {color}',
     colorCustom: 'Egen färg',
+    idleNoHours: 'Inga timmar på {n} {d}',
+    finish: 'Avsluta',
+    finishTitle: 'Avsluta ”{name}”?',
+    finishDesc: 'Projektet försvinner från listan när man lägger till timmar. Timmar och fakturor påverkas inte, och statusen kan ändras tillbaka i projektets redigering.',
     activities: 'Aktiviteter',
     activitiesEmpty:
       'Lägg till aktiviteter (t.ex. „Målning", „Fasadmontage", „Tilläggsarbeten") — de anställda väljer dem när de registrerar timmar och du ser vem som gjorde vad.',
@@ -2359,6 +2367,10 @@ const en: Dict = {
     colorLabel: 'Project colour',
     colorAria: 'Colour {color}',
     colorCustom: 'Custom colour',
+    idleNoHours: 'No hours for {n} {d}',
+    finish: 'Complete',
+    finishTitle: 'Complete “{name}”?',
+    finishDesc: 'The project will disappear from the list when adding hours. Hours and invoices stay unchanged, and you can change the status back when editing the project.',
     activities: 'Activities',
     activitiesEmpty:
       'Add activities (e.g. "Painting", "Facade assembly", "Additional works") — employees will pick them when logging hours and you\'ll see who did what.',
@@ -3395,6 +3407,10 @@ const uk: Dict = {
     colorLabel: 'Колір проєкту',
     colorAria: 'Колір {color}',
     colorCustom: 'Власний колір',
+    idleNoHours: 'Немає годин {n} {d}',
+    finish: 'Завершити',
+    finishTitle: 'Завершити «{name}»?',
+    finishDesc: 'Проєкт зникне зі списку під час додавання годин. Години й рахунки не змінюються, а статус можна повернути в редагуванні проєкту.',
     activities: 'Активності',
     activitiesEmpty:
       'Додайте активності (напр. «Фарбування», «Монтаж фасаду», «Додаткові роботи») — працівники вибиратимуть їх під час внесення годин, і ви бачитимете, хто що робив.',

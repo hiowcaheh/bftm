@@ -17,6 +17,7 @@ import {
   fetchProject,
   fetchProjects,
   fetchProjectsByClient,
+  fetchProjectLastHours,
   fetchProjectStats,
   updateAdditionalWork,
   updateProject,
@@ -40,6 +41,16 @@ export function useProjectStats() {
     queryKey: [...qk.projects.all, 'stats'],
     queryFn: fetchProjectStats,
     staleTime: 60 * 1000,
+  });
+}
+
+/** Ostatnie godziny per projekt — podpowiedź „Brak godzin od N dni" dla edytujących. */
+export function useProjectLastHours(enabled: boolean) {
+  return useQuery({
+    queryKey: qk.projects.lastHours(),
+    queryFn: fetchProjectLastHours,
+    enabled,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

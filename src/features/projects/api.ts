@@ -58,6 +58,15 @@ export async function fetchProjectStats(): Promise<Record<string, ProjectStat>> 
   return out;
 }
 
+/** Data ostatniego wpisu godzin per projekt — zwykły obiekt (cache w localStorage). */
+export async function fetchProjectLastHours(): Promise<Record<string, string>> {
+  const { data, error } = await supabase.rpc('project_last_hours');
+  if (error) throw error;
+  const out: Record<string, string> = {};
+  for (const r of data ?? []) out[r.project_id] = r.last_date;
+  return out;
+}
+
 export async function fetchProjects(canFinance: boolean): Promise<ProjectWithClient[]> {
   const { data, error } = await supabase
     .from('projects')
