@@ -18,6 +18,8 @@ function invalidateHours(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
   void queryClient.invalidateQueries({ queryKey: qk.projects.all });
   void queryClient.invalidateQueries({ queryKey: qk.reports.all });
+  // podpowiedzi „do zafakturowania" zależą od statusu godzin
+  void queryClient.invalidateQueries({ queryKey: qk.finance.all });
 }
 
 export function useEntries(filters: HoursFilters) {

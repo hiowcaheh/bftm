@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.55.0 — Finanse: niezatwierdzone godziny przy „Do zafakturowania" (2026-10-14)
+
+- Pod projektem godzinowym widać pasek: gotowe do faktury (czerwony) i czekające
+  na zatwierdzenie (pomarańczowe paski) + „+42 h czeka na zatwierdzenie • ≈ kwota".
+- Przycisk „Zatwierdź" (tylko z uprawnieniem `hours_approve`) — najpierw okno
+  z podziałem na osoby, po zatwierdzeniu kwota do faktury przelicza się od razu.
+- Projekt z samymi niezatwierdzonymi godzinami też pojawia się na liście
+  („brak zatwierdzonych godzin", bez przycisku „Faktura").
+- Zatwierdzanie godzin (także w zakładce Godziny) odświeża Finanse.
+
+
 ## 0.54.0 — Godziny: niższe pole daty z kalendarzem (2026-10-12)
 
 - Pole „Data" w formularzu godzin ma wysokość przycisków „Dziś"/„Wczoraj"

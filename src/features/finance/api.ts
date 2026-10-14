@@ -124,15 +124,30 @@ export interface InvoiceSuggestion {
   amount: number;
   from: string;
   to: string;
+  /** Niezatwierdzone godziny (draft) — jeszcze nie do faktury, ale już wpisane. */
+  pending?: PendingHours;
+}
+
+export interface PendingHours {
+  hours: number;
+  amount: number;
+  /** id wpisów do zatwierdzenia (tablica — dane query muszą się serializować) */
+  ids: string[];
+  byEmployee: Array<{ name: string; hours: number }>;
+  from: string;
+  to: string;
 }
 
 export async function fetchInvoiceSuggestions(): Promise<InvoiceSuggestion[]> {
   const [hoursRes, projectsRes, invoicesRes] = await Promise.all([
-    // godziny rozliczalne = zatwierdzone + już zafakturowane (praca wykonana)
+    // godziny rozliczalne = zatwierdzone + już zafakturowane (praca wykonana);
+    // draft pobieramy osobno do podpowiedzi „czeka na zatwierdzenie"
     supabase
       .from('work_hours')
-      .select('hours, project:projects(id, name, color, status, billing_type, hourly_rate)')
-      .in('status', ['approved', 'invoiced']),
+      .select(
+        'id, hours, status, date, employee:profiles!employee_id(full_name), project:projects(id, name, color, status, billing_type, hourly_rate)',
+      )
+      .in('status', ['draft', 'approved', 'invoiced']),
     supabase
       .from('projects')
       .select('id, name, color, billing_type, fixed_value')
@@ -158,10 +173,23 @@ export async function fetchInvoiceSuggestions(): Promise<InvoiceSuggestion[]> {
   // godzinówka: cała wartość pracy − to, co już zafakturowane = pozostało
   const hoursByProject = new Map<
     string,
-    { name: string; color: string | null; rate: number; hours: number }
+    {
+      name: string;
+      color: string | null;
+      rate: number;
+      hours: number;
+      draftIds: string[];
+      draftHours: number;
+      draftDates: string[];
+      draftByEmployee: Map<string, number>;
+    }
   >();
   for (const row of (hoursRes.data ?? []) as unknown as Array<{
+    id: string;
     hours: number;
+    status: string;
+    date: string;
+    employee: { full_name: string } | null;
     project: {
       id: string;
       name: string;
@@ -178,23 +206,50 @@ export async function fetchInvoiceSuggestions(): Promise<InvoiceSuggestion[]> {
       color: p.color,
       rate: p.hourly_rate,
       hours: 0,
+      draftIds: [],
+      draftHours: 0,
+      draftDates: [],
+      draftByEmployee: new Map<string, number>(),
     };
-    agg.hours += row.hours;
+    if (row.status === 'draft') {
+      const who = row.employee?.full_name ?? '—';
+      agg.draftIds.push(row.id);
+      agg.draftHours += row.hours;
+      agg.draftDates.push(row.date);
+      agg.draftByEmployee.set(who, (agg.draftByEmployee.get(who) ?? 0) + row.hours);
+    } else {
+      agg.hours += row.hours;
+    }
     hoursByProject.set(p.id, agg);
   }
   for (const [id, agg] of hoursByProject) {
     const remaining =
       Math.round((agg.hours * agg.rate - (invoicedByProject.get(id) ?? 0)) * 100) / 100;
-    if (remaining > 1) {
+    // Projekt pokazujemy też wtedy, gdy ma same niezatwierdzone godziny
+    if (remaining > 1 || agg.draftHours > 0) {
+      const dates = [...agg.draftDates].sort();
       suggestions.push({
         projectId: id,
         name: agg.name,
         color: agg.color,
         kind: 'hours',
-        hours: Math.round((remaining / agg.rate) * 10) / 10,
-        amount: remaining,
+        hours: remaining > 1 ? Math.round((remaining / agg.rate) * 10) / 10 : 0,
+        amount: remaining > 1 ? remaining : 0,
         from: '',
         to: '',
+        pending:
+          agg.draftHours > 0
+            ? {
+                hours: agg.draftHours,
+                amount: Math.round(agg.draftHours * agg.rate * 100) / 100,
+                ids: agg.draftIds,
+                byEmployee: [...agg.draftByEmployee]
+                  .map(([name, hours]) => ({ name, hours }))
+                  .sort((a, b) => b.hours - a.hours),
+                from: dates[0] ?? '',
+                to: dates[dates.length - 1] ?? '',
+              }
+            : undefined,
       });
     }
   }
