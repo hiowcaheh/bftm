@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.58.1 — Finanse: nowe kolory paska „Do zafakturowania" (2026-10-14)
+
+- Pasek: zatwierdzone godziny na zielono, niezatwierdzone na czerwono w paski;
+  „+N h" i przycisk „Zatwierdź" też czerwone (spójne z paskiem).
+- Kwota „≈ … kr" w osobnej linii, bez kropki-separatora.
+
+
 ## 0.58.0 — Projekty: podpowiedź „Brak godzin od N dni" + porządki bezpieczeństwa (2026-10-14)
 
 - Karta aktywnego projektu (tylko z `projects_edit`): gdy od 21+ dni nie ma

@@ -305,23 +305,25 @@ export function InvoicesSection() {
                     )}
                     {/* Niezatwierdzone godziny — widać, że do faktury dojdzie więcej */}
                     {pending && (
-                      <div className="flex flex-col gap-2 border-t border-dashed border-warning/30 px-3 pt-2.5 pb-3">
+                      <div className="flex flex-col gap-2 border-t border-dashed border-error/30 px-3 pt-2.5 pb-3">
                         <div className="flex h-1.5 overflow-hidden rounded-full bg-surface">
-                          <span className="bg-accent" style={{ width: `${readyPct}%` }} />
+                          <span className="bg-success" style={{ width: `${readyPct}%` }} />
                           <span
-                            className="bg-[repeating-linear-gradient(-45deg,var(--color-warning)_0_4px,color-mix(in_srgb,var(--color-warning)_55%,transparent)_4px_8px)]"
+                            className="bg-[repeating-linear-gradient(-45deg,var(--color-error)_0_4px,color-mix(in_srgb,var(--color-error)_55%,transparent)_4px_8px)]"
                             style={{ width: `${100 - readyPct}%` }}
                           />
                         </div>
                         <div className="flex items-center gap-2">
                           <p className="tabular-nums min-w-0 flex-1 text-xs text-text-secondary">
-                            <span className="font-bold text-warning">+{fmtHours(pending.hours)}</span>{' '}
-                            {t('fin.pendingWait')} • ≈ {moneyWhole(pending.amount)}
+                            <span className="font-bold text-error">+{fmtHours(pending.hours)}</span>{' '}
+                            {t('fin.pendingWait')}
+                            {/* kwota w osobnej linii — bez kropki-separatora */}
+                            <span className="block">≈ {moneyWhole(pending.amount)}</span>
                           </p>
                           {canApprove && (
                             <button
                               type="button"
-                              className="press flex h-7.5 shrink-0 items-center gap-1 rounded-full bg-warning-soft px-3 text-xs font-bold text-warning"
+                              className="press flex h-7.5 shrink-0 items-center gap-1 rounded-full bg-error-soft px-3 text-xs font-bold text-error"
                               onClick={() => setToApprove(s)}
                             >
                               <CheckCheck className="size-3.5" strokeWidth={2.4} />
