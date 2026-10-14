@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.58.2 — Finanse: bez kropki w „pozostało … ≈ kwota" (2026-10-14)
+
+- Podpowiedź „Do zafakturowania": „pozostało 110 h ≈ 50 600 kr" — usunięta
+  kropka-separator (4 języki).
+
+
 ## 0.58.1 — Finanse: nowe kolory paska „Do zafakturowania" (2026-10-14)
 
 - Pasek: zatwierdzone godziny na zielono, niezatwierdzone na czerwono w paski;
