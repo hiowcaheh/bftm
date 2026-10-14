@@ -11,6 +11,7 @@ import {
   CircleCheck,
   Eye,
   FileText,
+  FileWarning,
   Info,
   ListChecks,
   MapPin,
@@ -43,6 +44,7 @@ const TYPE_STYLES: Record<
   weekly_summary: { icon: BarChart3, className: 'bg-accent-soft text-accent' },
   hours_reminder: { icon: AlarmClock, className: 'bg-warning-soft text-warning' },
   viz_point_status: { icon: MapPin, className: 'bg-accent-soft text-accent' },
+  invoice_overdue: { icon: FileWarning, className: 'bg-error-soft text-error' },
   info: { icon: Info, className: 'bg-info-soft text-info' },
 };
 
@@ -60,6 +62,7 @@ const TYPE_ROUTES: Record<string, string> = {
   hours_reminder: '/godziny',
   checklist: '/',
   viz_point_status: '/wizualizacje',
+  invoice_overdue: '/finanse',
 };
 
 export function NotificationBell() {

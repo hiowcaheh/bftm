@@ -139,6 +139,7 @@ const TYPE_ROUTES: Record<string, string> = {
   hours_reminder: '/#/godziny',
   weekly_summary: '/#/',
   checklist: '/#/',
+  invoice_overdue: '/#/finanse',
 };
 
 self.addEventListener('notificationclick', (event) => {

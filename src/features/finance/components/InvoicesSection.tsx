@@ -5,6 +5,9 @@ import {
   CheckCircle2,
   ChevronRight,
   FileText,
+  FileWarning,
+  Mail,
+  Phone,
   Plus,
   ReceiptText,
   Trash2,
@@ -365,6 +368,56 @@ export function InvoicesSection() {
         title={editing ? t('fin.editInvoice') : t('fin.newInvoice')}
       >
         <div className="flex flex-col gap-4">
+          {editing && !editing.paid_at && editing.due_at && editing.due_at < today && (() => {
+            const n = differenceInCalendarDays(new Date(), parseISO(editing.due_at));
+            const client = editing.project?.client;
+            return (
+              <>
+                <div className="flex items-center gap-3 rounded-xl bg-error-soft px-3 py-2.5">
+                  <FileWarning className="size-5 shrink-0 text-error" strokeWidth={2} />
+                  <div className="min-w-0 flex-1 text-sm">
+                    <p className="font-semibold text-error">
+                      {t('fin.overdueBanner', { n, d: tp('ts.day', n) })}
+                    </p>
+                    {client && (
+                      <p className="truncate text-xs text-text-secondary">
+                        {t('fin.clientLabel', { name: client.name })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {/* Kontakt z klientem — otwiera telefon/pocztę w iPhonie, nic nie wysyłamy sami */}
+                {(client?.phone || client?.email) && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {client.phone && (
+                      <a
+                        href={`tel:${client.phone.replace(/\s+/g, '')}`}
+                        className={cn(
+                          'press flex h-12 items-center justify-center gap-2 rounded-(--radius-input) border border-line bg-white text-sm font-semibold',
+                          !client.email && 'col-span-2',
+                        )}
+                      >
+                        <Phone className="size-5 text-success" strokeWidth={2} />
+                        {t('fin.callClient')}
+                      </a>
+                    )}
+                    {client.email && (
+                      <a
+                        href={`mailto:${client.email}`}
+                        className={cn(
+                          'press flex h-12 items-center justify-center gap-2 rounded-(--radius-input) border border-line bg-white text-sm font-semibold',
+                          !client.phone && 'col-span-2',
+                        )}
+                      >
+                        <Mail className="size-5 text-info" strokeWidth={2} />
+                        {t('fin.emailClient')}
+                      </a>
+                    )}
+                  </div>
+                )}
+              </>
+            );
+          })()}
           <Select
             label={t('fin.projectField')}
             options={projectOptions}
