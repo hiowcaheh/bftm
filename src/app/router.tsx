@@ -6,6 +6,7 @@ import { canAccessModule, modules } from './moduleRegistry';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { SessionProvider, useSession } from '@/features/auth/SessionProvider';
 import type { Permission } from '@/lib/permissions';
+import { FEATURES } from '@/lib/featureFlags';
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
 const ChangePasswordPage = lazy(() => import('@/features/auth/pages/ChangePasswordPage'));
@@ -187,11 +188,15 @@ export function AppRouter() {
               <Route
                 path="/finanse/paragony"
                 element={
-                  <RequirePerm
-                    permission={['expenses_add', 'expenses_view_all', 'finance_view']}
-                  >
-                    <ExpensesPage />
-                  </RequirePerm>
+                  FEATURES.receipts ? (
+                    <RequirePerm
+                      permission={['expenses_add', 'expenses_view_all', 'finance_view']}
+                    >
+                      <ExpensesPage />
+                    </RequirePerm>
+                  ) : (
+                    <Navigate to="/finanse" replace />
+                  )
                 }
               />
               {/* stara ścieżka Kosztów — zakładki przemianowane na Finanse */}

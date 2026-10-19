@@ -32,6 +32,7 @@ import { ProjectMap } from '../components/ProjectMap';
 import { ProjectHoursSection } from '../components/ProjectHoursSection';
 import { ProjectActivitiesSection } from '../components/ProjectActivitiesSection';
 import { AdditionalWorksSection } from '../components/AdditionalWorksSection';
+import { FEATURES } from '@/lib/featureFlags';
 import { ProjectExpensesSection } from '../components/ProjectExpensesSection';
 import { ProjectPhotosSection } from '../components/ProjectPhotosSection';
 
@@ -177,10 +178,12 @@ export default function ProjectDetailPage() {
           oraz sumę godzin — zostaje dodawanie godzin i zdjęcia. Admin ma wszystko. */}
       {(!isInternal || isAdmin) && <ProjectActivitiesSection projectId={p.id} />}
       <ProjectHoursSection project={p} />
-      {can('expenses_add') || can('expenses_view_all') ? (
+      {FEATURES.receipts && (can('expenses_add') || can('expenses_view_all')) ? (
         <ProjectExpensesSection projectId={p.id} />
       ) : null}
-      {(!isInternal || isAdmin) && <AdditionalWorksSection projectId={p.id} />}
+      {FEATURES.additionalWorks && (!isInternal || isAdmin) && (
+        <AdditionalWorksSection projectId={p.id} />
+      )}
       <ProjectPhotosSection projectId={p.id} />
 
       {canEdit && (

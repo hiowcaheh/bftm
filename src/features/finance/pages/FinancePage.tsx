@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
   addMonths,
   addWeeks,
@@ -23,6 +23,7 @@ import { moneyWhole, monthYear } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import ExpensesPage from '@/features/expenses/pages/ExpensesPage';
+import { FEATURES } from '@/lib/featureFlags';
 import { projectCost, projectValue } from '../api';
 import { useFinanceDaily, useFinanceSummary } from '../hooks';
 import { CostDonut, type DonutSlice } from '../components/CostDonut';
@@ -36,8 +37,10 @@ const iso = (d: Date) => format(d, 'yyyy-MM-dd');
 /** Zakładka Finanse: live sytuacja okresu, wykresy, rentowność projektów. */
 export default function FinancePage() {
   const { can } = useSession();
-  // Bez finance_view zakładka pokazuje wyłącznie paragony
-  if (!can('finance_view')) return <ExpensesPage />;
+  // Bez finance_view zakładka pokazuje wyłącznie paragony (gdy nie są ukryte)
+  if (!can('finance_view')) {
+    return FEATURES.receipts ? <ExpensesPage /> : <Navigate to="/" replace />;
+  }
   return <FinanceReport />;
 }
 
@@ -310,19 +313,21 @@ function FinanceReport() {
             </section>
           )}
 
-          <ListGroup>
-            <ListRow
-              leading={
-                <div className="flex size-10 items-center justify-center rounded-xl bg-surface">
-                  <Receipt className="size-5 text-text-secondary" strokeWidth={1.8} />
-                </div>
-              }
-              title={t('fin.receiptsRow')}
-              subtitle={t('fin.receiptsRowSub')}
-              chevron
-              onClick={() => navigate('/finanse/paragony')}
-            />
-          </ListGroup>
+          {FEATURES.receipts && (
+            <ListGroup>
+              <ListRow
+                leading={
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-surface">
+                    <Receipt className="size-5 text-text-secondary" strokeWidth={1.8} />
+                  </div>
+                }
+                title={t('fin.receiptsRow')}
+                subtitle={t('fin.receiptsRowSub')}
+                chevron
+                onClick={() => navigate('/finanse/paragony')}
+              />
+            </ListGroup>
+          )}
         </>
       )}
     </div>
