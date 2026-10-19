@@ -102,6 +102,13 @@ npx tsc --noEmit   # szybki typecheck
 - Wizualizacje (0.45+): MapLibre + MapTiler (klucz publiczny w `map.ts`,
   override `VITE_MAPTILER_KEY`); chunk mapy poza precache SW (`globIgnores`
   w vite.config). Flagi `visualizations_manage` / `visualizations_work`.
+- Aktualizacje PWA (0.59): `src/app/UpdatePrompt.tsx` pokazuje BLOKUJĄCE okno
+  (bez X/„Później") — nie wracać do toastu, pracownicy go pomijali.
+- Animacje (0.59): klasy w `index.css` (`animate-logo-wipe`, `animate-sheen`,
+  `animate-draw-check`, `animate-pop-in`) + blok `prefers-reduced-motion`.
+  Logo w `AppLayout` odpala się przy starcie i visibilitychange, nie przy
+  zmianie zakładek. Zielona karta sukcesu: `DashboardPage` + `onSaved` w
+  `HoursFormSheet`.
 - Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz
   godzin = prop `single`). Nowe wybieranie dat robić na nim, nie na natywnym inpucie.
 
@@ -135,23 +142,5 @@ npx tsc --noEmit   # szybki typecheck
   o pozwolenie na kroki wykonawcze — commit, PR, merge, deploy, migracje
   przyrostowe, zapytania do bazy. Nadal pytaj przed: zmianą wyglądu bez podglądu,
   trwałym kasowaniem danych w bazie/storage i wszystkim, czego nie da się cofnąć.
-- **Zaakceptowane, czeka na wdrożenie (dodać w najbliższej aktualizacji):**
-  wymuszona aktualizacja — zamiast toastu w `src/app/UpdatePrompt.tsx` okno na
-  środku, tło przyciemnione + blur, bez X/„Później", klik w tło nic nie robi,
-  jedyny przycisk „Aktualizuj teraz" (spinner → `updateServiceWorker(true)`).
-  Ikona aplikacji z badge'em odświeżania, tytuł „Nowa wersja aplikacji", tekst
-  „Zaktualizuj aplikację, żeby dalej z niej korzystać. To potrwa kilka sekund."
-  (i18n 4 języki). Strony publiczne dalej aktualizują się same. Podgląd:
-  https://claude.ai/artifact/94g1F6ktnGtSBncRpQrMRy — po wdrożeniu usunąć ten punkt.
-  + **logo BFTM w górnym pasku (`AppLayout`), wariant C:** czerwone wypełnienie
-  wjeżdża od lewej (napis biały na czerwonym), potem wyjeżdża w prawo (~1,6 s).
-  Odpala się przy otwarciu aplikacji i przy powrocie do niej (visibilitychange),
-  NIE przy zmianie zakładek ani w pętli; `prefers-reduced-motion` → bez animacji.
-  Klik w logo → przejście na Pulpit (`/`) + odpalenie efektu. Podgląd:
-  https://claude.ai/artifact/Ge7nDXb93eCSz5z7s1uPDc (sekcja C).
-  + **liczniki na Pulpicie:** wartości w kafelkach KPI odliczają od 0 do
-  wartości (~0,8 s, ease-out) tylko przy pierwszym wejściu na Pulpit, nie przy
-  odświeżeniu danych; `prefers-reduced-motion` → od razu wartość. Podgląd:
-  https://claude.ai/artifact/XnnRmkRZDtibosHMdpDgv4 (pomysł 3).
 - Wersjonowanie: minor przy nowej funkcji, patch przy poprawce; CHANGELOG po polsku.
 - Nie łączyć wielu funkcji w jeden commit — małe, opisowe commity.
