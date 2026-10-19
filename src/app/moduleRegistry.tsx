@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 import type { Permission } from '@/lib/permissions';
+import { FEATURES } from '@/lib/featureFlags';
 
 export interface AppModule {
   id: string;
@@ -108,7 +109,10 @@ export const modules: AppModule[] = [
     icon: Wallet,
     path: '/finanse',
     // finance_view → pełny raport; same uprawnienia kosztowe → tylko paragony
-    requiredPermission: ['finance_view', 'expenses_add', 'expenses_view_all'],
+    // (paragony ukryte → zakładka tylko dla finance_view)
+    requiredPermission: FEATURES.receipts
+      ? ['finance_view', 'expenses_add', 'expenses_view_all']
+      : 'finance_view',
     navPlacement: 'more',
     element: lazy(() => import('@/features/finance/pages/FinancePage')),
   },

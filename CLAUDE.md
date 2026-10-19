@@ -109,6 +109,8 @@ npx tsc --noEmit   # szybki typecheck
   Logo w `AppLayout` odpala się przy starcie i visibilitychange, nie przy
   zmianie zakładek. Zielona karta sukcesu: `DashboardPage` + `onSaved` w
   `HoursFormSheet`.
+- Ukryte moduły (0.59.1): Paragony i Prace dodatkowe — `src/lib/featureFlags.ts`
+  (`FEATURES.receipts/additionalWorks = false`); kod i dane zostają.
 - Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz
   godzin = prop `single`). Nowe wybieranie dat robić na nim, nie na natywnym inpucie.
 

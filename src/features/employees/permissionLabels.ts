@@ -1,4 +1,5 @@
 import type { Permission } from '@/lib/permissions';
+import { FEATURES } from '@/lib/featureFlags';
 
 interface PermissionGroup {
   /** klucz tłumaczenia grupy: `permg.<key>` */
@@ -34,8 +35,10 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   {
     key: 'costs',
     items: [
-      { flag: 'expenses_add' },
-      { flag: 'expenses_view_all' },
+      // paragony ukryte → bez ich flag w panelu (wartości w bazie zostają)
+      ...(FEATURES.receipts
+        ? [{ flag: 'expenses_add' as const }, { flag: 'expenses_view_all' as const }]
+        : []),
       { flag: 'offers_view' },
       { flag: 'offers_edit' },
     ],

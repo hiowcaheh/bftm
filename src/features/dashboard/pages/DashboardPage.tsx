@@ -28,6 +28,7 @@ import { ChecklistSection } from '@/features/checklist/components/ChecklistSecti
 import { WavyDivider } from '@/components/ui/WavyDivider';
 import { useAllInvoices } from '@/features/finance/hooks';
 import { CountUp } from '../components/CountUp';
+import { FEATURES } from '@/lib/featureFlags';
 import { ABSENCE_TYPE_TONES } from '@/features/absences/types';
 import type { AbsenceType } from '@/types/database';
 import {
@@ -169,7 +170,7 @@ export default function DashboardPage() {
             onClick: () => navigate('/finanse'),
           },
         ]
-      : can('expenses_add') || can('expenses_view_all')
+      : FEATURES.receipts && (can('expenses_add') || can('expenses_view_all'))
         ? [
             {
               label: t('dash.expensesMonth'),

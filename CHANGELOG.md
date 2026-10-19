@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.59.1 — Ukryte nieużywane moduły: Paragony i Prace dodatkowe (2026-10-19)
+
+- Paragony znikają z Finansów, szczegółów projektu (sekcja kosztów), Pulpitu
+  (kafelek kosztów) i z panelu uprawnień; adres /finanse/paragony przekierowuje
+  do Finansów. Zakładka Finanse tylko dla `finance_view`.
+- Prace dodatkowe znikają ze szczegółów projektu.
+- Nic nie jest kasowane — przełącznik w `src/lib/featureFlags.ts` przywraca oba.
+
+
 ## 0.59.0 — Wymuszona aktualizacja, animowane logo, liczniki i sukces na Pulpicie (2026-10-19)
 
 - **Wymuszona aktualizacja:** gdy wyjdzie nowa wersja, na środku ekranu pojawia
