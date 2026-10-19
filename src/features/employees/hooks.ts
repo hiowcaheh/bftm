@@ -147,6 +147,9 @@ export function useUpdatePermissions(id: string) {
     mutationFn: (permissions: PermissionMap) => updatePermissions(id, permissions),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: qk.employees.detail(id) });
+      // zmiana własnych flag (np. admin włącza sobie masowe godziny) — od razu,
+      // bez restartu aplikacji: profil sesji też się odświeża
+      void queryClient.invalidateQueries({ queryKey: qk.profile.me() });
       toast.success(translate('emp.permsSaved'));
     },
     onError: () => toast.error(translate('emp.errPerms')),
