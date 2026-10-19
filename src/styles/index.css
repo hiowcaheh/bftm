@@ -214,3 +214,66 @@ select {
 .press:active {
   transform: scale(0.97);
 }
+
+/* Logo BFTM: czerwień wjeżdża od lewej i wyjeżdża w prawo (otwarcie / powrót do apki) */
+@keyframes logo-wipe {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  40%,
+  60% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+.animate-logo-wipe {
+  animation: logo-wipe 1.6s cubic-bezier(0.7, 0, 0.3, 1) both;
+}
+
+/* Sukces po dodaniu godzin: rysujący się ptaszek, „pop" kółka, połysk przez kartę */
+@keyframes draw-check {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pop-in {
+  0% {
+    transform: scale(0.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes sheen {
+  from {
+    left: -60%;
+  }
+  to {
+    left: 130%;
+  }
+}
+.animate-draw-check {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: draw-check 0.45s 0.1s ease-out forwards;
+}
+.animate-pop-in {
+  animation: pop-in 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.animate-sheen {
+  animation: sheen 0.9s 0.15s ease-in-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-logo-wipe,
+  .animate-pop-in,
+  .animate-sheen {
+    animation: none;
+  }
+  .animate-draw-check {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
