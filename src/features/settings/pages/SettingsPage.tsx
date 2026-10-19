@@ -4,7 +4,7 @@ import { ConfirmDialog } from '@/components/ui/Dialog';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { Switch } from '@/components/ui/Switch';
 import { toast } from '@/components/ui/Toast';
-import { checkForSwUpdate, installSwUpdate } from '@/lib/swUpdate';
+import { checkForSwUpdate, installSwUpdate, useSwUpdateStore } from '@/lib/swUpdate';
 import {
   getExistingSubscription,
   isPushSupported,
@@ -70,7 +70,8 @@ export default function SettingsPage() {
     if (result === null) {
       toast.info(t('settings.swInactive'));
     } else if (result) {
-      setUpdateAvailable(true);
+      // Gdy nowa wersja jest już wykryta, i tak widać blokujące okno aktualizacji
+      if (!useSwUpdateStore.getState().needRefresh) setUpdateAvailable(true);
     } else {
       toast.success(t('settings.upToDate', { v: APP_VERSION }));
     }
