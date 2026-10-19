@@ -149,5 +149,9 @@ npx tsc --noEmit   # szybki typecheck
   NIE przy zmianie zakładek ani w pętli; `prefers-reduced-motion` → bez animacji.
   Klik w logo → przejście na Pulpit (`/`) + odpalenie efektu. Podgląd:
   https://claude.ai/artifact/Ge7nDXb93eCSz5z7s1uPDc (sekcja C).
+  + **liczniki na Pulpicie:** wartości w kafelkach KPI odliczają od 0 do
+  wartości (~0,8 s, ease-out) tylko przy pierwszym wejściu na Pulpit, nie przy
+  odświeżeniu danych; `prefers-reduced-motion` → od razu wartość. Podgląd:
+  https://claude.ai/artifact/XnnRmkRZDtibosHMdpDgv4 (pomysł 3).
 - Wersjonowanie: minor przy nowej funkcji, patch przy poprawce; CHANGELOG po polsku.
 - Nie łączyć wielu funkcji w jeden commit — małe, opisowe commity.
