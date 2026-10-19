@@ -11,7 +11,7 @@ import { SearchBar } from '@/components/ui/SearchBar';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
-import { useEmployees, usePushStatus } from '../hooks';
+import { useEmployees } from '../hooks';
 import { AddEmployeeSheet } from '../components/AddEmployeeSheet';
 import { AnnouncementSheet } from '../components/AnnouncementSheet';
 
@@ -24,7 +24,6 @@ export default function EmployeesPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [announceOpen, setAnnounceOpen] = useState(false);
   const isAdmin = user?.role === 'admin';
-  const pushStatus = usePushStatus(isAdmin);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -86,14 +85,6 @@ export default function EmployeesPage() {
                     <Badge tone="accent">Admin</Badge>
                   )}
                   {!emp.active && <Badge tone="error">{t('emp.inactive')}</Badge>}
-                  {/* czy dostaje powiadomienia push (przypomnienia, zatwierdzenia) */}
-                  {isAdmin && emp.active && pushStatus.data && (
-                    pushStatus.data[emp.id] ? (
-                      <Badge tone="success">{t('emp.pushOn')}</Badge>
-                    ) : (
-                      <Badge tone="warning">{t('emp.pushOff')}</Badge>
-                    )
-                  )}
                 </span>
               }
               subtitle={emp.phone || emp.email}
