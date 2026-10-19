@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import {
   addDays,
   addMonths,
@@ -32,6 +33,7 @@ import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { date as fmtDate, hours as fmtHours, monthYear } from '@/lib/format';
+import { cn } from '@/lib/cn';
 import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
@@ -346,35 +348,28 @@ export default function TimesheetPage() {
       />
 
       <Sheet open={addChoiceOpen} onClose={() => setAddChoiceOpen(false)} title={t('ts.addChoice')}>
-        <ListGroup>
-          <ListRow
-            leading={
-              <div className="flex size-10 items-center justify-center rounded-xl bg-accent-soft">
-                <Clock className="size-5 text-accent" strokeWidth={1.8} />
-              </div>
-            }
-            title={t('ts.addHours')}
-            chevron
+        {/* Wiersze na całą szerokość arkusza (bez karty w środku) */}
+        <div className="-mx-5 divide-y divide-line border-y border-line">
+          <AddChoiceRow
+            icon={<Clock className="size-5 text-accent" strokeWidth={1.8} />}
+            iconBg="bg-accent-soft"
+            label={t('ts.addHours')}
             onClick={() => {
               setAddChoiceOpen(false);
               setEditEntry(null);
               setFormOpen(true);
             }}
           />
-          <ListRow
-            leading={
-              <div className="flex size-10 items-center justify-center rounded-xl bg-info-soft">
-                <Users className="size-5 text-info" strokeWidth={1.8} />
-              </div>
-            }
-            title={t('ts.bulkAdd')}
-            chevron
+          <AddChoiceRow
+            icon={<Users className="size-5 text-info" strokeWidth={1.8} />}
+            iconBg="bg-info-soft"
+            label={t('ts.bulkAdd')}
             onClick={() => {
               setAddChoiceOpen(false);
               setBulkOpen(true);
             }}
           />
-        </ListGroup>
+        </div>
       </Sheet>
       <BulkHoursSheet open={bulkOpen} onClose={() => setBulkOpen(false)} />
 
@@ -496,5 +491,32 @@ export default function TimesheetPage() {
         onCancel={() => setAbsenceToDelete(null)}
       />
     </div>
+  );
+}
+
+/** Wiersz wyboru w arkuszu „Dodaj" — na całą szerokość, jak lista systemowa iOS. */
+function AddChoiceRow({
+  icon,
+  iconBg,
+  label,
+  onClick,
+}: {
+  icon: ReactNode;
+  iconBg: string;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="press flex min-h-16 w-full items-center gap-3 px-5 py-2 text-left active:bg-surface"
+    >
+      <span className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', iconBg)}>
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{label}</span>
+      <ChevronRight className="size-5 shrink-0 text-text-secondary/50" />
+    </button>
   );
 }
