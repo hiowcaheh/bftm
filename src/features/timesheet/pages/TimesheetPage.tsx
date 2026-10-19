@@ -11,7 +11,16 @@ import {
   subDays,
   subMonths,
 } from 'date-fns';
-import { CalendarOff, ChevronLeft, ChevronRight, CheckCheck, Plus, Trash2 } from 'lucide-react';
+import {
+  CalendarOff,
+  ChevronLeft,
+  ChevronRight,
+  CheckCheck,
+  Clock,
+  Plus,
+  Trash2,
+  Users,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/Dialog';
@@ -20,6 +29,7 @@ import { FAB } from '@/components/ui/FAB';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Select } from '@/components/ui/Select';
+import { Sheet } from '@/components/ui/Sheet';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { date as fmtDate, hours as fmtHours, monthYear } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
@@ -35,6 +45,7 @@ import { AbsenceFormSheet } from '@/features/absences/components/AbsenceFormShee
 import { useApproveEntries, useEntries } from '../hooks';
 import type { WorkHoursEntry } from '../types';
 import { EntryList } from '../components/EntryList';
+import { BulkHoursSheet } from '../components/BulkHoursSheet';
 import { HoursFormSheet } from '../components/HoursFormSheet';
 import { JournalGrid } from '../components/JournalGrid';
 
@@ -58,6 +69,10 @@ export default function TimesheetPage() {
   const [projectFilter, setProjectFilter] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [absenceFormOpen, setAbsenceFormOpen] = useState(false);
+  // Flaga hours_bulk_add (świadomie nadawana, także adminom): „+" pyta o rodzaj
+  const canBulk = can('hours_bulk_add');
+  const [addChoiceOpen, setAddChoiceOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [editEntry, setEditEntry] = useState<WorkHoursEntry | null>(null);
   const [presetCell, setPresetCell] = useState<{ employeeId: string; date: string } | null>(null);
   const [absenceToDelete, setAbsenceToDelete] = useState<AbsenceWithEmployee | null>(null);
@@ -322,9 +337,46 @@ export default function TimesheetPage() {
       <FAB
         label={view === 'absences' ? t('ts.reportAbsence') : t('ts.addHours')}
         onClick={() =>
-          view === 'absences' ? setAbsenceFormOpen(true) : (setEditEntry(null), setFormOpen(true))
+          view === 'absences'
+            ? setAbsenceFormOpen(true)
+            : canBulk
+              ? setAddChoiceOpen(true)
+              : (setEditEntry(null), setFormOpen(true))
         }
       />
+
+      <Sheet open={addChoiceOpen} onClose={() => setAddChoiceOpen(false)} title={t('ts.addChoice')}>
+        <ListGroup>
+          <ListRow
+            leading={
+              <div className="flex size-10 items-center justify-center rounded-xl bg-accent-soft">
+                <Clock className="size-5 text-accent" strokeWidth={1.8} />
+              </div>
+            }
+            title={t('ts.addHours')}
+            chevron
+            onClick={() => {
+              setAddChoiceOpen(false);
+              setEditEntry(null);
+              setFormOpen(true);
+            }}
+          />
+          <ListRow
+            leading={
+              <div className="flex size-10 items-center justify-center rounded-xl bg-info-soft">
+                <Users className="size-5 text-info" strokeWidth={1.8} />
+              </div>
+            }
+            title={t('ts.bulkAdd')}
+            chevron
+            onClick={() => {
+              setAddChoiceOpen(false);
+              setBulkOpen(true);
+            }}
+          />
+        </ListGroup>
+      </Sheet>
+      <BulkHoursSheet open={bulkOpen} onClose={() => setBulkOpen(false)} />
 
       <HoursFormSheet
         open={formOpen}

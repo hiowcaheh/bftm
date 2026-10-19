@@ -4,6 +4,7 @@ import { toast } from '@/components/ui/Toast';
 import { translate } from '@/lib/i18n/context';
 import {
   approveEntries,
+  createEntries,
   createEntry,
   deleteEntry,
   fetchEntries,
@@ -44,6 +45,17 @@ export function useProjectEntries(projectId: string, enabled = true) {
     queryKey: qk.workHours.byProject(projectId),
     queryFn: () => fetchProjectEntries(projectId),
     enabled,
+  });
+}
+
+/** Masowe dodanie godzin — toast z listą osób robi formularz. */
+export function useCreateEntries() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payloads: WorkHoursInsert[]) => createEntries(payloads),
+    onSuccess: () => invalidateHours(queryClient),
+    onError: (e: Error) =>
+      toast.error(e.message.includes('wpis') ? e.message : translate('ts.errSave')),
   });
 }
 

@@ -12,6 +12,7 @@ export const PERMISSIONS = [
   'hours_view_all',
   'hours_edit_all',
   'hours_approve',
+  'hours_bulk_add',
   'absences_view_all',
   'absences_manage',
   'expenses_add',
@@ -33,6 +34,17 @@ export type Permission = (typeof PERMISSIONS)[number];
 
 export type PermissionMap = Partial<Record<Permission, boolean>>;
 
+/**
+ * Flagi przyznawane świadomie, także adminom (admin NIE ma ich implicite) —
+ * np. masowe dodawanie godzin: Mateusz tak, Tomek nie.
+ */
+export const EXPLICIT_PERMISSIONS: readonly Permission[] = ['hours_bulk_add'];
+
+/** Flaga wymaga innej (np. masowe godziny → edycja godzin wszystkich). */
+export const PERMISSION_REQUIRES: Partial<Record<Permission, Permission>> = {
+  hours_bulk_add: 'hours_edit_all',
+};
+
 /** Domyślne uprawnienia nowego pracownika: własne godziny + lista projektów. */
 export const DEFAULT_EMPLOYEE_PERMISSIONS: PermissionMap = {
   hours_add_own: true,
@@ -53,6 +65,10 @@ export function can(
   permission: Permission,
 ): boolean {
   if (!user) return false;
+  if (EXPLICIT_PERMISSIONS.includes(permission)) {
+    const required = PERMISSION_REQUIRES[permission];
+    return user.permissions[permission] === true && (!required || can(user, required));
+  }
   if (user.role === 'admin') return true;
   return user.permissions[permission] === true;
 }
