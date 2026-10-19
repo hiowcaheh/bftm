@@ -24,6 +24,7 @@ import { useLastOwnEntry } from '@/features/timesheet/hooks';
 import { ChecklistSection } from '@/features/checklist/components/ChecklistSection';
 import { WavyDivider } from '@/components/ui/WavyDivider';
 import { useAllInvoices } from '@/features/finance/hooks';
+import { CountUp } from '../components/CountUp';
 import { ABSENCE_TYPE_TONES } from '@/features/absences/types';
 import type { AbsenceType } from '@/types/database';
 import {
@@ -83,7 +84,7 @@ export default function DashboardPage() {
       ? [
           {
             label: t('dash.activeProjects'),
-            value: kpi.data ? String(kpi.data.activeProjects) : '—',
+            value: kpi.data ? <CountUp value={kpi.data.activeProjects} format={String} /> : '—',
             icon: House,
             demo: false,
             onClick: () => navigate('/projekty'),
@@ -92,7 +93,7 @@ export default function DashboardPage() {
       : []),
     {
       label: t('dash.hoursMonth'),
-      value: kpi.data ? hours(kpi.data.hoursThisMonth) : '—',
+      value: kpi.data ? <CountUp value={kpi.data.hoursThisMonth} format={hours} /> : '—',
       icon: Clock,
       demo: false,
       onClick: () => navigate('/godziny'),
@@ -104,9 +105,14 @@ export default function DashboardPage() {
           // Number.isFinite — stary cache (persist) może nie mieć tych pól
           {
             label: t('dash.profitMonth'),
-            value: Number.isFinite(kpi.data?.monthProfit)
-              ? `${kpi.data!.monthProfit! > 0 ? '+' : ''}${moneyWhole(kpi.data!.monthProfit!)}`
-              : '—',
+            value: Number.isFinite(kpi.data?.monthProfit) ? (
+              <CountUp
+                value={kpi.data!.monthProfit!}
+                format={(n) => `${n > 0 ? '+' : ''}${moneyWhole(n)}`}
+              />
+            ) : (
+              '—'
+            ),
             valueClass: Number.isFinite(kpi.data?.monthProfit)
               ? kpi.data!.monthProfit! >= 0
                 ? 'text-success'
@@ -118,9 +124,11 @@ export default function DashboardPage() {
           },
           {
             label: t('dash.awaiting'),
-            value: Number.isFinite(kpi.data?.awaitingTotal)
-              ? moneyWhole(kpi.data!.awaitingTotal!)
-              : '—',
+            value: Number.isFinite(kpi.data?.awaitingTotal) ? (
+              <CountUp value={kpi.data!.awaitingTotal!} format={moneyWhole} />
+            ) : (
+              '—'
+            ),
             icon: Banknote,
             demo: false,
             onClick: () => navigate('/finanse'),
@@ -130,7 +138,11 @@ export default function DashboardPage() {
         ? [
             {
               label: t('dash.expensesMonth'),
-              value: kpi.data ? moneyWhole(kpi.data.expensesThisMonth) : '—',
+              value: kpi.data ? (
+                <CountUp value={kpi.data.expensesThisMonth} format={moneyWhole} />
+              ) : (
+                '—'
+              ),
               icon: Receipt,
               demo: false,
               onClick: () => navigate('/finanse'),
