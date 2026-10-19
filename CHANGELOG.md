@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.60.1 — Poprawki: Zespół, uprawnienia, wybór „Dodaj” (2026-10-19)
+
+- Zespół: „Push” / „Bez powiadomień” tylko w szczegółach osoby, nie na liście.
+- Karta admina nazywa się „Funkcje dodatkowe administratora”.
+- Włączenie sobie flagi (np. masowe godziny) działa od razu — bez restartu
+  aplikacji (odświeżenie profilu sesji po zapisie uprawnień).
+- Arkusz „Dodaj” w Godzinach: opcje na całą szerokość, bez karty w środku.
+
+
 ## 0.60.0 — Kafelek powiadomień na Pulpicie i masowe dodawanie godzin (2026-10-19)
 
 - **Powiadomienia:** osoba bez pusha ma na Pulpicie stały kafelek (zamiast
