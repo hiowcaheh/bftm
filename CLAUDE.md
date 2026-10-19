@@ -135,5 +135,13 @@ npx tsc --noEmit   # szybki typecheck
   o pozwolenie na kroki wykonawcze — commit, PR, merge, deploy, migracje
   przyrostowe, zapytania do bazy. Nadal pytaj przed: zmianą wyglądu bez podglądu,
   trwałym kasowaniem danych w bazie/storage i wszystkim, czego nie da się cofnąć.
+- **Zaakceptowane, czeka na wdrożenie (dodać w najbliższej aktualizacji):**
+  wymuszona aktualizacja — zamiast toastu w `src/app/UpdatePrompt.tsx` okno na
+  środku, tło przyciemnione + blur, bez X/„Później", klik w tło nic nie robi,
+  jedyny przycisk „Aktualizuj teraz" (spinner → `updateServiceWorker(true)`).
+  Ikona aplikacji z badge'em odświeżania, tytuł „Nowa wersja aplikacji", tekst
+  „Zaktualizuj aplikację, żeby dalej z niej korzystać. To potrwa kilka sekund."
+  (i18n 4 języki). Strony publiczne dalej aktualizują się same. Podgląd:
+  https://claude.ai/artifact/94g1F6ktnGtSBncRpQrMRy — po wdrożeniu usunąć ten punkt.
 - Wersjonowanie: minor przy nowej funkcji, patch przy poprawce; CHANGELOG po polsku.
 - Nie łączyć wielu funkcji w jeden commit — małe, opisowe commity.
