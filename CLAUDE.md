@@ -143,5 +143,11 @@ npx tsc --noEmit   # szybki typecheck
   „Zaktualizuj aplikację, żeby dalej z niej korzystać. To potrwa kilka sekund."
   (i18n 4 języki). Strony publiczne dalej aktualizują się same. Podgląd:
   https://claude.ai/artifact/94g1F6ktnGtSBncRpQrMRy — po wdrożeniu usunąć ten punkt.
+  + **logo BFTM w górnym pasku (`AppLayout`), wariant C:** czerwone wypełnienie
+  wjeżdża od lewej (napis biały na czerwonym), potem wyjeżdża w prawo (~1,6 s).
+  Odpala się przy otwarciu aplikacji i przy powrocie do niej (visibilitychange),
+  NIE przy zmianie zakładek ani w pętli; `prefers-reduced-motion` → bez animacji.
+  Klik w logo → przejście na Pulpit (`/`) + odpalenie efektu. Podgląd:
+  https://claude.ai/artifact/Ge7nDXb93eCSz5z7s1uPDc (sekcja C).
 - Wersjonowanie: minor przy nowej funkcji, patch przy poprawce; CHANGELOG po polsku.
 - Nie łączyć wielu funkcji w jeden commit — małe, opisowe commity.
