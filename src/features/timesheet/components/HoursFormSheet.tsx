@@ -44,6 +44,15 @@ interface HoursFormSheetProps {
   presetDate?: string;
   /** „Jak wczoraj" z Pulpitu: opis skąd szablon („wczoraj", „w piątek") — pokazuje baner. */
   templateWhen?: string;
+  /** Po zapisie NOWEGO wpisu (i zamknięciu) — Pulpit pokazuje zieloną kartę sukcesu. */
+  onSaved?: (info: SavedHoursInfo) => void;
+}
+
+export interface SavedHoursInfo {
+  hours: number;
+  project: string;
+  activity: string | null;
+  description: string | null;
 }
 
 export function HoursFormSheet({
@@ -55,6 +64,7 @@ export function HoursFormSheet({
   presetEmployeeId,
   presetDate,
   templateWhen,
+  onSaved,
 }: HoursFormSheetProps) {
   const { user, can } = useSession();
   const { t, dateLocale } = useI18n();
@@ -142,6 +152,12 @@ export function HoursFormSheet({
             setHoursValue(8);
           } else {
             onClose();
+            onSaved?.({
+              hours: payload.hours,
+              project: projectOptions.find((o) => o.value === projectId)?.label ?? '—',
+              activity: projectActivities.find((a) => a.id === activityId)?.name ?? null,
+              description: payload.description,
+            });
           }
         },
       });
