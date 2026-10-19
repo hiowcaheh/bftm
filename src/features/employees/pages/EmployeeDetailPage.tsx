@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ConfirmDialog } from '@/components/ui/Dialog';
@@ -28,7 +29,12 @@ import { Switch } from '@/components/ui/Switch';
 import { money } from '@/lib/format';
 import { format } from 'date-fns';
 import { useI18n } from '@/lib/i18n/context';
-import type { PermissionMap } from '@/lib/permissions';
+import {
+  EXPLICIT_PERMISSIONS,
+  PERMISSION_REQUIRES,
+  type Permission,
+  type PermissionMap,
+} from '@/lib/permissions';
 import { useSession } from '@/features/auth/SessionProvider';
 import {
   useAddCompensation,
@@ -114,8 +120,49 @@ export default function EmployeeDetailPage() {
 
   const togglePerm = (flag: keyof PermissionMap, value: boolean) => {
     const next = { ...perms, [flag]: value };
+    // wyłączenie flagi wyłącza też te, które jej wymagają (np. masowe godziny)
+    if (!value) {
+      for (const [dep, req] of Object.entries(PERMISSION_REQUIRES)) {
+        if (req === flag) next[dep as Permission] = false;
+      }
+    }
     setPerms(next);
     updatePermissions.mutate(next);
+  };
+
+  // Wiersz flagi — wspólny dla panelu pracownika i „Funkcji dodatkowych" admina.
+  // Flaga z wymaganiem (np. masowe godziny) jest nieaktywna bez flagi bazowej;
+  // admin ma flagi bazowe implicite.
+  const permRow = (flag: Permission, sensitive?: boolean) => {
+    const required = PERMISSION_REQUIRES[flag];
+    const blocked =
+      !!required && employee.data?.role !== 'admin' && perms[required] !== true;
+    return (
+      <div key={flag} className="flex min-h-12 items-center gap-3 py-1">
+        <div className="min-w-0 flex-1">
+          <p className={cn('text-sm font-medium', blocked && 'text-text-secondary')}>
+            {t(`perm.${flag}`)}
+            {sensitive && (
+              <Badge tone="warning" className="ml-2">
+                {t('emp.sensitive')}
+              </Badge>
+            )}
+          </p>
+          <p className="text-xs text-text-secondary">
+            {blocked
+              ? t('emp.needsPerm', { perm: t(`perm.${required}`) })
+              : t(`perm.${flag}Desc`)}
+          </p>
+        </div>
+        <Switch
+          checked={perms[flag] === true}
+          disabled={blocked}
+          onChange={(v) => togglePerm(flag, v)}
+          label={t(`perm.${flag}`)}
+          hideLabel
+        />
+      </div>
+    );
   };
 
   const doReset = () => {
@@ -280,31 +327,22 @@ export default function EmployeeDetailPage() {
                 <p className="mb-1 text-xs font-semibold tracking-wide text-text-secondary uppercase">
                   {t(`permg.${group.key}`)}
                 </p>
-                {group.items.map((item) => (
-                  <div key={item.flag} className="flex min-h-12 items-center gap-3 py-1">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium">
-                        {t(`perm.${item.flag}`)}
-                        {item.sensitive && (
-                          <Badge tone="warning" className="ml-2">
-                            {t('emp.sensitive')}
-                          </Badge>
-                        )}
-                      </p>
-                      <p className="text-xs text-text-secondary">{t(`perm.${item.flag}Desc`)}</p>
-                    </div>
-                    <Switch
-                      checked={perms[item.flag] === true}
-                      onChange={(v) => togglePerm(item.flag, v)}
-                      label={t(`perm.${item.flag}`)}
-                      hideLabel
-                    />
-                  </div>
-                ))}
+                {group.items.map((item) => permRow(item.flag, item.sensitive))}
               </div>
             ))}
           </Card>
         </>
+      )}
+
+      {/* Admin ma wszystkie uprawnienia — poza flagami nadawanymi świadomie */}
+      {isAdmin && emp.role === 'admin' && (
+        <Card className="flex flex-col gap-1 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <ShieldCheck className="size-5 text-accent" strokeWidth={1.8} />
+            <h2 className="text-base font-semibold">{t('emp.extraFeatures')}</h2>
+          </div>
+          {EXPLICIT_PERMISSIONS.map((flag) => permRow(flag))}
+        </Card>
       )}
 
       {/* Stawka godzinowa — także dla adminów (Mateusz/Tomek); widzą ją TYLKO admini. */}

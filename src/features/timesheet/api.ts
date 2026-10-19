@@ -66,6 +66,19 @@ export async function createEntry(payload: WorkHoursInsert): Promise<void> {
   }
 }
 
+/** Masowe dodawanie: jeden insert z wpisem dla każdej osoby (wszystko albo nic). */
+export async function createEntries(payloads: WorkHoursInsert[]): Promise<void> {
+  const { error } = await supabase.from('work_hours').insert(payloads);
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error(
+        'Któraś z osób ma już wpis na ten dzień w tym projekcie — odznacz ją albo edytuj jej wpis',
+      );
+    }
+    throw error;
+  }
+}
+
 export async function updateEntry(
   id: string,
   patch: Partial<WorkHoursInsert>,

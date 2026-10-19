@@ -27,6 +27,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
       { flag: 'hours_add_own' },
       { flag: 'hours_view_all' },
       { flag: 'hours_edit_all' },
+      { flag: 'hours_bulk_add' },
       { flag: 'hours_approve' },
       { flag: 'absences_view_all' },
       { flag: 'absences_manage' },
