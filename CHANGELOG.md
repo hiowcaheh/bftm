@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.59.0 — Wymuszona aktualizacja, animowane logo, liczniki i sukces na Pulpicie (2026-10-19)
+
+- **Wymuszona aktualizacja:** gdy wyjdzie nowa wersja, na środku ekranu pojawia
+  się okno (tło przyciemnione i rozmyte), bez X i bez „Później" — jedyny
+  przycisk „Aktualizuj teraz". Pod spodem wszystko zablokowane. Strony publiczne
+  (klient) dalej aktualizują się same.
+- **Logo BFTM:** przy otwarciu aplikacji i po powrocie do niej czerwień wjeżdża
+  od lewej (napis biały na czerwonym) i wyjeżdża w prawo. Klik w logo → Pulpit.
+- **Liczniki na Pulpicie:** wartości w kafelkach odliczają od zera przy wejściu.
+- **Sukces po dodaniu godzin:** czerwona karta robi się zielona z rysującym się
+  ptaszkiem, „Dodano X h", projekt · aktywność i opis; jeden połysk, po ~2 s
+  (z opisem dłużej) pojawia się karta „Dziś" z krótkim podświetleniem.
+- Wszystkie animacje wyłączają się przy „Ogranicz ruch" w iPhonie.
+
+
 ## 0.58.2 — Finanse: bez kropki w „pozostało … ≈ kwota" (2026-10-14)
 
 - Podpowiedź „Do zafakturowania": „pozostało 110 h ≈ 50 600 kr" — usunięta
