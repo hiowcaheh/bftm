@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   House,
@@ -19,7 +19,10 @@ import { cn } from '@/lib/cn';
 import { hours, moneyWhole, num } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useI18n } from '@/lib/i18n/context';
-import { HoursFormSheet } from '@/features/timesheet/components/HoursFormSheet';
+import {
+  HoursFormSheet,
+  type SavedHoursInfo,
+} from '@/features/timesheet/components/HoursFormSheet';
 import { useLastOwnEntry } from '@/features/timesheet/hooks';
 import { ChecklistSection } from '@/features/checklist/components/ChecklistSection';
 import { WavyDivider } from '@/components/ui/WavyDivider';
@@ -54,6 +57,38 @@ export default function DashboardPage() {
   const [hoursFormOpen, setHoursFormOpen] = useState(false);
   // „Jak wczoraj": formularz wypełniony ostatnim własnym wpisem (zapis dopiero po „Zapisz")
   const [repeatMode, setRepeatMode] = useState(false);
+
+  // Sukces po dodaniu godzin z czerwonej karty: zielona karta z ptaszkiem
+  // i połyskiem, potem znika (z opisem dłużej — żeby dało się go przeczytać)
+  // i pojawia się zwykła karta „Dziś", na chwilę podświetlona.
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroHeight = useRef(0);
+  const [success, setSuccess] = useState<SavedHoursInfo | null>(null);
+  const [successOut, setSuccessOut] = useState(false);
+  const [flashToday, setFlashToday] = useState(false);
+  const onHoursSaved = (info: SavedHoursInfo) => {
+    if (!heroRef.current) return; // formularz nie był otwarty z czerwonej karty
+    heroHeight.current = heroRef.current.offsetHeight;
+    setSuccessOut(false);
+    setSuccess(info);
+  };
+  useEffect(() => {
+    if (!success) return;
+    const len = success.description?.length ?? 0;
+    const hold = 2100 + (len ? Math.min(3000, Math.max(1500, len * 60)) : 0);
+    const t1 = setTimeout(() => setSuccessOut(true), hold);
+    const t2 = setTimeout(() => {
+      setSuccess(null);
+      setSuccessOut(false);
+      setFlashToday(true);
+    }, hold + 350);
+    const t3 = setTimeout(() => setFlashToday(false), hold + 1650);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [success]);
   // Faktury po terminie (tylko finance_view — hook sam się wyłącza bez flagi)
   const invoices = useAllInvoices();
   const todayIso = format(new Date(), 'yyyy-MM-dd');
@@ -294,11 +329,55 @@ export default function DashboardPage() {
         <h2 className="text-base font-semibold first-letter:capitalize">
           {t('dash.today', { date: todayLabel })}
         </h2>
-        {!seesAll &&
-        today.data &&
-        today.data.entries.length === 0 &&
-        today.data.absences.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-(--radius-card) bg-gradient-to-br from-accent to-[#8E0000] p-6 text-center text-white shadow-(--shadow-fab)">
+        {success ? (
+          <div
+            ref={heroRef}
+            role="status"
+            className={cn(
+              'relative flex flex-col items-center justify-center gap-3.5 overflow-hidden rounded-(--radius-card) bg-gradient-to-br from-success to-[#1b5e20] p-6 text-center text-white shadow-[0_4px_16px_rgba(46,125,50,0.35)] transition-[opacity,transform] duration-300',
+              successOut && 'scale-[0.96] opacity-0',
+            )}
+            style={{ minHeight: heroHeight.current || undefined }}
+          >
+            <div className="animate-pop-in flex size-16 items-center justify-center rounded-full bg-white/18">
+              <svg
+                viewBox="0 0 24 24"
+                className="size-8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path className="animate-draw-check" d="M5 12.5l4.5 4.5L19 7.5" />
+              </svg>
+            </div>
+            <div className="w-full">
+              <p className="text-xl font-bold">{t('dash.addedHours', { h: hours(success.hours) })}</p>
+              <p className="mt-1 truncate text-sm text-white/90">
+                {[success.project, success.activity].filter(Boolean).join(' · ')}
+              </p>
+              {success.description && (
+                <p className="mt-6.5 line-clamp-2 w-full rounded-[10px] bg-white/14 px-3.5 py-2.5 text-[13px] leading-snug">
+                  „{success.description}”
+                </p>
+              )}
+            </div>
+            {/* Połysk przejeżdżający raz przez kartę */}
+            <span
+              aria-hidden
+              className="animate-sheen pointer-events-none absolute -top-1/5 -bottom-1/5 -left-3/5 w-2/5 -skew-x-[18deg] bg-gradient-to-r from-transparent via-white/28 to-transparent"
+            />
+          </div>
+        ) : !seesAll &&
+          today.data &&
+          today.data.entries.length === 0 &&
+          today.data.absences.length === 0 ? (
+          <div
+            ref={heroRef}
+            className="flex flex-col items-center gap-3 rounded-(--radius-card) bg-gradient-to-br from-accent to-[#8E0000] p-6 text-center text-white shadow-(--shadow-fab)"
+          >
             <div className="flex size-14 items-center justify-center rounded-full bg-white/15">
               <Clock className="size-7" strokeWidth={1.8} />
             </div>
@@ -341,7 +420,11 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <Card className="flex flex-col gap-2 p-4">
+          <Card
+            className="flex flex-col gap-2 p-4 transition-colors duration-700"
+            // podświetlenie po zielonej karcie sukcesu (inline — Card ma własne bg)
+            style={flashToday ? { backgroundColor: 'var(--color-success-soft)' } : undefined}
+          >
             {seesAll &&
               today.data &&
               today.data.entries.length === 0 &&
@@ -428,6 +511,7 @@ export default function DashboardPage() {
         entry={null}
         template={repeatMode ? last : null}
         templateWhen={repeatMode ? repeatWhen : undefined}
+        onSaved={onHoursSaved}
       />
     </div>
   );
