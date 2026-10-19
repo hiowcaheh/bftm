@@ -527,6 +527,10 @@ export type Database = {
           client_type: string | null;
         }>;
       };
+      push_status: {
+        Args: Record<PropertyKey, never>;
+        Returns: Array<{ profile_id: string; has_push: boolean }>;
+      };
       project_last_hours: {
         Args: Record<PropertyKey, never>;
         Returns: Array<{ project_id: string; last_date: string }>;

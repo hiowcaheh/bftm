@@ -28,6 +28,7 @@ import { ChecklistSection } from '@/features/checklist/components/ChecklistSecti
 import { WavyDivider } from '@/components/ui/WavyDivider';
 import { useAllInvoices } from '@/features/finance/hooks';
 import { CountUp } from '../components/CountUp';
+import { PushCard } from '../components/PushCard';
 import { FEATURES } from '@/lib/featureFlags';
 import { ABSENCE_TYPE_TONES } from '@/features/absences/types';
 import type { AbsenceType } from '@/types/database';
@@ -325,6 +326,9 @@ export default function DashboardPage() {
           </div>
         </Card>
       )}
+
+      {/* Bez powiadomień push: stały kafelek, aż ktoś je włączy */}
+      <PushCard />
 
       <section className="flex flex-col gap-3">
         <h2 className="text-base font-semibold first-letter:capitalize">

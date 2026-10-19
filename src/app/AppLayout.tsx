@@ -7,7 +7,6 @@ import { bottomNavModules, modules } from './moduleRegistry';
 import { NotificationBell } from '@/features/notifications/NotificationBell';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { InstallPrompt } from '@/components/InstallPrompt';
-import { PushOptIn } from './PushOptIn';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
 import { usePublicBranding } from '@/features/auth/hooks';
@@ -149,7 +148,6 @@ export function AppLayout() {
 
       <OfflineBanner />
       <InstallPrompt />
-      <PushOptIn />
 
       <main
         className="flex-1 px-4"

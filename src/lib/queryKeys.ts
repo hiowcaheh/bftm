@@ -74,6 +74,7 @@ export const qk = {
     list: () => ['employees', 'list'] as const,
     detail: (id: string) => ['employees', 'detail', id] as const,
     compensation: (id: string) => ['employees', 'compensation', id] as const,
+    pushStatus: () => ['employees', 'push-status'] as const,
   },
   expenses: {
     all: ['expenses'] as const,

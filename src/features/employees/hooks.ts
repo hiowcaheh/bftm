@@ -12,6 +12,7 @@ import {
   fetchEmployee,
   fetchEmployeePrivate,
   fetchEmployees,
+  fetchPushStatus,
   resetPassword,
   saveEmployeePrivate,
   setActive,
@@ -23,6 +24,15 @@ import type { NewEmployee } from './types';
 
 export function useEmployees() {
   return useQuery({ queryKey: qk.employees.list(), queryFn: fetchEmployees });
+}
+
+/** „Push" / „Bez powiadomień" przy osobach w Zespole (admin). */
+export function usePushStatus(enabled: boolean) {
+  return useQuery({
+    queryKey: qk.employees.pushStatus(),
+    queryFn: fetchPushStatus,
+    enabled,
+  });
 }
 
 export function useEmployee(id: string) {
