@@ -899,6 +899,10 @@ const pl: Dict = {
     errDesc: 'Wystąpił nieoczekiwany błąd. Odśwież aplikację — jeśli problem wraca, skontaktuj się z administratorem.',
     errReload: 'Odśwież aplikację',
     refresh: 'Odśwież',
+    forceUpdateTitle: 'Nowa wersja aplikacji',
+    forceUpdateDesc: 'Zaktualizuj aplikację, żeby dalej z niej korzystać. To potrwa kilka sekund.',
+    forceUpdateBtn: 'Aktualizuj teraz',
+    forceUpdating: 'Aktualizuję…',
     weekdays: 'Pn|Wt|Śr|Cz|Pt|So|Nd',
   },
   setc: {
@@ -1939,6 +1943,10 @@ const sv: Dict = {
     errDesc: 'Ett oväntat fel inträffade. Ladda om appen — kontakta administratören om problemet kvarstår.',
     errReload: 'Ladda om appen',
     refresh: 'Uppdatera',
+    forceUpdateTitle: 'Ny version av appen',
+    forceUpdateDesc: 'Uppdatera appen för att fortsätta använda den. Det tar några sekunder.',
+    forceUpdateBtn: 'Uppdatera nu',
+    forceUpdating: 'Uppdaterar…',
     weekdays: 'Må|Ti|On|To|Fr|Lö|Sö',
   },
   setc: {
@@ -2973,6 +2981,10 @@ const en: Dict = {
     errDesc: 'An unexpected error occurred. Reload the app — if the problem returns, contact the administrator.',
     errReload: 'Reload the app',
     refresh: 'Refresh',
+    forceUpdateTitle: 'New app version',
+    forceUpdateDesc: 'Update the app to keep using it. It only takes a few seconds.',
+    forceUpdateBtn: 'Update now',
+    forceUpdating: 'Updating…',
     weekdays: 'Mo|Tu|We|Th|Fr|Sa|Su',
   },
   setc: {
@@ -4013,6 +4025,10 @@ const uk: Dict = {
     errDesc: 'Сталася неочікувана помилка. Оновіть застосунок — якщо проблема повертається, зверніться до адміністратора.',
     errReload: 'Оновити застосунок',
     refresh: 'Оновити',
+    forceUpdateTitle: 'Нова версія застосунку',
+    forceUpdateDesc: 'Оновіть застосунок, щоб і далі ним користуватися. Це займе кілька секунд.',
+    forceUpdateBtn: 'Оновити зараз',
+    forceUpdating: 'Оновлюю…',
     weekdays: 'Пн|Вт|Ср|Чт|Пт|Сб|Нд',
   },
   setc: {
