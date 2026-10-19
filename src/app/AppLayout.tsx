@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import type { TouchEvent } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BottomNav } from './BottomNav';
@@ -35,6 +35,17 @@ export function AppLayout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  // Efekt logo: odpala się przy otwarciu aplikacji i przy powrocie do niej
+  // (nie przy zmianie zakładek) — każdy wzrost licznika restartuje animację.
+  const [logoRun, setLogoRun] = useState(0);
+  useEffect(() => {
+    setLogoRun((n) => n + 1);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') setLogoRun((n) => n + 1);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
   const directionRef = useRef<NavDirection>(null);
 
   const setDirection = (direction: NavDirection) => {
@@ -111,10 +122,27 @@ export function AppLayout() {
       >
         <div className="relative mx-auto flex h-12 max-w-3xl items-center justify-between px-4">
           <h1 className="max-w-[42%] truncate text-lg font-semibold">{t(pageTitleKey(pathname))}</h1>
-          {/* Firmowy wordmark: lekki tag z obrysem w kolorze marki (bez wypełnienia) */}
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 rounded-lg border-[1.5px] border-accent px-2.5 py-1 indent-[0.14em] text-[15px] leading-none font-extrabold tracking-[0.14em] text-accent">
+          {/* Firmowy wordmark: tag z obrysem w kolorze marki; klik → Pulpit + efekt wypełnienia */}
+          <button
+            type="button"
+            aria-label={t('nav.dashboard')}
+            className="press absolute left-1/2 -translate-x-1/2 overflow-hidden rounded-lg border-[1.5px] border-accent px-2.5 py-1 indent-[0.14em] text-[15px] leading-none font-extrabold tracking-[0.14em] text-accent"
+            onClick={() => {
+              if (pathname !== '/') navigate('/');
+              setLogoRun((n) => n + 1);
+            }}
+          >
             BFTM
-          </span>
+            {logoRun > 0 && (
+              <span
+                key={logoRun}
+                aria-hidden
+                className="animate-logo-wipe absolute inset-0 bg-accent px-2.5 py-1 text-white [clip-path:inset(0_100%_0_0)]"
+              >
+                BFTM
+              </span>
+            )}
+          </button>
           <NotificationBell />
         </div>
       </header>
