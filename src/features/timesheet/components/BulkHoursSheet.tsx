@@ -152,7 +152,13 @@ export function BulkHoursSheet({ open, onClose }: { open: boolean; onClose: () =
                       : 'border-line bg-white font-medium text-text',
                   )}
                 >
-                  <Avatar name={p.full_name} path={p.avatar_path} size="sm" />
+                  <Avatar
+                    name={p.full_name}
+                    path={p.avatar_path}
+                    size="sm"
+                    // inicjały na zaznaczonej pigułce: pełna czerwień, żeby nie zlewały się z tłem
+                    style={on ? { backgroundColor: 'var(--color-accent)', color: '#fff' } : undefined}
+                  />
                   {firstName(p.full_name)}
                 </button>
               );

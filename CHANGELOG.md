@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.60.2 — Poprawki: tytuł „Dodawanie godzin”, inicjały na zaznaczonej osobie (2026-10-19)
+
+- Arkusz wyboru w Godzinach ma tytuł „Dodawanie godzin” (zamiast „Dodaj”).
+- Masowe dodawanie: zaznaczona osoba bez zdjęcia ma inicjały na pełnej
+  czerwieni — wcześniej kółko zlewało się z tłem pigułki.
+
+
 ## 0.60.1 — Poprawki: Zespół, uprawnienia, wybór „Dodaj” (2026-10-19)
 
 - Zespół: „Push” / „Bez powiadomień” tylko w szczegółach osoby, nie na liście.
