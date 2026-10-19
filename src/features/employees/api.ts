@@ -13,6 +13,15 @@ export async function fetchEmployees(): Promise<Employee[]> {
   return data;
 }
 
+/** Kto ma włączony push — tylko dla admina (RPC push_status, migracja 0070). */
+export async function fetchPushStatus(): Promise<Record<string, boolean>> {
+  const { data, error } = await supabase.rpc('push_status');
+  if (error) throw error;
+  const out: Record<string, boolean> = {};
+  for (const r of data ?? []) out[r.profile_id] = r.has_push;
+  return out;
+}
+
 export async function fetchEmployee(id: string): Promise<Employee | null> {
   const { data, error } = await supabase
     .from('profiles')
