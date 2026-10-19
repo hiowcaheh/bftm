@@ -109,6 +109,11 @@ npx tsc --noEmit   # szybki typecheck
   Logo w `AppLayout` odpala się przy starcie i visibilitychange, nie przy
   zmianie zakładek. Zielona karta sukcesu: `DashboardPage` + `onSaved` w
   `HoursFormSheet`.
+- Flagi świadome (0.60): `EXPLICIT_PERMISSIONS` w `permissions.ts` — admin NIE ma
+  ich implicite (np. `hours_bulk_add`); `PERMISSION_REQUIRES` = flaga bazowa.
+  W panelu osoby admini mają kartę „Funkcje dodatkowe”.
+- Push (0.60): stały `PushCard` na Pulpicie zamiast jednorazowego okienka;
+  status w Zespole z RPC `push_status` (push_subscriptions ma RLS owner-only).
 - Ukryte moduły (0.59.1): Paragony i Prace dodatkowe — `src/lib/featureFlags.ts`
   (`FEATURES.receipts/additionalWorks = false`); kod i dane zostają.
 - Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz

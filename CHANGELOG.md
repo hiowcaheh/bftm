@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.60.0 — Kafelek powiadomień na Pulpicie i masowe dodawanie godzin (2026-10-19)
+
+- **Powiadomienia:** osoba bez pusha ma na Pulpicie stały kafelek (zamiast
+  jednorazowego okienka): „Włącz powiadomienia”, w Safari na iPhonie „Dodaj
+  aplikację na ekran” z instrukcją, a po odmowie — gdzie włączyć w iPhonie.
+  Znika dopiero po włączeniu. W Zespole admin widzi „Push” / „Bez powiadomień”
+  (RPC `push_status`, migracja 0070).
+- **Masowe dodawanie godzin:** nowa flaga w uprawnieniach osoby (u adminów
+  w karcie „Funkcje dodatkowe”) — nie włącza się sama adminowi i wymaga „Edycji
+  godzin wszystkich”. Z flagą „+” w Godzinach pyta: „Dodaj godziny” albo
+  „Masowe dodawanie godzin”. Formularz: osoby (pigułki), projekt, aktywność,
+  data, godziny dla każdej osoby, opis → osobny wpis dla każdego.
+
+
 ## 0.59.1 — Ukryte nieużywane moduły: Paragony i Prace dodatkowe (2026-10-19)
 
 - Paragony znikają z Finansów, szczegółów projektu (sekcja kosztów), Pulpitu
