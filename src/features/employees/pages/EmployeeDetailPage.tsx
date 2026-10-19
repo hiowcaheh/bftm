@@ -47,6 +47,7 @@ import {
   useSaveEmployeePrivate,
   useSetActive,
   useUpdateEmployee,
+  usePushStatus,
   useUpdatePermissions,
 } from '../hooks';
 import { PERMISSION_GROUPS } from '../permissionLabels';
@@ -74,6 +75,7 @@ export default function EmployeeDetailPage() {
   const activity = useEmployeeActivity(id, isAdmin);
   const updateEmployee = useUpdateEmployee(id);
   const updatePermissions = useUpdatePermissions(id);
+  const pushStatus = usePushStatus(isAdmin);
   const resetPassword = useResetPassword();
   const setActive = useSetActive();
   const deleteEmployee = useDeleteEmployee();
@@ -202,6 +204,14 @@ export default function EmployeeDetailPage() {
             <OnlineBadge lastSeen={emp.last_seen_at} />
             {!emp.active && <Badge tone="error">{t('emp.inactive')}</Badge>}
             {emp.must_change_password && <Badge tone="warning">{t('emp.waitingPwChange')}</Badge>}
+            {/* czy dostaje powiadomienia push (przypomnienia, zatwierdzenia) — tylko admin */}
+            {isAdmin && emp.active && pushStatus.data && (
+              pushStatus.data[emp.id] ? (
+                <Badge tone="success">{t('emp.pushOn')}</Badge>
+              ) : (
+                <Badge tone="warning">{t('emp.pushOff')}</Badge>
+              )
+            )}
           </div>
         </div>
       </Card>
