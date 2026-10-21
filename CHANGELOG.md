@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.61.0 — Finanse: porównanie okresów, klikalna struktura kosztów, opłacone faktury (2026-10-21)
+
+- **Kafle:** zamiast podpisów („godziny × stawki…”) plakietka z % i „vs 1–21 wrz” —
+  porównanie z tym samym kawałkiem poprzedniego miesiąca (zamknięty miesiąc vs cały
+  poprzedni, tydzień vs poprzedni tydzień). Zielone = lepiej, czerwone = gorzej,
+  także przy kosztach (wzrost kosztów na czerwono). „Czeka na płatność” — stan na dziś.
+- **Struktura kosztów:** na kole 5 największych projektów + szary „Pozostałe”, pod
+  spodem lista wszystkich (pasek = udział w kosztach). Klik w wiersz albo łuk zaznacza
+  projekt i otwiera „Koszty projektu”: godziny, kto pracował (z awatarami), przychód,
+  wypłaty (z semesterersättning), inne koszty i ile zostało ze stonowanym paskiem.
+- **Opłacone faktury:** na liście 3 ostatnie + „Pokaż więcej opłaconych faktur”.
+  Okno z filtrem klienta i miesiąca, liczbą i sumą oraz stronami ‹ › — na stronie
+  tyle faktur, ile mieści się na ekranie bez przewijania.
+
+
 ## 0.60.2 — Poprawki: tytuł „Dodawanie godzin”, inicjały na zaznaczonej osobie (2026-10-19)
 
 - Arkusz wyboru w Godzinach ma tytuł „Dodawanie godzin” (zamiast „Dodaj”).
