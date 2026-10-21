@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.65.3 — Rezultat: ryczałt w toku według planu godzin (2026-10-21)
+
+- Ryczałt projektu w toku z wpisanymi planowanymi godzinami rozkładany jest na
+  miesiące według planu (np. 20 000 kr / 20 h plan = 1 000 kr za każdą godzinę),
+  więc wynik minionego miesiąca nie zmienia się, gdy dochodzą kolejne godziny.
+  Po zakończeniu projektu, bez planu albo po przekroczeniu planu — według faktycznych
+  godzin, jak dotąd (migracja 0077).
+
 ## 0.65.2 — Rezultat: szwedzkie święta i świeże dane (2026-10-21)
 
 - Dni robocze (prognoza, wykorzystanie czasu, tempo) bez szwedzkich świąt:
