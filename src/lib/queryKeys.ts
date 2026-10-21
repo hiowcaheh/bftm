@@ -27,6 +27,8 @@ export const qk = {
     suggestions: () => ['finance', 'invoice-suggestions'] as const,
     uninvoiced: (projectId: string, from: string, to: string) =>
       ['finance', 'uninvoiced', projectId, from, to] as const,
+    projectWorkers: (projectId: string, from: string, to: string) =>
+      ['finance', 'project-workers', projectId, from, to] as const,
   },
   notifications: {
     all: ['notifications'] as const,

@@ -1,12 +1,17 @@
 import { useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
+  addDays,
   addMonths,
   addWeeks,
   endOfISOWeek,
   endOfMonth,
   format,
+  getISODay,
   getISOWeek,
+  isSameISOWeek,
+  isSameMonth,
+  min as minDate,
   startOfISOWeek,
   startOfMonth,
   subMonths,
@@ -26,7 +31,8 @@ import ExpensesPage from '@/features/expenses/pages/ExpensesPage';
 import { FEATURES } from '@/lib/featureFlags';
 import { projectCost, projectValue } from '../api';
 import { useFinanceDaily, useFinanceSummary } from '../hooks';
-import { CostDonut, type DonutSlice } from '../components/CostDonut';
+import { CostBreakdown } from '../components/CostBreakdown';
+import { DeltaLine, delta } from '../components/DeltaLine';
 import { FinanceBars, type BarGroup } from '../components/FinanceBars';
 import { InvoicesSection } from '../components/InvoicesSection';
 
@@ -61,6 +67,35 @@ function FinanceReport() {
   const summary = useFinanceSummary(from, to);
   const daily = useFinanceDaily(from, to);
 
+  // Porównanie z poprzednim okresem: bieżący miesiąc/tydzień → ten sam kawałek
+  // poprzedniego (1–21 paź vs 1–21 wrz), zamknięty → cały poprzedni.
+  const now = new Date();
+  const prev = (() => {
+    if (mode === 'week') {
+      const pw = subWeeks(anchor, 1);
+      const pf = startOfISOWeek(pw);
+      const current = isSameISOWeek(anchor, now);
+      return {
+        from: iso(pf),
+        to: iso(current ? addDays(pf, getISODay(now) - 1) : endOfISOWeek(pw)),
+        label: t('fin.vsWeek', { n: getISOWeek(pw) }),
+      };
+    }
+    const pm = subMonths(anchor, 1);
+    const pf = startOfMonth(pm);
+    if (isSameMonth(anchor, now)) {
+      const pt = minDate([addDays(pf, now.getDate() - 1), endOfMonth(pm)]);
+      return {
+        from: iso(pf),
+        to: iso(pt),
+        label: `${format(pf, 'd')}–${format(pt, 'd MMM', { locale: dateLocale }).replace('.', '')}`,
+      };
+    }
+    return { from: iso(pf), to: iso(endOfMonth(pm)), label: format(pm, 'LLLL', { locale: dateLocale }) };
+  })();
+  const prevSummary = useFinanceSummary(prev.from, prev.to);
+  const prevDaily = useFinanceDaily(prev.from, prev.to);
+
   const totals = useMemo(() => {
     const days = daily.data ?? [];
     const revenue = days.reduce((s, d) => s + d.revenue, 0);
@@ -79,6 +114,15 @@ function FinanceReport() {
       paidInRange,
     };
   }, [daily.data, summary.data]);
+
+  const prevTotals = useMemo(() => {
+    if (!prevDaily.data || !prevSummary.data) return null;
+    const revenue = prevDaily.data.reduce((s, d) => s + d.revenue, 0);
+    const costs = prevDaily.data.reduce((s, d) => s + d.labor_cost + d.expenses, 0);
+    const paidInRange = prevSummary.data.reduce((s, p) => s + p.paid_range_total, 0);
+    return { revenue, costs, profit: revenue - costs, paidInRange };
+  }, [prevDaily.data, prevSummary.data]);
+  const vs = t('fin.vs', { p: prev.label });
 
   const barGroups = useMemo<BarGroup[]>(() => {
     const days = daily.data ?? [];
@@ -107,24 +151,9 @@ function FinanceReport() {
     return [...byWeek.values()];
   }, [daily.data, mode]);
 
-  const donutSlices = useMemo<DonutSlice[]>(() => {
-    const projects = summary.data ?? [];
-    const slices = projects
-      .map((p) => ({
-        id: p.project_id,
-        name: p.name,
-        color: p.color ?? '#9E9E9E',
-        value: p.labor_cost_range + p.expenses_range,
-      }))
-      .filter((s) => s.value > 0.5)
-      .sort((a, b) => b.value - a.value);
-    const projectExpenses = projects.reduce((s, p) => s + p.expenses_range, 0);
-    const general = totals.expenses - projectExpenses;
-    if (general > 0.5) {
-      slices.push({ id: 'general', name: t('fin.generalCosts'), color: '#8E8E93', value: general });
-    }
-    return slices;
-  }, [summary.data, totals.expenses]);
+  // koszty bez projektu (paragony ogólne) — osobna pozycja w strukturze kosztów
+  const generalCosts =
+    totals.expenses - (summary.data ?? []).reduce((s, p) => s + p.expenses_range, 0);
 
   const projectRows = useMemo(() => {
     return (summary.data ?? [])
@@ -206,6 +235,7 @@ function FinanceReport() {
               >
                 {moneyWhole(totals.profit)}
               </p>
+              <DeltaLine delta={delta(totals.profit, prevTotals?.profit)} label={vs} />
             </div>
           </Card>
 
@@ -215,30 +245,29 @@ function FinanceReport() {
               <span className="tabular-nums text-lg font-semibold">
                 {moneyWhole(totals.revenue)}
               </span>
-              <span className="text-[11px] text-text-secondary">{t('fin.earnedSub')}</span>
+              <DeltaLine delta={delta(totals.revenue, prevTotals?.revenue)} label={vs} />
             </Card>
             <Card className="flex flex-col gap-1 p-4">
               <span className="text-xs text-text-secondary">{t('fin.costs')}</span>
               <span className="tabular-nums text-lg font-semibold">
                 {moneyWhole(totals.costs)}
               </span>
-              <span className="tabular-nums text-[11px] text-text-secondary">
-                {t('fin.costsSub', { labor: moneyWhole(totals.labor), exp: moneyWhole(totals.expenses) })}
-              </span>
+              {/* koszty w górę = gorzej (czerwone) */}
+              <DeltaLine delta={delta(totals.costs, prevTotals?.costs, false)} label={vs} />
             </Card>
             <Card className="flex flex-col gap-1 p-4">
               <span className="text-xs text-text-secondary">{t('fin.awaiting')}</span>
               <span className="tabular-nums text-lg font-semibold">
                 {moneyWhole(totals.awaiting)}
               </span>
-              <span className="text-[11px] text-text-secondary">{t('fin.awaitingSub')}</span>
+              <span className="text-[11px] text-text-secondary">{t('fin.stateToday')}</span>
             </Card>
             <Card className="flex flex-col gap-1 p-4">
               <span className="text-xs text-text-secondary">{t('fin.paidPeriod')}</span>
               <span className="tabular-nums text-lg font-semibold">
                 {moneyWhole(totals.paidInRange)}
               </span>
-              <span className="text-[11px] text-text-secondary">{t('fin.paidPeriodSub')}</span>
+              <DeltaLine delta={delta(totals.paidInRange, prevTotals?.paidInRange)} label={vs} />
             </Card>
           </section>
 
@@ -249,10 +278,16 @@ function FinanceReport() {
             </Card>
           )}
 
-          {donutSlices.length > 0 && (
+          {totals.costs > 0.5 && (
             <Card className="flex flex-col gap-3 p-4">
               <h2 className="text-base font-semibold">{t('fin.costStructure')}</h2>
-              <CostDonut slices={donutSlices} />
+              <CostBreakdown
+                projects={summary.data ?? []}
+                generalCosts={generalCosts}
+                from={from}
+                to={to}
+                periodLabel={label}
+              />
             </Card>
           )}
 
