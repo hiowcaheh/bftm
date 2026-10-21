@@ -60,6 +60,7 @@ function useInvalidateFinance() {
   const queryClient = useQueryClient();
   return () => {
     void queryClient.invalidateQueries({ queryKey: qk.finance.all });
+    void queryClient.invalidateQueries({ queryKey: qk.results.all });
     // fakturowanie zmienia status godzin i kafelki pulpitu
     void queryClient.invalidateQueries({ queryKey: qk.workHours.all });
     void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
