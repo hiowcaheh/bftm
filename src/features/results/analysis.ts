@@ -137,14 +137,52 @@ export interface YearStat {
 const marginOf = (result: number, revenue: number) => (revenue > 0 ? result / revenue : null);
 
 /** Dni robocze pn–pt w miesiącu i ile z nich już minęło (z dzisiejszym). */
+/** Wielkanoc (algorytm Meeusa/Jonesa/Butchera) — z niej liczą się święta ruchome. */
+function easter(year: number): Date {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, month - 1, day);
+}
+
+/**
+ * Szwedzkie dni wolne wypadające w dni robocze („röda dagar" + Wigilia, Midsommar
+ * i Sylwester, kiedy budowy stoją). Klucz „M-D", zwykły obiekt.
+ */
+function swedishHolidays(year: number): Record<string, true> {
+  const key = (d: Date) => `${d.getMonth() + 1}-${d.getDate()}`;
+  const plus = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const e = easter(year);
+  // Midsommarafton: piątek między 19 a 25 czerwca
+  let midsummer = new Date(year, 5, 19);
+  while (midsummer.getDay() !== 5) midsummer = plus(midsummer, 1);
+  const out: Record<string, true> = {};
+  for (const k of ['1-1', '1-6', '5-1', '6-6', '12-24', '12-25', '12-26', '12-31']) out[k] = true;
+  for (const d of [plus(e, -2), plus(e, 1), plus(e, 39), midsummer]) out[key(d)] = true;
+  return out;
+}
+
+/** Dni robocze (pn–pt bez szwedzkich świąt) w miesiącu i ile z nich już minęło. */
 export function workdays(year: number, m: number, today: Date) {
   const days = new Date(year, m, 0).getDate();
+  const holidays = swedishHolidays(year);
   let total = 0;
   let done = 0;
   for (let d = 1; d <= days; d++) {
     const date = new Date(year, m - 1, d);
     const dow = date.getDay();
-    if (dow === 0 || dow === 6) continue;
+    if (dow === 0 || dow === 6 || holidays[`${m}-${d}`]) continue;
     total++;
     if (date <= today) done++;
   }
