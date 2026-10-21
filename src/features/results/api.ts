@@ -56,7 +56,8 @@ export interface ResultsYearData {
   invoices: ResultsInvoice[];
   /** średni czas płacenia klienta (dni) — klucz: client id */
   clientPayDays: Record<string, number>;
-  absences: Array<{ m: number; type: string; days: number }>;
+  /** jedna pozycja = jedna nieobecność w miesiącu (od 0076: imię i daty) */
+  absences: Array<{ m: number; type: string; days: number; name?: string; from?: string; to?: string }>;
 }
 
 export async function fetchResultsYear(year: number): Promise<ResultsYearData> {
