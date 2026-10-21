@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.63.3 — Rezultat: paski jako udział i przewijany zespół (2026-10-21)
+
+- Projekty w miesiącu: pasek = udział projektu w zysku miesiąca (jak w Finansach),
+  z dopiskiem „39% zysku miesiąca”; projekty na minusie mają pusty pasek („bez zysku”).
+- Klienci roku: pasek = udział klienta w przychodzie całego roku („30% przychodu roku”),
+  zamiast porównania z największym klientem.
+- Zespół w miesiącu przewijany w bok — więcej niż 5 osób nie spada do drugiego rzędu.
+
 ## 0.63.2 — Rezultat: wybór roku i czytelniejsza legenda (2026-10-21)
 
 - Wybór roku jak wybór okresu w Finansach: okrągłe przyciski ‹ › przy krawędziach,
