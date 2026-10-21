@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.63.2 — Rezultat: wybór roku i czytelniejsza legenda (2026-10-21)
+
+- Wybór roku jak wybór okresu w Finansach: okrągłe przyciski ‹ › przy krawędziach,
+  na środku rok i pod nim zakres miesięcy z danymi (np. „lipiec – październik”).
+- Legenda wykresu: próbki w kształcie słupków (Przychód, Koszty, Prognoza) i jedno
+  zdanie „Liczba nad słupkiem to wynik miesiąca, a z falką ~ prognoza na cały miesiąc”
+  zamiast trzech osobnych napisów.
+
 ## 0.63.1 — Rezultat: prognoza w czerwieni aplikacji (2026-10-21)
 
 - Prognoza na wykresie (kreskowany kawałek słupka i „~liczba”), ramka „Prognoza na
