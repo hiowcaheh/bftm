@@ -9,6 +9,8 @@ export function useResultsYear(year: number) {
     queryKey: qk.results.year(year),
     queryFn: () => fetchResultsYear(year),
     enabled: can('results_view'),
-    staleTime: 60_000,
+    // zawsze świeże przy wejściu (zmiany projektów, nieobecności, faktur);
+    // do tego invalidacja po godzinach / fakturach / narzutach
+    staleTime: 0,
   });
 }

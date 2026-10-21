@@ -54,6 +54,7 @@ export function useSaveFinanceSettings() {
       void queryClient.invalidateQueries({ queryKey: qk.settings.all });
       // raport Finanse liczy koszty tymi narzutami — przelicz od razu
       void queryClient.invalidateQueries({ queryKey: qk.finance.all });
+      void queryClient.invalidateQueries({ queryKey: qk.results.all });
       toast.success(translate('setc.paramsSaved'));
     },
     onError: () => toast.error(translate('setc.errParams')),

@@ -22,6 +22,7 @@ function invalidateHours(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: qk.reports.all });
   // podpowiedzi „do zafakturowania" zależą od statusu godzin
   void queryClient.invalidateQueries({ queryKey: qk.finance.all });
+  void queryClient.invalidateQueries({ queryKey: qk.results.all });
 }
 
 /** Ostatni własny wpis sprzed dziś (szablon „Jak wczoraj"). */
