@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.65.1 — Rezultat: dokładniejszy opis miesiąca (2026-10-21)
+
+- Opis miesiąca w trzech akapitach, jak analiza księgowego:
+  **ludzie i czas** (ile godzin w ilu dniach roboczych, wykorzystanie dostępnego czasu,
+  kto i kiedy był nieobecny — np. „Petro i Serhii – bezpłatne wolne 17–28 sie”,
+  największa zmiana w zespole, tempo miesiąca w toku), **pieniądze** (przychód
+  i koszt pracy, zmiana wobec poprzedniego miesiąca, dlaczego zmieniła się marża:
+  przychód i koszt jednej godziny, porównanie ze średnim miesiącem roku),
+  **projekty** (najlepszy i drugi z udziałem w zysku miesiąca, prognoza).
+- RPC `results_year` zwraca nieobecności z imieniem i datami (migracja 0076).
+
 ## 0.65.0 — Rezultat: więcej w karcie roku (2026-10-21)
 
 - **Prognoza zysku na koniec roku** (spokojnie: zielona kreska z boku, zielona kwota
