@@ -9,9 +9,9 @@ const H = 150;
 const REV = 'var(--color-text)';
 const COST = '#c9c9d1';
 const OK = 'var(--color-success)';
-// prognoza: pomarańczowe kreski, ta sama barwa co „~liczba" nad słupkiem
+// prognoza: delikatne czerwone kreski (akcent aplikacji), ta sama barwa co „~liczba"
 const hatch = (alpha: number) =>
-  `repeating-linear-gradient(135deg, transparent 0 3px, color-mix(in srgb, var(--color-warning) ${alpha}%, transparent) 3px 5px)`;
+  `repeating-linear-gradient(135deg, transparent 0 3px, color-mix(in srgb, var(--color-accent) ${alpha}%, transparent) 3px 5px)`;
 
 const k = (v: number) => `${Math.round(v / 1000)}k`;
 
@@ -53,7 +53,8 @@ export function YearChart({
   );
   const h = (v: number) => Math.max(2, (Math.max(0, v) / max) * H);
 
-  const bar = (v: number, proj: number | null, color: string, width: number, hatchAlpha: number) => (
+  // strong = słupek główny (pełna ramka), inaczej koszty (bledsza ramka i kreski)
+  const bar = (v: number, proj: number | null, color: string, width: number, strong: boolean) => (
     <div className="flex flex-col-reverse" style={{ width }}>
       <div className="rounded-t-[4px] rounded-b-[2px]" style={{ height: h(v), background: color }} />
       {proj !== null && proj > v && (
@@ -61,8 +62,8 @@ export function YearChart({
           className="rounded-t-[4px] border-[1.5px] border-b-0 border-dashed"
           style={{
             height: ((proj - v) / max) * H,
-            background: hatch(hatchAlpha),
-            borderColor: `color-mix(in srgb, var(--color-warning) ${hatchAlpha + 40}%, transparent)`,
+            background: hatch(strong ? 25 : 12),
+            borderColor: strong ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-accent) 35%, transparent)',
           }}
         />
       )}
@@ -104,7 +105,7 @@ export function YearChart({
                 )}
               >
                 <span className="tabular-nums flex h-7 flex-col items-center justify-end text-[10.5px] leading-tight font-bold whitespace-nowrap">
-                  {fc && <span className="text-warning">{fc}</span>}
+                  {fc && <span className="text-accent">{fc}</span>}
                   {label && (
                     <span className={metric === 'hours' ? 'text-text' : x!.result >= 0 ? 'text-success' : 'text-error'}>
                       {label}
@@ -115,12 +116,12 @@ export function YearChart({
                   {!x && <span className="h-0.5 w-[26px] rounded-full bg-line" />}
                   {x && metric === 'money' && (
                     <>
-                      {bar(x.revenue, x.live?.revenue ?? null, REV, 15, 45)}
-                      {bar(x.cost, x.live?.cost ?? null, COST, 15, 22)}
+                      {bar(x.revenue, x.live?.revenue ?? null, REV, 15, true)}
+                      {bar(x.cost, x.live?.cost ?? null, COST, 15, false)}
                     </>
                   )}
-                  {x && metric === 'result' && bar(x.result, proj, x.result >= 0 ? OK : 'var(--color-error)', 26, 45)}
-                  {x && metric === 'hours' && bar(x.hours, proj, REV, 26, 45)}
+                  {x && metric === 'result' && bar(x.result, proj, x.result >= 0 ? OK : 'var(--color-error)', 26, true)}
+                  {x && metric === 'hours' && bar(x.hours, proj, REV, 26, true)}
                 </div>
                 <span className={cn('text-xs font-semibold capitalize', on ? 'text-text' : 'text-text-secondary')}>
                   {monthLabel(m)}
@@ -141,7 +142,7 @@ export function YearChart({
         {metric === 'hours' && <Legend color={REV}>{t('res.legendHours')}</Legend>}
         <Legend dashed>{t('res.legendForecast')}</Legend>
         {metric === 'money' && <span className="font-semibold text-success">{t('res.legendK')}</span>}
-        <span className="font-semibold text-warning">{t('res.legendTilde')}</span>
+        <span className="font-semibold text-accent">{t('res.legendTilde')}</span>
       </div>
     </>
   );
@@ -151,7 +152,7 @@ function Legend({ color, dashed, children }: { color?: string; dashed?: boolean;
   return (
     <span className="flex items-center gap-1.5">
       <i
-        className={cn('inline-block size-2.5 rounded-[3px]', dashed && 'border-[1.5px] border-dashed border-warning')}
+        className={cn('inline-block size-2.5 rounded-[3px]', dashed && 'border-[1.5px] border-dashed border-accent')}
         style={color ? { background: color } : undefined}
       />
       {children}
