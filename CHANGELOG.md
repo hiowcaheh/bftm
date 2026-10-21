@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.65.0 — Rezultat: więcej w karcie roku (2026-10-21)
+
+- **Prognoza zysku na koniec roku** (spokojnie: zielona kreska z boku, zielona kwota
+  „~ +574 tys. kr zysku”): wynik do dziś + reszta bieżącego miesiąca + pozostałe
+  miesiące po średniej z ostatnich (maks. 3) miesięcy.
+- **Pieniądze w roku:** zafakturowano, wpłynęło, czeka (w tym po terminie), średni
+  czas płacenia klientów i która faktura jest po terminie.
+- **Na godzinę pracy:** przychód, koszt i zysk z 1 h.
+- **Projekty w roku:** ile z godzinami (w toku / zakończone / wstrzymane), najlepszy
+  i najsłabszy projekt roku — plakietki cienką czcionką.
+- Odstęp po falce we wszystkich prognozach („~ +114k”). RPC `results_year` zwraca
+  też status projektu (migracja 0075).
+
 ## 0.64.0 — Checklista: odhaczone zadania znikają po 7 dniach (2026-10-21)
 
 - Na Pulpicie (lista prywatna i firmowa) zadania odhaczone ponad 7 dni temu
