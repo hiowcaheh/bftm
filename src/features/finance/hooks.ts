@@ -12,6 +12,7 @@ import {
   fetchFinanceSummary,
   fetchInvoiceSuggestions,
   fetchProjectInvoices,
+  fetchProjectWorkers,
   fetchUninvoicedHours,
   invoiceProjectHours,
   updateProjectInvoice,
@@ -34,6 +35,15 @@ export function useFinanceDaily(from: string, to: string) {
     queryFn: () => fetchFinanceDaily(from, to),
     enabled: can('finance_view'),
     staleTime: 60_000,
+  });
+}
+
+export function useProjectWorkers(projectId: string | null, from: string, to: string) {
+  const { can } = useSession();
+  return useQuery({
+    queryKey: qk.finance.projectWorkers(projectId ?? '', from, to),
+    queryFn: () => fetchProjectWorkers(projectId!, from, to),
+    enabled: can('finance_view') && !!projectId,
   });
 }
 

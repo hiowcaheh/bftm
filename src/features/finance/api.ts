@@ -56,6 +56,44 @@ export async function fetchFinanceDaily(from: string, to: string): Promise<Finan
   return (data ?? []) as FinanceDay[];
 }
 
+/** Kto ile godzin przepracował w projekcie w okresie (okno „Koszty projektu"). */
+export interface ProjectWorker {
+  id: string;
+  name: string;
+  avatarPath: string | null;
+  hours: number;
+}
+
+export async function fetchProjectWorkers(
+  projectId: string,
+  from: string,
+  to: string,
+): Promise<ProjectWorker[]> {
+  const { data, error } = await supabase
+    .from('work_hours')
+    .select('hours, employee:profiles!employee_id(id, full_name, avatar_path)')
+    .eq('project_id', projectId)
+    .gte('date', from)
+    .lte('date', to);
+  if (error) throw error;
+  // sumowanie po osobie — zwykły obiekt, nie Map (cache utrwalany w localStorage)
+  const byId: Record<string, ProjectWorker> = {};
+  for (const row of (data ?? []) as unknown as Array<{
+    hours: number;
+    employee: { id: string; full_name: string; avatar_path: string | null } | null;
+  }>) {
+    if (!row.employee) continue;
+    const w = (byId[row.employee.id] ??= {
+      id: row.employee.id,
+      name: row.employee.full_name,
+      avatarPath: row.employee.avatar_path,
+      hours: 0,
+    });
+    w.hours += Number(row.hours);
+  }
+  return Object.values(byId).sort((a, b) => b.hours - a.hours);
+}
+
 /** Wypracowana wartość projektu: ryczałt + godziny × stawka + zaakceptowane dodatkowe. */
 export function projectValue(p: FinanceProjectSummary): number {
   const hourly =
