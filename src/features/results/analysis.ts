@@ -82,6 +82,39 @@ export interface ClientStat {
   payDays: number | null;
 }
 
+export interface ProjectYear {
+  id: string;
+  name: string;
+  client: string | null;
+  hours: number;
+  revenue: number;
+  result: number;
+  margin: number | null;
+}
+
+/** Dodatki karty roku: prognoza, pieniądze, godzina pracy, projekty. */
+export interface YearExtra {
+  /** prognoza zysku na koniec roku (tylko bieżący rok) */
+  forecast: { result: number; avg: number } | null;
+  money: {
+    sent: number;
+    paid: number;
+    waiting: number;
+    overdue: number;
+    overdueCount: number;
+    /** gdy po terminie jest dokładnie jedna faktura */
+    overdueOne: { client: string | null; sent: string } | null;
+    payDays: number | null;
+  };
+  perHour: { revenue: number; cost: number; profit: number } | null;
+  projects: {
+    count: number;
+    byStatus: Record<string, number>;
+    best: ProjectYear | null;
+    worst: ProjectYear | null;
+  };
+}
+
 export interface YearStat {
   year: number;
   firstDay: string | null;
@@ -92,6 +125,7 @@ export interface YearStat {
   bestM: number | null;
   worstM: number | null;
   clients: ClientStat[];
+  extra: YearExtra;
 }
 
 const marginOf = (result: number, revenue: number) => (revenue > 0 ? result / revenue : null);
@@ -270,6 +304,113 @@ export function buildYear(data: ResultsYearData, today: Date): YearStat {
     bestM: best?.m ?? null,
     worstM: worst && worst.m !== best?.m ? worst.m : null,
     clients,
+    extra: buildExtra(data, months, totals, totalResult, today, todayIso),
+  };
+}
+
+function buildExtra(
+  data: ResultsYearData,
+  months: Array<MonthStat | null>,
+  totals: { hours: number; revenue: number; cost: number },
+  totalResult: number,
+  today: Date,
+  todayIso: string,
+): YearExtra {
+  // Prognoza roku: wynik do dziś + reszta bieżącego miesiąca + pozostałe miesiące
+  // po średniej z ostatnich (maks. 3) pełnych miesięcy — bieżący liczony z prognozy.
+  let forecast: YearExtra['forecast'] = null;
+  if (data.year === today.getFullYear()) {
+    const cur = today.getMonth() + 1;
+    const recent = months
+      .filter((x): x is MonthStat => !!x && !x.first && x.m <= cur)
+      .slice(-3)
+      .map((x) => (x.live ? x.live.result : x.result));
+    if (recent.length) {
+      const avg = recent.reduce((s, r) => s + r, 0) / recent.length;
+      const now = months[cur - 1];
+      const restOfMonth = now?.live ? now.live.result - now.result : 0;
+      forecast = { result: totalResult + restOfMonth + (12 - cur) * avg, avg };
+    }
+  }
+
+  // Pieniądze roku z faktur (wysłane / opłacone w roku, czekające = bez zapłaty)
+  const clientName: Record<string, string> = {};
+  for (const p of data.projects) if (p.clientId && p.client) clientName[p.clientId] = p.client;
+  let sent = 0;
+  let paid = 0;
+  let waiting = 0;
+  let overdue = 0;
+  const overdueList: Array<{ client: string | null; sent: string }> = [];
+  const payDays: number[] = [];
+  for (const inv of data.invoices) {
+    const amount = Number(inv.amount);
+    if (inv.sent.startsWith(String(data.year))) sent += amount;
+    if (inv.paid?.startsWith(String(data.year))) paid += amount;
+    if (inv.paid) {
+      payDays.push((Date.parse(inv.paid) - Date.parse(inv.sent)) / 86_400_000);
+    } else {
+      waiting += amount;
+      if (inv.due && inv.due < todayIso) {
+        overdue += amount;
+        overdueList.push({ client: inv.clientId ? (clientName[inv.clientId] ?? null) : null, sent: inv.sent });
+      }
+    }
+  }
+
+  // Projekty roku: suma po projekcie ze wszystkich miesięcy
+  const byId: Record<string, ProjectYear & { cost: number; status: string }> = {};
+  for (const p of data.projects) {
+    const x = (byId[p.id] ??= {
+      id: p.id,
+      name: p.name,
+      client: p.client,
+      status: p.status ?? 'active',
+      hours: 0,
+      revenue: 0,
+      cost: 0,
+      result: 0,
+      margin: null,
+    });
+    x.hours += Number(p.hours);
+    x.revenue += Number(p.revenue);
+    x.cost += Number(p.cost);
+  }
+  const list = Object.values(byId).map((p) => {
+    const result = p.revenue - p.cost;
+    return { ...p, result, margin: marginOf(result, p.revenue) };
+  });
+  const byStatus: Record<string, number> = {};
+  for (const p of list) byStatus[p.status] = (byStatus[p.status] ?? 0) + 1;
+  const best = list.length ? list.reduce((a, b) => (b.result > a.result ? b : a)) : null;
+  // najsłabszy tylko spośród projektów z przychodem (wewnętrzne bez stawki pomijamy)
+  const paid0 = list.filter((p) => p.revenue > 0);
+  const worst = paid0.length ? paid0.reduce((a, b) => (b.result < a.result ? b : a)) : null;
+
+  return {
+    forecast,
+    money: {
+      sent,
+      paid,
+      waiting,
+      overdue,
+      overdueCount: overdueList.length,
+      overdueOne: overdueList.length === 1 ? overdueList[0]! : null,
+      payDays: payDays.length ? Math.round(payDays.reduce((s, d) => s + d, 0) / payDays.length) : null,
+    },
+    perHour:
+      totals.hours > 0
+        ? {
+            revenue: totals.revenue / totals.hours,
+            cost: totals.cost / totals.hours,
+            profit: totalResult / totals.hours,
+          }
+        : null,
+    projects: {
+      count: list.length,
+      byStatus,
+      best,
+      worst: worst && best && worst.id !== best.id ? worst : null,
+    },
   };
 }
 

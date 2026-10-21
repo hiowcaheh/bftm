@@ -83,11 +83,11 @@ export function YearChart({
             if (x) {
               if (metric === 'hours') {
                 label = `${Math.round(x.hours)} h`;
-                fc = x.live ? `~${x.live.hours} h` : null;
+                fc = x.live ? `~ ${x.live.hours} h` : null;
               } else {
                 // nad słupkami pieniędzy i wyniku zawsze wynik miesiąca
                 label = `${x.result >= 0 && metric === 'money' ? '+' : ''}${k(x.result)}`;
-                fc = x.live ? `~${metric === 'money' ? '+' : ''}${k(x.live.result)}` : null;
+                fc = x.live ? `~ ${metric === 'money' ? '+' : ''}${k(x.live.result)}` : null;
               }
             }
             return (
