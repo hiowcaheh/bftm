@@ -124,7 +124,9 @@ export function HoursFormSheet({
     rememberProject(projectId);
 
     if (entry) {
-      update.mutate({ id: entry.id, patch: payload }, { onSuccess: onClose });
+      // autor wpisu się nie zmienia — „kto edytował" zapisuje baza (trigger 0072)
+      const { created_by: _author, ...patch } = payload;
+      update.mutate({ id: entry.id, patch }, { onSuccess: onClose });
     } else {
       create.mutate(payload, {
         onSuccess: () => {
