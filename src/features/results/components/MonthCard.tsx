@@ -38,7 +38,9 @@ export function MonthCard({
     const d = Math.round(((cur - p) / Math.abs(p)) * 100);
     return t('res.vsPrev', { p: `${d >= 0 ? '+' : '−'}${Math.abs(d)}` });
   };
-  const maxTop = Math.max(1, ...x.projects.map((p) => Math.abs(p.result)));
+  // pasek = udział projektu w zysku miesiąca (jak w Finansach), nie porównanie z najlepszym
+  const profitBase =
+    x.result > 0 ? x.result : Math.max(1, x.projects.reduce((s, p) => s + Math.max(0, p.result), 0));
   // najlepsze i najsłabsze — problemy z dołu listy też muszą być widoczne
   const topProjects =
     x.projects.length > 6 ? [...x.projects.slice(0, 4), ...x.projects.slice(-2)] : x.projects;
@@ -124,26 +126,43 @@ export function MonthCard({
               <span className="col-span-2 h-1.5 overflow-hidden rounded-full bg-surface">
                 <span
                   className="block h-full rounded-full"
-                  style={{ width: `${Math.max(3, (Math.abs(p.result) / maxTop) * 100)}%`, background: color }}
+                  style={{ width: `${Math.min(100, Math.max(0, (p.result / profitBase) * 100))}%`, background: color }}
                 />
               </span>
               <span className="tabular-nums col-span-2 text-[11.5px] text-text-secondary/80">
+                <b className="font-semibold text-text-secondary">
+                  {p.result > 0
+                    ? t('res.shareOfMonth', { p: Math.round((p.result / profitBase) * 100) })
+                    : t('res.noProfit')}
+                </b>
+                {' · '}
                 {t('res.projectLine', { h: hours(p.hours), rev: money(p.revenue), m: pct(p.margin) })}
               </span>
             </div>
           );
         })}
+        {x.result > 0 && (
+          <p className="text-[11.5px] leading-snug text-text-secondary/80">
+            {t('res.projectsBarNote', { v: `+${money(x.result)}` })}
+          </p>
+        )}
       </Section>
 
       <Section title={t('res.teamTitle')}>
-        <div className="grid grid-cols-5 gap-1.5">
+        {/* przewijane w bok — więcej niż 5 osób nie spada do drugiego rzędu */}
+        <div className="relative">
+          <div className="no-scrollbar -mx-4 flex snap-x gap-1.5 overflow-x-auto px-4 pb-1">
           {x.team.map((m) => (
-            <div key={m.id} className="min-w-0 text-center">
+            <div key={m.id} className="w-[58px] flex-none snap-start text-center">
               <Avatar name={m.name} path={m.avatar} size="sm" className="mx-auto mb-1" />
               <div className="tabular-nums text-[13px] font-bold">{hours(m.hours)}</div>
               <div className="truncate text-[11px] text-text-secondary">{m.name.split(' ')[0]}</div>
             </div>
           ))}
+          </div>
+          {x.team.length > 5 && (
+            <span className="pointer-events-none absolute inset-y-0 -right-4 w-7 bg-linear-to-r from-transparent to-white" />
+          )}
         </div>
       </Section>
 

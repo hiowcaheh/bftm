@@ -250,7 +250,8 @@ function ClientsCard({
 }) {
   const clients = stat.clients.filter((c) => c.revenue > 0 || c.hours >= 8);
   if (!clients.length) return null;
-  const max = Math.max(1, ...clients.map((c) => c.revenue));
+  // pasek = udział klienta w przychodzie całego roku
+  const yearRevenue = Math.max(1, stat.totals.revenue);
   return (
     <Card className="flex flex-col gap-3 p-4">
       <p className="text-xs font-semibold tracking-wide text-text-secondary uppercase">
@@ -270,10 +271,14 @@ function ClientsCard({
               <span className="col-span-2 h-1.5 overflow-hidden rounded-full bg-surface">
                 <span
                   className="block h-full rounded-full"
-                  style={{ width: `${Math.max(3, (c.revenue / max) * 100)}%`, background: color }}
+                  style={{ width: `${Math.min(100, (c.revenue / yearRevenue) * 100)}%`, background: color }}
                 />
               </span>
               <span className="tabular-nums col-span-2 text-[11.5px] text-text-secondary/80">
+                <b className="font-semibold text-text-secondary">
+                  {t('res.shareOfYear', { p: Math.round((c.revenue / yearRevenue) * 100) })}
+                </b>
+                {' · '}
                 {t('res.clientLine', {
                   h: fmt.hours(c.hours),
                   res: `${c.result >= 0 ? '+' : ''}${moneyWhole(c.result)}`,
@@ -285,7 +290,9 @@ function ClientsCard({
           );
         })}
       </div>
-      <p className="text-[11.5px] leading-snug text-text-secondary/80">{t('res.clientsNote')}</p>
+      <p className="text-[11.5px] leading-snug text-text-secondary/80">
+        {t('res.clientsBarNote', { v: moneyWhole(stat.totals.revenue) })} {t('res.clientsNote')}
+      </p>
     </Card>
   );
 }
