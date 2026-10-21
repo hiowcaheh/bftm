@@ -22,11 +22,17 @@ interface RawRow {
   closer: { full_name: string } | null;
 }
 
+/** Odhaczone zadania znikają z listy po tylu dniach (w bazie zostają — do analiz). */
+const HIDE_DONE_AFTER_DAYS = 7;
+
 export async function fetchChecklist(scope: ChecklistScope): Promise<ChecklistItem[]> {
+  const cutoff = new Date(Date.now() - HIDE_DONE_AFTER_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase
     .from('checklist_items')
     .select(SELECT)
     .eq('scope', scope)
+    // otwarte zawsze + odhaczone w ostatnich 7 dniach
+    .or(`done.eq.false,done_at.gte."${cutoff}"`)
     .order('created_at', { ascending: false });
   if (error) throw error;
   return ((data ?? []) as unknown as RawRow[]).map((r) => ({
