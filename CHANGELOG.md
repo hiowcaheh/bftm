@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.64.0 — Checklista: odhaczone zadania znikają po 7 dniach (2026-10-21)
+
+- Na Pulpicie (lista prywatna i firmowa) zadania odhaczone ponad 7 dni temu
+  nie są już pokazywane. W bazie zostają (do przyszłych analiz) — znikają tylko z widoku.
+
 ## 0.63.3 — Rezultat: paski jako udział i przewijany zespół (2026-10-21)
 
 - Projekty w miesiącu: pasek = udział projektu w zysku miesiąca (jak w Finansach),
