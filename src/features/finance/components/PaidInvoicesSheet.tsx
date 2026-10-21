@@ -105,7 +105,7 @@ export function PaidInvoicesSheet({
         </div>
         <div ref={listRef} className="min-h-0 flex-1 overflow-hidden">
           {shown.length > 0 ? (
-            <div className="flex flex-col divide-y divide-line/60 overflow-hidden rounded-xl ring-1 ring-line">
+            <div className="flex flex-col divide-y divide-line/60 overflow-hidden rounded-xl border border-line">
               {shown.map((inv) => (
                 <div key={inv.id} data-row>
                   {renderRow(inv)}
