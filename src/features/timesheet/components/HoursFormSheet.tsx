@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Repeat } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { NumberStepper } from '@/components/ui/NumberStepper';
@@ -149,6 +150,29 @@ export function HoursFormSheet({
 
   const pending = create.isPending || update.isPending;
 
+  const auditLine = (label: string, personId: string | null, at: string) => {
+    // osoby z listy pracowników (już w cache) — bez dodatkowego zapytania
+    const person = employees.data?.find((e) => e.id === personId);
+    return (
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        {label} ·
+        {person && (
+          <>
+            <Avatar
+              name={person.full_name}
+              path={person.avatar_path}
+              style={{ width: 16, height: 16, fontSize: 7 }}
+            />
+            <span className="text-text-secondary">{person.full_name}</span> ·
+          </>
+        )}
+        <span className="tabular-nums">
+          {format(parseISO(at), 'EEE dd.MM, HH:mm', { locale: dateLocale })}
+        </span>
+      </span>
+    );
+  };
+
   return (
     <Sheet open={open} onClose={onClose} title={entry ? t('ts.editEntry') : t('ts.addHours')}>
       <div className="flex flex-col gap-4">
@@ -226,6 +250,15 @@ export function HoursFormSheet({
           <Button variant="secondary" fullWidth loading={pending} onClick={() => void save(true)}>
             {t('ts.saveAndNext')}
           </Button>
+        )}
+        {/* Kto dodał / kto edytował — drobny szary detal tylko dla zarządzających godzinami */}
+        {entry && canPickEmployee && (
+          <div className="flex flex-col items-center gap-1.5 text-[11.5px] leading-tight text-text-secondary/75">
+            {auditLine(t('ts.addedBy'), entry.created_by, entry.created_at)}
+            {entry.updated_by &&
+              entry.updated_at &&
+              auditLine(t('ts.editedBy'), entry.updated_by, entry.updated_at)}
+          </div>
         )}
       </div>
     </Sheet>
