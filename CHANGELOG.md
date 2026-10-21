@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.65.2 — Rezultat: szwedzkie święta i świeże dane (2026-10-21)
+
+- Dni robocze (prognoza, wykorzystanie czasu, tempo) bez szwedzkich świąt:
+  Nowy Rok, Trzech Króli, Wielki Piątek, Poniedziałek Wielkanocny, 1 maja,
+  Wniebowstąpienie, 6 czerwca, Midsommarafton, Wigilia, Boże Narodzenie, Drugi
+  dzień świąt i Sylwester.
+- Rezultat odświeża się od razu po dodaniu/zmianie godzin, faktur i narzutów
+  oraz przy każdym wejściu w zakładkę.
+
 ## 0.65.1 — Rezultat: dokładniejszy opis miesiąca (2026-10-21)
 
 - Opis miesiąca w trzech akapitach, jak analiza księgowego:
