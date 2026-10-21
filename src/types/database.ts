@@ -530,6 +530,10 @@ export type Database = {
           client_type: string | null;
         }>;
       };
+      results_year: {
+        Args: { p_year: number };
+        Returns: unknown;
+      };
       push_status: {
         Args: Record<PropertyKey, never>;
         Returns: Array<{ profile_id: string; has_push: boolean }>;
