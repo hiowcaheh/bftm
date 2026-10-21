@@ -78,6 +78,35 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const profile = profileQuery.data ?? null;
   const user = profile ? toCurrentUser(profile) : null;
 
+  // Zmiana uprawnień w panelu admina działa od razu (np. włączony Rezultat):
+  // nasłuch na WŁASNY wiersz profiles (0074). Pingi obecności też zmieniają
+  // wiersz, więc odświeżamy tylko przy zmianie flag/roli/aktywności.
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel(`profile-${userId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` },
+        (payload) => {
+          const next = payload.new as Partial<NonNullable<typeof profile>>;
+          const cur = queryClient.getQueryData<NonNullable<typeof profile>>(qk.profile.me());
+          if (
+            !cur ||
+            JSON.stringify(next.permissions) !== JSON.stringify(cur.permissions) ||
+            next.role !== cur.role ||
+            next.active !== cur.active
+          ) {
+            void queryClient.invalidateQueries({ queryKey: qk.profile.me() });
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
+
   // Konto dezaktywowane → natychmiastowe wylogowanie
   useEffect(() => {
     if (profile && !profile.active) {
