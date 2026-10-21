@@ -26,6 +26,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useApproveEntries } from '@/features/timesheet/hooks';
 import type { AllInvoice, InvoiceSuggestion, PendingHours } from '../api';
+import { PaidInvoicesSheet } from './PaidInvoicesSheet';
 import {
   useAllInvoices,
   useDeleteProjectInvoice,
@@ -36,6 +37,8 @@ import {
 } from '../hooks';
 
 const iso = (d: Date) => format(d, 'yyyy-MM-dd');
+/** Ile opłaconych faktur widać na liście — resztę otwiera „Pokaż więcej” */
+const PAID_PREVIEW = 3;
 
 /** „12.10.2026" albo „12.10.2026 – 13.10.2026" — zakres dat niezatwierdzonych wpisów. */
 const pendingRange = (p: PendingHours) =>
@@ -59,6 +62,7 @@ export function InvoicesSection() {
   const canApprove = can('hours_approve');
   const approve = useApproveEntries();
   const [toApprove, setToApprove] = useState<InvoiceSuggestion | null>(null);
+  const [paidOpen, setPaidOpen] = useState(false);
 
   // faktura ręczna / z podpowiedzi (edytowalna: kwota, data, notatka)
   const [manualOpen, setManualOpen] = useState(false);
@@ -172,7 +176,8 @@ export function InvoicesSection() {
     return { text: t('fin.inDays', { n, d: word(n) }), className: 'bg-warning-soft text-warning' };
   };
 
-  const invoiceRow = (inv: AllInvoice) => {
+  /** `before` — np. zamknięcie okna opłaconych przed otwarciem edycji */
+  const invoiceRow = (inv: AllInvoice, before?: () => void) => {
     // Kalendarzyk: nieopłacona → termin płatności, opłacona → dzień wpłaty.
     const day = parseISO(inv.paid_at ?? inv.due_at ?? inv.sent_at);
     const band = inv.paid_at
@@ -185,8 +190,11 @@ export function InvoicesSection() {
       <button
         key={inv.id}
         type="button"
-        className="press flex items-center gap-3 px-4 py-3 text-left"
-        onClick={() => openManual(inv)}
+        className="press flex w-full items-center gap-3 px-4 py-3 text-left"
+        onClick={() => {
+          before?.();
+          openManual(inv);
+        }}
       >
         <div className="w-11 shrink-0 overflow-hidden rounded-[10px] bg-white text-center shadow-[0_0_0_1px_var(--color-line),0_1px_2px_rgba(0,0,0,0.06)]">
           <div
@@ -352,13 +360,33 @@ export function InvoicesSection() {
                 </span>
               </div>
               <div className="flex flex-col divide-y divide-line/60">
-                {g.items.map(invoiceRow)}
+                {/* opłaconych tylko 3 ostatnie — reszta w oknie z filtrami */}
+                {(g.key === 'paid' ? g.items.slice(0, PAID_PREVIEW) : g.items).map((inv) =>
+                  invoiceRow(inv),
+                )}
               </div>
+              {g.key === 'paid' && g.items.length > PAID_PREVIEW && (
+                <button
+                  type="button"
+                  className="press mx-3 mb-3 flex h-10 items-center justify-center gap-1 rounded-xl bg-success-soft text-[13px] font-semibold text-success"
+                  onClick={() => setPaidOpen(true)}
+                >
+                  {t('fin.showMorePaid', { n: g.items.length - PAID_PREVIEW })}
+                  <ChevronRight className="size-4" />
+                </button>
+              )}
             </div>
           ))}
         </Card>
       )}
 
+
+      <PaidInvoicesSheet
+        open={paidOpen}
+        onClose={() => setPaidOpen(false)}
+        invoices={list.filter((i) => i.paid_at).sort(byPaidDesc)}
+        renderRow={(inv) => invoiceRow(inv, () => setPaidOpen(false))}
+      />
 
       {/* Faktura ręczna / edycja */}
       <Sheet
