@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.63.0 — Nowa zakładka „Rezultat” (2026-10-21)
+
+- **Rezultat** (w „Więcej” pod Raportami i Finansami — nowa kolejność: Raporty,
+  Finanse, Rezultat): wynik roku, przychód, koszty, marża i podsumowanie słowami;
+  wykres sty–gru przewijany w bok (przychód i koszty / wynik / godziny) z prognozą
+  bieżącego miesiąca; po kliknięciu miesiąca jego analiza pod wykresem: komentarz,
+  „Co zadziałało”, „Na co uważać”, wynik projektów, godziny zespołu, pieniądze na
+  koncie (wpływy = zapłata za wcześniejszą pracę); na dole klienci roku.
+- Komentarze układane regułami z liczb (bez AI, we wszystkich 4 językach).
+  Ostrzeżenia tylko przy prawdziwych problemach (faktura po terminie, projekt na zero).
+- Przychód liczony w miesiącu wykonania pracy; ryczałty rozłożone według godzin.
+  Dane z RPC `results_year` (migracja 0073).
+- Flaga **Rezultat** (`results_view`) tylko dla adminów, nadawana świadomie
+  w „Funkcje dodatkowe administratora” (admin nie ma jej automatycznie).
+- Zmiana uprawnień działa od razu bez restartu: aplikacja nasłuchuje swojego
+  profilu (realtime, migracja 0074).
+
 ## 0.62.0 — Godziny: kto dodał i kto edytował wpis (2026-10-21)
 
 - W oknie „Edytuj wpis” na dole mała szara informacja: „Dodano · awatar, osoba ·

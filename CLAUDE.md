@@ -116,6 +116,13 @@ npx tsc --noEmit   # szybki typecheck
   status w Zespole z RPC `push_status` (push_subscriptions ma RLS owner-only).
 - Ukryte moduły (0.59.1): Paragony i Prace dodatkowe — `src/lib/featureFlags.ts`
   (`FEATURES.receipts/additionalWorks = false`); kod i dane zostają.
+- Rezultat (0.63): `features/results` — RPC `results_year` (0073, tylko admin
+  z flagą `results_view`, która jest w `EXPLICIT_PERMISSIONS` i `ADMIN_ONLY_PERMISSIONS`).
+  Komentarze = reguły w `story.ts` (klucze `res.*`), bez AI. Przychód w miesiącu
+  pracy, nie wpływu; ostrzegać tylko przy fakturze PO terminie.
+- Realtime profilu (0074): SessionProvider odświeża profil po zmianie flag/roli,
+  więc nowe flagi działają od razu bez restartu.
+- Supabase-js: zapytanie rusza dopiero po `.then()`/`await` (pułapka z 0.61.2).
 - Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz
   godzin = prop `single`). Nowe wybieranie dat robić na nim, nie na natywnym inpucie.
 
