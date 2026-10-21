@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.61.1 — Finanse: pełna ramka listy opłaconych faktur (2026-10-21)
+
+- Ramka wokół listy w oknie „Opłacone faktury” była rysowana na zewnątrz i okno ją
+  ucinało (brak boków, ucięte rogi) — teraz jest w środku listy i widać cały obrys.
+
+
 ## 0.61.0 — Finanse: porównanie okresów, klikalna struktura kosztów, opłacone faktury (2026-10-21)
 
 - **Kafle:** zamiast podpisów („godziny × stawki…”) plakietka z % i „vs 1–21 wrz” —
