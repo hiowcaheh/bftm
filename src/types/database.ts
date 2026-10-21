@@ -95,6 +95,9 @@ type WorkHoursRow = {
   project_invoice_id: string | null;
   created_by: string | null;
   created_at: string;
+  /** ostatnia zmiana treści wpisu (trigger 0072) — kto i kiedy */
+  updated_by: string | null;
+  updated_at: string | null;
 }
 
 type ProjectActivityRow = {
