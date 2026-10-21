@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.63.1 — Rezultat: prognoza w czerwieni aplikacji (2026-10-21)
+
+- Prognoza na wykresie (kreskowany kawałek słupka i „~liczba”), ramka „Prognoza na
+  cały miesiąc” i plakietka „W toku” w delikatnej czerwieni akcentu zamiast pomarańczu.
+
 ## 0.63.0 — Nowa zakładka „Rezultat” (2026-10-21)
 
 - **Rezultat** (w „Więcej” pod Raportami i Finansami — nowa kolejność: Raporty,
