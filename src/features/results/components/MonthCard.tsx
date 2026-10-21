@@ -87,10 +87,10 @@ export function MonthCard({
         <div className="flex flex-col gap-2 rounded-xl border-[1.5px] border-dashed border-accent/35 bg-accent-soft px-3 py-2.5">
           <span className="text-xs font-bold tracking-wide text-accent uppercase">{t('res.forecastTitle')}</span>
           <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-            <Mini label={t('res.revenue')} value={`~${money(x.live.revenue)}`} />
-            <Mini label={t('res.costs')} value={`~${money(x.live.cost)}`} />
-            <Mini label={t('res.result')} value={`~${x.live.result >= 0 ? '+' : ''}${money(x.live.result)}`} ok />
-            <Mini label={t('res.hoursLabel')} value={`~${hours(x.live.hours)}`} />
+            <Mini label={t('res.revenue')} value={`~ ${money(x.live.revenue)}`} />
+            <Mini label={t('res.costs')} value={`~ ${money(x.live.cost)}`} />
+            <Mini label={t('res.result')} value={`~ ${x.live.result >= 0 ? '+' : ''}${money(x.live.result)}`} ok />
+            <Mini label={t('res.hoursLabel')} value={`~ ${hours(x.live.hours)}`} />
           </div>
           <p className="text-xs leading-snug text-text-secondary">
             {t('res.forecastWhy', {

@@ -17,6 +17,7 @@ import { monthStory, yearStory, type StoryFmt } from '../story';
 import { useResultsYear } from '../hooks';
 import { YearChart, type Metric } from '../components/YearChart';
 import { MonthCard } from '../components/MonthCard';
+import { YearExtras, YearForecast } from '../components/YearExtras';
 
 const LOCALES: Record<Lang, string> = { pl: 'pl-PL', sv: 'sv-SE', en: 'en-GB', uk: 'uk-UA' };
 
@@ -132,7 +133,9 @@ function Results() {
                 hint={t('res.hoursWork', { h: fmt.hours(stat.totals.hours) })}
               />
             </div>
+            <YearForecast forecast={stat.extra.forecast} compact={compact} />
             <p className="text-sm leading-relaxed">{yearStory(stat, t, fmt)}</p>
+            <YearExtras extra={stat.extra} year={year} compact={compact} hours={fmt.hours} />
           </Card>
 
           <Card className="flex flex-col gap-3 p-4">
