@@ -66,16 +66,26 @@ function Results() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-end">
-        <div className="flex items-center gap-0.5 rounded-full bg-white p-[3px] shadow-(--shadow-card)">
-          <YearBtn label={t('res.prevYear')} disabled={year <= minYear} onClick={() => setYear(year - 1)}>
-            <ChevronLeft className="size-5" />
-          </YearBtn>
-          <span className="tabular-nums min-w-14 text-center text-base font-bold">{year}</span>
-          <YearBtn label={t('res.nextYear')} disabled={year >= maxYear} onClick={() => setYear(year + 1)}>
-            <ChevronRight className="size-5" />
-          </YearBtn>
+      {/* wybór roku jak wybór okresu w Finansach: przyciski po bokach, rok na środku */}
+      <div className="flex items-center justify-between gap-2">
+        <YearBtn label={t('res.prevYear')} disabled={year <= minYear} onClick={() => setYear(year - 1)}>
+          <ChevronLeft className="size-5" />
+        </YearBtn>
+        <div className="min-w-0 text-center">
+          <p className="tabular-nums text-[17px] leading-tight font-bold">{year}</p>
+          <p className="truncate text-xs text-text-secondary">
+            {!stat
+              ? '\u00a0'
+              : months.length === 0
+                ? t('res.noDataShort')
+                : months.length === 1
+                  ? fmt.month(months[0]!.m)
+                  : `${fmt.month(months[0]!.m)} – ${fmt.month(months[months.length - 1]!.m)}`}
+          </p>
         </div>
+        <YearBtn label={t('res.nextYear')} disabled={year >= maxYear} onClick={() => setYear(year + 1)}>
+          <ChevronRight className="size-5" />
+        </YearBtn>
       </div>
 
       {query.isLoading && <SkeletonList rows={4} />}
@@ -208,7 +218,7 @@ function YearBtn({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="press flex size-9 items-center justify-center rounded-full disabled:opacity-30"
+      className="press flex size-10 items-center justify-center rounded-full bg-white shadow-(--shadow-card) disabled:opacity-30"
     >
       {children}
     </button>
