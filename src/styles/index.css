@@ -265,11 +265,24 @@ select {
 .animate-sheen {
   animation: sheen 0.9s 0.15s ease-in-out both;
 }
+/* Rezultat: krótkie podświetlenie karty miesiąca po kliknięciu słupka */
+@keyframes flash-ring {
+  from {
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
+  }
+  to {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+.animate-flash-ring {
+  animation: flash-ring 1.2s ease-out;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .animate-logo-wipe,
   .animate-pop-in,
-  .animate-sheen {
+  .animate-sheen,
+  .animate-flash-ring {
     animation: none;
   }
   .animate-draw-check {

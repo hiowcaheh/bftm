@@ -13,6 +13,7 @@ import {
   FileSpreadsheet,
   MapPin,
   Settings,
+  TrendingUp,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 import type { Permission } from '@/lib/permissions';
@@ -104,6 +105,15 @@ export const modules: AppModule[] = [
     element: lazy(() => import('@/features/employees/pages/EmployeesPage')),
   },
   {
+    id: 'reports',
+    label: 'Raporty',
+    icon: BarChart3,
+    path: '/raporty',
+    requiredPermission: 'reports_view',
+    navPlacement: 'more',
+    element: lazy(() => import('@/features/reports/pages/ReportsPage')),
+  },
+  {
     id: 'finance',
     label: 'Finanse',
     icon: Wallet,
@@ -117,13 +127,14 @@ export const modules: AppModule[] = [
     element: lazy(() => import('@/features/finance/pages/FinancePage')),
   },
   {
-    id: 'reports',
-    label: 'Raporty',
-    icon: BarChart3,
-    path: '/raporty',
-    requiredPermission: 'reports_view',
+    id: 'results',
+    label: 'Rezultat',
+    icon: TrendingUp,
+    path: '/rezultat',
+    // tylko admin z flagą nadaną świadomie (ADMIN_ONLY + EXPLICIT w permissions.ts)
+    requiredPermission: 'results_view',
     navPlacement: 'more',
-    element: lazy(() => import('@/features/reports/pages/ReportsPage')),
+    element: lazy(() => import('@/features/results/pages/ResultsPage')),
   },
   {
     id: 'payslips',
