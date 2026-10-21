@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.62.0 — Godziny: kto dodał i kto edytował wpis (2026-10-21)
+
+- W oknie „Edytuj wpis” na dole mała szara informacja: „Dodano · awatar, osoba ·
+  data i godzina”, a gdy wpis był poprawiany — druga linijka „Edytowano · …”.
+- Widoczne tylko dla osób z uprawnieniem do edycji godzin wszystkich (admin).
+  „Edytowano” pokazuje się dla zmian od 0.61.2 (wcześniej nie było zapisywane).
+
 ## 0.61.2 — Zespół: poprawne „ostatnio aktywny” + kto edytował godziny (2026-10-21)
 
 - **Ostatnio aktywny:** sygnał obecności z aplikacji w ogóle nie był wysyłany
