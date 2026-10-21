@@ -103,7 +103,11 @@ export function MonthCard({
         </div>
       )}
 
-      <p className="text-sm leading-relaxed">{story.text}</p>
+      {story.paragraphs.map((text) => (
+        <p key={text} className="text-sm leading-relaxed">
+          {text}
+        </p>
+      ))}
 
       {story.good.length > 0 && <Bullets title={t('res.goodTitle')} items={story.good} tone="ok" />}
       {story.watch.length > 0 && <Bullets title={t('res.watchTitle')} items={story.watch} tone="warn" />}

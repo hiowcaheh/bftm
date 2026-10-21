@@ -53,6 +53,12 @@ export interface MonthStat {
   newProjects: number;
   absenceDays: number;
   absenceByType: Record<string, number>;
+  /** kto, jaki typ, ile dni roboczych, od–do */
+  absences: Array<{ name: string; type: string; days: number; from: string; to: string }>;
+  /** dni robocze pn–pt do dyspozycji (pierwszy miesiąc od startu, bieżący do dziś) */
+  workdaysAvail: number;
+  /** pełna obsada: osoby × dni robocze × 8 h */
+  capacity: number;
   /** faktury wysłane / opłacone w tym miesiącu */
   invoicedSent: number;
   paidIn: number;
@@ -210,6 +216,18 @@ export function buildYear(data: ResultsYearData, today: Date): YearStat {
       if (inv.paid?.startsWith(monthKey)) paidIn += amount;
     }
 
+    // Dni robocze do dyspozycji: pierwszy miesiąc liczony od startu danych,
+    // bieżący — tylko te, które już minęły
+    const isFirst = firstMonthKey === monthKey && !!data.firstDay;
+    const isCurrent = year === today.getFullYear() && m === today.getMonth() + 1;
+    const wd = workdays(year, m, isCurrent ? today : new Date(year, m, 0));
+    const workdaysAvail = isFirst
+      ? workdays(year, m, new Date(year, m, 0)).total -
+        workdays(year, m, new Date(year, m - 1, Number(data.firstDay!.slice(8)) - 1)).done
+      : isCurrent
+        ? wd.done
+        : wd.total;
+
     // Prognoza tylko dla bieżącego miesiąca, gdy minęło już kilka dni roboczych
     let live: Forecast | null = null;
     if (year === today.getFullYear() && m === today.getMonth() + 1) {
@@ -242,6 +260,11 @@ export function buildYear(data: ResultsYearData, today: Date): YearStat {
       newProjects: row.newProjects,
       absenceDays: Object.values(absenceByType).reduce((s, d) => s + d, 0),
       absenceByType,
+      absences: data.absences
+        .filter((a) => a.m === m && a.name && a.from && a.to)
+        .map((a) => ({ name: a.name!, type: a.type, days: a.days, from: a.from!, to: a.to! })),
+      workdaysAvail,
+      capacity: team.length * workdaysAvail * 8,
       invoicedSent,
       paidIn,
       overdueAmount,
