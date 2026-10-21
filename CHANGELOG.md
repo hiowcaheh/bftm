@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.61.2 — Zespół: poprawne „ostatnio aktywny” + kto edytował godziny (2026-10-21)
+
+- **Ostatnio aktywny:** sygnał obecności z aplikacji w ogóle nie był wysyłany
+  (zapytanie supabase-js rusza dopiero po `.then()`), więc data zmieniała się tylko
+  przy dodaniu godzin. Teraz odświeża się ok. raz na minutę, gdy ktoś używa aplikacji.
+- **Autor wpisu godzin** nie zmienia się już przy edycji — gdy admin poprawi godziny
+  Dawida, wpis dalej jest „dodany przez Dawida”.
+- **Kto edytował:** nowe kolumny `updated_by` / `updated_at` w `work_hours`
+  (migracje 0071–0072, trigger stempluje tylko zmianę godzin/daty/projektu/aktywności/
+  opisu/osoby, nie samą zmianę statusu). Na razie tylko w bazie, bez widoku w UI.
+
 ## 0.61.1 — Finanse: pełna ramka listy opłaconych faktur (2026-10-21)
 
 - Ramka wokół listy w oknie „Opłacone faktury” była rysowana na zewnątrz i okno ją
