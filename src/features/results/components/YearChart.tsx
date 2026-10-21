@@ -131,29 +131,40 @@ export function YearChart({
           })}
         </div>
       </div>
-      <div className="flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-text-secondary">
-        {metric === 'money' && (
-          <>
-            <Legend color={REV}>{t('res.legendRevenue')}</Legend>
-            <Legend color={COST}>{t('res.legendCosts')}</Legend>
-          </>
-        )}
-        {metric === 'result' && <Legend color={OK}>{t('res.legendResult')}</Legend>}
-        {metric === 'hours' && <Legend color={REV}>{t('res.legendHours')}</Legend>}
-        <Legend dashed>{t('res.legendForecast')}</Legend>
-        {metric === 'money' && <span className="font-semibold text-success">{t('res.legendK')}</span>}
-        <span className="font-semibold text-accent">{t('res.legendTilde')}</span>
+      {/* legenda: próbki w kształcie słupków + jedno zdanie o liczbach nad słupkami */}
+      <div className="flex flex-col gap-2 border-t border-line pt-2.5">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12.5px]">
+          {metric === 'money' && (
+            <>
+              <Legend color={REV}>{t('res.legendRevenue')}</Legend>
+              <Legend color={COST}>{t('res.legendCosts')}</Legend>
+            </>
+          )}
+          {metric === 'result' && <Legend color={OK}>{t('res.legendResultShort')}</Legend>}
+          {metric === 'hours' && <Legend color={REV}>{t('res.legendHoursShort')}</Legend>}
+          <Legend forecast>{t('res.legendForecastShort')}</Legend>
+        </div>
+        <p className="text-[11.5px] leading-snug text-text-secondary">
+          {t('res.legendNoteA')}{' '}
+          <b className={metric === 'hours' ? 'text-text' : 'text-success'}>
+            {t(metric === 'hours' ? 'res.legendNoteHours' : 'res.legendNoteResult')}
+          </b>
+          {t('res.legendNoteB')} <b className="text-accent">~</b> {t('res.legendNoteC')}
+        </p>
       </div>
     </>
   );
 }
 
-function Legend({ color, dashed, children }: { color?: string; dashed?: boolean; children: string }) {
+function Legend({ color, forecast, children }: { color?: string; forecast?: boolean; children: string }) {
   return (
     <span className="flex items-center gap-1.5">
       <i
-        className={cn('inline-block size-2.5 rounded-[3px]', dashed && 'border-[1.5px] border-dashed border-accent')}
-        style={color ? { background: color } : undefined}
+        className={cn(
+          'inline-block h-4 w-[9px] rounded-t-[3px] rounded-b-[1px]',
+          forecast && 'border-[1.5px] border-dashed border-accent',
+        )}
+        style={forecast ? { background: hatch(25) } : { background: color }}
       />
       {children}
     </span>
