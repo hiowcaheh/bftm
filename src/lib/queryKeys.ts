@@ -18,6 +18,10 @@ export const qk = {
     me: () => ['profile', 'me'] as const,
     private: () => ['profile', 'private'] as const,
   },
+  results: {
+    all: ['results'] as const,
+    year: (year: number) => ['results', 'year', year] as const,
+  },
   finance: {
     all: ['finance'] as const,
     summary: (from: string, to: string) => ['finance', 'summary', from, to] as const,

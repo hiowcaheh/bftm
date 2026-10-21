@@ -28,6 +28,7 @@ export const PERMISSIONS = [
   'checklist_private',
   'visualizations_manage',
   'visualizations_work',
+  'results_view',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -38,7 +39,10 @@ export type PermissionMap = Partial<Record<Permission, boolean>>;
  * Flagi przyznawane świadomie, także adminom (admin NIE ma ich implicite) —
  * np. masowe dodawanie godzin: Mateusz tak, Tomek nie.
  */
-export const EXPLICIT_PERMISSIONS: readonly Permission[] = ['hours_bulk_add'];
+export const EXPLICIT_PERMISSIONS: readonly Permission[] = ['hours_bulk_add', 'results_view'];
+
+/** Flagi wyłącznie dla adminów — pracownik ich nie dostanie (Rezultat). */
+export const ADMIN_ONLY_PERMISSIONS: readonly Permission[] = ['results_view'];
 
 /** Flaga wymaga innej (np. masowe godziny → edycja godzin wszystkich). */
 export const PERMISSION_REQUIRES: Partial<Record<Permission, Permission>> = {
@@ -65,6 +69,7 @@ export function can(
   permission: Permission,
 ): boolean {
   if (!user) return false;
+  if (ADMIN_ONLY_PERMISSIONS.includes(permission) && user.role !== 'admin') return false;
   if (EXPLICIT_PERMISSIONS.includes(permission)) {
     const required = PERMISSION_REQUIRES[permission];
     return user.permissions[permission] === true && (!required || can(user, required));
