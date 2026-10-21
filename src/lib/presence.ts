@@ -11,6 +11,11 @@ export function pingPresence(force = false): void {
   const now = Date.now();
   if (!force && now - lastPing < 60_000) return;
   lastPing = now;
-  // fire-and-forget: brak sesji → RPC nic nie zrobi (auth.uid() null)
-  void supabase.rpc('touch_last_seen');
+  // fire-and-forget: brak sesji → RPC nic nie zrobi (auth.uid() null).
+  // UWAGA: zapytanie supabase-js rusza dopiero po .then() — samo `void rpc()`
+  // nigdy go nie wysyłało (do 0.61.1 „ostatnio aktywny" stał w miejscu).
+  void supabase.rpc('touch_last_seen').then(
+    () => undefined,
+    () => undefined,
+  );
 }
