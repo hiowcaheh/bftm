@@ -53,7 +53,7 @@ export function MonthCard({
               'rounded-full px-2.5 py-1 text-[11.5px] font-bold whitespace-nowrap',
               badge === 'best' && 'bg-success-soft text-success',
               badge === 'worst' && 'bg-error-soft text-error',
-              badge === 'live' && 'bg-warning-soft text-warning',
+              badge === 'live' && 'bg-accent-soft text-accent',
               badge === 'first' && 'bg-surface text-text-secondary',
             )}
           >
@@ -82,8 +82,8 @@ export function MonthCard({
       </div>
 
       {x.live && (
-        <div className="flex flex-col gap-2 rounded-xl border-[1.5px] border-dashed border-warning/55 px-3 py-2.5">
-          <span className="text-xs font-bold tracking-wide text-warning uppercase">{t('res.forecastTitle')}</span>
+        <div className="flex flex-col gap-2 rounded-xl border-[1.5px] border-dashed border-accent/35 bg-accent-soft px-3 py-2.5">
+          <span className="text-xs font-bold tracking-wide text-accent uppercase">{t('res.forecastTitle')}</span>
           <div className="grid grid-cols-2 gap-x-3 gap-y-2">
             <Mini label={t('res.revenue')} value={`~${money(x.live.revenue)}`} />
             <Mini label={t('res.costs')} value={`~${money(x.live.cost)}`} />
