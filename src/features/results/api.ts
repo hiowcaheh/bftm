@@ -21,6 +21,8 @@ export interface ResultsProjectRow {
   id: string;
   name: string;
   color: string | null;
+  /** active / completed / paused / cancelled (od 0075) */
+  status?: string;
   clientId: string | null;
   client: string | null;
   hours: number;
