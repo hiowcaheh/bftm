@@ -18,6 +18,10 @@
   do wizualizacji (0082).
 - Bezpieczeństwo: porządki w uprawnieniach funkcji bazy (0081), łatka
   react-router 7.18.4.
+- Czytelność: ciemniejszy pomarańcz ostrzeżeń (`#b34700`) i zieleń (`#256b29`)
+  w tekstach i odznakach — kontrast zgodny z normą WCAG (np. terminy faktur,
+  „Czeka na zmianę hasła”, „Push”, zysk w Finansach). Kolory projektów,
+  priorytetów i znaczników na mapie bez zmian.
 
 ## 0.65.4 — komunikaty błędów w języku użytkownika (2026-10-22)
 
