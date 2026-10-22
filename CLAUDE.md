@@ -66,15 +66,13 @@ npx tsc --noEmit   # szybki typecheck
 
 - Auth: konta zakłada wyłącznie admin przez RPC `admin_create_employee`
   (security definer). Reset hasła: `admin_reset_password`. Dezaktywacja:
-  `admin_set_active` (ban + ścięcie sesji; aktywacja zdejmuje też archiwum).
-  **Pracowników nie usuwamy (0.66, migracja 0080):** `admin_archive_employee` = ban +
-  sesje + push off + `profiles.archived_at`; dane (godziny, stawki, wypłaty) zostają
-  dla Finansów i Rezultatu. Powrót: `admin_restore_employee` (logowanie dalej
-  zablokowane do aktywacji). Ekran Zespół → Archiwum. `admin_delete_employee` usunięte.
-  **Stan 22.10.2026: migracja 0080 NIE jest zastosowana** — `apply_migration` czeka
-  na ręczne zatwierdzenie (DELETE na auth.* + DROP) i po 60 s przerywa. Frontend
-  ukrywa przycisk archiwum, dopóki profil nie ma kolumny `archived_at`
-  (`archiveReady` w EmployeeDetailPage) — po zastosowaniu 0080 można ten warunek usunąć.
+  `admin_set_active` (ban + ścięcie sesji).
+  **Pracowników nie usuwamy (0.66, migracja 0080):** `admin_archive_employee` =
+  `admin_set_active(false)` + `profiles.archived_at`; dane (godziny, stawki, wypłaty)
+  zostają dla Finansów i Rezultatu. Powrót: `admin_restore_employee` (logowanie dalej
+  zablokowane do aktywacji); trigger `profiles_unarchive_on_activate` zdejmuje archiwum
+  przy aktywacji. Ekran Zespół → Archiwum. `admin_delete_employee` = blokada (raise).
+  Przycisk archiwum pokazuje się, gdy profil ma kolumnę `archived_at` (`archiveReady`).
   UWAGA: `auth.refresh_tokens.user_id` to **varchar** — porównania z uuid wymagają `::text`.
 - Wychodzący HTTP z Postgresa: extension `http` — Resend (`send_offer_email`,
   klucz w tabeli `app_secrets`), lookup orgnr przez VATComply
