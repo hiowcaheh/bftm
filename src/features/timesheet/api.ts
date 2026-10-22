@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { pingPresence } from '@/lib/presence';
+import { translate } from '@/lib/i18n/context';
 import type { HoursFilters, WorkHoursEntry, WorkHoursInsert } from './types';
 
 // profiles!employee_id — work_hours ma DWA odwołania do profiles
@@ -54,13 +55,17 @@ export async function fetchLastOwnEntry(
   return data as unknown as WorkHoursEntry | null;
 }
 
+/**
+ * Duplikat wpisu (unikalny dzień + pracownik + projekt). Osobna klasa, żeby hooki
+ * pokazały ten komunikat zamiast ogólnego — w języku użytkownika.
+ */
+export class DuplicateEntryError extends Error {}
+
 export async function createEntry(payload: WorkHoursInsert): Promise<void> {
   const { error } = await supabase.from('work_hours').insert(payload);
   if (error) {
     if (error.code === '23505') {
-      throw new Error(
-        'Na ten dzień istnieje już wpis dla tego pracownika w tym projekcie — edytuj go zamiast dodawać nowy',
-      );
+      throw new DuplicateEntryError(translate('ts.errDuplicate'));
     }
     throw error;
   }
@@ -71,9 +76,7 @@ export async function createEntries(payloads: WorkHoursInsert[]): Promise<void> 
   const { error } = await supabase.from('work_hours').insert(payloads);
   if (error) {
     if (error.code === '23505') {
-      throw new Error(
-        'Któraś z osób ma już wpis na ten dzień w tym projekcie — odznacz ją albo edytuj jej wpis',
-      );
+      throw new DuplicateEntryError(translate('ts.errDuplicateBulk'));
     }
     throw error;
   }
@@ -86,9 +89,7 @@ export async function updateEntry(
   const { error } = await supabase.from('work_hours').update(patch).eq('id', id);
   if (error) {
     if (error.code === '23505') {
-      throw new Error(
-        'Na ten dzień istnieje już inny wpis dla tego pracownika w tym projekcie',
-      );
+      throw new DuplicateEntryError(translate('ts.errDuplicateOther'));
     }
     throw error;
   }

@@ -54,6 +54,6 @@ export function useUploadAvatar() {
       await refresh();
       toast.success(translate('prof.avatarSaved'));
     },
-    onError: (e: Error) => toast.error(e.message || translate('prof.errAvatar')),
+    onError: () => toast.error(translate('prof.errAvatar')),
   });
 }

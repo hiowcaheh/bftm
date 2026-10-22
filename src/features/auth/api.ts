@@ -42,11 +42,11 @@ export async function signIn(loginOrEmail: string, password: string): Promise<vo
     if (email === 'admin') {
       const { adminEmail } = await fetchPublicBranding();
       if (!adminEmail) {
-        throw new Error('Konto administratora nie jest jeszcze skonfigurowane');
+        throw new Error(translate('auth.errNoAdmin'));
       }
       email = adminEmail;
     } else {
-      throw new Error('Podaj adres e-mail albo login „admin"');
+      throw new Error(translate('auth.errLoginFormat'));
     }
   }
 

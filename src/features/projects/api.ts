@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { compressImage } from '@/lib/imageCompress';
+import { translate } from '@/lib/i18n/context';
 import type { TablesInsert } from '@/types/database';
 import type { ProjectInsert, ProjectPhoto, ProjectWithClient } from './types';
 
@@ -219,7 +220,7 @@ export async function uploadPhotos(
       .from('project-photos')
       // ścieżka z timestampem = plik niezmienny → można cache'ować na rok
       .upload(path, compressed, { contentType: 'image/jpeg', cacheControl: '31536000' });
-    if (uploadError) throw new Error('Nie udało się przesłać zdjęcia');
+    if (uploadError) throw new Error(translate('proj.errPhotoUpload'));
     const { error } = await supabase.from('project_photos').insert({
       project_id: projectId,
       path,

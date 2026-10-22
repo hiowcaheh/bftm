@@ -186,7 +186,7 @@ export function useUploadPhotos(projectId: string) {
       void queryClient.invalidateQueries({ queryKey: qk.projects.photos(projectId) });
       toast.success(files.length === 1 ? translate('proj.photoAdded') : translate('proj.photosAdded', { n: files.length }));
     },
-    onError: (e: Error) => toast.error(e.message || translate('proj.errPhotoUpload')),
+    onError: () => toast.error(translate('proj.errPhotoUpload')),
   });
 }
 

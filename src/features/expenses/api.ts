@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { compressImage } from '@/lib/imageCompress';
+import { translate } from '@/lib/i18n/context';
 import type { ExpenseCategory } from '@/types/database';
 import type { ExpenseInsert, ExpenseWithProject } from './types';
 
@@ -68,7 +69,7 @@ export async function uploadReceipt(file: File): Promise<string> {
   const { error } = await supabase.storage
     .from('receipts')
     .upload(path, compressed, { contentType: 'image/jpeg' });
-  if (error) throw new Error('Nie udało się przesłać paragonu');
+  if (error) throw new Error(translate('exp.errUpload'));
   return path;
 }
 
