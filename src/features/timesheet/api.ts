@@ -107,17 +107,15 @@ export async function deleteEntry(id: string): Promise<void> {
 export async function approveEntries(
   ids: string[],
   period: { label: string },
-): Promise<void> {
-  const { data: affected, error: fetchError } = await supabase
-    .from('work_hours')
-    .select('employee_id, hours')
-    .in('id', ids);
-  if (fetchError) throw fetchError;
-
-  const { error } = await supabase
+): Promise<number> {
+  // Powiadamiamy tylko o wierszach naprawdę zatwierdzonych — RLS po cichu
+  // pomija wpisy, których zatwierdzający nie może zmienić (np. bez „edycji
+  // godzin wszystkich”), a wcześniej i tak szło „godziny zatwierdzone”.
+  const { data: affected, error } = await supabase
     .from('work_hours')
     .update({ status: 'approved' })
-    .in('id', ids);
+    .in('id', ids)
+    .select('employee_id, hours');
   if (error) throw error;
 
   const { data: userData } = await supabase.auth.getUser();
@@ -152,4 +150,5 @@ export async function approveEntries(
       };
     }),
   );
+  return affected?.length ?? 0;
 }

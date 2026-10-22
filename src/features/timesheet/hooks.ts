@@ -105,9 +105,9 @@ export function useApproveEntries() {
   return useMutation({
     mutationFn: ({ ids, periodLabel }: { ids: string[]; periodLabel: string }) =>
       approveEntries(ids, { label: periodLabel }),
-    onSuccess: (_d, { ids }) => {
+    onSuccess: (approved) => {
       invalidateHours(queryClient);
-      toast.success(translate('ts.approvedN', { n: ids.length }));
+      toast.success(translate('ts.approvedN', { n: approved }));
     },
     onError: () => toast.error(translate('ts.errApprove')),
   });
