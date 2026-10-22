@@ -168,6 +168,8 @@ type OfferRow = {
   public_token: string | null;
   sent_at: string | null;
   viewed_at: string | null;
+  /** Ostatnie policzone otwarcie — okno 30 min licznika (0078). */
+  last_viewed_at: string | null;
   view_count: number;
   responded_at: string | null;
   response_comment: string | null;

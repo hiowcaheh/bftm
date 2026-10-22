@@ -114,6 +114,8 @@ export function usePublicOffer(token: string, track: boolean) {
     queryFn: () => fetchPublicOffer(token, track),
     staleTime: 60_000,
     retry: 1,
+    // powrót klienta do karty nie jest nowym otwarciem (licznik + push dla admina)
+    refetchOnWindowFocus: false,
   });
 }
 
