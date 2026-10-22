@@ -66,8 +66,11 @@ npx tsc --noEmit   # szybki typecheck
 
 - Auth: konta zakłada wyłącznie admin przez RPC `admin_create_employee`
   (security definer). Reset hasła: `admin_reset_password`. Dezaktywacja:
-  `admin_set_active` (ban + ścięcie sesji). Trwałe usunięcie: `admin_delete_employee`
-  (kasuje godziny + avatar + konto Auth; kaskada czyści resztę).
+  `admin_set_active` (ban + ścięcie sesji; aktywacja zdejmuje też archiwum).
+  **Pracowników nie usuwamy (0.66, migracja 0080):** `admin_archive_employee` = ban +
+  sesje + push off + `profiles.archived_at`; dane (godziny, stawki, wypłaty) zostają
+  dla Finansów i Rezultatu. Powrót: `admin_restore_employee` (logowanie dalej
+  zablokowane do aktywacji). Ekran Zespół → Archiwum. `admin_delete_employee` usunięte.
   UWAGA: `auth.refresh_tokens.user_id` to **varchar** — porównania z uuid wymagają `::text`.
 - Wychodzący HTTP z Postgresa: extension `http` — Resend (`send_offer_email`,
   klucz w tabeli `app_secrets`), lookup orgnr przez VATComply
@@ -136,6 +139,22 @@ npx tsc --noEmit   # szybki typecheck
 - Zgody narzędzi: `.claude/settings.json` (Supabase MCP bez pytania) — w repo.
 - Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz
   godzin = prop `single`). Nowe wybieranie dat robić na nim, nie na natywnym inpucie.
+- Oferta publiczna (0078): otwarcie liczone raz na 30 min (`offers.last_viewed_at`),
+  bez odświeżania przy powrocie do karty — inaczej push „Klient otworzył ofertę” spamuje.
+- Publiczny raport (0079): nieobecności bez notatek (mogą dotyczyć zdrowia — RODO).
+- Komunikaty błędów pokazywane użytkownikowi też przez słownik (np. `DuplicateEntryError`
+  w godzinach) — 2 z 3 pracowników ma ukraiński.
+
+## Skille projektu (`.claude/skills/`) — używaj zamiast zgadywać
+
+- `bftm-release` — wersja, CHANGELOG, push → PR → merge → deploy → reset brancha.
+- `bftm-migration` — wzorce SQL, testy w transakcji z rollbackiem / lokalny Postgres,
+  advisory świadomie ignorowane.
+- `bftm-ui-preview` — podgląd UI (artefakt Design, tokeny) przed zmianą wyglądu.
+- `bftm-browser-check` — test w przeglądarce na podstawionych danych (`smoke.mjs`).
+- Hook `.claude/hooks/session-start.sh` instaluje node_modules w nowej sesji w chmurze.
+- Repo na GitHubie jest **publiczne** (decyzja Mateusza) — nigdy nie commitować
+  sekretów; workflow `deploy-edge-fn.yml` przyjmuje token w polu — nie używać.
 
 ## PWA / domena
 
@@ -167,5 +186,8 @@ npx tsc --noEmit   # szybki typecheck
   o pozwolenie na kroki wykonawcze — commit, PR, merge, deploy, migracje
   przyrostowe, zapytania do bazy. Nadal pytaj przed: zmianą wyglądu bez podglądu,
   trwałym kasowaniem danych w bazie/storage i wszystkim, czego nie da się cofnąć.
+- **Przed pushem (od 0.66):** podsumowanie zmian w czacie (co, dlaczego, jak
+  sprawdzone, migracje) i czekanie na zgodę Mateusza; migracje na produkcję też
+  dopiero po zgodzie. Do tego czasu tylko lokalne commity.
 - Wersjonowanie: minor przy nowej funkcji, patch przy poprawce; CHANGELOG po polsku.
 - Nie łączyć wielu funkcji w jeden commit — małe, opisowe commity.
