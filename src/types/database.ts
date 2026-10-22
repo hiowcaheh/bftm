@@ -27,6 +27,8 @@ type ProfileRow = {
   must_change_password: boolean;
   avatar_path: string | null;
   last_seen_at: string | null;
+  /** Data przeniesienia do archiwum (0080); null = w zespole. */
+  archived_at: string | null;
   created_at: string;
 }
 
@@ -467,7 +469,11 @@ export type Database = {
         Args: { p_profile_id: string; p_active: boolean };
         Returns: undefined;
       };
-      admin_delete_employee: {
+      admin_archive_employee: {
+        Args: { p_profile_id: string };
+        Returns: undefined;
+      };
+      admin_restore_employee: {
         Args: { p_profile_id: string };
         Returns: undefined;
       };

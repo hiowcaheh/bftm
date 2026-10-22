@@ -64,11 +64,19 @@ export async function setActive(profileId: string, active: boolean): Promise<voi
 }
 
 /**
- * Trwale usuwa pracownika z całej aplikacji (konto Auth, profil, godziny,
- * nieobecności, stawki, dane prywatne, powiadomienia, wypłaty, avatar).
+ * Archiwum zamiast usuwania (0080): blokada logowania + zniknięcie z Zespołu,
+ * ale godziny, nieobecności, stawki i wypłaty zostają dla Finansów i Rezultatu.
  */
-export async function deleteEmployee(profileId: string): Promise<void> {
-  const { error } = await supabase.rpc('admin_delete_employee', {
+export async function archiveEmployee(profileId: string): Promise<void> {
+  const { error } = await supabase.rpc('admin_archive_employee', {
+    p_profile_id: profileId,
+  });
+  if (error) throw new Error(rpcMessage(error.message));
+}
+
+/** Powrót z archiwum na listę — logowanie zostaje zablokowane do aktywacji. */
+export async function restoreEmployee(profileId: string): Promise<void> {
+  const { error } = await supabase.rpc('admin_restore_employee', {
     p_profile_id: profileId,
   });
   if (error) throw new Error(rpcMessage(error.message));
@@ -160,7 +168,7 @@ export async function fetchActivity(profileId: string): Promise<LoginActivity[]>
     .from('activity_log')
     .select('id, action, created_at')
     .or(`actor.eq.${profileId},entity_id.eq.${profileId}`)
-    .in('action', ['login', 'create', 'reset_password', 'deactivate', 'reactivate'])
+    .in('action', ['login', 'create', 'reset_password', 'deactivate', 'reactivate', 'archive', 'restore'])
     .order('created_at', { ascending: false })
     .limit(30);
   if (error) throw error;

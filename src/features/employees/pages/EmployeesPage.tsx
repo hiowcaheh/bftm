@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Megaphone, Users, UserPlus } from 'lucide-react';
+import { Archive, Megaphone, Users, UserPlus } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -25,9 +25,11 @@ export default function EmployeesPage() {
   const [announceOpen, setAnnounceOpen] = useState(false);
   const isAdmin = user?.role === 'admin';
 
+  // osoby z archiwum mają osobny ekran (Archiwum) — na liście Zespołu ich nie ma
+  const archivedCount = (employees.data ?? []).filter((e) => e.archived_at).length;
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const list = employees.data ?? [];
+    const list = (employees.data ?? []).filter((e) => !e.archived_at);
     if (!q) return list;
     return list.filter(
       (e) =>
@@ -92,6 +94,23 @@ export default function EmployeesPage() {
               onClick={() => navigate(`/pracownicy/${emp.id}`)}
             />
           ))}
+        </ListGroup>
+      )}
+
+      {isAdmin && archivedCount > 0 && !search && (
+        <ListGroup>
+          <ListRow
+            leading={
+              <span className="flex size-10 items-center justify-center rounded-full bg-surface text-text-secondary">
+                <Archive className="size-5" strokeWidth={1.8} />
+              </span>
+            }
+            title={t('emp.archive')}
+            subtitle={t('emp.archiveSub')}
+            trailing={archivedCount}
+            chevron
+            onClick={() => navigate('/pracownicy/archiwum')}
+          />
         </ListGroup>
       )}
 
