@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.67.0 — nowy wykres „Przebieg okresu” w Finansach (2026-10-22)
+
+- Wykres w Finansach wygląda teraz jak w Rezultacie: czarne słupki to
+  wypracowane, szare to koszty, a nad każdym tygodniem (w trybie „Tydzień” —
+  dniem) widać zysk na zielono albo stratę na czerwono.
+- Dotknięcie tygodnia/dnia pokazuje pod wykresem kartę: wypracowane, koszty
+  (praca i paragony osobno) i zysk. Domyślnie wybrany jest bieżący tydzień,
+  liczony „do dziś”.
+- Większe, czytelne napisy i pełna wysokość słupków (wcześniej skala sięgała
+  np. 100 tys. przy 52 tys., więc słupki zajmowały pół wykresu).
+- Legenda i szczegóły w języku użytkownika (wcześniej zawsze po polsku).
+  „Struktura kosztów” bez zmian.
+
 ## 0.66.1 — wyraźniejszy przycisk archiwum (2026-10-22)
 
 - „Przenieś do archiwum” na karcie pracownika ma jasnoczerwone tło i czerwony
