@@ -24,7 +24,7 @@ import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
-import { moneyWhole, monthYear } from '@/lib/format';
+import { dateLong, moneyWhole, monthYear } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import ExpensesPage from '@/features/expenses/pages/ExpensesPage';
@@ -124,32 +124,61 @@ function FinanceReport() {
   }, [prevDaily.data, prevSummary.data]);
   const vs = t('fin.vs', { p: prev.label });
 
+  const today = iso(now);
   const barGroups = useMemo<BarGroup[]>(() => {
     const days = daily.data ?? [];
     if (mode === 'week') {
       return days.map((d) => ({
         key: d.day,
         label: format(new Date(d.day), 'EEEEEE', { locale: dateLocale }),
+        sub: format(new Date(d.day), 'd.MM'),
+        title: dateLong(d.day),
         revenue: d.revenue,
-        cost: d.labor_cost + d.expenses,
+        labor: d.labor_cost,
+        expenses: d.expenses,
+        current: d.day === today,
       }));
     }
-    // miesiąc → grupowanie po tygodniach ISO
-    const byWeek = new Map<number, BarGroup>();
+    // miesiąc → grupowanie po tygodniach ISO (dni już przycięte do miesiąca)
+    const byWeek = new Map<number, { g: BarGroup; first: Date; last: Date }>();
     for (const d of days) {
-      const week = getISOWeek(new Date(d.day));
-      const g = byWeek.get(week) ?? {
-        key: `w${week}`,
-        label: `T${week}`,
-        revenue: 0,
-        cost: 0,
+      const dt = new Date(d.day);
+      const week = getISOWeek(dt);
+      const w = byWeek.get(week) ?? {
+        g: {
+          key: `w${week}`,
+          label: t('fin.weekShort', { n: week }),
+          sub: '',
+          title: '',
+          revenue: 0,
+          labor: 0,
+          expenses: 0,
+          current: false,
+        },
+        first: dt,
+        last: dt,
       };
-      g.revenue += d.revenue;
-      g.cost += d.labor_cost + d.expenses;
-      byWeek.set(week, g);
+      w.g.revenue += d.revenue;
+      w.g.labor += d.labor_cost;
+      w.g.expenses += d.expenses;
+      w.g.current ||= d.day === today;
+      w.last = dt;
+      byWeek.set(week, w);
     }
-    return [...byWeek.values()];
-  }, [daily.data, mode]);
+    return [...byWeek.entries()].map(([week, { g, first, last }]) => {
+      // bieżący tydzień w szczegółach liczony „do dziś”
+      const end = g.current ? new Date(today) : last;
+      const range =
+        format(first, 'd') === format(end, 'd')
+          ? format(end, 'd MMMM', { locale: dateLocale })
+          : `${format(first, 'd')}–${format(end, 'd MMMM', { locale: dateLocale })}`;
+      return {
+        ...g,
+        sub: `${format(first, 'd')}–${format(last, 'd.MM')}`,
+        title: `${t('ts.weekLabel', { n: week })} · ${range}${g.current ? ` (${t('fin.untilToday')})` : ''}`,
+      };
+    });
+  }, [daily.data, mode, dateLocale, today, t]);
 
   // koszty bez projektu (paragony ogólne) — osobna pozycja w strukturze kosztów
   const generalCosts =
@@ -271,10 +300,10 @@ function FinanceReport() {
             </Card>
           </section>
 
-          {barGroups.some((g) => g.revenue > 0 || g.cost > 0) && (
+          {barGroups.some((g) => g.revenue > 0 || g.labor + g.expenses > 0) && (
             <Card className="flex flex-col gap-3 p-4">
               <h2 className="text-base font-semibold">{t('fin.periodChart')}</h2>
-              <FinanceBars groups={barGroups} />
+              <FinanceBars groups={barGroups} mode={mode} />
             </Card>
           )}
 
