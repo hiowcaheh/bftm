@@ -126,6 +126,9 @@ export default function EmployeeDetailPage() {
   }
   const emp = employee.data;
   const isArchived = !!emp.archived_at;
+  // Archiwum działa dopiero po migracji 0080 (kolumna archived_at w profiles) —
+  // do tego czasu bez przycisku, żeby nie wołać nieistniejącego RPC.
+  const archiveReady = 'archived_at' in emp;
   const currentWage = compensation.data?.[0];
 
   const togglePerm = (flag: keyof PermissionMap, value: boolean) => {
@@ -518,14 +521,16 @@ export default function EmployeeDetailPage() {
               >
                 {emp.active ? t('emp.deactivate') : t('emp.activate')}
               </Button>
-              <Button
-                variant="secondary"
-                icon={<Archive className="size-5" />}
-                loading={archiveEmployee.isPending}
-                onClick={() => setConfirmArchive(true)}
-              >
-                {t('emp.moveToArchive')}
-              </Button>
+              {archiveReady && (
+                <Button
+                  variant="secondary"
+                  icon={<Archive className="size-5" />}
+                  loading={archiveEmployee.isPending}
+                  onClick={() => setConfirmArchive(true)}
+                >
+                  {t('emp.moveToArchive')}
+                </Button>
+              )}
             </div>
           )}
         </>

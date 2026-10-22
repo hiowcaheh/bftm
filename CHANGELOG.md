@@ -8,7 +8,9 @@
   wyłączone, osoba znika z Zespołu i z wyboru pracownika, ale **wszystkie
   dane zostają**. Zespół → Archiwum (tylko admin) pokazuje byłych pracowników
   i pozwala przywrócić (wraca z zablokowanym logowaniem; „Aktywuj konto”
-  włącza je z powrotem). Migracja 0080.
+  włącza je z powrotem). Migracja 0080 czeka na ręczne zatwierdzenie w
+  Supabase — do tego czasu przycisk archiwum jest ukryty (pojawi się sam),
+  a stary przycisk trwałego usuwania już zniknął.
 - Oferta: otwarcie przez klienta liczy się najwyżej raz na 30 minut — koniec
   serii powiadomień „Klient otworzył ofertę” przy odświeżaniu (0078).
 - Publiczny link do raportu nie zawiera już notatek nieobecności (0079).

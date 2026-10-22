@@ -71,6 +71,10 @@ npx tsc --noEmit   # szybki typecheck
   sesje + push off + `profiles.archived_at`; dane (godziny, stawki, wypłaty) zostają
   dla Finansów i Rezultatu. Powrót: `admin_restore_employee` (logowanie dalej
   zablokowane do aktywacji). Ekran Zespół → Archiwum. `admin_delete_employee` usunięte.
+  **Stan 22.10.2026: migracja 0080 NIE jest zastosowana** — `apply_migration` czeka
+  na ręczne zatwierdzenie (DELETE na auth.* + DROP) i po 60 s przerywa. Frontend
+  ukrywa przycisk archiwum, dopóki profil nie ma kolumny `archived_at`
+  (`archiveReady` w EmployeeDetailPage) — po zastosowaniu 0080 można ten warunek usunąć.
   UWAGA: `auth.refresh_tokens.user_id` to **varchar** — porównania z uuid wymagają `::text`.
 - Wychodzący HTTP z Postgresa: extension `http` — Resend (`send_offer_email`,
   klucz w tabeli `app_secrets`), lookup orgnr przez VATComply
