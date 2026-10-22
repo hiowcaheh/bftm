@@ -23,11 +23,12 @@
   --color-text-secondary: #666666;
   --color-line: #e5e5e5;
 
-  --color-success: #2e7d32;
+  /* success/warning przyciemnione w 0.66 (kontrast WCAG ≥ 4,5:1 na kartach i tłach soft) */
+  --color-success: #256b29;
   --color-success-soft: #e8f3e9;
   --color-error: #c62828;
   --color-error-soft: #fbeaea;
-  --color-warning: #e65100;
+  --color-warning: #b34700;
   --color-warning-soft: #fdf0e6;
   --color-info: #1565c0;
   --color-info-soft: #e8f0fb;
