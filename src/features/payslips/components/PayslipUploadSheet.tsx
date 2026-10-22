@@ -103,7 +103,8 @@ export function PayslipUploadSheet({ open, onClose, defaultEmployeeId, existing 
           value={employeeId}
           placeholder={t('pay.selectEmployee')}
           options={(employees.data ?? [])
-            .filter((e) => e.role !== 'admin')
+            // osoby z archiwum zostają w filtrze historii, ale nowych wypłat już nie dostają
+            .filter((e) => e.role !== 'admin' && !e.archived_at)
             .map((e) => ({ value: e.id, label: e.full_name }))}
           onChange={(e) => setEmployeeId(e.target.value)}
         />

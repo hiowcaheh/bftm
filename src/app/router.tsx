@@ -13,6 +13,9 @@ const ChangePasswordPage = lazy(() => import('@/features/auth/pages/ChangePasswo
 const EmployeeDetailPage = lazy(
   () => import('@/features/employees/pages/EmployeeDetailPage'),
 );
+const EmployeesArchivePage = lazy(
+  () => import('@/features/employees/pages/EmployeesArchivePage'),
+);
 const ClientDetailPage = lazy(() => import('@/features/clients/pages/ClientDetailPage'));
 const ProjectDetailPage = lazy(() => import('@/features/projects/pages/ProjectDetailPage'));
 const MyProfilePage = lazy(() => import('@/features/profile/pages/MyProfilePage'));
@@ -128,6 +131,15 @@ export function AppRouter() {
                   }
                 />
               ))}
+              {/* statyczny segment wygrywa z /pracownicy/:id (ranking tras) */}
+              <Route
+                path="/pracownicy/archiwum"
+                element={
+                  <RequirePerm permission="employees_view">
+                    <EmployeesArchivePage />
+                  </RequirePerm>
+                }
+              />
               <Route
                 path="/pracownicy/:id"
                 element={

@@ -20,6 +20,7 @@ function pageTitleKey(pathname: string): string {
   if (pathname === '/') return 'nav.dashboard';
   if (pathname === '/profil') return 'nav.profile';
   if (pathname === '/finanse/paragony') return 'nav.receipts';
+  if (pathname === '/pracownicy/archiwum') return 'emp.archive';
   const module = modules.find((m) => m.path !== '/' && pathname.startsWith(m.path));
   return module ? `nav.${module.id}` : 'BFTM';
 }

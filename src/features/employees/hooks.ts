@@ -5,8 +5,8 @@ import { translate } from '@/lib/i18n/context';
 import type { PermissionMap } from '@/lib/permissions';
 import {
   addCompensation,
+  archiveEmployee,
   createEmployee,
-  deleteEmployee,
   fetchActivity,
   fetchCompensation,
   fetchEmployee,
@@ -14,6 +14,7 @@ import {
   fetchEmployees,
   fetchPushStatus,
   resetPassword,
+  restoreEmployee,
   saveEmployeePrivate,
   setActive,
   updateEmployee,
@@ -115,14 +116,26 @@ export function useSetActive() {
   });
 }
 
-/** Trwałe usunięcie pracownika — czyści też cache godzin/raportów, bo znikają jego wpisy. */
-export function useDeleteEmployee() {
+/** Przeniesienie do archiwum — dane (godziny, stawki, wypłaty) zostają. */
+export function useArchiveEmployee() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteEmployee(id),
+    mutationFn: (id: string) => archiveEmployee(id),
     onSuccess: () => {
-      void queryClient.invalidateQueries();
-      toast.success(translate('emp.deleted'));
+      void queryClient.invalidateQueries({ queryKey: qk.employees.all });
+      toast.success(translate('emp.archived'));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useRestoreEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => restoreEmployee(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: qk.employees.all });
+      toast.success(translate('emp.restored'));
     },
     onError: (e: Error) => toast.error(e.message),
   });

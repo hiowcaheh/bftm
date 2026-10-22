@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+  Archive,
+  ArchiveRestore,
   ArrowLeft,
   Banknote,
   Clock3,
@@ -9,7 +11,6 @@ import {
   Phone,
   Shirt,
   ShieldCheck,
-  Trash2,
   UserX,
   UserCheck,
   Mail,
@@ -26,7 +27,8 @@ import { ListGroup, ListRow } from '@/components/ui/ListRow';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { SkeletonList } from '@/components/ui/Skeleton';
 import { Switch } from '@/components/ui/Switch';
-import { money } from '@/lib/format';
+import { date, money } from '@/lib/format';
+import { renderRichText } from '@/lib/richText';
 import { format } from 'date-fns';
 import { useI18n } from '@/lib/i18n/context';
 import {
@@ -38,12 +40,13 @@ import {
 import { useSession } from '@/features/auth/SessionProvider';
 import {
   useAddCompensation,
+  useArchiveEmployee,
   useCompensation,
-  useDeleteEmployee,
   useEmployee,
   useEmployeeActivity,
   useEmployeePrivate,
   useResetPassword,
+  useRestoreEmployee,
   useSaveEmployeePrivate,
   useSetActive,
   useUpdateEmployee,
@@ -61,6 +64,8 @@ const ACTIVITY_KEYS: Record<string, string> = {
   reset_password: 'emp.actReset',
   deactivate: 'emp.actDeactivate',
   reactivate: 'emp.actReactivate',
+  archive: 'emp.actArchive',
+  restore: 'emp.actRestore',
 };
 
 export default function EmployeeDetailPage() {
@@ -78,7 +83,8 @@ export default function EmployeeDetailPage() {
   const pushStatus = usePushStatus(isAdmin);
   const resetPassword = useResetPassword();
   const setActive = useSetActive();
-  const deleteEmployee = useDeleteEmployee();
+  const archiveEmployee = useArchiveEmployee();
+  const restoreEmployee = useRestoreEmployee();
   const addCompensation = useAddCompensation(id);
 
   const privateData = useEmployeePrivate(id, isAdmin);
@@ -90,7 +96,8 @@ export default function EmployeeDetailPage() {
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [confirmActive, setConfirmActive] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmArchive, setConfirmArchive] = useState(false);
+  const [confirmRestore, setConfirmRestore] = useState(false);
   const [logPage, setLogPage] = useState(0);
   const [newWage, setNewWage] = useState('');
   const [wageFrom, setWageFrom] = useState(() => format(new Date(), 'yyyy-MM-dd'));
@@ -118,6 +125,7 @@ export default function EmployeeDetailPage() {
     return <p className="py-16 text-center text-sm text-text-secondary">{t('emp.notFound')}</p>;
   }
   const emp = employee.data;
+  const isArchived = !!emp.archived_at;
   const currentWage = compensation.data?.[0];
 
   const togglePerm = (flag: keyof PermissionMap, value: boolean) => {
@@ -189,10 +197,10 @@ export default function EmployeeDetailPage() {
     <div className="flex flex-col gap-4">
       <button
         type="button"
-        onClick={() => navigate('/pracownicy')}
+        onClick={() => navigate(isArchived ? '/pracownicy/archiwum' : '/pracownicy')}
         className="press flex items-center gap-1 self-start text-sm font-medium text-text-secondary"
       >
-        <ArrowLeft className="size-4" /> {t('nav.employees')}
+        <ArrowLeft className="size-4" /> {isArchived ? t('emp.archive') : t('nav.employees')}
       </button>
 
       <Card className="flex items-center gap-4 p-4">
@@ -202,7 +210,14 @@ export default function EmployeeDetailPage() {
           <div className="mt-1 flex flex-wrap gap-1.5">
             {emp.role === 'admin' && <Badge tone="accent">Admin</Badge>}
             <OnlineBadge lastSeen={emp.last_seen_at} />
-            {!emp.active && <Badge tone="error">{t('emp.inactive')}</Badge>}
+            {isArchived ? (
+              <Badge>
+                <Archive className="size-3" />
+                {t('emp.archivedBadge')}
+              </Badge>
+            ) : (
+              !emp.active && <Badge tone="error">{t('emp.inactive')}</Badge>
+            )}
             {emp.must_change_password && <Badge tone="warning">{t('emp.waitingPwChange')}</Badge>}
             {/* czy dostaje powiadomienia push (przypomnienia, zatwierdzenia) — tylko admin */}
             {isAdmin && emp.active && pushStatus.data && (
@@ -215,6 +230,15 @@ export default function EmployeeDetailPage() {
           </div>
         </div>
       </Card>
+
+      {isArchived && (
+        <Card className="flex flex-col gap-1.5 p-4">
+          <p className="text-sm font-semibold">
+            {t('emp.archivedSince', { date: date(emp.archived_at!) })}
+          </p>
+          <p className="text-sm text-text-secondary">{t('emp.archivedInfo')}</p>
+        </Card>
+      )}
 
       <ListGroup>
         <ListRow
@@ -466,31 +490,44 @@ export default function EmployeeDetailPage() {
             )}
           </Card>
 
-          <div className="flex flex-col gap-3">
-            <Button
-              variant="secondary"
-              icon={<KeyRound className="size-5" />}
-              onClick={() => setConfirmReset(true)}
-            >
-              {t('emp.resetPw')}
-            </Button>
-            <Button
-              variant={emp.active ? 'destructive' : 'primary'}
-              icon={emp.active ? <UserX className="size-5" /> : <UserCheck className="size-5" />}
-              loading={setActive.isPending}
-              onClick={() => setConfirmActive(true)}
-            >
-              {emp.active ? t('emp.deactivate') : t('emp.activate')}
-            </Button>
-            <Button
-              variant="destructive"
-              icon={<Trash2 className="size-5" />}
-              loading={deleteEmployee.isPending}
-              onClick={() => setConfirmDelete(true)}
-            >
-              {t('emp.deleteEmployee')}
-            </Button>
-          </div>
+          {isArchived ? (
+            <div className="flex flex-col gap-2">
+              <Button
+                icon={<ArchiveRestore className="size-5" />}
+                loading={restoreEmployee.isPending}
+                onClick={() => setConfirmRestore(true)}
+              >
+                {t('emp.restore')}
+              </Button>
+              <p className="text-center text-xs text-text-secondary">{t('emp.restoreHint')}</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <Button
+                variant="secondary"
+                icon={<KeyRound className="size-5" />}
+                onClick={() => setConfirmReset(true)}
+              >
+                {t('emp.resetPw')}
+              </Button>
+              <Button
+                variant={emp.active ? 'destructive' : 'primary'}
+                icon={emp.active ? <UserX className="size-5" /> : <UserCheck className="size-5" />}
+                loading={setActive.isPending}
+                onClick={() => setConfirmActive(true)}
+              >
+                {emp.active ? t('emp.deactivate') : t('emp.activate')}
+              </Button>
+              <Button
+                variant="secondary"
+                icon={<Archive className="size-5" />}
+                loading={archiveEmployee.isPending}
+                onClick={() => setConfirmArchive(true)}
+              >
+                {t('emp.moveToArchive')}
+              </Button>
+            </div>
+          )}
         </>
       )}
 
@@ -519,21 +556,35 @@ export default function EmployeeDetailPage() {
         onCancel={() => setConfirmActive(false)}
       />
       <ConfirmDialog
-        open={confirmDelete}
-        title={t('emp.deleteTitle')}
-        description={t('emp.deleteDesc', { name: emp.full_name })}
-        confirmLabel={t('emp.deleteConfirm')}
-        destructive
-        loading={deleteEmployee.isPending}
+        open={confirmArchive}
+        title={t('emp.archiveTitle')}
+        description={
+          <span className="whitespace-pre-line">
+            {renderRichText(t('emp.archiveDesc', { name: emp.full_name }))}
+          </span>
+        }
+        confirmLabel={t('emp.archiveConfirm')}
+        loading={archiveEmployee.isPending}
         onConfirm={() => {
-          deleteEmployee.mutate(id, {
+          archiveEmployee.mutate(id, {
             onSuccess: () => {
-              setConfirmDelete(false);
+              setConfirmArchive(false);
               navigate('/pracownicy', { replace: true });
             },
           });
         }}
-        onCancel={() => setConfirmDelete(false)}
+        onCancel={() => setConfirmArchive(false)}
+      />
+      <ConfirmDialog
+        open={confirmRestore}
+        title={t('emp.restoreTitle')}
+        description={t('emp.restoreDesc', { name: emp.full_name })}
+        confirmLabel={t('emp.restoreConfirm')}
+        loading={restoreEmployee.isPending}
+        onConfirm={() => {
+          restoreEmployee.mutate(id, { onSuccess: () => setConfirmRestore(false) });
+        }}
+        onCancel={() => setConfirmRestore(false)}
       />
       <TempPasswordDialog
         open={tempPassword !== null}
