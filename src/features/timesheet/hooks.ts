@@ -3,6 +3,7 @@ import { qk } from '@/lib/queryKeys';
 import { toast } from '@/components/ui/Toast';
 import { translate } from '@/lib/i18n/context';
 import {
+  DuplicateEntryError,
   approveEntries,
   createEntries,
   createEntry,
@@ -56,7 +57,7 @@ export function useCreateEntries() {
     mutationFn: (payloads: WorkHoursInsert[]) => createEntries(payloads),
     onSuccess: () => invalidateHours(queryClient),
     onError: (e: Error) =>
-      toast.error(e.message.includes('wpis') ? e.message : translate('ts.errSave')),
+      toast.error(e instanceof DuplicateEntryError ? e.message : translate('ts.errSave')),
   });
 }
 
@@ -69,7 +70,7 @@ export function useCreateEntry() {
       toast.success(translate('ts.saved'));
     },
     onError: (e: Error) =>
-      toast.error(e.message.includes('wpis') ? e.message : translate('ts.errSave')),
+      toast.error(e instanceof DuplicateEntryError ? e.message : translate('ts.errSave')),
   });
 }
 
@@ -83,7 +84,7 @@ export function useUpdateEntry() {
       toast.success(translate('ts.updated'));
     },
     onError: (e: Error) =>
-      toast.error(e.message.includes('wpis') ? e.message : translate('ts.errUpdate')),
+      toast.error(e instanceof DuplicateEntryError ? e.message : translate('ts.errUpdate')),
   });
 }
 

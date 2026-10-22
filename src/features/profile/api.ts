@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { translate } from '@/lib/i18n/context';
 
 export interface MyPrivateData {
   personnummer: string;
@@ -68,7 +69,7 @@ export async function uploadAvatar(userId: string, file: File): Promise<string> 
     .from('avatars')
     // ścieżka z timestampem = plik niezmienny → można cache'ować na rok
     .upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
-  if (uploadError) throw new Error('Nie udało się przesłać zdjęcia');
+  if (uploadError) throw new Error(translate('prof.errAvatar'));
   const { error } = await supabase
     .from('profiles')
     .update({ avatar_path: path })
