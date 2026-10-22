@@ -21,7 +21,7 @@ Zmiana wyglądu = najpierw podgląd, kod dopiero po „ok wprowadź”. Zmiany c
 | tekst / drugorzędny | `#1a1a1a` / `#666666` |
 | akcent | `#cc0000` (soft `#fdecec`) |
 | linie | `#e5e5e5` |
-| success / error / warning / info | `#2e7d32` / `#c62828` / `#e65100` / `#1565c0` |
+| success / error / warning / info | `#256b29` / `#c62828` / `#b34700` / `#1565c0` (soft: `#e8f3e9` / `#fbeaea` / `#fdf0e6` / `#e8f0fb`) |
 | font | `system-ui, -apple-system` — 13/15/17/20/24 px |
 
    Układ: nagłówek (tytuł 20px po lewej, logo BFTM pośrodku, dzwonek), karty `ListGroup` z wierszami 56–64 px (avatar 40px, tytuł 15px, podtytuł 13px, chevron), przyciski 48px radius 10px, dolna nawigacja (Pulpit, Projekty, Godziny, Oferty, Więcej), FAB 56px czerwony.
