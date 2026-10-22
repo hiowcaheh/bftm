@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.66.1 — wyraźniejszy przycisk archiwum (2026-10-22)
+
+- „Przenieś do archiwum” na karcie pracownika ma jasnoczerwone tło i czerwony
+  napis (zamiast szarego) — widać, że to poważna akcja, a nie myli się
+  z pełnym czerwonym „Dezaktywuj konto” / „Aktywuj konto” obok.
+
 ## 0.66.0 — archiwum pracowników i poprawki z przeglądu (2026-10-22)
 
 - **Archiwum zamiast usuwania pracownika.** „Usuń pracownika” kasował jego
