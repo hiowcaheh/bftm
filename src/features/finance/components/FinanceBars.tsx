@@ -1,151 +1,173 @@
-import { useMemo, useState } from 'react';
-import { money } from '@/lib/format';
+import { useState } from 'react';
+import { cn } from '@/lib/cn';
+import { moneyWhole } from '@/lib/format';
 import { useT } from '@/lib/i18n/context';
 
 export interface BarGroup {
   key: string;
+  /** pod słupkami: „T42” / „pn” */
   label: string;
+  /** daty pod etykietą: „12–18.10” / „14.10” */
+  sub: string;
+  /** nagłówek karty szczegółów */
+  title: string;
   revenue: number;
-  cost: number;
+  labor: number;
+  expenses: number;
+  /** zawiera dzisiejszy dzień — domyślnie wybrany */
+  current: boolean;
 }
 
-/** Paleta wykresów zwalidowana (CVD ΔE 95): przychód niebieski, koszty w akcencie. */
-export const CHART_REVENUE = '#2A78D6';
-export const CHART_COST = '#CC0000';
+const H = 150;
+// Te same barwy co wykres roku w Rezultacie: wypracowane = tekst, koszty = szary
+const REV = 'var(--color-text)';
+const COST = '#c9c9d1';
 
-const H = 160;
-const PAD_TOP = 8;
-const PAD_BOTTOM = 22;
-const PAD_LEFT = 34;
-const PAD_RIGHT = 4;
-
-/** Zaokrąglenie osi do „ładnej" wartości: 1/2/2,5/5 × 10^n. */
-function niceMax(value: number): number {
-  if (value <= 0) return 1000;
-  const exp = Math.pow(10, Math.floor(Math.log10(value)));
-  for (const m of [1, 2, 2.5, 5, 10]) {
-    if (value <= m * exp) return m * exp;
-  }
-  return 10 * exp;
-}
-
-const compact = (v: number) =>
-  v >= 1000 ? `${Math.round(v / 1000)}k` : String(Math.round(v));
-
-/** Słupek rosnący od linii bazowej: góra zaokrąglona 4px, dół prosty. */
-function barPath(x: number, y: number, w: number, h: number): string {
-  if (h <= 0) return '';
-  const r = Math.min(4, h, w / 2);
-  return `M${x},${y + h} V${y + r} Q${x},${y} ${x + r},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h} Z`;
-}
+const kFormatter = new Intl.NumberFormat('sv-SE', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+/** „+13,6k” / „−3,4k” — zysk nad słupkiem */
+const signedK = (v: number) => `${v >= 0 ? '+' : ''}${kFormatter.format(v / 1000)}k`;
+const signedMoney = (v: number) => `${v >= 0 ? '+' : ''}${moneyWhole(v)}`;
 
 /**
- * Wykres słupkowy przychód vs koszty. Tapnięcie w grupę pokazuje
- * dokładne kwoty pod wykresem (mobile-first zamiast tooltipa).
+ * Przebieg okresu w stylu wykresu z Rezultatu: wypracowane vs koszty, nad
+ * słupkami zysk. Kolumna = przycisk; szczegóły wybranej (domyślnie bieżącej)
+ * pokazują się pod wykresem zamiast tooltipa.
  */
-export function FinanceBars({ groups }: { groups: BarGroup[] }) {
-  const tr = useT();
-  const [selected, setSelected] = useState<string | null>(null);
-  const width = 360;
-  const plotW = width - PAD_LEFT - PAD_RIGHT;
-  const plotH = H - PAD_TOP - PAD_BOTTOM;
+export function FinanceBars({ groups, mode }: { groups: BarGroup[]; mode: 'week' | 'month' }) {
+  const t = useT();
+  const [picked, setPicked] = useState<string | null>(null);
 
-  const max = useMemo(
-    () => niceMax(Math.max(...groups.map((g) => Math.max(g.revenue, g.cost)), 0)),
-    [groups],
-  );
-  const y = (v: number) => PAD_TOP + plotH - (v / max) * plotH;
+  const cost = (g: BarGroup) => g.labor + g.expenses;
+  const filled = groups.filter((g) => g.revenue > 0 || cost(g) > 0);
+  const sel =
+    filled.find((g) => g.key === picked) ??
+    filled.find((g) => g.current) ??
+    filled[filled.length - 1] ??
+    null;
 
-  const slot = plotW / Math.max(groups.length, 1);
-  const barW = Math.min(24, Math.max(6, (slot - 8) / 2));
-  const sel = groups.find((g) => g.key === selected) ?? null;
+  const max = Math.max(1, ...groups.map((g) => Math.max(g.revenue, cost(g))));
+  const h = (v: number) => Math.max(2, (v / max) * H);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-4 text-xs text-text-secondary">
-        <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-full" style={{ backgroundColor: CHART_REVENUE }} />
-          Przychód
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-full" style={{ backgroundColor: CHART_COST }} />
-          Koszty
-        </span>
-      </div>
-
-      <svg
-        viewBox={`0 0 ${width} ${H}`}
-        className="w-full"
-        role="img"
-        aria-label={tr('fin.chartAria')}
-      >
-        {[0, 0.5, 1].map((t) => (
-          <g key={t}>
-            <line
-              x1={PAD_LEFT}
-              x2={width - PAD_RIGHT}
-              y1={y(max * t)}
-              y2={y(max * t)}
-              stroke="var(--color-line)"
-              strokeWidth={1}
-            />
-            <text
-              x={PAD_LEFT - 6}
-              y={y(max * t) + 3}
-              textAnchor="end"
-              fontSize={9}
-              fill="var(--color-text-secondary)"
-              className="tabular-nums"
-            >
-              {compact(max * t)}
-            </text>
-          </g>
-        ))}
-
-        {groups.map((g, i) => {
-          const cx = PAD_LEFT + slot * i + slot / 2;
-          const rH = ((g.revenue / max) * plotH) || 0;
-          const cH = ((g.cost / max) * plotH) || 0;
-          const dim = selected !== null && selected !== g.key;
+    <div className="flex flex-col gap-3">
+      <div role="group" aria-label={t('fin.chartAria')} className="-mx-2 flex">
+        {groups.map((g) => {
+          const empty = !filled.includes(g);
+          const profit = g.revenue - cost(g);
+          const on = g === sel;
           return (
-            <g
+            <button
               key={g.key}
-              opacity={dim ? 0.35 : 1}
-              onClick={() => setSelected(selected === g.key ? null : g.key)}
+              type="button"
+              disabled={empty}
+              aria-pressed={on}
+              aria-label={`${g.title}: ${empty ? t('fin.noDataGroup') : `${t('fin.profitShort')} ${signedMoney(profit)}`}`}
+              onClick={() => setPicked(g.key)}
+              className={cn(
+                'flex min-w-0 flex-1 flex-col items-center gap-1.5 rounded-xl pt-2 pb-1.5',
+                on && 'bg-bg',
+                !empty && 'press',
+              )}
             >
-              {/* niewidoczny cel dotyku na całą kolumnę */}
-              <rect
-                x={PAD_LEFT + slot * i}
-                y={PAD_TOP}
-                width={slot}
-                height={plotH + PAD_BOTTOM}
-                fill="transparent"
-              />
-              <path
-                d={barPath(cx - barW - 1, y(g.revenue), barW, rH)}
-                fill={CHART_REVENUE}
-              />
-              <path d={barPath(cx + 1, y(g.cost), barW, cH)} fill={CHART_COST} />
-              <text
-                x={cx}
-                y={H - 8}
-                textAnchor="middle"
-                fontSize={9}
-                fill="var(--color-text-secondary)"
+              <span
+                className={cn(
+                  'tabular-nums h-4 text-[12px] leading-4 font-bold whitespace-nowrap',
+                  profit >= 0 ? 'text-success' : 'text-error',
+                )}
+              >
+                {!empty && signedK(profit)}
+              </span>
+              <div className="flex items-end gap-1" style={{ height: H }}>
+                {empty ? (
+                  <span className="h-0.5 w-[26px] rounded-full bg-line" />
+                ) : (
+                  <>
+                    <span
+                      className="w-[15px] rounded-t-[4px] rounded-b-[2px]"
+                      style={{ height: h(g.revenue), background: REV }}
+                    />
+                    <span
+                      className="w-[15px] rounded-t-[4px] rounded-b-[2px]"
+                      style={{ height: h(cost(g)), background: COST }}
+                    />
+                  </>
+                )}
+              </div>
+              <span
+                className={cn(
+                  'text-xs font-semibold capitalize',
+                  on ? 'text-text' : 'text-text-secondary',
+                )}
               >
                 {g.label}
-              </text>
-            </g>
+              </span>
+              <span className="tabular-nums -mt-1 text-[11px] whitespace-nowrap text-text-secondary">
+                {g.sub}
+              </span>
+            </button>
           );
         })}
-      </svg>
+      </div>
+
+      <div className="flex flex-col gap-1.5 border-t border-line pt-2.5">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          <Legend color={REV}>{t('fin.earned')}</Legend>
+          <Legend color={COST}>{t('fin.costs')}</Legend>
+        </div>
+        <p className="text-xs leading-snug text-text-secondary">
+          {t('fin.chartNoteA')}{' '}
+          <b className="text-success">
+            {t(mode === 'week' ? 'fin.chartProfitDay' : 'fin.chartProfitWeek')}
+          </b>
+          . {t(mode === 'week' ? 'fin.chartTapDay' : 'fin.chartTapWeek')}
+        </p>
+      </div>
 
       {sel && (
-        <p className="tabular-nums rounded-xl bg-surface px-3 py-2 text-xs">
-          <span className="font-semibold">{sel.label}</span> — przychód{' '}
-          {money(sel.revenue)}, koszty {money(sel.cost)}
-        </p>
+        <div className="tabular-nums flex flex-col gap-1.5 rounded-xl bg-bg px-3.5 py-3 text-sm">
+          <p className="text-xs font-semibold text-text-secondary first-letter:uppercase">
+            {sel.title}
+          </p>
+          <div className="flex justify-between gap-3">
+            <span>{t('fin.earned')}</span>
+            <span className="font-semibold">{moneyWhole(sel.revenue)}</span>
+          </div>
+          <div className="flex justify-between gap-3">
+            <span>{t('fin.costs')}</span>
+            <span className="font-semibold">{moneyWhole(cost(sel))}</span>
+          </div>
+          <p className="-mt-1 text-xs text-text-secondary">
+            {t('fin.costsSub', { labor: moneyWhole(sel.labor), exp: moneyWhole(sel.expenses) })}
+          </p>
+          <div className="flex justify-between gap-3 border-t border-line pt-1.5">
+            <span className="font-semibold">{t('fin.profitShort')}</span>
+            <span
+              className={cn(
+                'font-bold',
+                sel.revenue - cost(sel) >= 0 ? 'text-success' : 'text-error',
+              )}
+            >
+              {signedMoney(sel.revenue - cost(sel))}
+            </span>
+          </div>
+        </div>
       )}
     </div>
+  );
+}
+
+/** Próbka w kształcie słupka — jak legenda w Rezultacie */
+function Legend({ color, children }: { color: string; children: string }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <i
+        className="inline-block h-4 w-[9px] rounded-t-[3px] rounded-b-[1px]"
+        style={{ background: color }}
+      />
+      {children}
+    </span>
   );
 }
