@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.65.4 — komunikaty błędów w języku użytkownika (2026-10-22)
+
+- Komunikat o zdublowanym wpisie godzin („na ten dzień istnieje już wpis…”)
+  pokazuje się teraz w języku pracownika (pl/sv/en/uk) — wcześniej zawsze po
+  polsku, także przy ukraińskim i szwedzkim.
+- Tak samo błędy przesyłania zdjęć projektu i zdjęcia profilowego oraz dwa
+  komunikaty ekranu logowania (zły format loginu, brak konta administratora).
+
 ## 0.65.3 — Rezultat: ryczałt w toku według planu godzin (2026-10-21)
 
 - Ryczałt projektu w toku z wpisanymi planowanymi godzinami rozkładany jest na
