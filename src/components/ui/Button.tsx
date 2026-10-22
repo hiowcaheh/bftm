@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'destructiveSoft';
 type Size = 'md' | 'lg' | 'sm';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,6 +19,9 @@ const variantClasses: Record<Variant, string> = {
     'bg-surface text-text border border-line active:bg-line/60 disabled:text-text-secondary/50',
   ghost: 'bg-transparent text-accent active:bg-accent-soft disabled:text-text-secondary/50',
   destructive: 'bg-error text-white active:bg-error/80 disabled:bg-error/40',
+  // Poważna, ale nie pierwsza akcja (archiwum) — nie myli się z pełnym czerwonym obok
+  destructiveSoft:
+    'bg-error-soft text-error border border-error/25 active:bg-error/15 disabled:text-error/40',
 };
 
 const sizeClasses: Record<Size, string> = {

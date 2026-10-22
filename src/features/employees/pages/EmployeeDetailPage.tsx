@@ -523,7 +523,7 @@ export default function EmployeeDetailPage() {
               </Button>
               {archiveReady && (
                 <Button
-                  variant="secondary"
+                  variant="destructiveSoft"
                   icon={<Archive className="size-5" />}
                   loading={archiveEmployee.isPending}
                   onClick={() => setConfirmArchive(true)}
