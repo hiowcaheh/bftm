@@ -1,0 +1,1 @@
+import{_ as e}from"./context-D_7SeF1G.js";function t(t,n){let r=e(t,n?.in).getDay();return r===0?7:r}export{t};
