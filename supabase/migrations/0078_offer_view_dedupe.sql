@@ -2,6 +2,7 @@
 -- Wcześniej każde odświeżenie / powrót klienta do karty dawało +1 do licznika
 -- i push „Klient otworzył ofertę” do każdego admina (1 oferta → 26 powiadomień).
 -- Okno 30 min jak w visualization_public (0058). Reszta funkcji bez zmian.
+set local lock_timeout = '5s';
 alter table public.offers add column if not exists last_viewed_at timestamptz;
 
 create or replace function public.offer_public(p_token text, p_track boolean default true)
