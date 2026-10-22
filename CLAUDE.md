@@ -123,6 +123,17 @@ npx tsc --noEmit   # szybki typecheck
 - Realtime profilu (0074): SessionProvider odświeża profil po zmianie flag/roli,
   więc nowe flagi działają od razu bez restartu.
 - Supabase-js: zapytanie rusza dopiero po `.then()`/`await` (pułapka z 0.61.2).
+- Godziny (0.61.2): edycja NIE zmienia `created_by` (trigger 0072), kto edytował →
+  `updated_by`/`updated_at`; stopka „Dodano / Edytowano” w HoursFormSheet tylko dla
+  `hours_edit_all` (0.62).
+- Checklista (0.64): odhaczone zadania starsze niż 7 dni są ukryte w `fetchChecklist`
+  (filtr `done_at`), w bazie zostają.
+- Rezultat — liczenie: przychód w miesiącu PRACY (nie wpływu); ryczałt w toku z planem
+  godzin dzielony przez `estimated_hours`, inaczej przez faktyczne godziny (0077);
+  dni robocze bez szwedzkich świąt (`workdays()` w `analysis.ts`); admini (Mateusz,
+  Tomasz) liczeni w zespole i kosztach — świadomie. Opis miesiąca = 3 akapity
+  (ludzie i czas, pieniądze, projekty) w `story.ts`; nieobecności z imieniem (0076).
+- Zgody narzędzi: `.claude/settings.json` (Supabase MCP bez pytania) — w repo.
 - Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz
   godzin = prop `single`). Nowe wybieranie dat robić na nim, nie na natywnym inpucie.
 
