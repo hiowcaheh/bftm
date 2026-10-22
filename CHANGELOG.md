@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.66.0 — archiwum pracowników i poprawki z przeglądu (2026-10-22)
+
+- **Archiwum zamiast usuwania pracownika.** „Usuń pracownika” kasował jego
+  godziny, nieobecności, stawki i wypłaty — znikały z Finansów i Rezultatu.
+  Teraz „Przenieś do archiwum”: logowanie zablokowane, powiadomienia
+  wyłączone, osoba znika z Zespołu i z wyboru pracownika, ale **wszystkie
+  dane zostają**. Zespół → Archiwum (tylko admin) pokazuje byłych pracowników
+  i pozwala przywrócić (wraca z zablokowanym logowaniem; „Aktywuj konto”
+  włącza je z powrotem). Migracja 0080.
+- Oferta: otwarcie przez klienta liczy się najwyżej raz na 30 minut — koniec
+  serii powiadomień „Klient otworzył ofertę” przy odświeżaniu (0078).
+- Publiczny link do raportu nie zawiera już notatek nieobecności (0079).
+- Zatwierdzanie godzin: pracownik dostaje powiadomienie tylko o wpisach,
+  które naprawdę zostały zatwierdzone.
+- Wysyłka e-maila z wizualizacją działa też dla osób z samymi uprawnieniami
+  do wizualizacji (0082).
+- Bezpieczeństwo: porządki w uprawnieniach funkcji bazy (0081), łatka
+  react-router 7.18.4.
+
 ## 0.65.4 — komunikaty błędów w języku użytkownika (2026-10-22)
 
 - Komunikat o zdublowanym wpisie godzin („na ten dzień istnieje już wpis…”)
