@@ -4,20 +4,20 @@ import { moneyWhole } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import type { YearExtra } from '../analysis';
 
-/** Prognoza zysku na koniec roku — spokojnie: zielona kreska z boku, bez ramki. */
+/** Prognoza zysku na koniec roku — blok-notatka (0.67.1): zielona belka z boku, szare tło. */
 export function YearForecast({ forecast, compact }: { forecast: YearExtra['forecast']; compact: Intl.NumberFormat }) {
   const { t } = useI18n();
   if (!forecast) return null;
   const sign = forecast.result >= 0 ? '+' : '−';
   return (
-    <div className="flex flex-col gap-0.5 border-l-2 border-success/50 pl-2.5">
+    <div className="flex flex-col gap-0.5 rounded-r-xl border-l-[5px] border-success bg-bg px-3.5 py-3">
       <span className="text-xs text-text-secondary">{t('res.yForecastTitle')}</span>
-      <span className="tabular-nums text-[17px] font-bold text-success">
+      <span className="tabular-nums text-[18px] font-bold text-success">
         ~ {sign}
         {compact.format(Math.abs(forecast.result))} kr{' '}
         <span className="text-sm font-semibold">{t('res.yForecastProfit')}</span>
       </span>
-      <p className="text-[11.5px] leading-snug text-text-secondary/80">
+      <p className="text-[12.5px] leading-snug text-text-secondary">
         {t('res.yForecastWhy', { avg: `${compact.format(Math.round(forecast.avg))} kr` })}
       </p>
     </div>
