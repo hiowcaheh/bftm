@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.67.1 — Rezultat: bloki w stylu notatek (2026-10-23)
+
+- „Prognoza na koniec roku”, „Prognoza na cały miesiąc” oraz każdy punkt
+  „Co zadziałało” / „Na co uważać” to teraz blok-notatka: kolorowa belka
+  z lewej (zielona / czerwona / pomarańczowa — kolory bez zmian), szare tło
+  jak kafelki i zaokrąglone rogi. Zamiast cienkiej kreski, czerwonej ramki
+  przerywanej i kropek. Objaśnienie prognozy roku trochę większe.
+
 ## 0.67.0 — nowy wykres „Przebieg okresu” w Finansach (2026-10-22)
 
 - Wykres w Finansach wygląda teraz jak w Rezultacie: czarne słupki to
