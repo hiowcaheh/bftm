@@ -84,7 +84,7 @@ export function MonthCard({
       </div>
 
       {x.live && (
-        <div className="flex flex-col gap-2 rounded-xl border-[1.5px] border-dashed border-accent/35 bg-accent-soft px-3 py-2.5">
+        <div className="flex flex-col gap-2 rounded-r-xl border-l-[5px] border-accent bg-bg px-3.5 py-3">
           <span className="text-xs font-bold tracking-wide text-accent uppercase">{t('res.forecastTitle')}</span>
           <div className="grid grid-cols-2 gap-x-3 gap-y-2">
             <Mini label={t('res.revenue')} value={`~ ${money(x.live.revenue)}`} />
@@ -210,19 +210,20 @@ function Mini({ label, value, ok }: { label: string; value: string; ok?: boolean
   );
 }
 
+/** Każdy punkt jako blok-notatka: belka w kolorze tonu, szare tło (0.67.1). */
 function Bullets({ title, items, tone }: { title: string; items: string[]; tone: 'ok' | 'warn' }) {
   return (
     <div>
-      <h3 className="mb-1.5 text-[13px] font-bold">{title}</h3>
-      <ul className="flex flex-col gap-1.5">
+      <h3 className="mb-2 text-[13px] font-bold">{title}</h3>
+      <ul className="flex flex-col gap-2">
         {items.map((s) => (
-          <li key={s} className="relative pl-4 text-[13.5px] leading-snug">
-            <span
-              className={cn(
-                'absolute top-[0.45em] left-0.5 size-[7px] rounded-full',
-                tone === 'ok' ? 'bg-success' : 'bg-warning',
-              )}
-            />
+          <li
+            key={s}
+            className={cn(
+              'rounded-r-xl border-l-[5px] bg-bg px-3.5 py-2.5 text-[14px] leading-snug',
+              tone === 'ok' ? 'border-success' : 'border-warning',
+            )}
+          >
             {s}
           </li>
         ))}
