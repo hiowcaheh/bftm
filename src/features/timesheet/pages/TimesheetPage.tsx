@@ -267,7 +267,7 @@ export default function TimesheetPage() {
           />
           {canApprove && draftIds.length > 0 && (
             <Button
-              variant="secondary"
+              variant="successSoft"
               icon={<CheckCheck className="size-5" />}
               onClick={() => setConfirmApprove(true)}
             >

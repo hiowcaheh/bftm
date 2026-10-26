@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'destructiveSoft';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'destructiveSoft' | 'successSoft';
 type Size = 'md' | 'lg' | 'sm';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -22,6 +22,9 @@ const variantClasses: Record<Variant, string> = {
   // Poważna, ale nie pierwsza akcja (archiwum) — nie myli się z pełnym czerwonym obok
   destructiveSoft:
     'bg-error-soft text-error border border-error/25 active:bg-error/15 disabled:text-error/40',
+  // Zatwierdzanie godzin — kolor zatwierdzonych komórek, widoczny, ale nie krzykliwy
+  successSoft:
+    'bg-success-soft text-success border border-success/30 active:bg-success/15 disabled:text-success/40',
 };
 
 const sizeClasses: Record<Size, string> = {
