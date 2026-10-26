@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.67.2 — wyraźniejszy przycisk zatwierdzania godzin (2026-10-26)
+
+- „Zatwierdź godziny z okresu” w Dzienniku ma jasnozielone tło i zielony
+  napis — kolor zatwierdzonych komórek tabeli — zamiast szarego, który
+  zlewał się z tłem.
+
 ## 0.67.1 — Rezultat: bloki w stylu notatek (2026-10-23)
 
 - „Prognoza na koniec roku”, „Prognoza na cały miesiąc” oraz każdy punkt
