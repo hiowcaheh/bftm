@@ -6,7 +6,7 @@ export interface DashboardKpi {
   activeProjects: number;
   hoursThisMonth: number;
   expensesThisMonth: number;
-  /** Zysk miesiąca jak w Finansach (godziny×stawka − koszty pracy − paragony). */
+  /** Zysk miesiąca jak w Finansach i Rezultacie (przychód z godzin i ryczałtów − koszty pracy − paragony; 0083). */
   monthProfit: number | null;
   /** „Wisi": nieopłacone faktury + niezafakturowane fastpris aktywnych projektów. */
   awaitingTotal: number | null;
