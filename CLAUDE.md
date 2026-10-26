@@ -138,6 +138,10 @@ npx tsc --noEmit   # szybki typecheck
   dni robocze bez szwedzkich świąt (`workdays()` w `analysis.ts`); admini (Mateusz,
   Tomasz) liczeni w zespole i kosztach — świadomie. Opis miesiąca = 3 akapity
   (ludzie i czas, pieniądze, projekty) w `story.ts`; nieobecności z imieniem (0076).
+- Przychód z godzin — JEDEN wzór (0083): funkcja `hours_revenue(project_id, hours)`
+  (stawka × h + część ryczałtu wg planu godzin / przepracowanych). Używają jej
+  `results_year`, `finance_daily` (Finanse) i `finance_month_balance` (Pulpit) —
+  nie liczyć przychodu osobno, bo Pulpit i Rezultat znów się rozjadą.
 - Zgody narzędzi: `.claude/settings.json` (Supabase MCP bez pytania) — w repo.
 - Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz
   godzin = prop `single`). Nowe wybieranie dat robić na nim, nie na natywnym inpucie.
