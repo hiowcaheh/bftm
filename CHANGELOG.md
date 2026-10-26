@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.67.3 — ten sam zysk na Pulpicie, w Finansach i w Rezultacie (2026-10-26)
+
+- Pulpit („Zysk miesiąca”) i Finanse („Zysk okresu”, „Wypracowane”, wykres)
+  liczą teraz przychód z projektów na ryczałt tak jak Rezultat. Wcześniej
+  ryczałt miał tam przychód 0 kr, a koszt pracy przy nim się odejmował —
+  w październiku Pulpit pokazywał +59 548 kr zamiast +87 948 kr (różnica:
+  Långbrokungens väg 10 i Tjädern 6, razem 28 400 kr).
+- Jeden wspólny wzór w bazie (`hours_revenue`, migracja 0083) dla wszystkich
+  trzech miejsc. Rezultat bez zmian.
+
 ## 0.67.2 — wyraźniejszy przycisk zatwierdzania godzin (2026-10-26)
 
 - „Zatwierdź godziny z okresu” w Dzienniku ma jasnozielone tło i zielony
