@@ -1,0 +1,1 @@
+var e=[`vacation`,`unpaid`],t={sick:`Chorobowe`,vacation:`Urlop`,unpaid:`Bezpłatny`,vab:`VAB`,other:`Inne`},n={sick:`error`,vacation:`success`,unpaid:`neutral`,vab:`warning`,other:`info`},r={sick:`#C62828`,vacation:`#2E7D32`,unpaid:`#9E9E9E`,vab:`#E65100`,other:`#1565C0`};export{e as i,t as n,n as r,r as t};
