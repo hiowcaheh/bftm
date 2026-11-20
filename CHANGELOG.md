@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.67.4 — nieobecności: tylko urlop i bezpłatny (2026-11-20)
+
+- Przy zgłaszaniu nieobecności do wyboru są już tylko „Urlop” (sv. Semester)
+  i „Bezpłatny”; domyślnie „Urlop”. „Chorobowe”, „VAB” i „Inne” zniknęły
+  z listy. Zapisane wcześniej nieobecności tych typów zostają i dalej się
+  wyświetlają (Dziennik, raporty, Rezultat).
+
 ## 0.67.3 — ten sam zysk na Pulpicie, w Finansach i w Rezultacie (2026-10-26)
 
 - Pulpit („Zysk miesiąca”) i Finanse („Zysk okresu”, „Wypracowane”, wykres)
