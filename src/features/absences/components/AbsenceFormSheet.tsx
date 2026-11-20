@@ -13,7 +13,7 @@ import { useSession } from '@/features/auth/SessionProvider';
 import { useEmployees } from '@/features/employees/hooks';
 import { hasHoursInRange } from '../api';
 import { useCreateAbsence } from '../hooks';
-import { ABSENCE_TYPE_LABELS } from '../types';
+import { SELECTABLE_ABSENCE_TYPES } from '../types';
 
 interface AbsenceFormSheetProps {
   open: boolean;
@@ -30,7 +30,7 @@ export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
   const [employeeId, setEmployeeId] = useState('');
   const [from, setFrom] = useState<Date | null>(null);
   const [to, setTo] = useState<Date | null>(null);
-  const [type, setType] = useState<AbsenceType>('sick');
+  const [type, setType] = useState<AbsenceType>('vacation');
   const [note, setNote] = useState('');
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
       setEmployeeId(user?.id ?? '');
       setFrom(null);
       setTo(null);
-      setType('sick');
+      setType('vacation');
       setNote('');
     }
   }, [open, user?.id]);
@@ -92,7 +92,7 @@ export function AbsenceFormSheet({ open, onClose }: AbsenceFormSheetProps) {
         <Select
           label={t('abs.kind')}
           value={type}
-          options={(Object.keys(ABSENCE_TYPE_LABELS) as AbsenceType[]).map((k) => ({
+          options={SELECTABLE_ABSENCE_TYPES.map((k) => ({
             value: k,
             label: t(`absence.${k}`),
           }))}

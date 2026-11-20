@@ -7,6 +7,12 @@ export interface AbsenceWithEmployee extends Absence {
   employee: { id: string; full_name: string } | null;
 }
 
+/**
+ * Typy do wyboru przy zgłaszaniu (0.67.4: Mateusz zostawił tylko urlop i bezpłatny).
+ * Chorobowe / VAB / Inne zostają w typach i słownikach — stare wpisy dalej się wyświetlają.
+ */
+export const SELECTABLE_ABSENCE_TYPES: AbsenceType[] = ['vacation', 'unpaid'];
+
 export const ABSENCE_TYPE_LABELS: Record<AbsenceType, string> = {
   sick: 'Chorobowe',
   vacation: 'Urlop',
