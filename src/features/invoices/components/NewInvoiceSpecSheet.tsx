@@ -11,6 +11,7 @@ import { date as fmtDate } from '@/lib/format';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useClients } from '@/features/clients/hooks';
 import { useProjects } from '@/features/projects/hooks';
+import { ProjectPicker, type PickerProject } from '@/features/projects/components/ProjectPicker';
 import { useCreateInvoiceSpec } from '../hooks';
 import type { InvoiceSpec } from '../api';
 
@@ -45,16 +46,22 @@ export function NewInvoiceSpecSheet({ open, onClose, onCreated }: NewInvoiceSpec
   }, [open]);
 
   // Projekty zawężone do wybranego klienta (albo wszystkie, gdy brak wyboru)
-  const projectOptions = useMemo(() => {
+  const projectOptions = useMemo<PickerProject[]>(() => {
     const list = (projects.data ?? []).filter(
       (p) => !clientId || p.client?.id === clientId,
     );
-    return list.map((p) => ({ value: p.id, label: p.name }));
+    return list.map((p) => ({
+      id: p.id,
+      name: p.name,
+      number: p.number,
+      color: p.color,
+      clientName: p.client?.name ?? null,
+    }));
   }, [projects.data, clientId]);
 
   // Zmiana klienta czyści projekt, jeśli nie należy już do klienta
   useEffect(() => {
-    if (projectId && !projectOptions.some((o) => o.value === projectId)) {
+    if (projectId && !projectOptions.some((o) => o.id === projectId)) {
       setProjectId('');
     }
   }, [projectOptions, projectId]);
@@ -107,11 +114,12 @@ export function NewInvoiceSpecSheet({ open, onClose, onCreated }: NewInvoiceSpec
           ]}
           onChange={(e) => setClientId(e.target.value)}
         />
-        <Select
+        <ProjectPicker
           label={t('common.project')}
+          projects={projectOptions}
           value={projectId}
-          options={[{ value: '', label: t('ts.selectProject') }, ...projectOptions]}
-          onChange={(e) => setProjectId(e.target.value)}
+          placeholder={t('ts.selectProject')}
+          onChange={setProjectId}
         />
         <Input
           label={t('inv.titleField')}

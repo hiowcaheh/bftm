@@ -29,7 +29,7 @@ export interface InvoiceSpec {
   created_by: string | null;
   created_at: string;
   /** Dołączane w liście (join) do wyświetlenia. */
-  project?: { id: string; name: string; color: string | null } | null;
+  project?: { id: string; name: string; color: string | null; number: string | null } | null;
   client?: { id: string; name: string } | null;
 }
 
@@ -56,7 +56,7 @@ export async function fetchInvoiceSpecs(): Promise<InvoiceSpec[]> {
     .from('invoice_specs')
     .select(
       'id, client_id, project_id, period_from, period_to, title, created_by, created_at, ' +
-        'project:projects(id, name, color), client:clients(id, name)',
+        'project:projects(id, name, color, number), client:clients(id, name)',
     )
     .order('created_at', { ascending: false });
   if (error) throw error;
@@ -69,7 +69,7 @@ export async function createInvoiceSpec(payload: InvoiceSpecInsert): Promise<Inv
     .insert(payload)
     .select(
       'id, client_id, project_id, period_from, period_to, title, created_by, created_at, ' +
-        'project:projects(id, name, color), client:clients(id, name)',
+        'project:projects(id, name, color, number), client:clients(id, name)',
     )
     .single();
   if (error) throw error;

@@ -85,12 +85,12 @@ export default function InvoicesPage() {
 
   const list = specs.data ?? [];
 
-  // Dynamiczne wyszukiwanie po nazwie klienta / projektu / tytule.
+  // Dynamiczne wyszukiwanie po nazwie klienta / projektu / numerze projektu / tytule.
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return list;
     return list.filter((s) =>
-      [s.project?.name, s.client?.name, s.title]
+      [s.project?.name, s.project?.number, s.client?.name, s.title]
         .filter(Boolean)
         .some((v) => v!.toLowerCase().includes(q)),
     );
