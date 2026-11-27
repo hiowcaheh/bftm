@@ -2,7 +2,14 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'destructiveSoft' | 'successSoft';
+type Variant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'destructive'
+  | 'destructiveSoft'
+  | 'successSoft'
+  | 'accentSoft';
 type Size = 'md' | 'lg' | 'sm';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -25,6 +32,9 @@ const variantClasses: Record<Variant, string> = {
   // Zatwierdzanie godzin — kolor zatwierdzonych komórek, widoczny, ale nie krzykliwy
   successSoft:
     'bg-success-soft text-success border border-success/30 active:bg-success/15 disabled:text-success/40',
+  // Podpowiedź obok pola (np. „Wstaw P2613”) — widoczna, ale lżejsza niż główny przycisk
+  accentSoft:
+    'bg-accent-soft text-accent border border-accent/20 active:bg-accent/15 disabled:text-accent/40',
 };
 
 const sizeClasses: Record<Size, string> = {
