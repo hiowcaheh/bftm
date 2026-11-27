@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.68.0 — numer projektu (2026-11-27)
+
+- Projekt może mieć numer, np. **P2612** (od 2027: P2701…). Wpisujesz go
+  w formularzu projektu (nowy i edycja) — pod polem widać poprzedni numer
+  („Poprzedni: P2612 · Skeppstavägen 23”), a przycisk „Wstaw P2613” wpisuje
+  kolejny jednym kliknięciem. Ten sam numer nie może być w dwóch projektach.
+- Projekty z numerem mają na karcie szynę w kolorze projektu z numerem
+  pionowo (P / 2 / 6 / 1 / 2). Projekty bez numeru wyglądają jak dotąd.
+- Szukanie po numerze: na liście projektów i w specyfikacjach faktury.
+  Wybór projektu w nowej specyfikacji to teraz lista z wyszukiwaniem
+  (po numerze, nazwie i kliencie). Migracja 0084.
+
 ## 0.67.4 — nieobecności: tylko urlop i bezpłatny (2026-11-20)
 
 - Przy zgłaszaniu nieobecności do wyboru są już tylko „Urlop” (sv. Semester)
