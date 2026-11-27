@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Pipette } from 'lucide-react';
+import { Pipette, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { DateField } from '@/components/ui/DateField';
-import { Input, Textarea } from '@/components/ui/Input';
+import { Input, Textarea, inputClasses } from '@/components/ui/Input';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
@@ -11,7 +11,8 @@ import { cn } from '@/lib/cn';
 import { useT } from '@/lib/i18n/context';
 import { useSession } from '@/features/auth/SessionProvider';
 import { useClients } from '@/features/clients/hooks';
-import { useCreateProject, useUpdateProject } from '../hooks';
+import { useCreateProject, useProjects, useUpdateProject } from '../hooks';
+import { normalizeProjectNumber, sameProjectNumber, suggestProjectNumber } from '../projectNumber';
 import { PROJECT_COLORS, type ProjectWithClient } from '../types';
 import type { BillingType } from '@/types/database';
 
@@ -25,6 +26,7 @@ interface ProjectFormSheetProps {
 }
 
 const empty = {
+  number: '',
   name: '',
   client_id: '',
   address: '',
@@ -51,13 +53,20 @@ export function ProjectFormSheet({
   const create = useCreateProject();
   const update = useUpdateProject(project?.id ?? '');
   const [form, setForm] = useState(empty);
-  const [errors, setErrors] = useState<{ name?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; number?: string }>({});
+  const projects = useProjects();
+  // Podpowiedź kolejnego numeru: najwyższy istniejący + 1 (bez edytowanego projektu)
+  const suggestion = useMemo(
+    () => suggestProjectNumber(projects.data ?? [], project?.id),
+    [projects.data, project?.id],
+  );
 
   useEffect(() => {
     if (open) {
       setForm(
         project
           ? {
+              number: project.number ?? '',
               name: project.name,
               client_id: project.client_id ?? '',
               address: project.address ?? '',
@@ -89,12 +98,19 @@ export function ProjectFormSheet({
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (form.name.trim().length < 2) {
-      setErrors({ name: t('proj.nameErr') });
-      return;
-    }
-    setErrors({});
+    const number = normalizeProjectNumber(form.number);
+    // ten sam numer w innym projekcie — blokujemy od razu (w bazie i tak jest unikalny indeks)
+    const taken = number
+      ? (projects.data ?? []).find((p) => p.id !== project?.id && sameProjectNumber(p.number, number))
+      : undefined;
+    const nextErrors = {
+      ...(form.name.trim().length < 2 && { name: t('proj.nameErr') }),
+      ...(taken && { number: t('proj.numberTaken', { num: number!, name: taken.name }) }),
+    };
+    setErrors(nextErrors);
+    if (nextErrors.name || nextErrors.number) return;
     const payload = {
+      number,
       name: form.name.trim(),
       client_id: form.client_id || null,
       address: form.address.trim() || null,
@@ -123,6 +139,43 @@ export function ProjectFormSheet({
       height="tall"
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="project-number" className="text-xs font-medium text-text-secondary">
+            {t('proj.numberLabel')}
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="project-number"
+              value={form.number}
+              placeholder={t('proj.numberPh', { num: suggestion?.next ?? 'P2701' })}
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck={false}
+              className={cn(inputClasses(!!errors.number), 'min-w-0 flex-1 font-mono tracking-wide')}
+              onChange={(e) => set({ number: e.target.value.toUpperCase() })}
+            />
+            {suggestion && !form.number.trim() && (
+              <Button
+                type="button"
+                variant="accentSoft"
+                className="shrink-0"
+                icon={<Plus className="size-4" />}
+                onClick={() => set({ number: suggestion.next })}
+              >
+                {t('proj.numberInsert', { num: suggestion.next })}
+              </Button>
+            )}
+          </div>
+          {errors.number ? (
+            <p className="text-xs text-error">{errors.number}</p>
+          ) : (
+            suggestion && (
+              <p className="text-xs text-text-secondary">
+                {t('proj.numberPrev', { num: suggestion.previous, name: suggestion.previousName })}
+              </p>
+            )
+          )}
+        </div>
         <Input
           label={t('proj.nameLabel')}
           value={form.name}
