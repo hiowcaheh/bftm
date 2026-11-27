@@ -69,6 +69,8 @@ type ProjectRow = {
   estimated_hours: number | null;
   description: string | null;
   color: string | null;
+  /** Numer projektu, np. „P2612” (0084) — wpisywany ręcznie, unikalny */
+  number: string | null;
   created_by: string | null;
   created_at: string;
 }

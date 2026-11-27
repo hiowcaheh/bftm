@@ -19,6 +19,7 @@ import {
   fetchProjectsByClient,
   fetchProjectLastHours,
   fetchProjectStats,
+  ProjectNumberTakenError,
   updateAdditionalWork,
   updateProject,
   uploadPhotos,
@@ -81,7 +82,8 @@ export function useCreateProject() {
       void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
       toast.success(translate('proj.created'));
     },
-    onError: () => toast.error(translate('proj.errCreate')),
+    onError: (e) =>
+      toast.error(e instanceof ProjectNumberTakenError ? e.message : translate('proj.errCreate')),
   });
 }
 
@@ -94,7 +96,8 @@ export function useUpdateProject(id: string) {
       void queryClient.invalidateQueries({ queryKey: qk.dashboard.all });
       toast.success(translate('proj.updated'));
     },
-    onError: () => toast.error(translate('proj.errUpdate')),
+    onError: (e) =>
+      toast.error(e instanceof ProjectNumberTakenError ? e.message : translate('proj.errUpdate')),
   });
 }
 
