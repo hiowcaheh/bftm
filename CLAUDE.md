@@ -142,6 +142,12 @@ npx tsc --noEmit   # szybki typecheck
   (stawka × h + część ryczałtu wg planu godzin / przepracowanych). Używają jej
   `results_year`, `finance_daily` (Finanse) i `finance_month_balance` (Pulpit) —
   nie liczyć przychodu osobno, bo Pulpit i Rezultat znów się rozjadą.
+- Numer projektu (0.68, migracja 0084): `projects.number` (opcjonalny, unikalny bez
+  względu na wielkość liter — indeks `projects_number_unique`). Wpisywany ręcznie;
+  podpowiedź = najwyższy + 1 (`projectNumber.ts`). Karta: z numerem szyna
+  `ProjectNumberRail` (wariant B8), bez numeru cienki pasek jak dawniej. Wybór projektu
+  z wyszukiwaniem: `ProjectPicker` (specyfikacje faktury). Kolumna jest w jawnej
+  liście `BASE_COLUMNS` — przy wdrożeniu najpierw migracja, potem aplikacja.
 - Zgody narzędzi: `.claude/settings.json` (Supabase MCP bez pytania) — w repo.
 - Kalendarz: `components/ui/RangeCalendar` (nieobecności = zakres; formularz
   godzin = prop `single`). Nowe wybieranie dat robić na nim, nie na natywnym inpucie.
