@@ -9,7 +9,7 @@ import type { ProjectInsert, ProjectPhoto, ProjectWithClient } from './types';
  * wartości kontraktów nie trafiają nawet do odpowiedzi zapytania.
  */
 const BASE_COLUMNS =
-  'id, client_id, name, status, address, start_date, end_date, billing_type, estimated_hours, description, color, created_by, created_at';
+  'id, client_id, name, status, address, start_date, end_date, billing_type, estimated_hours, description, color, number, created_by, created_at';
 const FINANCE_COLUMNS = `${BASE_COLUMNS}, hourly_rate, fixed_value`;
 
 const withClient = (cols: string) => `${cols}, client:clients(id, name, type)`;
@@ -103,13 +103,24 @@ export async function fetchProjectsByClient(
   return (data as unknown as ProjectRowRaw[]).map(normalize);
 }
 
+/** Numer projektu zajęty przez inny projekt (unikalny indeks 0084). */
+export class ProjectNumberTakenError extends Error {}
+
+// Formularz sprawdza powtórzenia sam; ten błąd łapie wyścig dwóch zapisów naraz
+function projectWriteError(error: { code?: string; message?: string }): Error {
+  if (error.code === '23505' && error.message?.includes('projects_number_unique')) {
+    return new ProjectNumberTakenError(translate('proj.numberTakenDb'));
+  }
+  return error as Error;
+}
+
 export async function createProject(payload: ProjectInsert): Promise<string> {
   const { data, error } = await supabase
     .from('projects')
     .insert(payload)
     .select('id')
     .single();
-  if (error) throw error;
+  if (error) throw projectWriteError(error);
   return data.id;
 }
 
@@ -118,7 +129,7 @@ export async function updateProject(
   patch: Partial<ProjectInsert>,
 ): Promise<void> {
   const { error } = await supabase.from('projects').update(patch).eq('id', id);
-  if (error) throw error;
+  if (error) throw projectWriteError(error);
 }
 
 export async function deleteProject(id: string): Promise<void> {
