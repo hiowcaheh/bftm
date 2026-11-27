@@ -13,6 +13,7 @@ import { usePublicBranding } from '@/features/auth/hooks';
 import { logoPublicUrl } from '@/features/settings/api';
 import type { ProjectStat } from '../api';
 import { useProjectLastHours, useUpdateProject } from '../hooks';
+import { ProjectNumberRail } from './ProjectNumberRail';
 import { PROJECT_STATUS_TONES, type ProjectWithClient } from '../types';
 
 export function ProjectCard({
@@ -98,8 +99,12 @@ export function ProjectCard({
           />
         )}
         <div className="flex">
-          {/* Kolorowanie karty wg koloru projektu */}
-          <div className="w-1.5 shrink-0" style={{ backgroundColor: color }} />
+          {/* Kolor projektu: z numerem szyna z numerem (B8), bez numeru cienki pasek jak dotąd */}
+          {project.number ? (
+            <ProjectNumberRail number={project.number} color={color} />
+          ) : (
+            <div className="w-1.5 shrink-0" style={{ backgroundColor: color }} />
+          )}
           <div className="relative flex min-w-0 flex-1 flex-col gap-1 p-4">
             <div className="flex items-start justify-between gap-2">
               <h3 className="min-w-0 truncate text-[15px] font-semibold">{project.name}</h3>
